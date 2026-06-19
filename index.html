@@ -250,6 +250,12 @@ input[type=checkbox]{accent-color:var(--scarlet)}
 .regnal{display:flex;gap:.4rem;flex-wrap:wrap;justify-content:center;margin:.8rem 0}
 .regnal button{font-family:var(--disp);font-size:1rem}
 .regnal button.sel{border-color:var(--gold);color:var(--gold)}
+.regnalhint{max-width:520px;margin:.2rem auto .5rem;text-align:center;font-size:.92rem;color:var(--parch-dim);font-style:italic;min-height:2.4em;line-height:1.5}
+.regnalhint b{font-style:normal;font-family:var(--disp);color:var(--gold)}
+.ballotlist{font-family:var(--mono);font-size:.82rem;margin:.5rem auto;max-width:520px}
+.ballotlist .brow{display:flex;justify-content:space-between;gap:1rem;padding:.16rem .1rem;border-bottom:1px dotted var(--line)}
+.ballotlist .bname{color:var(--parch-dim);white-space:nowrap}
+.ballotlist .bvote{color:var(--parch);text-align:right}
 
 /* toast */
 #toast{position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);background:var(--ink3);border:1px solid var(--gold-dim);
@@ -420,6 +426,7 @@ window.onerror=function(m,s,l,c){var w=document.getElementById("jswarn");
   <div id="endsub"></div>
   <div id="endregnal"></div>
   <div class="endbody" id="endbody"></div>
+  <details class="fatesbox" id="endballot"><summary>The final ballot — who voted for whom</summary><div id="ballotbody"></div></details>
   <table class="scoretbl"><tbody id="endscore"></tbody></table>
   <div id="endverdict"></div>
   <div id="endobj"></div>
@@ -997,6 +1004,28 @@ const OFFICE_DISPLACEMENT = {
 
 const REGNAL_NAMES = ["Alexander","Pius","Julius","Leo","Paul","Sixtus","Innocent","Callixtus","Eugene","Nicholas","Gregory","Clement","Adrian","Honorius","Celestine","Urban","Martin","Boniface","Stephen","Victor"];
 const REGNAL_HINT = { borgia:"Alexander", piccolomini:"Pius", giuliano:"Julius", medici:"Leo", carafa:"Paul", zeno:"Paul", costa:"Gregory", sforza:"Sixtus" };
+const REGNAL_FLAVOR = {
+  Alexander:"a prince's papacy — magnificence, dynasty, and the open hand of power.",
+  Pius:"the scholar-crusader — learning, eloquence, and a war against the Turk forever promised.",
+  Julius:"the warrior on Peter's throne — armies, fortresses, the Papal States restored by the sword.",
+  Leo:"splendour and patronage — feasts, artists, and a treasury spent as fast as it fills.",
+  Paul:"the stern reformer — discipline, the Inquisition's temper, and few friends kept.",
+  Sixtus:"the builder and the kinsman — great works in stone, and a family advanced without apology.",
+  Innocent:"a caretaker's name — continuity over ambition, the mantle of the pope just buried.",
+  Callixtus:"the old Borgia crusade — austere, Spanish, the Turk before all else.",
+  Eugene:"the embattled defender of papal authority against councils — exile endured, primacy upheld.",
+  Nicholas:"the humanist of peace — books, the Library, a Rome rebuilt by learning not war.",
+  Gregory:"the great reforming tradition — administration, canon and calendar, the Church set in order.",
+  Clement:"clemency and accommodation — a mild hand, for better or, as some recall, for worse.",
+  Adrian:"the austere outsider — northern reform, plain living, and a court that will resent it.",
+  Honorius:"a legislator's name — canon law and crusade, governance over glamour.",
+  Celestine:"the hermit's name — sanctity over statecraft, and the shadow of the Great Refusal.",
+  Urban:"crusade and confrontation — a combative reign that does not court ease.",
+  Martin:"the healer of schism — unity restored, the See made whole and Roman again.",
+  Boniface:"the high theory of papal supremacy — and its perilous reckoning with kings.",
+  Stephen:"an ancient, early-Church name — a deliberate reach back past the worldly century just passed.",
+  Victor:"a primitive, combative name — orthodoxy asserted, a return to first things."
+};
 
 const DATE_LABELS = ["", "Monday 6 August","Tuesday 7 August","Wednesday 8 August","Thursday 9 August","Friday 10 August","Saturday 11 August","Sunday 12 August","Monday 13 August","Tuesday 14 August","Wednesday 15 August","Thursday 16 August","Friday 17 August"];
 
@@ -2505,7 +2534,17 @@ function closeModal(ov){
 }
 
 /* ---------- event queue ---------- */
-function qEvent(title,body,choices,noClose){S.queue.push({title,body,choices,noClose});}
+function chronicleSnippet(html){
+  const txt=stripHTML(html||"").replace(/\s+/g," ").trim();
+  if(txt.length<=240) return txt;
+  const cut=txt.slice(0,240);
+  const b=Math.max(cut.lastIndexOf(". "),cut.lastIndexOf("! "),cut.lastIndexOf("? "));
+  return b>120?cut.slice(0,b+1):cut.trim()+"…";
+}
+function qEvent(title,body,choices,noClose){
+  S.queue.push({title,body,choices,noClose});
+  try{ log(S,"<b>"+title+".</b> "+chronicleSnippet(body),"event"); }catch(e){}
+}
 function showEvents(){
   if(!S.queue.length){renderAll();return;}
   const e=S.queue.shift();
@@ -3363,6 +3402,30 @@ function npcRegnal(id){
   const pool=byId[id].ideo>=0.6?pious:(byId[id].ideo<=0.3?worldly:mid);
   return pool[Math.floor(S.rng()*pool.length)];
 }
+function renderFinalBallot(){
+  const host=$("#ballotbody"); if(!host) return; host.innerHTML="";
+  if(S.byCompromissum){
+    host.appendChild(h("p",{class:"dim"},"No two-thirds majority was reached. On the twelfth day the election passed by compromissum — three of the most upright electors chose for the whole College:"));
+    const list=h("div",{class:"ballotlist"});
+    (S.committee||[]).forEach(function(id){ list.appendChild(h("div",{class:"brow"},h("span",{class:"bname"},byId[id].short+(id===S.playerId?" (you)":"")),h("span",{class:"bvote",html:"→ "+(S.electedId?byId[S.electedId].short:"—")}))); });
+    host.appendChild(list); return;
+  }
+  const sc=S.scrutinies&&S.scrutinies[S.scrutinies.length-1];
+  if(!sc||!sc.votes){ host.appendChild(h("p",{class:"dim"},"No deciding ballot was recorded — the conclave dissolved without one.")); return; }
+  const acc={}; (sc.accessions||[]).forEach(function(a){acc[a.from]=a.to;});
+  const voters=Object.keys(sc.votes).sort(function(a,b){return IDS.indexOf(a)-IDS.indexOf(b);});
+  const list=h("div",{class:"ballotlist"});
+  voters.forEach(function(v){
+    const picks=sc.votes[v]||[];
+    let line = picks[0]?byId[picks[0]].short:"(a blank ballot)";
+    if(picks.length>1) line += " <span class='dim'>(also "+picks.slice(1).map(function(c){return byId[c].short;}).join(", ")+")</span>";
+    if(acc[v]) line += " <span class='goldtx'>＋ acceded to "+byId[acc[v]].short+"</span>";
+    list.appendChild(h("div",{class:"brow"},h("span",{class:"bname"},byId[v].short+(v===S.playerId?" (you)":"")),h("span",{class:"bvote",html:"→ "+line})));
+  });
+  host.appendChild(list);
+  const fin=Object.entries(sc.final||sc.running||{}).sort(function(a,b){return b[1]-a[1];}).filter(function(e){return e[1]>0;});
+  host.appendChild(h("p",{class:"mono goldtx",style:"margin-top:.6rem;text-align:center"},"Final tally: "+fin.map(function(e){return byId[e[0]].short+" "+rn(e[1]);}).join(" · ")+"  (needed "+rn(sc.threshold||threshold(S))+")"));
+}
 function endGame(){
   S.over=true;
   const E=computeEnding(S);
@@ -3407,19 +3470,27 @@ function endGame(){
   $("#endtitle").textContent=title;
   $("#endsub").textContent=sub;
   $("#endbody").innerHTML=body;
+  renderFinalBallot();
   // regnal picker
   const reg=$("#endregnal");reg.innerHTML="";
   if(isPope){
-    reg.appendChild(h("p",{class:"dim",style:"text-align:center"},"By what name will you be known?"));
+    reg.appendChild(h("p",{class:"dim",style:"text-align:center"},"By what name will you be known? Each carries a precedent — and a prophecy."));
     const row=h("div",{class:"regnal"});
-    const hint=REGNAL_HINT[S.playerId];
+    const hintEl=h("div",{class:"regnalhint"});
+    const histName=REGNAL_HINT[S.playerId];
+    function pick(n,b){
+      row.querySelectorAll("button").forEach(function(x){x.classList.remove("sel");}); b.classList.add("sel");
+      S.regnal=n; $("#endsub").textContent="Long live Pope "+n+" "+(ORDINAL[n]||"");
+      hintEl.innerHTML="<b>"+n+" "+(ORDINAL[n]||"")+"</b> — "+(REGNAL_FLAVOR[n]||"a name without strong recent precedent; you would make it mean what you will.")+(histName===n?" <span class='goldtx'>The name history records you took.</span>":"");
+    }
+    let histBtn=null;
     REGNAL_NAMES.forEach(function(n){
-      const b=h("button",{onclick:function(){row.querySelectorAll("button").forEach(function(x){x.classList.remove("sel");});b.classList.add("sel");
-        S.regnal=n;$("#endsub").textContent="Long live Pope "+n+" "+(ORDINAL[n]||"");}},n+(hint===n?" ✠":""));
-      if(hint===n){b.classList.add("sel");S.regnal=n;$("#endsub").textContent="Long live Pope "+n+" "+(ORDINAL[n]||"");}
+      const b=h("button",{onclick:function(){pick(n,b);}},n+(histName===n?" ✠":""));
       row.appendChild(b);
+      if(histName===n) histBtn=b;
     });
-    reg.appendChild(row);
+    reg.appendChild(row); reg.appendChild(hintEl);
+    if(histBtn) pick(histName,histBtn); else pick(REGNAL_NAMES[0], row.firstChild);
   }
   // private ambition: computed before the score table that displays it
   const ob=OBJECTIVES[S.playerId];
