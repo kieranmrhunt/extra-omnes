@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Extra Omnes — Conclave 1492</title>
+<title>Extra Omnes — Conclave 1492 v4.3</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -65,16 +65,28 @@ header.mast .date{font-family:var(--mono);font-size:.8rem;color:var(--parch-dim)
 .ccard .hook{font-size:.84rem;color:var(--parch-dim);margin-top:.45rem;border-top:1px dashed var(--line);padding-top:.4rem;font-style:italic;display:none}
 .ccard.sel .hook{display:block;color:var(--parch)}
 .stars{color:var(--gold);letter-spacing:.1em}
+.ccard .tier{font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;margin-top:.35rem;color:var(--parch-faint)}
+.ccard .tier.forgiving{color:var(--good)}
+.ccard .tier.active{color:var(--scarlet)}
+.ccard .hook .caution{color:var(--scarlet);font-style:normal;font-size:.82rem}
 .galero-wrap{float:right;margin:-2px -2px 4px 8px}
 .absent-row{margin-top:2rem;border-top:1px solid var(--line);padding-top:1rem;color:var(--parch-faint);font-size:.9rem}
+.absent-options{margin-top:.65rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:.35rem}
+.absent-options label{display:flex;gap:.45rem;align-items:flex-start;border:1px solid var(--line);border-radius:3px;padding:.45rem .55rem;background:rgba(239,227,196,.035);cursor:pointer}
+.absent-options b{color:var(--parch);font-weight:500}
+.absent-options small{display:block;line-height:1.25}
+
 .startbar{position:sticky;bottom:0;background:linear-gradient(transparent,var(--ink) 30%);padding:1.4rem 0 .8rem;text-align:center}
 .startbar button{font-size:1.1rem;padding:.7rem 2.2rem}
 .seedrow{margin-top:.5rem;font-family:var(--mono);font-size:.75rem;color:var(--parch-faint)}
-.seedrow input{background:var(--ink3);border:1px solid var(--line);color:var(--parch);font-family:var(--mono);
-  padding:.2rem .45rem;border-radius:3px;width:9rem;font-size:.75rem}
+.seedrow input,.seedrow select{background:var(--ink3);border:1px solid var(--line);color:var(--parch);font-family:var(--mono);
+  padding:.2rem .45rem;border-radius:3px;font-size:.75rem}
+.seedrow input{width:9rem}
+.seedrow select{max-width:12rem}
 
 /* ---------- game layout ---------- */
 #screen-game{display:grid;grid-template-columns:300px 1fr 330px;gap:0;min-height:calc(100vh - 60px)}
+#screen-game>header.mast{grid-column:1 / -1}
 .col{padding:.9rem;border-right:1px solid var(--line);min-width:0}
 .col:last-child{border-right:none}
 .colhead{font-family:var(--mono);font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold-dim);
@@ -93,9 +105,14 @@ header.mast .date{font-family:var(--mono);font-size:.8rem;color:var(--parch-dim)
 .crow .nm{font-size:.92rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
 .crow .vt{font-family:var(--mono);font-size:.78rem;color:var(--gold);min-width:1.6em;text-align:right}
 .crow .lean{font-size:.66rem;font-family:var(--mono);color:var(--parch-faint)}
-.dotrow{display:flex;gap:3px}
-.dot{width:6px;height:6px;border-radius:50%;background:var(--line)}
-.dot.deal{background:var(--gold)}.dot.pledge{background:var(--good)}.dot.intel{background:#7d9bc4}
+.dotrow{display:flex;gap:4px;align-items:center}
+.dot{width:7px;height:7px;background:var(--line)}
+.dot.deal{background:var(--gold);transform:rotate(45deg)}        /* diamond = he holds your promise */
+.dot.pledge{background:var(--good);border-radius:50%}            /* circle = pledged to you */
+.dot.intel{background:#7d9bc4;border-radius:0}                   /* square = well informed */
+.rosterkey{font-family:var(--mono);font-size:.6rem;color:var(--parch-faint);letter-spacing:.06em;margin-top:.5rem;border-top:1px solid var(--line);padding-top:.4rem;line-height:1.7}
+.rosterkey .k{display:inline-flex;align-items:center;gap:.3rem;margin-right:.7rem}
+.rosterkey .dot{display:inline-block}
 
 /* center: log + actions */
 #log{max-height:52vh;overflow-y:auto;padding-right:.4rem;font-size:.95rem}
@@ -106,6 +123,12 @@ header.mast .date{font-family:var(--mono);font-size:.8rem;color:var(--parch-dim)
 .le.event{border-left-color:var(--fresco);background:rgba(29,39,66,.18);padding:.4rem .7rem;border-radius:0 3px 3px 0}
 .le.holy{border-left-color:#d8d3e8}
 .le b{color:var(--gold)}
+.le .aside{display:block;margin-top:.22rem;font-size:.82em;color:var(--parch-faint);font-style:italic}
+#coach{display:none}
+#coach.show{display:block;margin:.2rem 0 .5rem}
+.coachbox{border:1px solid var(--gold-dim);border-left:3px solid var(--gold);background:rgba(176,141,87,.07);padding:.55rem .7rem;border-radius:2px;font-size:.92rem;line-height:1.5}
+.coachbox .ct{font-family:var(--mono);font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:.35rem}
+.coachbox .coachx{margin-top:.5rem;font-size:.78rem;padding:.25rem .6rem}
 #actionbar{border-top:1px solid var(--line);margin-top:.7rem;padding-top:.7rem}
 .ap-pips{display:inline-flex;gap:5px;margin-left:.6rem;vertical-align:middle}
 .pip{width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 4px rgba(201,161,79,.5)}
@@ -180,6 +203,12 @@ input[type=checkbox]{accent-color:var(--scarlet)}
 .trow.over .marks,.trow.over .ct{color:var(--scarlet);text-shadow:0 0 8px rgba(151,23,34,.6)}
 @keyframes fadein{to{opacity:1}}
 #acczone{margin-top:1rem;width:100%;max-width:560px;min-height:2rem}
+#tallysummary{width:100%;max-width:560px;margin-top:.8rem;font-family:var(--mono);font-size:.74rem}
+#tallysummary table{width:100%;border-collapse:collapse;background:rgba(239,227,196,.035)}
+#tallysummary th,#tallysummary td{padding:.24rem .3rem;border-bottom:1px dotted var(--line);text-align:left}
+#tallysummary th{color:var(--gold-dim);font-weight:500;text-transform:uppercase;letter-spacing:.08em}
+#tallysummary td.n{text-align:right;color:var(--gold)}
+#tallysummary tr.over td{color:var(--scarlet)}
 .accline{font-style:italic;color:var(--parch);opacity:0;animation:fadein .45s forwards;padding:.15rem 0;font-size:.95rem}
 .accline b{color:var(--gold);font-style:normal}
 #cer-controls{position:sticky;bottom:0;z-index:5;margin-top:1.2rem;display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center;width:100%;max-width:560px;padding:1.1rem 0 .8rem;background:linear-gradient(transparent,rgba(13,10,18,.94) 38%)}
@@ -244,6 +273,10 @@ input[type=checkbox]{accent-color:var(--scarlet)}
   #ceremony{padding:1.2rem .7rem 1rem}
   .trow .tn{width:7.2rem;font-size:.9rem}
   .grid-cards{grid-template-columns:1fr 1fr}
+  .rtabs{display:flex;gap:.3rem;margin-bottom:.5rem}
+  #rightcol .rtab-panel{display:none}
+  #rightcol .rtab-panel.active{display:block}
+  #rightcol .rtab-panel .colhead{display:none}
 }
 @media (max-width:560px){
   .grid-cards{grid-template-columns:1fr}
@@ -251,6 +284,9 @@ input[type=checkbox]{accent-color:var(--scarlet)}
 }
 
 .howto{font-size:.85rem;color:var(--parch-dim);border-left:2px solid var(--gold-dim);padding:.35rem .6rem;margin:.2rem 0 .6rem;background:rgba(201,161,79,.06)}
+@media (min-width:1021px){.rtabs{display:none}.rtab-panel{display:block}}
+.rtab{flex:1;font-family:var(--mono);font-size:.74rem;letter-spacing:.06em;padding:.45rem .3rem;border:1px solid var(--line);background:transparent;color:var(--parch-dim);cursor:pointer}
+.rtab.active{color:var(--ink);background:var(--gold);border-color:var(--gold)}
 .manual h4{color:var(--gold);font-family:var(--disp);margin:.8rem 0 .2rem}
 .manual p{font-size:.92rem;margin-bottom:.4rem}
 
@@ -266,6 +302,10 @@ input[type=checkbox]{accent-color:var(--scarlet)}
 .fatesbox .fr b{color:var(--parch)}
 .objbox{border:1px solid var(--gold-dim);border-radius:4px;background:rgba(201,161,79,.07);padding:.7rem 1rem;margin:1rem auto;max-width:560px;font-size:.95rem}
 .objbox .ot{font-family:var(--disp);color:var(--gold)}
+.verdictbox{max-width:480px;margin:.6rem auto 1rem;text-align:center;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:.7rem 1rem;display:flex;flex-direction:column;gap:.15rem}
+.verdictbox .vlabel{font-family:var(--mono);font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold-dim)}
+.verdictbox .vgrade{font-family:var(--disp);font-size:1.6rem;color:var(--gold);letter-spacing:.04em}
+.verdictbox .vline{font-style:italic;color:var(--parch-dim);font-size:.95rem}
 
 </style>
 </head>
@@ -291,13 +331,15 @@ window.onerror=function(m,s,l,c){var w=document.getElementById("jswarn");
     <h1>EXTRA <em>OMNES</em></h1>
     <div class="sub">"Everyone else, out." · The conclave of 1492 · Twenty-three princes, one throne, five days that bought the keys of Heaven.</div>
   </div>
-  <p class="sel-intro">Innocent VIII is dead. The Sistine Chapel is sealed. Outside, Rome murders itself by night; inside, France's gold, Naples' threats and Milan's serpent circle the empty throne. <b>Choose your cardinal</b> — any of the twenty-three who were truly there — and win the tiara, or sell the making of it.</p>
+  <p class="sel-intro">Innocent VIII is dead. The Sistine Chapel is sealed. Outside, Rome murders itself by night; inside, France's gold, Naples' threats and Milan's serpent circle the empty throne. <b>Choose your cardinal</b> — one of the twenty-three who were truly there, or add absent electors for an alternate College — and win the tiara, or sell the making of it.</p>
   <div class="grid-cards" id="selgrid"></div>
   <div class="absent-row" id="absentlist"></div>
   <div class="startbar">
     <button id="startbtn" class="primary" disabled>Choose a cardinal</button>
-    <button id="helpbtn2" style="margin-left:.5rem">How to play</button>
-    <div class="seedrow">seed <input id="seedin" placeholder="(providence)"> — share a seed to share a timeline</div>
+    <button id="briefbtn" style="margin-left:.5rem">New here? Start here</button>
+    <button id="helpbtn2" style="margin-left:.5rem">Full rules</button>
+    <div class="seedrow">seed <input id="seedin" placeholder="(providence)"> · optional electors can be added above</div>
+    <div class="seedrow"><button id="resumebtn" disabled>Resume saved conclave</button></div>
   </div>
 </section>
 
@@ -306,6 +348,7 @@ window.onerror=function(m,s,l,c){var w=document.getElementById("jswarn");
     <span class="crossmark">✠</span><h1>Extra Omnes</h1>
     <button id="helpbtn" title="How the conclave works">?</button>
     <button id="mutebtn" title="bells">🔔</button>
+    <button id="savebtn" title="Seal this conclave for later">✒ Seal</button>
     <div class="date" id="daylabel"></div>
   </header>
   <div style="display:contents">
@@ -315,6 +358,7 @@ window.onerror=function(m,s,l,c){var w=document.getElementById("jswarn");
   </div>
   <div class="col" id="centercol">
     <div class="colhead"><span>The Chapel</span><span id="apwrap"></span></div>
+    <div id="coach"></div>
     <div id="log"></div>
     <div id="actionbar">
       <div class="acts">
@@ -330,15 +374,28 @@ window.onerror=function(m,s,l,c){var w=document.getElementById("jswarn");
     </div>
   </div>
   <div class="col" id="rightcol">
-    <div class="colhead"><span>Your Eminence</span></div>
-    <div class="meter"><div class="lb"><span>Reputation for simony</span><span id="heatval"></span></div><div class="bar"><div class="fill heat" id="heatbar"></div></div></div>
-    <div class="meter"><div class="lb"><span>Integrity</span><span id="intval"></span></div><div class="bar"><div class="fill int" id="intbar"></div></div></div>
-    <div id="cashrow"></div>
-    <button id="crownsbtn" style="width:100%;margin:.2rem 0 .4rem">♕ The Crowns &amp; Their Clients</button>
-    <div class="colhead" style="margin-top:.6rem"><span>The Scrutiny Board</span></div>
-    <div id="board"></div>
-    <div class="colhead" style="margin-top:.8rem"><span>Promises</span></div>
-    <div id="ledger"></div>
+    <div class="rtabs" role="tablist">
+      <button class="rtab active" data-rtab="eminence">Your Eminence</button>
+      <button class="rtab" data-rtab="tally">Tally</button>
+      <button class="rtab" data-rtab="promises">Promises</button>
+    </div>
+    <div class="rtab-panel active" data-panel="eminence">
+      <div class="colhead"><span>Your Eminence</span></div>
+      <div class="meter"><div class="lb"><span>Reputation for simony</span><span id="heatval"></span></div><div class="bar"><div class="fill heat" id="heatbar"></div></div></div>
+      <div class="meter"><div class="lb"><span>Integrity</span><span id="intval"></span></div><div class="bar"><div class="fill int" id="intbar"></div></div></div>
+      <div id="cashrow"></div>
+      <button id="crownsbtn" style="width:100%;margin:.2rem 0 .35rem">♕ The Crowns &amp; Their Clients</button>
+      <button id="agentsbtn" style="width:100%;margin:.15rem 0 .35rem">☉ Household &amp; Messengers</button>
+      <button id="marketbtn" style="width:100%;margin:.15rem 0 .4rem">⚖ The Banchi &amp; Odds</button>
+    </div>
+    <div class="rtab-panel" data-panel="tally">
+      <div class="colhead"><span>The Scrutiny Board</span></div>
+      <div id="board"></div>
+    </div>
+    <div class="rtab-panel" data-panel="promises">
+      <div class="colhead"><span>Promises</span></div>
+      <div id="ledger"></div>
+    </div>
   </div>
   </div>
 </section>
@@ -352,6 +409,7 @@ window.onerror=function(m,s,l,c){var w=document.getElementById("jswarn");
   <div id="tallyzone"></div>
   <div class="threshline" id="cer-thresh"></div>
   <div id="acczone"></div>
+  <div id="tallysummary"></div>
   <div id="smokestage"><div class="chimney"></div></div>
   <div id="cer-controls"></div>
 </div>
@@ -363,6 +421,7 @@ window.onerror=function(m,s,l,c){var w=document.getElementById("jswarn");
   <div id="endregnal"></div>
   <div class="endbody" id="endbody"></div>
   <table class="scoretbl"><tbody id="endscore"></tbody></table>
+  <div id="endverdict"></div>
   <div id="endobj"></div>
   <div id="endprice"></div>
   <div class="achv" id="endach"></div>
@@ -371,6 +430,7 @@ window.onerror=function(m,s,l,c){var w=document.getElementById("jswarn");
   <div class="endbar">
     <button id="again" class="primary">Another conclave</button>
     <button id="replay">Replay this seed</button>
+    <button id="exportlog">Export chronicle</button>
   </div>
   <p style="text-align:center" class="mono dim" id="endseed"></p>
 </section>
@@ -718,11 +778,62 @@ const CARDINALS = [
 CARDINALS.find(c=>c.id==="orsini").title = "S. Maria Nuova";
 
 const ABSENT = [
-  { name:"Luis Juan del Milà y Borja", why:"Borgia's first cousin; retired to Lérida for a quarter-century." },
-  { name:"Pedro González de Mendoza", why:"The 'Great Cardinal of Spain'; has never left Iberia. Naples' secret preference." },
-  { name:"André d'Espinay", why:"Crown cardinal of France; stays at Charles VIII's side." },
-  { name:"Pierre d'Aubusson", why:"Grand Master of the Knights of St John; defending Rhodes from the Turk." }
+  { id:"mila", name:"Luis Juan del Milà y Borja", why:"Borgia's cousin; bishop of Lérida and de facto retired in Valencia." },
+  { id:"mendoza", name:"Pedro González de Mendoza", why:"Archbishop of Toledo, Primate of Spain; had not left Iberia since becoming cardinal." },
+  { id:"despinay", name:"André d'Espinay", why:"Crown cardinal of France; archbishop of Bordeaux and Lyon." },
+  { id:"daubusson", name:"Pierre d'Aubusson", why:"Grand Master of the Knights of St John, occupied with Rhodes and the Turk." }
 ];
+
+const ABSENT_CARDINALS = [
+{ id:"mila", optional:true, name:"Luis Juan del Milà y Borja", short:"del Milà", age:60, nation:"Valencia",
+  italian:false, order:"P", title:"Ss. Quattro Coronati", office:"Archpriest of the Sacred College · Bishop of Lérida",
+  created:"1456, Callixtus III", bloc:"borgia",
+  ideo:0.25, papabile:2, integrity:45, eloquence:3, cunning:3, health:3, ambition:1,
+  cash:9000, income:"The long accumulations of a Borgia kinsman retired in Lérida and Valencia.",
+  traits:["Borgia Kinsman","Retired","Archpriest"],
+  prepared:false, patron:"spain",
+  her:["#7a1f2b","#e8d9b0"],
+  bio:"Cousin of Rodrigo Borgia and nephew of Callixtus III, created in the same great Borgia promotion of 1456. By 1492 he was the absentee Archpriest of the College, bishop of Lérida, and effectively retired from Roman politics. His presence is an alternate-history choice: the family vote that history did not have in the chapel.",
+  hook:"You did not come to Rome in history. If you come now, it is for family and Spain.",
+  assets:[{id:"lerida", label:"Lérida revenues and Valencian family credit", v:2500, kind:"benefice"}]},
+
+{ id:"mendoza", optional:true, name:"Pedro González de Mendoza", short:"Mendoza", age:64, nation:"Castile",
+  italian:false, order:"P", title:"S. Croce in Gerusalemme", office:"Archbishop of Toledo · Primate of Spain · Chancellor of Castile",
+  created:"1473, Sixtus IV", bloc:null,
+  ideo:0.45, papabile:5, integrity:62, eloquence:5, cunning:5, health:3, ambition:3,
+  cash:18000, income:"The revenues of Toledo, Sigüenza, royal favour, and a lifetime near the centre of Castilian power.",
+  traits:["Third King of Spain","Primate","Statesman"],
+  prepared:false, patron:"spain",
+  her:["#8e2323","#c9a14f"],
+  bio:"The Cardinal of Spain: Archbishop of Toledo, Primate, royal counsellor to Ferdinand and Isabella, and so influential that contemporaries called him the third king. He had not left Iberia since his elevation. In Rome he would be formidable — and foreign, royal, and visibly Spanish.",
+  hook:"You are the Catholic Monarchs' greatest churchman. Rome is not Madrid.",
+  assets:[{id:"toledo", label:"Toledo's primatial revenues", v:4500, kind:"benefice"},{id:"castile", label:"Castilian royal favour", v:3500, kind:"favor", fear:"spain"}]},
+
+{ id:"despinay", optional:true, name:"André d'Espinay", short:"d'Espinay", age:41, nation:"France",
+  italian:false, order:"P", title:"Ss. Silvestro e Martino ai Monti", office:"Archbishop of Bordeaux and Lyon",
+  created:"1489, Innocent VIII", bloc:"rovere",
+  ideo:0.35, papabile:2, integrity:50, eloquence:4, cunning:4, health:4, ambition:2,
+  cash:10000, income:"French archiepiscopal revenues and the credit of Charles VIII's court.",
+  traits:["Crown Cardinal","French Court","Canonist"],
+  prepared:false, patron:"france",
+  her:["#1d3a6e","#d8d3e8"],
+  bio:"Archbishop of Bordeaux and Lyon, cardinal at Charles VIII's request, and close to the French court. He stayed beside the king in history. In the chapel, his obvious work would be to stiffen the French interest and keep della Rovere's money from becoming isolated.",
+  hook:"France has a candidate, a bank deposit, and now — if you enter — a direct voice.",
+  assets:[{id:"lyon", label:"Lyon and Bordeaux preferments", v:3000, kind:"benefice"},{id:"courtfr", label:"Access to Charles VIII's court", v:2500, kind:"favor", fear:"france"}]},
+
+{ id:"daubusson", optional:true, name:"Pierre d'Aubusson", short:"d'Aubusson", age:69, nation:"France / Rhodes",
+  italian:false, order:"D", title:"S. Adriano", office:"Grand Master of the Knights Hospitaller",
+  created:"1489, Innocent VIII", bloc:null,
+  ideo:0.82, papabile:4, integrity:88, eloquence:4, cunning:4, health:4, ambition:1,
+  cash:7000, income:"The military-religious resources of Rhodes are not a Roman purse, but every crusading prince knows his name.",
+  traits:["Hospitaller","Rhodes","Crusader"],
+  prepared:false, patron:"none",
+  her:["#111111","#f2ecdc"],
+  bio:"Grand Master of the Order of St John, renowned for the defence of Rhodes against the Ottomans and still occupied with the eastern war. Created cardinal in 1489, he did not come to the conclave. If brought into this alternate College, he is the living argument that the Crusade is not a paragraph in a capitulation but a frontier.",
+  hook:"Rhodes needs a pope. Rome needs reminding that Rhodes exists.",
+  assets:[{id:"rhodes", label:"Hospitaller credit and crusading prestige", v:3200, kind:"favor"}]}
+];
+ABSENT_CARDINALS.forEach(c=>CARDINALS.push(c));
 
 /* Relationship seeds (symmetric deltas, -3..3). The engine builds the full matrix. */
 const REL_PAIRS = [
@@ -748,7 +859,11 @@ const REL_PAIRS = [
   ["giuliano","costa",1], ["giuliano","michiel",1], ["giuliano","cibo",1], ["giuliano","colonna",1],
   ["sforza","sanseverino",2], ["sforza","sclafenati",2],
   ["piccolomini","medici",1],
-  ["pallavicini","cibo",1]             // came up in the Cibo household
+  ["pallavicini","cibo",1],             // came up in the Cibo household
+  ["mila","borgia",2], ["mila","mendoza",1],
+  ["mendoza","borgia",1], ["mendoza","carafa",1],
+  ["despinay","giuliano",2], ["despinay","basso",1], ["despinay","domenico",1],
+  ["daubusson","carafa",1], ["daubusson","costa",1], ["daubusson","piccolomini",1], ["daubusson","fregoso",1]
 ];
 
 /* Candidate-specific structural fears, applied to voters outside the exempt set. */
@@ -762,19 +877,22 @@ const FEARS = {
   borgia:   { v:1.8, exempt:["sforza","sanseverino","sclafenati","orsini","colonna","savelli"],
               why:"A Spaniard, and those children" },
   zeno:     { v:1.3, exempt:["michiel","gherardo"], why:"A pope answering to the Council of Ten" },
-  michiel:  { v:1.2, exempt:["zeno","gherardo"], why:"Thirty years of a Venetian bon vivant" }
+  michiel:  { v:1.2, exempt:["zeno","gherardo"], why:"Thirty years of a Venetian bon vivant" },
+  mendoza: { v:1.4, exempt:["borgia","mila"], why:"The Catholic Monarchs' primate in St Peter's chair" },
+  despinay:{ v:1.9, exempt:["giuliano","basso","domenico"], why:"A French crown-cardinal with Charles VIII behind him" },
+  mila:    { v:1.9, exempt:["borgia","mendoza"], why:"Another Borgia kinsman from Spain" }
 };
 
 /* The crowns. stance: per-candidate pull; grip: per-voter leverage. */
 const POWERS = {
-  france:  { name:"Charles VIII of France", stance:{giuliano:4, borgia:-1},
-             grip:{giuliano:3, basso:1, domenico:1} },
-  naples:  { name:"Ferrante of Naples", stance:{giuliano:2, costa:-2, zeno:1, sforza:-4, borgia:-1},
+  france:  { name:"Charles VIII of France", stance:{giuliano:4, borgia:-1, despinay:2},
+             grip:{giuliano:3, basso:1, domenico:1, despinay:3, daubusson:1} },
+  naples:  { name:"Ferrante of Naples", stance:{giuliano:2, costa:-2, zeno:1, sforza:-4, borgia:-1, mendoza:2},
              grip:{carafa:2, orsini:2, colonna:1, savelli:1, conti:1} },
   milan:   { name:"Ludovico il Moro of Milan", stance:{sforza:4, giuliano:-4},
              grip:{sforza:3, sanseverino:2, sclafenati:2} },
-  spain:   { name:"Ferdinand & Isabella", stance:{borgia:1, carafa:1},
-             grip:{borgia:1, carafa:1} },
+  spain:   { name:"Ferdinand & Isabella", stance:{borgia:1, carafa:1, mendoza:3, mila:1},
+             grip:{borgia:1, carafa:1, mendoza:3, mila:2} },
   venice:  { name:"The Council of Ten", stance:{zeno:2, michiel:2},
              grip:{zeno:2, michiel:2, gherardo:2} },
   florence:{ name:"Piero de' Medici", stance:{carafa:1, giuliano:-1},
@@ -800,23 +918,82 @@ const PAPAL_GIFTS = [
 /* The historical Borgia distribution, used by the AI when Borgia is not the player.
    Source: Pastor V pp. 382–385; Setton p. 434. */
 const BORGIA_PRICES = {
-  sforza:      {label:"the Vice-Chancellorship, the Palazzo Borgia, the castle of Nepi, and the bishopric of Erlau (10,000 ducats a year)", v:14000},
-  orsini:      {label:"Monticelli and Soriano, the legation of the Marches, and the bishopric of Cartagena", v:9000},
-  colonna:     {label:"the abbey of Subiaco with all its fortresses", v:5000},
-  savelli:     {label:"Civita Castellana and the bishopric of Mallorca", v:5000},
-  pallavicini: {label:"the bishopric of Pamplona", v:3500},
-  michiel:     {label:"the suburbicarian see of Porto, vacated by the Vice-Chancellor", v:4500},
-  riario:      {label:"Spanish benefices worth 4,000 ducats and the return of the house in Piazza Navona", v:5000},
-  sanseverino: {label:"the Borgia house in Milan, and confirmation in a better deaconry", v:3500},
-  sclafenati:  {label:"abbacies and benefices", v:3000},
-  domenico:    {label:"abbacies and benefices", v:3000},
-  fregoso:     {label:"money from the Camera, quietly entered as a debt", v:3000},
-  gherardo:    {label:"5,000 ducats, counted out for a man of eighty-six", v:5000},
-  dellaporta:  {label:"the friendship of the next pontificate", v:1200},
-  conti:       {label:"the friendship of the next pontificate", v:1200}
+  sforza:      {label:"the Vice-Chancellorship, the Palazzo Borgia, the castle of Nepi, and the bishopric of Erlau (10,000 ducats a year)", v:14000, hist:"Documented"},
+  orsini:      {label:"Monticelli and Soriano, the legation of the Marches, and the bishopric of Cartagena", v:9000, hist:"Documented"},
+  colonna:     {label:"the abbey of Subiaco with all its fortresses", v:5000, hist:"Documented"},
+  savelli:     {label:"Civita Castellana and the bishopric of Mallorca", v:5000, hist:"Documented"},
+  pallavicini: {label:"the bishopric of Pamplona", v:3500, hist:"Documented"},
+  michiel:     {label:"the suburbicarian see of Porto, vacated by the Vice-Chancellor", v:4500, hist:"Documented"},
+  riario:      {label:"Spanish benefices worth 4,000 ducats and the return of the house in Piazza Navona", v:5000, hist:"Reported"},
+  sanseverino: {label:"the Borgia house in Milan, and confirmation in a better deaconry", v:3500, hist:"Reported"},
+  sclafenati:  {label:"abbacies and benefices", v:3000, hist:"Reported"},
+  domenico:    {label:"abbacies and benefices", v:3000, hist:"Reported"},
+  fregoso:     {label:"money from the Camera, quietly entered as a debt", v:3000, hist:"Reported"},
+  gherardo:    {label:"5,000 ducats, counted out for a man of eighty-six", v:5000, hist:"Reported"},
+  dellaporta:  {label:"the friendship of the next pontificate", v:1200, hist:"Inferred"},
+  conti:       {label:"the friendship of the next pontificate", v:1200, hist:"Inferred"}
 };
 
 const FIRST_SCRUTINY_HISTORY = "Historical first scrutiny, 8 August: Carafa 9 · Borgia 7 · da Costa 7 · Michiel 7 · della Rovere 5 · Sforza 0.";
+
+/* ---------- v4.2: deeper bargaining, servants, offices and letters ---------- */
+const PROMISE_FORMS = {
+  private:   {label:"private word", pull:0.88, heat:0.75, leak:0.10, binding:0.70, note:"deniable, quiet, easiest to break"},
+  witnessed: {label:"witnessed promise", pull:1.05, heat:1.00, leak:0.18, binding:1.00, note:"heard by conclavists; harder to deny"},
+  written:   {label:"written instrument", pull:1.22, heat:1.35, leak:0.30, binding:1.25, note:"strongest private evidence, scandalous if leaked"},
+  public:    {label:"public accession", pull:1.45, heat:0.40, leak:1.00, binding:1.55, note:"irreversible theatre"}
+};
+const CONCLAVIST_CHANNELS = {
+  borgia:{label:"Borgia's Valencian secretary", basis:"Valencian Borgia household", faction:"spain", loyalty:5, discretion:3, literacy:5, greed:4},
+  carafa:{label:"Carafa's Neapolitan clerk", basis:"Neapolitan crown-cardinal household", faction:"naples", loyalty:4, discretion:4, literacy:4, greed:1},
+  giuliano:{label:"della Rovere's French courier", basis:"French-backed candidacy and Avignon administration", faction:"france", loyalty:4, discretion:3, literacy:4, greed:3},
+  zeno:{label:"Zeno's Venetian secretary", basis:"Venetian cardinal-nephew household", faction:"venice", loyalty:3, discretion:5, literacy:4, greed:1},
+  michiel:{label:"Michiel's Venetian steward", basis:"Venetian household", faction:"venice", loyalty:3, discretion:3, literacy:3, greed:3},
+  costa:{label:"da Costa's Portuguese secretary", basis:"Portuguese archiepiscopal household", faction:"portugal", loyalty:4, discretion:4, literacy:5, greed:1},
+  basso:{label:"Basso's Rovere chaplain", basis:"Rovere household", faction:"france", loyalty:4, discretion:3, literacy:3, greed:1},
+  domenico:{label:"Domenico della Rovere's Turin secretary", basis:"Rovere and Turin household channel", faction:"france", loyalty:3, discretion:3, literacy:4, greed:3},
+  fregoso:{label:"Fregoso's Genoese retainer", basis:"Genoese archiepiscopal and ex-doge household", faction:"genoa", loyalty:4, discretion:2, literacy:3, greed:3},
+  conti:{label:"Conti's Roman household clerk", basis:"Roman baronial household", faction:"rome", loyalty:3, discretion:4, literacy:3, greed:1},
+  sclafenati:{label:"Sclafenati's Milanese secretary", basis:"Milanese bishop of Parma and Sforza client", faction:"milan", loyalty:3, discretion:3, literacy:4, greed:4},
+  cibo:{label:"Cibò's chamber clerk", basis:"late pope's nephew and College chamberlain's circle", faction:"cibo", loyalty:3, discretion:4, literacy:3, greed:2},
+  dellaporta:{label:"della Porta's diplomatic secretary", basis:"Innocent VIII's secretary for princes", faction:"milan", loyalty:4, discretion:5, literacy:5, greed:0},
+  pallavicini:{label:"Pallavicini's datary clerk", basis:"Datary of the Holy See", faction:"curia", loyalty:3, discretion:3, literacy:5, greed:3},
+  gherardo:{label:"Gherardo's Venetian chaplain", basis:"Patriarch of Venice; elderly monk's household", faction:"venice", loyalty:5, discretion:2, literacy:3, greed:1},
+  piccolomini:{label:"Piccolomini's Sienese secretary", basis:"Sienese archiepiscopal household", faction:"siena", loyalty:4, discretion:4, literacy:5, greed:1},
+  riario:{label:"Riario's Camerlengo clerk", basis:"Camerlengo's sede-vacante office", faction:"curia", loyalty:3, discretion:5, literacy:5, greed:3},
+  savelli:{label:"Savelli's Roman retainer", basis:"Savelli baronial household", faction:"naples", loyalty:4, discretion:2, literacy:2, greed:4},
+  colonna:{label:"Colonna's Roman retainer", basis:"Colonna baronial household", faction:"naples", loyalty:4, discretion:2, literacy:2, greed:4},
+  orsini:{label:"Orsini's Roman retainer", basis:"Orsini baronial household", faction:"naples", loyalty:4, discretion:3, literacy:3, greed:4},
+  sforza:{label:"Sforza's Milanese secretary", basis:"Milanese princely household", faction:"milan", loyalty:5, discretion:4, literacy:5, greed:4},
+  medici:{label:"Medici bank factor", basis:"Florentine banking and Medici household channel", faction:"florence", loyalty:3, discretion:4, literacy:5, greed:3},
+  sanseverino:{label:"Sanseverino's Milanese retainer", basis:"Sanseverino-Sforza clientage", faction:"milan", loyalty:4, discretion:2, literacy:2, greed:4},
+  mila:{label:"del Milà's Valencian clerk", basis:"Borgia-Milà household and Lérida channel", faction:"spain", loyalty:4, discretion:3, literacy:4, greed:2},
+  mendoza:{label:"Mendoza's Castilian secretary", basis:"Toledo primatial and royal council channel", faction:"spain", loyalty:4, discretion:4, literacy:5, greed:2},
+  despinay:{label:"d'Espinay's French secretary", basis:"Bordeaux-Lyon and royal French channel", faction:"france", loyalty:4, discretion:3, literacy:5, greed:2},
+  daubusson:{label:"Hospitaller chaplain-secretary", basis:"Rhodes and the Order of St John", faction:"rhodes", loyalty:5, discretion:4, literacy:4, greed:0}
+};
+const ROTA_MESSAGES = {
+  france:{title:"French credit", body:"Charles VIII's party asks that della Rovere's friends be held together; the French deposit is real, and so is Italian fear of it.", helps:"giuliano", hurts:"borgia"},
+  naples:{title:"Ferrante's cipher", body:"Ferrante's agents press Naples' security: first against della Rovere, then — after the volte-face — against any settlement that strengthens Milan.", helps:"carafa", hurts:"sforza"},
+  milan:{title:"Il Moro's whisper", body:"Milan asks that Ascanio's honour and price be protected; no Sforza voice should help a French pope.", helps:"sforza", hurts:"giuliano"},
+  spain:{title:"The Catholic Monarchs' concern", body:"Spanish channels ask that Borgia and other Iberian interests not be humiliated while the Turk and Granada still shape every calculation.", helps:"borgia", hurts:"giuliano"},
+  venice:{title:"The Council of Ten", body:"Venice's letter and clients put weight behind its cardinals and the late admission of Gherardo; the Council wants eyes inside the chapel.", helps:"zeno", hurts:"borgia"},
+  florence:{title:"Florentine caution", body:"Piero de' Medici's interest is survival: no French thunderbolt, no baronial war, no pope hostile to Florence.", helps:"carafa", hurts:"giuliano"},
+  portugal:{title:"Portuguese distance", body:"João II has old quarrels with da Costa; a Portuguese crown-cardinal is not the same thing as a royal favourite.", helps:"costa", hurts:"costa"},
+  empire:{title:"Imperial decorum", body:"Maximilian's interest is order and a pope who will not sell Italy outright to one crown.", helps:"piccolomini", hurts:"borgia"}
+};
+const CAPITULATION_CLAUSES = {
+  cardinals:{label:"Restrict creation of new cardinals", secure:true, reform:0.7, worldly:-0.2},
+  reform:{label:"Renew reform language", secure:false, reform:0.6, worldly:-0.1},
+  crusade:{label:"Commit to the war against the Turk", secure:false, reform:0.4, worldly:0.1},
+  college:{label:"Consult the College in grave matters", secure:false, reform:0.5, worldly:0.0},
+  castles:{label:"No alienation of papal castles without counsel", secure:false, reform:0.3, worldly:-0.1}
+};
+const OFFICE_DISPLACEMENT = {
+  vc:{holder:"borgia", note:"the Vice-Chancellorship is Borgia's office until a new pope strips it"},
+  leg_avignon:{holder:"giuliano", note:"Avignon is bound to della Rovere's French interest"}
+};
+
 
 const REGNAL_NAMES = ["Alexander","Pius","Julius","Leo","Paul","Sixtus","Innocent","Callixtus","Eugene","Nicholas","Gregory","Clement","Adrian","Honorius","Celestine","Urban","Martin","Boniface","Stephen","Victor"];
 const REGNAL_HINT = { borgia:"Alexander", piccolomini:"Pius", giuliano:"Julius", medici:"Leo", carafa:"Paul", zeno:"Paul", costa:"Gregory", sforza:"Sixtus" };
@@ -824,34 +1001,54 @@ const REGNAL_HINT = { borgia:"Alexander", piccolomini:"Pius", giuliano:"Julius",
 const DATE_LABELS = ["", "Monday 6 August","Tuesday 7 August","Wednesday 8 August","Thursday 9 August","Friday 10 August","Saturday 11 August","Sunday 12 August","Monday 13 August","Tuesday 14 August","Wednesday 15 August","Thursday 16 August","Friday 17 August"];
 
 
-/* ---------- v3: private ambitions (evaluated at game end; display layer only) ---------- */
+/* ---------- v4: private ambitions for all twenty-three electors ---------- */
 const OBJECTIVES = {
-  borgia:      { title:"Thirty-Six Years", desc:"You have waited longer than any man alive. Be elected by the end of the eighth day — before hunger, scandal, or God intervenes.", score:50,
-    check:function(S){ var d=(S.electedId===S.playerId && S.day<=8); return {done:d, line:d?"The waiting ended in time.":"The wait went on too long — or forever."}; } },
-  giuliano:    { title:"Never the Spaniard", desc:"Whatever else befalls, Rodrigo Borgia must not wear the tiara. Anyone else is survivable.", score:60,
-    check:function(S){ var d=(S.electedId!=="borgia"); return {done:d, line:d?"The Spaniard was denied.":"The Spaniard has the keys. Ostia, then France."}; } },
-  carafa:      { title:"No Simoniac Tiara", desc:"Let the next pope — whoever he is, even you — come to the throne with clean hands.", score:70,
-    check:function(S){ var w=S.electedId; if(!w) return {done:false,line:"No pope at all — the question went unanswered."};
-      var d=(w===S.playerId)? S.heat<25 : ((S.npcHeat&&S.npcHeat[w])||0)<10;
-      return {done:d, line:d?"The tiara was not bought.":"The keys were sold, and you watched it done."}; } },
-  sforza:      { title:"The Second Man", desc:"You cannot be pope this week. Very well: end this conclave holding the next pope's promise in writing.", score:60,
-    check:function(S){ var w=S.electedId; var d=!!(w&&w!==S.playerId&&S.cards[S.playerId].promisesFrom[w]); return {done:d, line:d?"The pontificate owes you, on paper.":"You delivered nothing, and are owed the same."}; } },
-  medici:      { title:"Florence's Friend", desc:"You are sixteen, and Florence is suddenly fatherless. Whoever is elected must leave this chapel your friend.", score:50,
-    check:function(S){ var w=S.electedId; var d=(w===S.playerId)||(!!w&&S.R[w]&&S.R[w][S.playerId]>=1); return {done:d, line:d?"The new pope smiles on Florence.":"The new pope owes Florence nothing — dangerous arithmetic."}; } },
-  dellaporta:  { title:"Nolo Episcopari", desc:"You never wanted advancement and do not want this. Be seriously considered — five voices or more across the conclave — and escape unelected.", score:80,
-    check:function(S){ var d=(S.electedId!==S.playerId)&&((S.myVotesTotal||0)>=5); return {done:d, line:d?"They reached for you, and you slipped the net.":(S.electedId===S.playerId?"They caught you.":"You were never in danger — which is its own small insult.")}; } },
-  gherardo:    { title:"One Last Dawn", desc:"You are eighty-six and half the chapel expects to bury you mid-scrutiny. Simply be present, alive and inside, when it ends.", score:40,
-    check:function(S){ var d=!S.cards[S.playerId].out; return {done:d, line:d?"You saw the smoke with your own eyes.":"Carried out before the end."}; } },
-  piccolomini: { title:"The Unstained", desc:"Whatever is bought and sold around you, end this conclave with your integrity above 88 and barely a whisper of simony to your name.", score:50,
-    check:function(S){ var d=(S.integrity>=88&&S.heat<15); return {done:d, line:d?"Not one ledger bears your name.":"Even you were touched by the week."}; } },
-  zeno:        { title:"The Miser's Triumph", desc:"Everyone knows your hoard; everyone wants it spent. End the conclave inside, alive, and not one ducat poorer.", score:40,
-    check:function(S){ var d=(S.cash>=16000&&!S.cards[S.playerId].out); return {done:d, line:d?"The hoard is intact. Venice will approve.":"The week cost you money, which is to say everything."}; } },
-  colonna:     { title:"Spite the Bear", desc:"The Orsini must get nothing from this conclave: let the new pope owe Battista Orsini not one benefice.", score:50,
-    check:function(S){ var w=S.electedId; var d=!!w&&!((S.cards.orsini.promisesFrom||{})[w]); return {done:d, line:d?"The Bear leaves empty-handed.":"Orsini holds the pope's promise. Insufferable."}; } },
-  orsini:      { title:"Spite the Column", desc:"The Colonna must get nothing from this conclave: let the new pope owe Giovanni Colonna not one benefice.", score:50,
-    check:function(S){ var w=S.electedId; var d=!!w&&!((S.cards.colonna.promisesFrom||{})[w]); return {done:d, line:d?"The Column leaves empty-handed.":"Colonna holds the pope's promise. Insufferable."}; } },
-  riario:      { title:"The Camerlengo's Books", desc:"You hold the Church's purse through the sede vacante. End no poorer than you began, with your name unburnt — below 40 on every simony ledger.", score:50,
-    check:function(S){ var d=(S.cash>=CARDINALS.find(function(c){return c.id===S.playerId;}).cash&&S.heat<40); return {done:d, line:d?"The accounts balance; the auditors bow.":"The books, or your name, took damage."}; } }
+  borgia:{title:"Thirty-Six Years", desc:"You have waited longer than any man alive. Be elected by the end of the eighth day — before hunger, scandal, or God intervenes.", score:50,
+    check:function(S){var d=(S.electedId===S.playerId&&S.day<=8);return {done:d,line:d?"The waiting ended in time.":"The wait went on too long — or forever."};}},
+  carafa:{title:"No Simoniac Tiara", desc:"The bankers favour you because you are credible. Let the next pope — even you — come to the throne without an obvious purchase-ledger.", score:70,
+    check:function(S){var w=S.electedId;if(!w)return {done:false,line:"No pope at all — the question went unanswered."};var d=(w===S.playerId)?S.heat<25:((S.npcHeat&&S.npcHeat[w])||0)<10;return {done:d,line:d?"The tiara was not visibly bought.":"The keys were sold, and you watched it done."};}},
+  giuliano:{title:"Never the Spaniard", desc:"Whatever else befalls, Rodrigo Borgia must not wear the tiara. Anyone else is survivable.", score:60,
+    check:function(S){var d=(S.electedId!=="borgia");return {done:d,line:d?"The Spaniard was denied.":"The Spaniard has the keys. Ostia, then France."};}},
+  zeno:{title:"The Miser's Triumph", desc:"Everyone knows your hoard; everyone wants it spent. End the conclave inside, alive, and not one ducat poorer.", score:40,
+    check:function(S){var d=(S.cash>=16000&&!S.cards[S.playerId].out);return {done:d,line:d?"The hoard is intact. Venice will approve.":"The week cost you money, which is to say everything."};}},
+  michiel:{title:"Venetian Continuity", desc:"Venice has two rich nephews of Paul II and one holy patriarch inside. Ensure the winner is Venetian, favours Venice, or owes you personally.", score:45,
+    check:function(S){var w=S.electedId;var ven=w&&byId[w].patron==="venice";var owed=w&&S.cards[S.playerId].promisesFrom[w];var d=!!(ven||owed||w===S.playerId);return {done:d,line:d?"Venice is not shut out of the new reign.":"The lagoon has no hand on the new pope."};}},
+  costa:{title:"The Ancient Statesman", desc:"They say no man in his ninth decade can be pope. Prove them at least half-wrong: take seven voices across the week, or leave as kingmaker to an upright pope.", score:55,
+    check:function(S){var w=S.electedId;var upright=w&&byId[w].integrity>=70;var d=((S.myVotesTotal||0)>=7)||(w!==S.playerId&&upright&&S.cards[S.playerId].promisesFrom[w]);return {done:d,line:d?"Age became authority, not irrelevance.":"They bowed to your years and then ignored them."};}},
+  basso:{title:"The Uncle's Shadow", desc:"Your family's storm is Giuliano. Keep faith with him: Borgia must not triumph unless Giuliano himself has been made powerless.", score:45,
+    check:function(S){var d=S.electedId!=="borgia"||S.cards.giuliano.out||(S.lastFinal.giuliano||0)<2;return {done:d,line:d?"You did not abandon the Rovere line while it lived.":"Borgia reigns, and the shadow did not protect the man."};}},
+  domenico:{title:"Rovere Roof", desc:"You stripped your palace because candidacy was at least thinkable. Leave with the Rovere interest preserved: a non-Borgia pope, or a written promise to your house.", score:45,
+    check:function(S){var w=S.electedId;var owed=w&&(S.cards.domenico.promisesFrom[w]||S.cards.giuliano.promisesFrom[w]);var d=!!(w&&w!=="borgia"||owed);return {done:d,line:d?"The Rovere roof still stands.":"The Borgia rain comes through every tile."};}},
+  fregoso:{title:"Genoa Against Milan", desc:"Milan drove you from Genoa. Deny Sforza the profit of this conclave, or make the winner owe you enough to matter.", score:55,
+    check:function(S){var w=S.electedId;var sforzaPaid=w&&S.cards.sforza.promisesFrom[w];var owed=w&&S.cards.fregoso.promisesFrom[w];var d=!!(owed||!sforzaPaid);return {done:d,line:d?"Milan did not leave as sole paymaster of your future.":"Sforza profits again while Genoa waits."};}},
+  conti:{title:"Old Rome, Clean Hands", desc:"Ancient Roman blood is not a licence to sell the altar. Keep your own name clean and prevent both baronial houses from holding the new pope in debt.", score:50,
+    check:function(S){var w=S.electedId;var both=w&&S.cards.orsini.promisesFrom[w]&&S.cards.colonna.promisesFrom[w];var d=(S.integrity>=65&&S.heat<25&&!both);return {done:d,line:d?"Old Rome kept one clean ledger.":"The barons, or the gold, swallowed the week."};}},
+  sclafenati:{title:"Milanese Comfort", desc:"Your pleasures are worldly and your line is Milanese. End with Ascanio's chosen paymaster elected, or with the winner owing Milan.", score:45,
+    check:function(S){var w=S.electedId;var d=!!(w&&(w===S.milanBacks||S.cards.sforza.promisesFrom[w]||S.cards.sclafenati.promisesFrom[w]));return {done:d,line:d?"Milan eats well after the smoke.":"The Milanese table is cleared by others."};}},
+  cibo:{title:"The Late Pope's Nephew", desc:"Nobody crowns a pope's nephew immediately. Preserve the Cibò settlement: leave unelected, solvent, and not in the winner's disfavour.", score:45,
+    check:function(S){var w=S.electedId;var d=(w!==S.playerId&&S.cash>=byId.cibo.cash-1000&&(!w||S.R[w][S.playerId]>=-0.5));return {done:d,line:d?"The late pope's nephew survives the change of weather.":"Your uncle's shelter is gone."};}},
+  dellaporta:{title:"Nolo Episcopari", desc:"You never wanted advancement and do not want this. Be seriously considered — five voices or more across the conclave — and escape unelected.", score:80,
+    check:function(S){var d=(S.electedId!==S.playerId)&&((S.myVotesTotal||0)>=5);return {done:d,line:d?"They reached for you, and you slipped the net.":(S.electedId===S.playerId?"They caught you.":"You were never in danger — which is its own small insult.")};}},
+  pallavicini:{title:"The Datary's Hand", desc:"You handle graces and dispensations. Make that competence indispensable: finish with a promise from the winner or with your own clean election.", score:45,
+    check:function(S){var w=S.electedId;var d=!!(w===S.playerId||(w&&S.cards.pallavicini.promisesFrom[w]));return {done:d,line:d?"The new reign needs your pen.":"The datary's hand is not on the new settlement."};}},
+  gherardo:{title:"One Last Dawn", desc:"You are eighty-six and half the chapel expects to bury you mid-scrutiny. Simply be present, alive and inside, when it ends.", score:40,
+    check:function(S){var d=!S.cards[S.playerId].out;return {done:d,line:d?"You saw the smoke with your own eyes.":"Carried out before the end."};}},
+  piccolomini:{title:"The Unstained", desc:"Whatever is bought and sold around you, end this conclave with your integrity above 88 and barely a whisper of simony to your name.", score:50,
+    check:function(S){var d=(S.integrity>=88&&S.heat<15);return {done:d,line:d?"Not one ledger bears your name.":"Even you were touched by the week."};}},
+  riario:{title:"The Camerlengo's Books", desc:"You hold the Church's purse through the sede vacante. End no poorer than you began, with your name unburnt — below 40 on every simony ledger.", score:50,
+    check:function(S){var d=(S.cash>=byId.riario.cash&&S.heat<40);return {done:d,line:d?"The accounts balance; the auditors bow.":"The books, or your name, took damage."};}},
+  savelli:{title:"The Last Throw", desc:"You emptied your palace and you are seventy. Secure either the winner's promise or Colonna's satisfaction against the Orsini.", score:50,
+    check:function(S){var w=S.electedId;var owed=w&&S.cards.savelli.promisesFrom[w];var d=!!(owed||(w&&!(S.cards.orsini.promisesFrom[w])));return {done:d,line:d?"The old throw was not wasted.":"The Bear laughs, and your carts were for nothing."};}},
+  colonna:{title:"Spite the Bear", desc:"The Orsini must get nothing from this conclave: let the new pope owe Battista Orsini not one benefice.", score:50,
+    check:function(S){var w=S.electedId;var d=!!w&&!((S.cards.orsini.promisesFrom||{})[w]);return {done:d,line:d?"The Bear leaves empty-handed.":"Orsini holds the pope's promise. Insufferable."};}},
+  orsini:{title:"Spite the Column", desc:"The Colonna must get nothing from this conclave: let the new pope owe Giovanni Colonna not one benefice.", score:50,
+    check:function(S){var w=S.electedId;var d=!!w&&!((S.cards.colonna.promisesFrom||{})[w]);return {done:d,line:d?"The Column leaves empty-handed.":"Colonna holds the pope's promise. Insufferable."};}},
+  sforza:{title:"The Second Man", desc:"You cannot be pope this week. Very well: end this conclave holding the next pope's promise in writing.", score:60,
+    check:function(S){var w=S.electedId;var pr=w&&S.cards[S.playerId].promisesFrom[w];var d=!!(w&&w!==S.playerId&&pr&&(pr.form==="written"||pr.form==="witnessed"||pr.v>=8000));return {done:d,line:d?"The pontificate owes you, in a form men must respect.":"You delivered nothing binding, and are owed the same."};}},
+  medici:{title:"Florence's Friend", desc:"You are sixteen, and Florence is suddenly fatherless. Whoever is elected must leave this chapel your friend.", score:50,
+    check:function(S){var w=S.electedId;var d=(w===S.playerId)||(!!w&&S.R[w]&&S.R[w][S.playerId]>=1);return {done:d,line:d?"The new pope smiles on Florence.":"The new pope owes Florence nothing — dangerous arithmetic."};}},
+  sanseverino:{title:"Confirm the Hat", desc:"Your publication was doubtful and recent. Leave with Sforza's bargain honoured, or with the winner personally owing you confirmation and better provision.", score:50,
+    check:function(S){var w=S.electedId;var d=!!(w&&(S.cards.sanseverino.promisesFrom[w]||S.cards.sforza.promisesFrom[w]||w===S.milanBacks));return {done:d,line:d?"The hat sits more firmly on your young head.":"The next pope may remember how doubtful your standing was."};}}
 };
 
 /* ---------- v3: what actually became of them ---------- */
@@ -878,94 +1075,46 @@ const FATES = {
   sclafenati:"kept his comforts and his see; died in 1497.",
   sanseverino:"had his doubtful hat confirmed by a grateful Alexander; lived loudly until 1516.",
   gherardo:"the deciding vote outlived his decision by one month, dying in September 1492.",
-  dellaporta:"made his escape brief: he died in 1493, never having wanted any of it."
+  dellaporta:"made his escape brief: he died in 1493, never having wanted any of it.",
+  mila:"remained away from Rome and lived out his long retirement in Valencia, dying at Bélgida in 1510.",
+  mendoza:"returned to Castile's centre of power and died at Guadalajara in January 1495, still remembered as the Catholic Monarchs' 'third king'.",
+  despinay:"served Charles VIII and later accompanied the French campaigns in Italy; he died in Paris in 1500.",
+  daubusson:"remained Grand Master at Rhodes, a celebrated enemy of the Ottomans, and died there in 1503."
 };
-if (typeof module !== "undefined") module.exports = { CARDINALS, ABSENT, OBJECTIVES, FATES, REL_PAIRS, FEARS, POWERS, PAPAL_GIFTS, BORGIA_PRICES, REGNAL_NAMES, REGNAL_HINT, DATE_LABELS, ORDERS, FIRST_SCRUTINY_HISTORY };
+if (typeof module !== "undefined") module.exports = { CARDINALS, ABSENT, OBJECTIVES, FATES, REL_PAIRS, FEARS, POWERS, PAPAL_GIFTS, BORGIA_PRICES, REGNAL_NAMES, REGNAL_HINT, DATE_LABELS, ORDERS, FIRST_SCRUTINY_HISTORY, ABSENT_CARDINALS, PROMISE_FORMS, CONCLAVIST_CHANNELS, ROTA_MESSAGES, CAPITULATION_CLAUSES, OFFICE_DISPLACEMENT };
 
 /* =========================================================================
    CONCLAVE 1492 — ENGINE (pure logic; no DOM)
    ========================================================================= */
 "use strict";
-/* ---------- v3 player-facing systems (never used by NPC simulation) ---------- */
-function actSwearOath(S){
-  if(S.oathSworn) return {ok:false,msg:"You have sworn already; twice would be theatre."};
-  if(!spendAP(S)) return {ok:false,msg:"No time remains today."};
-  S.oathSworn=true;
-  const cred=clamp(1 - S.heat/60, 0.15, 1);
-  const warmed=[];
-  for(const t of present(S)){
-    if(t===S.playerId) continue;
-    if(byId[t].ideo>=0.55){
-      const d=(0.5+0.9*byId[t].ideo)*cred;
-      S.R[t][S.playerId]+=d;
-      if(d>=0.6) warmed.push(t);
-    }
-  }
-  S.papBoost[S.playerId]=(S.papBoost[S.playerId]||0)+0.35*cred;
-  return {ok:true, cred, warmed};
-}
-function ballotSignals(S, picks){
-  const out=[];
-  S.ballotHistory=S.ballotHistory||[];
-  const prev=S.ballotHistory[S.ballotHistory.length-1]||[];
-  const tally=S.lastTally||{};
-  if(!picks||!picks.length){ S.ballotHistory.push([]); out.push({type:"blank"}); return out; }
-  const leadEntry=Object.entries(tally).sort(function(a,b){return b[1]-a[1];})[0];
-  const lead=(leadEntry&&leadEntry[1]>=5)?leadEntry[0]:null;
-  for(const c of picks){
-    if(c!==S.playerId && prev.indexOf(c)>=0 && (tally[c]||0)>=3) out.push({type:"constancy", id:c});
-    else if(byId[c].age>=75 && (tally[c]||0)<3) out.push({type:"courtesy", id:c});
-    else if((tally[c]||0)<2 && byId[c].age<75 && c!==lead) out.push({type:"eyebrow", id:c});
-  }
-  if(lead && lead!==S.playerId && prev.indexOf(lead)>=0 && picks.indexOf(lead)<0) out.push({type:"dropped", id:lead});
-  S.ballotHistory.push(picks.slice());
-  return out;
-}
-function crownsView(S){
-  const rows=[];
-  for(const p in POWERS){
-    if(p==="none") continue;
-    const P=POWERS[p];
-    const smiles=[],frowns=[];
-    for(const c in P.stance){
-      let v=P.stance[c];
-      if(p==="naples"&&c==="giuliano"&&S.day>=4) v=0;
-      if(v>0) smiles.push({id:c,v}); else if(v<0) frowns.push({id:c,v});
-    }
-    smiles.sort(function(a,b){return b.v-a.v;}); frowns.sort(function(a,b){return a.v-b.v;});
-    rows.push({key:p, name:P.name, smiles:smiles, frowns:frowns,
-      grip:Object.keys(P.grip).filter(function(id){return !S.cards[id]||!S.cards[id].out;}),
-      courtedYou:!!S.courted[p+":"+S.playerId],
-      flipped:(p==="naples"&&S.day>=4)});
-  }
-  return rows;
-}
-function scareCandidate(S){
-  const t=S.lastTally||{};
-  const ids=Object.entries(t).sort(function(a,b){return b[1]-a[1];}).map(function(e){return e[0];});
-  for(const id of ids){
-    if(id!==S.playerId && !S.cards[id].out && !S.cards[id].ill && byId[id].age>=55 && (t[id]||0)>=5) return id;
-  }
-  return null;
-}
-
 if (typeof module !== "undefined") {
   const D = require("./data.js");
   for (const k in D) globalThis[k] = D[k];
 }
 
 /* ---------- seeded RNG ---------- */
-function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function mulberry32(a){
+  let state=a>>>0;
+  const r=function(){
+    state|=0; state=state+0x6D2B79F5|0; r.state=state>>>0;
+    let t=Math.imul(state^state>>>15,1|state); t=t+Math.imul(t^t>>>7,61|t)^t;
+    return ((t^t>>>14)>>>0)/4294967296;
+  };
+  r.state=state>>>0;
+  return r;
+}
 function hashSeed(s){let h=1779033703;const str=String(s);for(let i=0;i<str.length;i++){h=Math.imul(h^str.charCodeAt(i),3432918353);h=h<<13|h>>>19;}return h>>>0;}
 
 const byId = {}; CARDINALS.forEach(c=>byId[c.id]=c);
 const IDS = CARDINALS.map(c=>c.id);
 
 /* ---------- state ---------- */
-function initState(playerId, seed){
+function initState(playerId, seed, mode, extraElectors){
   const rng = mulberry32(hashSeed(seed));
+  const extras = new Set(extraElectors || []);
+  if(playerId && byId[playerId] && byId[playerId].optional) extras.add(playerId);
   const S = {
-    seed:String(seed), rng, playerId: playerId||null,
+    seed:String(seed), rng, rngState:rng.state, extraElectors:Array.from(extras), initialElectors:IDS.filter(id=>!byId[id].optional || extras.has(id)), playerId: playerId||null,
     day:1, phase:"day", ap:2, nightUsed:false,
     over:false, ending:null, electedId:null, regnal:null,
     cash: playerId? byId[playerId].cash : 0,
@@ -975,15 +1124,15 @@ function initState(playerId, seed){
     sforzaPivoted:false, borgiaProgramNight:0, denounced:false, accused:false,
     assetsLeft: playerId? byId[playerId].assets.map(a=>({...a})) : [],
     giftsLeft: PAPAL_GIFTS.map(g=>({...g})),
-    promisesMade:[], lettersSent:[],
+    promisesMade:[], lettersSent:[], officeDebts:[], marketMoves:[], debt:0,
     capitulationSigned:null, palaceStripped: playerId? !!byId[playerId].prepared : false,
     queue:[], log:[],
     scrutinies:[], lastFinal:{}, lastTally:{}, pendingScrutiny:null,
-    deliveredVotes:{}, votedFor:[], accededTo:[],
+    deliveredVotes:{}, votedFor:[], votedBallots:[], accededTo:[],
     votesReceivedTotal:0, accessionsToPlayer:0, dealsClosed:0, intelGained:0,
     flags:{},
     cards:{}, R:{}, papBoost:{}, addressedThemes:[],
-    courted:{},
+    courted:{}, agents:{}, agentOrder:"quiet", marketHeat:0, capitulationClauses:[],
   };
   // relationship matrix
   IDS.forEach(a=>{ S.R[a]={}; IDS.forEach(b=>{ S.R[a][b]= a===b?0 : (S.rng()*0.8-0.4); }); });
@@ -991,13 +1140,17 @@ function initState(playerId, seed){
   // bloc cohesion
   IDS.forEach(a=>IDS.forEach(b=>{ if(a!==b && byId[a].bloc && byId[a].bloc===byId[b].bloc){ S.R[a][b]+=1.2; }}));
   // per-cardinal dynamic state
-  IDS.forEach(id=>{ S.cards[id]={ ill:false, illDays:0, out:false,
+  IDS.forEach(id=>{ S.cards[id]={ ill:false, illDays:0, out:(byId[id].optional && !extras.has(id)),
     promisesFrom:{},        // brokerId -> {v, label, cash}
-    pledgedTo:null, pledgeStrength:0,
+    pledgedTo:null, pledgeStrength:0, fatigue:0, morale:0,
     directive:null,         // bloc instruction
     intel: id===playerId?3:(playerId==="riario"?1:0),
     lastVote:null, accession:null, publicLean:null };});
   if(playerId) S.cards[playerId].intel=3;
+  IDS.forEach(function(id){
+    const base=CONCLAVIST_CHANNELS[id]||{label:"unnamed conclavist", basis:"ordinary household channel", faction:byId[id].patron||"none", loyalty:3, discretion:3, literacy:3, greed:2};
+    S.agents[id]={label:base.label, basis:base.basis, faction:base.faction, loyalty:base.loyalty, discretion:base.discretion, literacy:base.literacy, greed:base.greed, compromised:false, favours:0};
+  });
   S.scruple={}; IDS.forEach(id=>{ S.scruple[id]=S.rng(); });
   return S;
 }
@@ -1013,6 +1166,145 @@ function getStance(S,p,c){
   if(p==="milan" && S.milanBacks){ if(c===S.milanBacks) return 4; if(c==="giuliano") return -4; return 0; }
   if(p==="naples" && c==="giuliano" && S.day>=4) return 0;   // Ferrante's cipher letter: the volte-face
   return (POWERS[p].stance[c]||0) + (S.courted[p+":"+c]||0);
+}
+
+function promiseForm(form){ return PROMISE_FORMS[form] || PROMISE_FORMS.private; }
+function agentOf(S,id){ return (S.agents&&S.agents[id]) || CONCLAVIST_CHANNELS[id] || {label:"household messenger", loyalty:3, discretion:3, literacy:3, greed:2, faction:"none", basis:"ordinary household channel"}; }
+function agentOrderRisk(S, actor, base){
+  if(actor!==S.playerId) return 0;
+  const order=S.agentOrder||"quiet";
+  if(order==="quiet") return -0.02;
+  if(order==="spy") return (base>=0.12&&base<=0.19)?-0.05:0.015;
+  if(order==="letters") return (base<=0.10||base>=0.19)?-0.04:0.01;
+  if(order==="bargains") return base<=0.05?-0.04:0.015;
+  return 0;
+}
+function agentOrderLabel(order){
+  return {quiet:"Quiet service", spy:"Ears open", letters:"Letter-carriers ready", bargains:"Palms greased"}[order||"quiet"]||"Quiet service";
+}
+function setAgentOrder(S, order){
+  S.agentOrder=order||"quiet";
+  if(order==="bargains"&&S.cash>=100){ S.cash-=100; agentOf(S,S.playerId).favours=(agentOf(S,S.playerId).favours||0)+1; S.heat+=1; }
+  return {ok:true, order:S.agentOrder};
+}
+function channelRisk(S, actor, target, base){
+  const a=agentOf(S,actor), t=agentOf(S,target||actor);
+  const skill=(a.discretion||3)+(a.loyalty||3)*0.45+(a.literacy||3)*0.15+(a.favours||0)*0.18;
+  const counter=(t.discretion||3)*0.35+(byId[target||actor]?byId[target||actor].cunning:3)*0.25;
+  return clamp(base + counter*0.025 - skill*0.025 + (a.compromised?0.06:0) + agentOrderRisk(S,actor,base), 0.02, 0.45);
+}
+function registerOfficeDebt(S, broker, target, label, v, forWhom, form, hist){
+  S.officeDebts=S.officeDebts||[];
+  const debt={broker, target, label, v:v||0, forWhom:forWhom||broker, form:form||"private", hist:hist||"In-game promise", day:S.day};
+  S.officeDebts.push(debt);
+  return debt;
+}
+function debtConflicts(S, items, target){
+  const out=[];
+  (items||[]).forEach(function(it){
+    if(it.unique && OFFICE_DISPLACEMENT[it.id] && OFFICE_DISPLACEMENT[it.id].holder!==target && !S.cards[OFFICE_DISPLACEMENT[it.id].holder].out){
+      out.push({item:it, holder:OFFICE_DISPLACEMENT[it.id].holder, note:OFFICE_DISPLACEMENT[it.id].note});
+    }
+  });
+  return out;
+}
+function fatigueName(x){ if(x>=4) return "spent"; if(x>=2.5) return "weary"; if(x>=1.2) return "tired"; return "fresh"; }
+function addFatigue(S,id,amt){ if(S.cards[id]) S.cards[id].fatigue=clamp((S.cards[id].fatigue||0)+amt,0,6); }
+function reduceFatigue(S,id,amt){ if(S.cards[id]) S.cards[id].fatigue=clamp((S.cards[id].fatigue||0)-amt,0,6); }
+function marketOdds(S){
+  const raw=present(S).map(function(id){
+    const tally=S.lastFinal[id]||S.lastTally[id]||0;
+    let score=papabileEff(S,id)*1.4 + tally*1.8 + viability(S,id)*8 + (S.palaceStripped&&id===S.playerId?1.5:0);
+    if(!S.scrutinies.length){
+      if(id==="carafa") score+=3.4;       // the pre-conclave bankers' favourite
+      if(id==="borgia") score+=0.8;       // wealth and seniority, but fear tempers the book
+      if(id==="giuliano") score+=1.0;     // French and Genoese credit is visible
+      if(id==="dellaporta") score+=1.6;   // serious outside talk despite his reluctance
+      if(["costa","zeno","michiel","piccolomini"].includes(id)) score+=0.9;
+      if(byId[id].optional) score-=0.8;    // optional arrivals unsettle the book at first
+    }
+    if(S.npcHeat&&S.npcHeat[id]) score-=Math.min(5,S.npcHeat[id]*0.12);
+    if(id===S.playerId) score-=S.heat*0.035;
+    if(id==="giuliano") score+=1.3;
+    if(id==="borgia") score+=1.1;
+    if(S.milanBacks===id) score+=2.5;
+    (S.marketMoves||[]).forEach(function(m){ if(m.target===id) score += m.dir>0 ? 0.9 : -1.1; });
+    score+=(IDS.length-IDS.indexOf(id))*0.0001;
+    return {id,score};
+  }).sort(function(a,b){return b.score-a.score;});
+  const leader=raw.length?raw[0].score:0;
+  return raw.map(function(r,i){
+    const opening=!S.scrutinies.length;
+    const rawDenom=(opening?1.55:1.7) + i*(opening?0.72:1.05) + Math.max(0,leader-r.score)*(opening?0.18:0.30);
+    const cap=opening?12:18;
+    const denom=clamp(Math.round(rawDenom),1,cap);
+    const odds=denom<=1?"even money":(denom===2?"2 to 1":denom+" to 1");
+    return {id:r.id,score:r.score,odds,denom};
+  });
+}
+function consultBankers(S){
+  const rows=marketOdds(S).slice(0,6);
+  return rows;
+}
+function actBorrowAtBanchi(S){
+  if(!spendAP(S)) return {ok:false,msg:"No time remains today."};
+  const rows=marketOdds(S);
+  const me=rows.findIndex(function(r){return r.id===S.playerId;});
+  const rank=me<0?6:me+1;
+  const amount=Math.max(300,Math.round((2200-rank*220)+(S.lastFinal[S.playerId]||0)*120));
+  S.cash+=amount; S.debt=(S.debt||0)+Math.round(amount*1.35); S.heat+=3; S.marketHeat+=2;
+  return {ok:true, amount, rank};
+}
+function actMoveMarket(S, target, dir){
+  if(!spendAP(S)) return {ok:false,msg:"No time remains today."};
+  const risk=channelRisk(S,S.playerId,target,0.18)+(dir<0?0.04:0);
+  const caught=S.rng()<risk;
+  S.papBoost[target]=(S.papBoost[target]||0)+(dir>0?0.8:-1.0);
+  S.marketMoves.push({target,dir,day:S.day,caught});
+  if(caught){ S.heat+=6; S.integrity=Math.max(0,S.integrity-2); S.R[target][S.playerId]-=dir<0?0.8:0.3; }
+  else { S.marketHeat+=1; if(dir>0&&target!==S.playerId) S.R[target][S.playerId]+=0.25; }
+  return {ok:true,caught,target,dir};
+}
+function rotaMessage(power,S){
+  const m=ROTA_MESSAGES[power];
+  if(!m) return null;
+  if(power==="naples"&&S.day>=4) return {title:"Ferrante's volte-face", body:"The Neapolitan line has shifted: Ferrante no longer spends all his force on della Rovere and now works to prevent a settlement that hands Italy to Milan.", helps:"carafa", hurts:"sforza"};
+  return m;
+}
+function actRotaChoice(S, power, choice){
+  if(!spendAP(S)) return {ok:false,msg:"No time remains today."};
+  const P=POWERS[power]; if(!P) return {ok:false};
+  const m=rotaMessage(power,S);
+  const a=agentOf(S,S.playerId);
+  const intercept=S.rng()<channelRisk(S,S.playerId,m&&m.helps,0.08);
+  S.lettersSent.push({power, choice, intercepted:intercept, day:S.day});
+  if(choice==="obey"){
+    const myPatron=byId[S.playerId].patron;
+    let p = power===myPatron?0.78:0.34;
+    if(power==="portugal"&&S.playerId==="costa") p=0.1;
+    if(intercept) p-=0.12;
+    if(S.rng()<p){ S.courted[power+":"+S.playerId]=(S.courted[power+":"+S.playerId]||0)+2.2; return {ok:true, backed:true, name:P.name, intercepted:intercept, msg:m}; }
+    return {ok:true, backed:false, name:P.name, intercepted:intercept, msg:m};
+  }
+  if(choice==="forward"){
+    const clients=Object.keys(P.grip||{}).filter(function(id){return S.cards[id]&&!S.cards[id].out;});
+    clients.forEach(function(id){ S.R[id][S.playerId]+=0.25; if(m&&m.helps) S.R[id][m.helps]+=0.2; });
+    return {ok:true, forwarded:true, clients, name:P.name, intercepted:intercept, msg:m};
+  }
+  if(choice==="leak"){
+    if(m&&m.hurts) S.papBoost[m.hurts]=(S.papBoost[m.hurts]||0)-0.9;
+    S.integrity=Math.min(100,S.integrity+0.5); S.marketHeat+=2;
+    return {ok:true, leaked:true, target:m&&m.hurts, name:P.name, intercepted:intercept, msg:m};
+  }
+  if(choice==="forge"){
+    const risk=clamp(0.34 - 0.04*(a.literacy||3) - 0.03*(a.discretion||3) + (S.agentOrder==="letters"?-0.06:0),0.06,0.42);
+    const caught=S.rng()<risk || intercept;
+    if(caught){ S.heat+=9; S.integrity=Math.max(0,S.integrity-4); return {ok:true, forged:true, caught:true, name:P.name, msg:m}; }
+    S.courted[power+":"+S.playerId]=(S.courted[power+":"+S.playerId]||0)+1.8;
+    S.marketHeat+=2;
+    return {ok:true, forged:true, caught:false, name:P.name, msg:m};
+  }
+  return {ok:false};
 }
 
 /* ---------- preference model ---------- */
@@ -1031,9 +1323,10 @@ function promisePull(S, v, c){
   const viab = viability(S,c);                       // contingent promises discounted
   const disc = 0.35 + 0.65*clamp(viab,0,1);
   for(const b in pf){ const pr=pf[b]; if((pr.for||b)!==c) continue;
-    pull += (pr.v/1400)*disc + (pr.cash||0)/1200; }  // cash is paid up front
+    const form=promiseForm(pr.form);
+    pull += ((pr.v/1400)*disc + (pr.cash||0)/1200) * form.pull; }  // cash is paid up front; form controls credibility
   if(!pull) return 0;
-  return clamp(pull, 0, 11) * (0.6 + 0.4*(1 - byId[v].integrity/100)*2);
+  return clamp(pull, 0, 12.5) * (0.6 + 0.4*(1 - byId[v].integrity/100)*2);
 }
 function viability(S, c){
   const t = threshold(S);
@@ -1054,13 +1347,14 @@ function utility(S, v, c, opts){
   opts = opts||{};
   if(v===c) return -999;                              // no self-votes (Borgia gave his to Carafa)
   if(S.cards[c].out) return -999;
-  if(c==="borgia" && v==="giuliano") return -999;     // intractable (Pastor)
+  if((c==="borgia"&&v==="giuliano")||(c==="giuliano"&&v==="borgia")) return -999;  // mutual & intractable (Pastor): neither ever votes the other
   const V=byId[v], C=byId[c];
   let u = 1.05*papabileEff(S,c);
   u += 2.6*(1-Math.abs(V.ideo-C.ideo));
   u += 2.1*rel(S,v,c);
   if(V.bloc && V.bloc===C.bloc) u += (C.leader?1.8:0.9);
   if(S.cards[v].directive===c) u += 6;
+  if(S.cards[v].pledgedTo===c) u += 5.5 + (S.cards[v].pledgeStrength||0);
   if(V.soft==="milan" && (c==="sforza" || c===S.milanBacks)) u += 2.4;
   u += promisePull(S,v,c);
   for(const p in POWERS){ const g=POWERS[p].grip[v]||0; if(g) u += clamp(0.55*g*getStance(S,p,c), -2.2, 2.2); }
@@ -1075,6 +1369,8 @@ function utility(S, v, c, opts){
   // age & health
   if(C.age>=80) u-=7; else if(C.age>=72) u-=2; else if(C.age<=20) u-=14; else if(C.age<=30) u-=9; else if(C.age<=45) u-=4.5;
   if(C.health<=2) u-=3; else if(C.health>=4) u+=0.4;
+  if((S.cards[v].fatigue||0)>=3 && opts.strategic) u += 0.35*(S.cards[v].fatigue||0)*viability(S,c);
+  if((S.cards[c].fatigue||0)>=4) u-=0.8;
   if(!C.italian && V.italian) u -= (c==='borgia'?1.3:1.6);
   if(["pallavicini","cibo","fregoso"].includes(c)) u-=2.5;   // Genoese, like the late pope
   if(c==="cibo") u-=4;                                        // nephew of the late pope
@@ -1145,25 +1441,27 @@ function chooseVote(S,v){ return chooseBallot(S,v)[0]; }
 function beginScrutiny(S, playerVote){
   const voters = votingToday(S);
   const votes = {};
+  const hasPlayerOverride = playerVote !== null && playerVote !== undefined;
   for(const v of voters){
     let b;
-    if(v===S.playerId && playerVote){
+    if(v===S.playerId && hasPlayerOverride){
       b = (Array.isArray(playerVote)?playerVote:[playerVote])
             .filter(c=>c && c!==v && S.cards[c] && !S.cards[c].out).slice(0,3);
-      if(!b.length) b = chooseBallot(S,v);
     } else b = chooseBallot(S,v);
-    votes[v]=b; S.cards[v].lastVote=b[0]; S.cards[v].accession=null;
+    votes[v]=b; S.cards[v].lastVote=b[0]||null; S.cards[v].accession=null;
   }
   const tally={}; voters.forEach(v=>{ votes[v].forEach(c=>{ tally[c]=(tally[c]||0)+1; }); });
   if(S.playerId && tally[S.playerId]) S.votesReceivedTotal += tally[S.playerId];
-  if(S.playerId && votes[S.playerId]) S.votedFor.push(votes[S.playerId][0]||null);
+  if(S.playerId && votes[S.playerId]){ S.votedFor.push(votes[S.playerId][0]||null); S.votedBallots.push(votes[S.playerId].slice()); }
   const n = S.scrutinies.length+1;
   S.pendingScrutiny = { n, day:S.day, votes, tally:{...tally}, accessions:[], running:{...tally} };
   return S.pendingScrutiny;
 }
 function accessusCandidates(S, v){
   const P=S.pendingScrutiny;
-  return Object.keys(P.tally).filter(c=> c!==v && !P.votes[v].includes(c) && !S.cards[c].out);
+  const ballot = P && P.votes[v];
+  if(!ballot) return [];   // a non-voting elector (sick or absent today) cast no ballot, so has no accessus
+  return Object.keys(P.tally).filter(c=> c!==v && !ballot.includes(c) && !S.cards[c].out);
 }
 function npcWantsAccession(S, v, mode){
   const P=S.pendingScrutiny;
@@ -1241,7 +1539,7 @@ function npcAccessusPass(S, mode){
 function playerAccede(S, to){
   if(!to) return false;
   const P=S.pendingScrutiny; const v=S.playerId;
-  if(!P || S.cards[v].accession || P.votes[v].includes(to) || to===v) return false;
+  if(!P || !P.votes[v] || S.cards[v].accession || P.votes[v].includes(to) || to===v) return false;
   if(!(to in P.tally)) return false;
   applyAccession(S,v,to);
   S.accededTo.push({n:P.n,to});
@@ -1251,8 +1549,10 @@ function maxRunning(S){ const P=S.pendingScrutiny; let m=0; for(const c in P.run
 function finalizeScrutiny(S){
   const P=S.pendingScrutiny;
   const t=threshold(S);
-  let elected=null;
-  for(const c in P.running){ if(P.running[c]>=t){ elected=c; break; } }
+  let elected=null, best=-1;
+  for(const c in P.running){
+    if(P.running[c]>=t && P.running[c]>best){ elected=c; best=P.running[c]; }
+  }
   P.final={...P.running}; P.threshold=t; P.electors=votingToday(S).length;
   P.elected=elected||null;
   S.scrutinies.push(P);
@@ -1263,9 +1563,13 @@ function finalizeScrutiny(S){
 }
 
 /* ---------- night: brokers, programs, illness ---------- */
-function offerAcceptChance(S, target, broker, value){
+function offerAcceptChance(S, target, broker, value, form){
   const T=byId[target];
+  const a=agentOf(S,broker), pf=promiseForm(form);
   let p = 0.12 + value/15000 + (1 - T.integrity/100)*0.5 + 0.08*rel(S,target,broker);
+  p += ((a.loyalty||3)-3)*0.025 + ((a.discretion||3)-3)*0.018 + ((a.greed||2)-2)*0.012;
+  p += (pf.binding-1)*0.08;
+  if(broker===S.playerId && S.agentOrder==="bargains") p += 0.04 + 0.01*(a.favours||0);
   if(T.integrity + S.scruple[target]*30 > 88) p *= 0.25;   // this week, this man is not for sale
   if(S.cards[target].promisesFrom[broker]) p += 0.1;
   const rivalV = bestRivalOffer(S,target,broker);
@@ -1275,16 +1579,21 @@ function offerAcceptChance(S, target, broker, value){
 }
 function bestRivalOffer(S,target,broker){
   let m=0; const pf=S.cards[target].promisesFrom;
-  for(const b in pf){ if(b!==broker) m=Math.max(m,pf[b].v + (pf[b].cash||0)); }
+  for(const b in pf){ if(b!==broker) m=Math.max(m,(pf[b].v + (pf[b].cash||0))*promiseForm(pf[b].form).pull); }
   return m;
 }
 function brokerScandal(S, broker, amt){ S.npcHeat=S.npcHeat||{}; S.npcHeat[broker]=(S.npcHeat[broker]||0)+amt; }
-function recordPromise(S, broker, target, label, v, cash, forWhom){
+function recordPromise(S, broker, target, label, v, cash, forWhom, form, hist){
+  form=form||"private";
   const pf=S.cards[target].promisesFrom;
-  const cur=pf[broker]||{v:0,cash:0,label:""};
+  const cur=pf[broker]||{v:0,cash:0,label:"",form:form};
+  const stronger=promiseForm(form).binding>=promiseForm(cur.form).binding?form:cur.form;
   pf[broker]={ v:cur.v+v, cash:(cur.cash||0)+(cash||0),
     label: cur.label? cur.label+"; "+label : label,
-    for: forWhom || cur.for || broker };
+    for: forWhom || cur.for || broker, form:stronger, hist:hist||cur.hist||"In-game promise" };
+  if(broker===S.playerId||target===S.playerId||form==="written"||/Vice-Chancellorship|legation|bishopric|abbey|abbacies|benefices|pension|red hat|castle|Palazzo|Civita|Subiaco|Pamplona|Porto|Nepi|Cartagena|Mallorca|Soriano|Monticelli/i.test(label)){
+    registerOfficeDebt(S,broker,target,label,v,forWhom||broker,form,hist||"In-game promise");
+  }
 }
 function hasPromiseFor(S, v, c){
   const pf=S.cards[v].promisesFrom;
@@ -1299,7 +1608,7 @@ function machineProgram(S){
   const events=[];
   const order=["orsini","colonna","savelli","pallavicini","michiel","riario","domenico","fregoso","sanseverino","sclafenati","dellaporta","conti","gherardo"];
   const blitz = !S.machineRan; S.machineRan=true;
-  const perNight = blitz?5 : (pay==="borgia"?3:2);
+  const perNight = blitz ? 5 : (pay==="borgia"?3:2);
   let buys=0;
   for(const t of order){
     if(buys>=perNight) break;
@@ -1308,7 +1617,7 @@ function machineProgram(S){
     const price = pay==="borgia" ? BORGIA_PRICES[t]
       : {label:"benefices, money, and the gratitude of "+byId[pay].short, v: Math.round((BORGIA_PRICES[t]?BORGIA_PRICES[t].v:4000)*0.7)};
     const p=offerAcceptChance(S,t,pay,price.v)+(pay==="borgia"?0.06:0.02);
-    if(S.rng()<p){ recordPromise(S,pay,t,price.label,price.v, (pay==="borgia"&&t==="gherardo")?5000:0);
+    if(S.rng()<p){ recordPromise(S,pay,t,price.label,price.v, (pay==="borgia"&&t==="gherardo")?5000:0, pay, "witnessed", price.hist||"Reported");
       brokerScandal(S,pay,2.4);
       events.push({type:"buy", broker:pay, target:t, label:price.label}); buys++; }
   }
@@ -1326,10 +1635,10 @@ function sforzaPivotCheck(S){
   if(S.scrutinies.length>=1 && sv < threshold(S)/2 && (rank<0||rank>2) && !S.cards.borgia.out){
     const p=0.25+0.15*(S.day-3);
     if(S.rng()<p){
-      if(S.rng()<0.45){   // counterfactual: Ascanio sells his bloc to another paymaster
+      if(S.rng()<0.45){   // alternate branch: Ascanio sells his bloc to another paymaster
         const alt = (S.lastTally.carafa||0) >= (S.lastTally.zeno||0) ? "carafa" : "zeno";
         S.sforzaPivoted=true; S.milanBacks=alt;
-        recordPromise(S, alt, "sforza", "the Vice-Chancellorship and the gratitude of the next pontificate", 9000, 0);
+        recordPromise(S, alt, "sforza", "the Vice-Chancellorship and the gratitude of the next pontificate", 9000, 0, alt, "written", "In-game alternative");
         ["sforza","sanseverino","sclafenati"].forEach(id=>{ if(!S.cards[id].out) S.cards[id].directive=alt; });
         S.pivotAlt=alt;
         return true;
@@ -1340,7 +1649,7 @@ function sforzaPivotCheck(S){
 }
 function doSforzaPivot(S){
   S.sforzaPivoted=true; S.milanBacks="borgia";
-  recordPromise(S,"borgia","sforza",BORGIA_PRICES.sforza.label,BORGIA_PRICES.sforza.v,2000);
+  recordPromise(S,"borgia","sforza",BORGIA_PRICES.sforza.label,BORGIA_PRICES.sforza.v,2000,"borgia","written",BORGIA_PRICES.sforza.hist);
   ["sforza","sanseverino","sclafenati"].forEach(id=>{ if(!S.cards[id].out) S.cards[id].directive="borgia"; });
   ["dellaporta","conti"].forEach(id=>{ if(!S.cards[id].out && S.rng()<0.85) S.cards[id].directive="borgia"; });
 }
@@ -1356,7 +1665,7 @@ function carafaProgram(S){
   if(targets.length){
     const t=targets[Math.floor(S.rng()*targets.length)];
     if(S.rng()<offerAcceptChance(S,t,"carafa",4200)+0.04){
-      recordPromise(S,"carafa",t,"Neapolitan benefices and King Ferrante's gratitude",4200,500);
+      recordPromise(S,"carafa",t,"Neapolitan benefices and King Ferrante's gratitude",4200,500,"carafa","witnessed","In-game alternative");
       brokerScandal(S,"carafa",1.2);
       events.push({type:"buy",broker:"carafa",target:t,label:"Neapolitan benefices and King Ferrante's gratitude"});
     }
@@ -1374,7 +1683,7 @@ function giulianoProgram(S){
     if(targets.length){
       const t=targets[Math.floor(S.rng()*targets.length)];
       const v=3500;
-      if(S.rng()<offerAcceptChance(S,t,"giuliano",v)){ recordPromise(S,"giuliano",t,"French gold and French benefices",v,1500);
+      if(S.rng()<offerAcceptChance(S,t,"giuliano",v)){ recordPromise(S,"giuliano",t,"French gold and French benefices",v,1500,"giuliano","witnessed","In-game alternative");
         brokerScandal(S,"giuliano",2.0);
         events.push({type:"buy",broker:"giuliano",target:t,label:"French gold and French benefices"}); }
     }
@@ -1397,11 +1706,62 @@ function illnessCheck(S){
     if(S.cards[id].ill){ S.cards[id].illDays++;
       if(S.cards[id].illDays>=2){ S.cards[id].ill=false; S.cards[id].out=true; out.push({type:"left",id}); }
       continue; }
-    let p=(C.age-68)*0.004 + S.rationsStage*0.005 + (id==="gherardo"?0.012:0) + (C.health<=2?0.008:0);
+    let p=(C.age-68)*0.004 + S.rationsStage*0.005 + (id==="gherardo"?0.012:0) + (C.health<=2?0.008:0) + (S.cards[id].fatigue||0)*0.006;
     if(S.rng()<p){ S.cards[id].ill=true; S.cards[id].illDays=0; out.push({type:"ill",id}); }
   }
   return out;
 }
+/* A compromise candidate gathers quiet steam. Any broadly-acceptable man who is
+   already in the conversation but not the front-runner can, on a given night,
+   have his warm and uncommitted neighbours nudged toward him. Deliberately modest
+   and low-probability: it widens the field without dethroning the machine or the
+   fear-consensus. Scripted faction leaders are excluded (they run their own play). */
+const QUIET_EXCLUDE = ["borgia","giuliano","sforza"];
+function quietCandidatePool(S){
+  return present(S).filter(function(id){
+    const C=byId[id];
+    return C.papabile>=5 && C.integrity>=55 && C.age>=50 && C.age<76
+      && QUIET_EXCLUDE.indexOf(id)<0 && id!==S.milanBacks
+      && !(FEARS[id] && FEARS[id].v>=2.0)            // the genuinely dreaded don't coalesce quietly
+      && !S.cards[id].ill;
+  });
+}
+function quietProgram(S){
+  if(S.day<7) return [];
+  S.quietRuns = S.quietRuns||0;
+  if(S.quietRuns>=1) return [];                       // a compromise crystallises at most once
+  const th=threshold(S);
+  const tally=S.lastFinal||{};
+  const entries=Object.entries(tally).sort(function(a,b){return b[1]-a[1];});
+  const lead=entries[0];
+  if(lead && lead[1] >= th-2) return [];              // someone is closing — let it resolve
+  if((tally.borgia||0) >= th-3) return [];            // the machine is winning — never interfere
+  const pool=quietCandidatePool(S);
+  if(!pool.length) return [];
+  const stand=function(id){ return Math.max(S.lastFinal[id]||0, S.lastTally[id]||0); };
+  const leadId=lead&&lead[1]>=4?lead[0]:null;
+  const ranked=pool.slice()
+    .filter(function(id){ return id!==leadId && byId[id].papabile>=6 && stand(id)>=4; })
+    .sort(function(a,b){return stand(b)-stand(a);});
+  const pick=ranked[0];
+  if(!pick) return [];
+  const p=0.4+0.12*(S.day-7);
+  if(S.rng()>=Math.min(p,0.8)) return [];
+  S.quietRuns++;
+  // the uncommitted middle gathers behind one man — consolidation, not a raid on standing blocs
+  let swung=0;
+  const cap=Math.ceil(th*0.65);
+  for(const v of present(S)){
+    if(v===pick||v===S.playerId) continue;
+    if(swung>=cap) break;
+    const st=S.cards[v];
+    if(st.pledgedTo||st.directive) continue;          // only free agents, so existing coalitions are not shattered
+    if(rel(S,v,pick)>=-0.5 && byId[v].integrity>=45 && S.rng()<0.6){ st.directive=pick; swung++; }
+  }
+  S.papBoost[pick]=(S.papBoost[pick]||0)+1.0;
+  return [{type:"quiet", id:pick, swung:swung}];
+}
+
 function runNight(S){
   const ev=[];
   const piv=sforzaPivotCheck(S); if(piv) ev.push({type:"pivot"});
@@ -1413,6 +1773,7 @@ function runNight(S){
   ev.push(...borgiaProgram(S));
   ev.push(...giulianoProgram(S));
   ev.push(...carafaProgram(S));
+  ev.push(...quietProgram(S));
   // outbid check vs player's bought voters
   for(const t of IDS){
     const pf=S.cards[t].promisesFrom;
@@ -1432,6 +1793,10 @@ function advanceDay(S){
   S.ap = 3; S.nightUsed=false;
   // decay
   S.heat=Math.max(0,S.heat-2);
+  for(const id of present(S)){
+    const C=byId[id];
+    addFatigue(S,id,0.18 + S.rationsStage*0.32 + (C.age>=75?0.12:0) - (C.health>=5?0.05:0));
+  }
   for(const k in S.papBoost){ S.papBoost[k]*=0.55; if(Math.abs(S.papBoost[k])<0.1) delete S.papBoost[k]; }
   if(S.day>=5 && S.rationsStage<1){ S.rationsStage=1; return {rations:1}; }
   if(S.day>=9 && S.rationsStage<2){ S.rationsStage=2; return {rations:2}; }
@@ -1461,14 +1826,16 @@ function actPressVote(S, t, forWhom){
   const uBest=utility(S,t,topPreference(S,t),{strategic:true});
   const roll=S.rng()*4+byId[me].eloquence + rel(S,t,me);
   if(uC > uBest-3 && roll>6){
-    S.cards[t].pledgedTo=cause; S.R[t][me]+=0.8; S.papBoost[cause]=(S.papBoost[cause]||0)+0.15;
+    S.cards[t].pledgedTo=cause; S.cards[t].pledgeStrength=clamp(0.7+(roll-6)*0.35+Math.max(0,rel(S,t,me))*0.25,0.6,2.2); S.R[t][me]+=0.8; S.papBoost[cause]=(S.papBoost[cause]||0)+0.15;
     S.deliveredVotes[t]=cause; S.dealsClosed++;
     return {ok:true, pledged:true};
   }
   S.R[t][me]+= roll>5?0.2:-0.2;
   return {ok:true, pledged:false, hint:topPreference(S,t)};
 }
-function actOffer(S, t, items, cash, secret, forWhom){
+function actOffer(S, t, items, cash, secret, forWhom, form){
+  form=form||"private";
+  const pf=promiseForm(form);
   const cause=forWhom||S.playerId;
   const cost = secret?0:1;
   if(cost && !spendAP(S)) return {ok:false,msg:"No time remains today."};
@@ -1476,21 +1843,26 @@ function actOffer(S, t, items, cash, secret, forWhom){
   let v=0, labels=[];
   for(const it of items){ v+=it.v; labels.push(it.label); }
   let effV = v + (secret? -Math.round(v*0.15):0);
-  const p=offerAcceptChance(S,t,S.playerId,effV + cash*1.2);
-  const heatGain = Math.round(cash/350 + v/1500) * (secret?0.5:1);
+  const conflicts=debtConflicts(S,items,t);
+  const p=offerAcceptChance(S,t,S.playerId,effV + cash*1.2, form) - conflicts.length*0.04;
+  const heatGain = Math.round((cash/350 + v/1500) * (secret?0.5:1) * pf.heat);
   if(S.rng()<p){
     S.cash-=cash;
     items.forEach(it=>{ const i=S.assetsLeft.findIndex(a=>a.id===it.id); if(i>=0) S.assetsLeft.splice(i,1);
       const g=S.giftsLeft.findIndex(a=>a.id===it.id); if(g>=0 && it.unique) S.giftsLeft.splice(g,1); });
-    recordPromise(S,S.playerId,t, labels.join("; "), v, cash, cause);
-    S.promisesMade.push({to:t, label:labels.join("; "), v, cash, contingent: items.some(i=>i.papal), forWhom:cause});
-    S.heat+=heatGain; S.integrity=Math.max(0,S.integrity- (cash>0?2:1));
+    recordPromise(S,S.playerId,t, labels.join("; "), v, cash, cause, form, "Player promise");
+    S.promisesMade.push({to:t, label:labels.join("; "), v, cash, contingent: items.some(i=>i.papal), forWhom:cause, form:form});
+    conflicts.forEach(function(c){ if(S.R[c.holder]&&S.R[c.holder][S.playerId]!==undefined) S.R[c.holder][S.playerId]-=1.1; });
+    S.heat+=heatGain; S.integrity=Math.max(0,S.integrity- (cash>0?2:1) - (form==="written"?1:0));
+    const leakRisk=promiseForm(form).leak + channelRisk(S,S.playerId,t,0.02);
+    const leaked=S.rng()<leakRisk;
+    if(leaked){ S.heat+=3; S.knownBrokers=S.knownBrokers||{}; S.knownBrokers[S.playerId]=(S.knownBrokers[S.playerId]||0)+1; }
     S.dealsClosed++; S.deliveredVotes[t]=cause;
-    return {ok:true, accepted:true, heat:heatGain};
+    return {ok:true, accepted:true, heat:heatGain, leaked, conflicts};
   }
   S.heat+=Math.round(heatGain*0.4);
   S.R[t][S.playerId]-= byId[t].integrity>=70?0.6:0.1;
-  return {ok:true, accepted:false, heat:Math.round(heatGain*0.4), insulted: byId[t].integrity>=70};
+  return {ok:true, accepted:false, heat:Math.round(heatGain*0.4), insulted: byId[t].integrity>=70, conflicts};
 }
 function actAddress(S, theme){
   if(!spendAP(S)) return {ok:false,msg:"No time remains today."};
@@ -1514,51 +1886,100 @@ function actAddress(S, theme){
 }
 function actDevotions(S){
   if(!spendAP(S)) return {ok:false,msg:"No time remains today."};
-  S.integrity=Math.min(100,S.integrity+2); S.heat=Math.max(0,S.heat-5);
+  S.integrity=Math.min(100,S.integrity+2); S.heat=Math.max(0,S.heat-5); reduceFatigue(S,S.playerId,0.45);
   for(const t of present(S)){ if(byId[t].ideo>=0.6) S.R[t][S.playerId]+=0.15; }
   return {ok:true};
 }
 function actTend(S, t){
   if(!S.cards[t]||!S.cards[t].ill) return {ok:false,msg:"He does not need you."};
   if(!spendAP(S)) return {ok:false,msg:"No time remains today."};
-  S.cards[t].ill=false; S.cards[t].illDays=0;
+  S.cards[t].ill=false; S.cards[t].illDays=0; reduceFatigue(S,t,1.0);
   S.R[t][S.playerId]+=2; S.integrity=Math.min(100,S.integrity+1);
   for(const o of present(S)){ if(byId[o].integrity>=70) S.R[o][S.playerId]+=0.3; }
   return {ok:true};
 }
 function actRota(S, power){
-  if(!spendAP(S)) return {ok:false,msg:"No time remains today."};
-  if(S.courted[power+":"+S.playerId]) return {ok:false,msg:"You have already pressed this crown."};
-  const P=POWERS[power]; if(!P) return {ok:false};
-  const myPatron=byId[S.playerId].patron;
-  let p = power===myPatron?0.75:0.35;
-  if(power==="portugal"&&S.playerId==="costa") p=0.1;
-  if(S.rng()<p){
-    S.courted[power+":"+S.playerId]=2.2;
-    S.lettersSent.push({power, pledged:true});
-    return {ok:true, backed:true, name:P.name};
-  }
-  S.lettersSent.push({power, pledged:false});
-  return {ok:true, backed:false, name:P.name};
+  return actRotaChoice(S,power,"obey");
 }
 function actSpy(S, t){
   if(S.nightUsed) return {ok:false,msg:"The night is spent."};
   S.nightUsed=true;
-  const caught = S.rng() < clamp(0.16 - 0.02*byId[S.playerId].cunning, 0.02, 0.2);
+  const caught = S.rng() < channelRisk(S,S.playerId,t,0.16 - 0.02*byId[S.playerId].cunning);
   S.cards[t].intel=3; S.intelGained+=2;
-  const deals=Object.entries(S.cards[t].promisesFrom).map(([b,o])=>({broker:b,label:o.label,v:o.v}));
-  if(caught){ S.R[t][S.playerId]-=1.2; S.heat+=4; }
-  return {ok:true, caught, deals, lean:topPreference(S,t)};
+  const deals=Object.entries(S.cards[t].promisesFrom).map(([b,o])=>({broker:b,label:o.label,v:o.v,form:o.form||"private"}));
+  if(caught){ S.R[t][S.playerId]-=1.2; S.heat+=4; agentOf(S,S.playerId).compromised=true; }
+  addFatigue(S,S.playerId,0.35);
+  return {ok:true, caught, deals, lean:topPreference(S,t), agent:agentOf(S,S.playerId)};
 }
 function actRumor(S, t){
   if(S.nightUsed) return {ok:false,msg:"The night is spent."};
   S.nightUsed=true;
-  const traced = S.rng() < clamp(0.22 - 0.02*byId[S.playerId].cunning, 0.04, 0.25);
+  const traced = S.rng() < channelRisk(S,S.playerId,t,0.22 - 0.02*byId[S.playerId].cunning);
   S.papBoost[t]=(S.papBoost[t]||0)-1.4;
-  if(traced){ S.R[t][S.playerId]-=1.5; S.heat+=6; S.integrity=Math.max(0,S.integrity-3);
+  if(traced){ S.R[t][S.playerId]-=1.5; S.heat+=6; S.integrity=Math.max(0,S.integrity-3); agentOf(S,S.playerId).compromised=true;
     for(const o of present(S)){ if(byId[o].integrity>=75) S.R[o][S.playerId]-=0.4; } }
   else S.integrity=Math.max(0,S.integrity-1);
-  return {ok:true, traced};
+  addFatigue(S,S.playerId,0.25);
+  return {ok:true, traced, agent:agentOf(S,S.playerId)};
+}
+
+/* ---------- scrutiny explanations & player promise accounting ---------- */
+function judgePlayerBallotPromises(S, picks){
+  if(!S.playerId||!S.flags) return [];
+  const me=S.playerId;
+  const ballot=Array.isArray(picks)?picks:[];
+  const acc=S.cards[me]?S.cards[me].accession:null;
+  const notes=[];
+  for(const k of Object.keys(S.flags)){
+    let id=null, kind=null;
+    if(k.indexOf("pledged_")===0){ id=k.slice("pledged_".length); kind="pledged"; }
+    else if(k.indexOf("flattered_")===0){ id=k.slice("flattered_".length); kind="flattered"; }
+    else continue;
+    if(!S.cards[id]||S.cards[id].out){ delete S.flags[k]; continue; }
+    const kept=ballot.includes(id)||acc===id;
+    if(kind==="pledged"){
+      if(kept){ S.R[id][me]+=0.9; S.R[me][id]+=0.35; notes.push({kept:true,id,html:"<b>"+byId[id].short+"</b>'s men note that your promised voice was kept."}); }
+      else { S.R[id][me]-=1.35; S.R[me][id]-=0.45; notes.push({kept:false,id,html:"<b>"+byId[id].short+"</b>'s men note that your promised voice went elsewhere."}); }
+    } else {
+      if(kept){ S.R[id][me]+=0.45; notes.push({kept:true,id,html:"<b>"+byId[id].short+"</b> remembers the compliment, because your ballot made it true."}); }
+      else { S.R[id][me]-=0.55; notes.push({kept:false,id,html:"<b>"+byId[id].short+"</b> remembers your flattery, and your ballot corrects it."}); }
+    }
+    delete S.flags[k];
+  }
+  return notes;
+}
+function scrutinyInsights(S, sc){
+  const notes=[];
+  if(!sc) return notes;
+  const th=sc.threshold||threshold(S);
+  if(sc.accessions&&sc.accessions.length){
+    const byTo={}; sc.accessions.forEach(function(a){byTo[a.to]=(byTo[a.to]||0)+1;});
+    const top=Object.entries(byTo).sort(function(a,b){return b[1]-a[1];})[0];
+    if(top){
+      const crossed=(sc.tally[top[0]]||0)<th && (sc.final[top[0]]||sc.running[top[0]]||0)>=th;
+      notes.push((crossed?"The accessus carried <b>":"The accessus strengthened <b>")+byId[top[0]].short+"</b> with "+top[1]+" public accession"+(top[1]===1?"":"s")+".");
+    }
+  }
+  if(S.milanBacks&&!S.cards.sforza.out){
+    const bloc=["sforza","sanseverino","sclafenati"].filter(function(v){return sc.votes[v]&&((sc.votes[v]||[]).includes(S.milanBacks)||(sc.accessions||[]).some(function(a){return a.from===v&&a.to===S.milanBacks;}));});
+    if(bloc.length>=2) notes.push("Sforza's Milanese bloc held behind <b>"+byId[S.milanBacks].short+"</b>.");
+  }
+  const candidates=Object.entries(sc.final||sc.running||{}).sort(function(a,b){return b[1]-a[1];}).slice(0,4).map(function(e){return e[0];});
+  for(const c of candidates){
+    let bought=0;
+    votingToday(S).forEach(function(v){
+      const ballot=sc.votes[v]||[];
+      const acc=(sc.accessions||[]).some(function(a){return a.from===v&&a.to===c;});
+      if((ballot.includes(c)||acc)&&hasPromiseFor(S,v,c)) bought++;
+    });
+    if(bought>=2){ notes.push("Promises toward <b>"+byId[c].short+"</b> converted into "+bought+" visible voice"+(bought===1?"":"s")+"."); break; }
+  }
+  const leader=candidates[0];
+  if(leader&&FEARS[leader]&&(sc.final[leader]||0)<th){
+    let wary=0; votingToday(S).forEach(function(v){ if(v!==leader&&fearOf(S,v,leader)>=2.2&&!((sc.votes[v]||[]).includes(leader))) wary++; });
+    if(wary>=4) notes.push("Fear of <b>"+byId[leader].short+"</b> kept "+wary+" wary electors from joining the leader.");
+  }
+  return notes.slice(0,3);
 }
 
 /* ---------- ending ---------- */
@@ -1581,11 +2002,16 @@ function computeEnding(S){
     return E;
   }
   const finalS=S.scrutinies[S.scrutinies.length-1];
-  const votedW = finalS && finalS.votes[me]===w;
+  const finalBallot = finalS && finalS.votes[me] ? finalS.votes[me] : [];
+  const votedW = finalBallot.includes(w);
   const accededW = finalS && finalS.accessions.some(a=>a.from===me&&a.to===w);
-  const earlyW = S.votedFor.slice(0,-1).includes(w);
+  const earlyW = ((S.votedBallots||[]).slice(0,-1).some(function(b){return b.includes(w);})) || S.votedFor.slice(0,-1).includes(w);
   const promiseFromW = S.cards[me].promisesFrom[w];
-  let delivered=0; for(const t in S.deliveredVotes){ if(S.cards[t].lastVote===w||S.cards[t].accession===w) delivered++; }
+  let delivered=0; for(const t in S.deliveredVotes){
+    const ballot = finalS && finalS.votes[t] ? finalS.votes[t] : [];
+    const acc = finalS && finalS.accessions.some(function(a){return a.from===t&&a.to===w;});
+    if(ballot.includes(w)||acc||S.cards[t].accession===w) delivered++;
+  }
   if((votedW&&earlyW)||promiseFromW||((votedW||accededW)&&delivered>=2)){
     E.kind="kingmaker";
     add(promiseFromW?120:80,"Kingmaker to the new pontiff");
@@ -1598,6 +2024,49 @@ function computeEnding(S){
     add(S.integrity>=80?45:5, S.integrity>=80?"You kept your soul":"You backed the losing horse to the last");
   }
   return E;
+}
+/* A run is graded against what its ROLE could plausibly achieve, so a masterful
+   kingmaker reads as well as a masterful pope despite a lower raw influence score.
+   Pars are calibrated from the simulation's own outcome distribution. */
+function roleVerdict(total, kind){
+  function grade(bands, fallback){
+    for(const [t,g,line] of bands){ if(total>=t) return {grade:g, line:line}; }
+    return fallback;
+  }
+  if(kind && kind.indexOf("pope")===0){
+    return grade([
+      [350,"MAGISTERIAL","A pontificate begun from overwhelming strength."],
+      [285,"COMMANDING","Elected with room to spare — a strong hand on the keys."],
+      [210,"SECURE","The tiara is yours, if not by a landslide."]],
+      {grade:"NARROW", line:"Pope by the narrowest of margins — guard the throne."});
+  }
+  if(kind==="kingmaker"){
+    return grade([
+      [185,"MASTERFUL","The pope wears the tiara; you wear the gratitude. Few play the second prize so well."],
+      [135,"STRONG","A pope-maker's hand, clearly seen and well rewarded."],
+      [90,"CAPABLE","You delivered, and you will be remembered for it."]],
+      {grade:"MODEST", line:"A hand in the making of a pope — lighter than it might have been."});
+  }
+  if(kind==="conscience"){
+    return grade([
+      [175,"EXEMPLARY","Defeated and unbought, and the whole College knows it."],
+      [130,"PRINCIPLED","Your name is on no ledger — a costly, durable kind of victory."],
+      [90,"CREDITABLE","You kept your hands clean when it was expensive to do so."]],
+      {grade:"QUIET", line:"Unbought, if largely unremarked."});
+  }
+  if(kind==="survivor"){
+    return grade([
+      [70,"DEFT","You read the wind and turned with it in good time."],
+      [35,"ADEQUATE","You survived; pride mostly intact."]],
+      {grade:"BARE", line:"You lived to the white smoke, and little more."});
+  }
+  if(kind==="vaevictis"){
+    return grade([
+      [120,"DEFIANT","Routed, but only after making them work for it."],
+      [60,"STUBBORN","You opposed him to the end; the end opposed you back."]],
+      {grade:"ROUTED", line:"On the losing side, to the last ballot."});
+  }
+  return null;
 }
 function compromissum(S){
   // Day-12 failure: the College delegates to three of its most upright members.
@@ -1614,9 +2083,10 @@ function compromissum(S){
 }
 
 /* ---------- headless runner (tests & calibration) ---------- */
-function runHeadless(seed, playerId){
-  const S=initState(playerId||null, seed);
+function runHeadless(seed, playerId, _mode, extraElectors){
+  const S=initState(playerId||null, seed, "open", extraElectors||[]);
   while(!S.over && S.day<=12){
+    if(S.day>=12){ compromissum(S); break; }
     if(S.day>=3){
       beginScrutiny(S, null);
       npcAccessusPass(S,1);
@@ -1705,7 +2175,7 @@ if (typeof module !== "undefined") module.exports = {
   beginScrutiny, npcAccessusPass, playerAccede, finalizeScrutiny, maxRunning, accessusCandidates,
   runNight, illnessCheck, advanceDay, doSforzaPivot, recordPromise, offerAcceptChance,
   actSoundOut, actPressVote, actOffer, actAddress, actDevotions, actTend, actSwearOath, ballotSignals, crownsView, scareCandidate, actRota, actSpy, actRumor,
-  computeEnding, compromissum, runHeadless, topPreference, byId, IDS, rel, getStance
+  computeEnding, compromissum, roleVerdict, runHeadless, topPreference, byId, IDS, rel, getStance, judgePlayerBallotPromises, scrutinyInsights, promiseForm, agentOf, channelRisk, marketOdds, consultBankers, actBorrowAtBanchi, actMoveMarket, actRotaChoice, rotaMessage, fatigueName
 };
 
 /* CONCLAVE 1492 — UI layer, part 1 (vanilla JS, no storage, no frameworks) */
@@ -1741,31 +2211,65 @@ function bell(){ if(MUTE) return; try{
 
 /* ---------- difficulty & blurbs ---------- */
 function diff(c){
-  const d={borgia:2,sforza:2,carafa:2,giuliano:3,zeno:3,michiel:3,costa:4,piccolomini:3,savelli:3,orsini:2,colonna:3,
-    medici:3,riario:3,pallavicini:3,dellaporta:4,fregoso:4,conti:4,cibo:4,basso:4,domenico:3,sclafenati:3,gherardo:5,sanseverino:4};
+  const d={borgia:1,sforza:2,carafa:2,giuliano:3,zeno:3,michiel:3,costa:4,piccolomini:3,savelli:3,orsini:2,colonna:3,
+    medici:3,riario:3,pallavicini:3,dellaporta:4,fregoso:4,conti:4,cibo:4,basso:4,domenico:3,sclafenati:3,gherardo:5,sanseverino:4,
+    mila:2,mendoza:3,despinay:3,daubusson:4};
   return d[c.id]||3;
 }
 const ROLEHINT={borgia:"The Favourite",sforza:"The Kingmaker",giuliano:"Il Terribile",carafa:"The Banks' Choice",
   costa:"The Ancient",medici:"The Boy",gherardo:"The Saint, Aged 86",dellaporta:"The Reluctant",zeno:"The Miser",
   riario:"The Camerlengo",orsini:"The Fixer",piccolomini:"The Conscience",michiel:"The Bon Vivant",savelli:"The Last Throw",
   colonna:"Blood Feud",fregoso:"The Corsair",conti:"Old Rome",sclafenati:"The Sybarite",cibo:"The Nephew",
-  basso:"The Shadow",domenico:"The Builder",pallavicini:"The Datary",sanseverino:"The Soldier's Son"};
+  basso:"The Shadow",domenico:"The Builder",pallavicini:"The Datary",sanseverino:"The Soldier's Son",
+  mila:"The Absent Cousin",mendoza:"The Third King",despinay:"The French Cardinal",daubusson:"The Hospitaller"};
+const ROUTEHINT={
+  borgia:"Possible pope — buy the last mile", carafa:"Possible pope — win cleanly", giuliano:"Block Borgia, then seize or survive", sforza:"Kingmaker — sell the decisive bloc",
+  zeno:"Possible compromise pope, spend little", michiel:"Possible compromise pope", costa:"Conscience or ancient compromise", piccolomini:"Conscience candidate",
+  medici:"Win as kingmaker", sanseverino:"Serve Sforza, profit as broker", gherardo:"Survive and keep your soul", dellaporta:"Be considered, escape unelected",
+  basso:"Rovere loyalist and spoiler", domenico:"Rovere loyalist or quiet buyer", cibo:"Survive the late pope's shadow", conti:"Austere spoiler or conscience",
+  colonna:"Spite Orsini; choose the winner", orsini:"Spite Colonna; broker a pope", savelli:"Last throw as kingmaker", riario:"Keep the books clean",
+  pallavicini:"Administrator-kingmaker", fregoso:"Recover Genoese leverage", sclafenati:"Milanese buyer's vote",
+  mila:"Family vote for Borgia or Spain", mendoza:"Spanish kingmaker or foreign papabile", despinay:"French interest and Rovere bloc", daubusson:"Crusading conscience candidate"
+};
+/* Difficulty tiers, calibrated against the simulation's own outcome data. "Forgiving"
+   roles can prosper even cautiously; "active" roles punish passivity and reward aggression. */
+const TIER={
+  carafa:["forgiving","The banks make you favourite; the College's dread of Borgia tends to find you. A good first conclave."],
+  zeno:["forgiving","A frugal compromise candidate — you can win or place well without spending your famous fortune."],
+  borgia:["active","Hard. The machine does not run itself when you hold the reins: you must buy the last mile, or lose. Not a gentle first game."],
+  giuliano:["active","Hard. The most feared man in the chapel — you must break the favourite and then seize or survive. Passivity ends in exile."],
+  sforza:["active","You hold the decisive bloc; its value is only what you make others pay. Sell it well or it sells itself cheap."]
+};
+function tierOf(c){ return (TIER[c.id]||["standard",""]); }
 
 /* ---------- selection screen ---------- */
-let pickedId=null;
+let pickedId=null, extraElectors=new Set();
+function electorPool(){ return CARDINALS.filter(function(c){return !c.optional || extraElectors.has(c.id);}); }
 function renderSelect(){
   const grid=$("#selgrid");grid.innerHTML="";
-  CARDINALS.forEach(c=>{
-    const card=h("div",{class:"ccard",onclick:()=>{pickedId=c.id;document.querySelectorAll(".ccard").forEach(e=>e.classList.remove("sel"));card.classList.add("sel");$("#startbtn").disabled=false;
+  const pool=electorPool();
+  if(pickedId && !pool.some(function(c){return c.id===pickedId;})){pickedId=null;$("#startbtn").disabled=true;$("#startbtn").textContent="Choose a cardinal";}
+  pool.forEach(c=>{
+    const card=h("div",{class:"ccard"+(pickedId===c.id?" sel":""),onclick:()=>{pickedId=c.id;document.querySelectorAll(".ccard").forEach(e=>e.classList.remove("sel"));card.classList.add("sel");$("#startbtn").disabled=false;
       $("#startbtn").textContent="Enter the conclave as "+c.short;}},
       h("div",{class:"galero-wrap",html:galero(c.her[0],c.her[1],36)}),
       h("div",{class:"nm"},c.name),
       h("div",{class:"ttl"},ORDERS[c.order]+" of "+c.title+(c.office?" · "+c.office.split("·")[0].trim():"")),
       h("div",{class:"meta"},h("span",null,ROLEHINT[c.id]||""),h("span",{class:"stars"},"★".repeat(diff(c))+"✩".repeat(5-diff(c))),h("span",null,"æt. "+c.age)),
-      h("div",{class:"hook"},c.hook));
+      h("div",{class:"tier "+tierOf(c)[0]},tierOf(c)[0]==="forgiving"?"Forgiving — good to learn on":tierOf(c)[0]==="active"?"Demanding — rewards active play":"Standard"),
+      h("div",{class:"hook",html:c.hook+(tierOf(c)[1]?"<br><span class='caution'>"+tierOf(c)[1]+"</span>":"")+"<br><span class='mono goldtx'>Best route: "+(ROUTEHINT[c.id]||"Possible papacy")+"</span>"}));
     grid.appendChild(card);
   });
-  $("#absentlist").innerHTML="<b class='smallcaps'>Absent from Rome:</b> "+ABSENT.map(a=>`<i>${a.name}</i> — ${a.why}`).join("  ·  ");
+  const absent=$("#absentlist");absent.innerHTML="";
+  absent.appendChild(h("div",{html:"<b class='smallcaps'>Optional absent electors:</b> add any of the four cardinals who were eligible but absent in 1492. Each checkbox changes the voting College and the two-thirds threshold."}));
+  const opts=h("div",{class:"absent-options"});
+  ABSENT_CARDINALS.forEach(function(c){
+    const why=(ABSENT.find(function(a){return a.id===c.id;})||{}).why||"absent in 1492";
+    const cb=h("input",{type:"checkbox"}); cb.checked=extraElectors.has(c.id);
+    cb.addEventListener("change",function(){ if(cb.checked) extraElectors.add(c.id); else extraElectors.delete(c.id); renderSelect(); });
+    opts.appendChild(h("label",null,cb,h("span",null,h("b",null,c.short+" — "+c.name),h("small",null,why))));
+  });
+  absent.appendChild(opts);
   const urlSeed=new URLSearchParams(location.search).get("seed");
   if(urlSeed) $("#seedin").value=urlSeed;
   const w=$("#jswarn"); if(w) w.remove();   // scripts ran and the College is seated
@@ -1773,13 +2277,15 @@ function renderSelect(){
 function startGame(){
   if(!pickedId) return;
   const seed=$("#seedin").value.trim()||String(Math.floor(Math.random()*1e9));
-  S=initState(pickedId,seed);
+  S=initState(pickedId,seed,"open",Array.from(extraElectors));
   if(DEBUG) window.S=S;
   S.flags.phase="dawn";
   $("#screen-select").classList.add("hidden");
   $("#screen-game").classList.remove("hidden");
+  try{window.scrollTo(0,0);}catch(e){}
   const me=byId[pickedId];
-  log(S,`<b>${DATE_LABELS[1]}, 1492.</b> Vespers. Behind you the Masters of Ceremonies seal the doors of the Sistine Chapel — twenty-three princes of the Church, locked in with God and each other. Cells of violet and green cloth stand in rows beneath the new frescoes. Yours bears the arms of <b>${me.name}</b>.`,"holy");
+  const collegeN=present(S).length;
+  log(S,`<b>${DATE_LABELS[1]}, 1492.</b> Vespers. Behind you the Masters of Ceremonies seal the doors of the Sistine Chapel — ${collegeN===23?"twenty-three":collegeN} princes of the Church, locked in with God and each other. Cells of violet and green cloth stand in rows beneath the new frescoes. Yours bears the arms of <b>${me.name}</b>.`,"holy");
   log(S,`The city outside is burning its own. Two hundred and twenty murders since Innocent died, they say. Rome waits for a pope.`,"");
   if(OBJECTIVES[pickedId]){
     const ob=OBJECTIVES[pickedId];
@@ -1803,7 +2309,7 @@ function renderRoster(){
   const benches=[["B","Cardinal-Bishops"],["P","Cardinal-Priests"],["D","Cardinal-Deacons"]];
   benches.forEach(([o,label])=>{
     const b=h("div",{class:"bench"},h("div",{class:"bh"},label));
-    CARDINALS.filter(c=>c.order===o).forEach(c=>{
+    CARDINALS.filter(c=>c.order===o && (!c.optional || (S.initialElectors||[]).indexOf(c.id)>=0)).forEach(c=>{
       const st=S.cards[c.id];
       const last=S.lastFinal[c.id]||0;
       const dots=h("div",{class:"dotrow"});
@@ -1821,11 +2327,21 @@ function renderRoster(){
     });
     host.appendChild(b);
   });
+  host.appendChild(h("div",{class:"rosterkey",html:
+    "<span class='k'><span class='dot deal'></span> holds your promise</span>"+
+    "<span class='k'><span class='dot pledge'></span> pledged to you</span>"+
+    "<span class='k'><span class='dot intel'></span> well informed</span>"+
+    "<br><span class='k'>→ Name = his known lean · → Name? = hearsay · ✚ = sick</span>"}));
+}
+function debtMetaFor(broker,target,label){
+  const rows=(S.officeDebts||[]).filter(function(d){return d.broker===broker&&d.target===target&&d.label===label;});
+  const d=rows[rows.length-1];
+  return d?" <span class='dim'>("+promiseForm(d.form).label+"; "+d.hist+")</span>":"";
 }
 function renderPanels(){
   $("#daylabel").textContent=DATE_LABELS[S.day]+" · MCCCCXCII";
   $("#apwrap").innerHTML="Hours of the day "+`<span class="ap-pips">${'<span class="pip"></span>'.repeat(S.ap)}${'<span class="pip spent"></span>'.repeat(Math.max(0,3-S.ap))}</span>`;
-  $("#cashrow").textContent="⚜ "+fmtD(S.cash);
+  $("#cashrow").textContent="⚜ "+fmtD(S.cash)+" · fatigue: "+fatigueName(S.cards[S.playerId].fatigue||0);
   $("#heatbar").style.width=Math.min(100,S.heat)+"%";
   $("#heatval").textContent=Math.round(S.heat);
   $("#intbar").style.width=S.integrity+"%";
@@ -1841,9 +2357,12 @@ function renderPanels(){
   }
   const L=$("#ledger");L.innerHTML="";
   const recv=Object.entries(S.cards[S.playerId].promisesFrom);
-  if(recv.length)L.appendChild(h("div",{class:"pr",html:"<span class='smallcaps dim'>Promised to you:</span><br>"+recv.map(([b,o])=>`<span class="who">${byId[b].short}</span> — ${o.label}`).join("<br>")}));
-  if(S.promisesMade.length)L.appendChild(h("div",{class:"pr",html:"<span class='smallcaps dim'>Your promises:</span><br>"+S.promisesMade.map(p=>`<span class="who">${byId[p.to].short}</span> — ${p.label}${p.cash?` · ${fmtD(p.cash)}`:""}${p.forWhom&&p.forWhom!==S.playerId?` · <i>for ${byId[p.forWhom].short}</i>`:""}`).join("<br>")}));
-  if(!recv.length&&!S.promisesMade.length)L.innerHTML="<small class='dim'>No promises bind you. Yet.</small>";
+  if(recv.length)L.appendChild(h("div",{class:"pr",html:"<span class='smallcaps dim'>Promised to you:</span><br>"+recv.map(([b,o])=>`<span class="who">${byId[b].short}</span> — ${o.label}${debtMetaFor(b,S.playerId,o.label)}`).join("<br>")}));
+  if(S.promisesMade.length)L.appendChild(h("div",{class:"pr",html:"<span class='smallcaps dim'>What you owe:</span><br>"+S.promisesMade.map(p=>`<span class="who">${byId[p.to].short}</span> — ${p.label}${p.cash?` · ${fmtD(p.cash)}`:""}${p.forWhom&&p.forWhom!==S.playerId?` · <i>for ${byId[p.forWhom].short}</i>`:""}${debtMetaFor(S.playerId,p.to,p.label)}`).join("<br>")}));
+  const otherDebts=(S.officeDebts||[]).filter(function(d){return d.broker!==S.playerId&&d.target!==S.playerId&&S.knownBrokers&&S.knownBrokers[d.broker];}).slice(-3);
+  if(otherDebts.length)L.appendChild(h("div",{class:"pr",html:"<span class='smallcaps dim'>Debts you know of:</span><br>"+otherDebts.map(function(d){return `<span class="who">${byId[d.broker].short}</span> → ${byId[d.target].short}: ${d.label} <span class="dim">(${promiseForm(d.form).label}; ${d.hist})</span>`;}).join("<br>")}));
+  if(S.debt)L.appendChild(h("div",{class:"pr",html:"<span class='smallcaps dim'>Banchi debt:</span> "+fmtD(S.debt)}));
+  if(!recv.length&&!S.promisesMade.length&&!otherDebts.length&&!S.debt)L.innerHTML="<small class='dim'>No promises bind you. Yet.</small>";
   renderActions();
 }
 function renderLog(){
@@ -1866,7 +2385,39 @@ function renderActions(){
   else if(ph==="actions") d.textContent = (S.day>=6&&!S.flags.vespersDone) ? "⚜ Proceed to the Vesper Scrutiny" : "Retire for the night";
   else d.textContent="…";
 }
-function renderAll(){renderRoster();renderPanels();renderLog();}
+function renderCoach(){
+  const el=$("#coach"); if(!el) return;
+  el.innerHTML="";
+  if(S.over || S.flags.coachDismissed || S.day>2){ el.classList.remove("show"); return; }
+  const me=byId[S.playerId];
+  const tier=(typeof TIER!=="undefined"&&TIER[S.playerId])?TIER[S.playerId][0]:"standard";
+  let tip;
+  if(S.flags.phase==="dawn" && S.day<3){
+    tip="<b>Your aim:</b> be elected with a two-thirds majority — or, if that's beyond you, place a winner in your debt. "+
+      (tier==="active"?"You drew a demanding role: act early and often.":"")+
+      " Each day you have three hours. Spend them in <b>Colloquy</b>: <i>sound out</i> a cardinal to learn his lean, then <i>press</i> or <i>offer</i> to move him.";
+  } else if(S.flags.phase==="actions"){
+    tip="<b>Three hours, three actions.</b> Open <b>Colloquy</b> and try <i>sound out</i> on a cardinal near the top of the Scrutiny Board. Watch <b>Reputation for simony</b> (right) — buying votes raises it, and a high reputation can sink you. <b>Devotions</b> lowers it.";
+  } else {
+    tip="<b>The scrutiny.</b> From day 3 the College votes each morning. Cast for yourself, or for a man you can place — the board on the right shows where the votes are pooling.";
+  }
+  el.appendChild(h("div",{class:"coachbox"},
+    h("div",{class:"ct",html:"⚜ Getting your bearings — "+me.short+(tier==="active"?" · demanding role":"")}),
+    h("div",{html:tip}),
+    h("button",{class:"coachx",onclick:function(){S.flags.coachDismissed=true;renderCoach();}},"Got it — hide these hints")));
+  el.classList.add("show");
+}
+function openBriefing(){
+  const body=h("div",null,
+    h("p",null,"Rome, August 1492. Twenty-three cardinals are locked in the Sistine Chapel to elect a pope. You are one of them. This is a game of persuasion, money and nerve — not chance."),
+    h("p",{html:"<b>You win by</b> being elected with a two-thirds majority, or — failing that — by making the winner owe you, or by keeping your soul and your honour intact when others sold theirs. Each cardinal also carries a private ambition, revealed at the start."}),
+    h("p",{html:"<b>A day, in brief:</b> a dawn event or two → from the third day, a <b>scrutiny</b> (the vote) → <b>three hours</b> of actions → one <b>night</b> errand. From the sixth day there is a second scrutiny each evening, and the food gets worse."}),
+    h("p",{html:"<b>Your three hours</b> are the heart of it. The most useful action is <b>Colloquy</b>: meet one cardinal, <i>sound him out</i> to learn where he leans, then <i>press</i> him for his vote or <i>make an offer</i> — gold, an office, a promise. Before you commit, the game tells you the likely result."}),
+    h("p",{html:"<b>Two meters decide your fate as a candidate.</b> <i>Reputation for simony</i> rises every time you buy a vote; let it run too high and the College turns on you. <i>Integrity</i> is the opposite — <b>Devotions</b> and clean dealing raise it. Watch both, on the right."}),
+    h("p",{class:"dim",html:"New players: try <b>Carafa</b> or <b>Zeno</b> first — forgiving roles the College tends to rally to. Borgia and della Rovere are powerful but punish hesitation."}));
+  openModal("How a conclave works", body, [{label:"Enter the chapel"},{label:"Read the full rules",fn:openManual}]);
+}
+function renderAll(){renderRoster();renderPanels();renderLog();renderCoach();}
 
 /* ---------- dossier ---------- */
 function openDossier(id){
@@ -1882,7 +2433,7 @@ function openDossier(id){
   body.appendChild(h("div",{class:"dtags"},tags.map(t=>h("span",{class:"tag dark"},t))));
   body.appendChild(h("p",null,c.bio));
   if(lvl>=1){
-    body.appendChild(h("p",{class:"dim",html:`<b class="goldtx">His leanings:</b> ${c.ideo>=0.7?"a man of the strict observance — reform, prayer, the Crusade":c.ideo>=0.45?"a churchman of moderate habits":"a thoroughly worldly prince of the Church"}. Earthly patron: <i>${POWERS[c.patron]?POWERS[c.patron].name:"none worth naming"}</i>.`}));
+    body.appendChild(h("p",{class:"dim",html:`<b class="goldtx">His leanings:</b> ${c.ideo>=0.7?"a man of the strict observance — reform, prayer, the Crusade":c.ideo>=0.45?"a churchman of moderate habits":"a thoroughly worldly prince of the Church"}. Earthly patron: <i>${POWERS[c.patron]?POWERS[c.patron].name:"none worth naming"}</i>.<br><b class="goldtx">Condition:</b> ${fatigueName(st.fatigue||0)}${st.fatigue>=3?" — hunger and tallow are bending him toward settlement":""}.`}));
   }
   if(lvl>=2){
     const t=topPreference(S,id);
@@ -1890,7 +2441,8 @@ function openDossier(id){
   }
   if(lvl>=3){
     const deals=Object.entries(st.promisesFrom);
-    body.appendChild(h("p",{class:"dim",html:`<b class="goldtx">What your conclavist has learned:</b> ${deals.length?deals.map(([b,o])=>`${byId[b].short} has promised him <i>${o.label}</i>`).join("; ")+".":"no promise yet binds him."} ${st.pledgedTo?`He has pledged his voice to <b>${byId[st.pledgedTo].short}</b>.`:""}`}));
+    const ag=agentOf(S,id);
+    body.appendChild(h("p",{class:"dim",html:`<b class="goldtx">What your conclavist has learned:</b> ${deals.length?deals.map(([b,o])=>`${byId[b].short} has promised him <i>${o.label}</i> <span class="dim">(${promiseForm(o.form).label})</span>`).join("; ")+".":"no promise yet binds him."} ${st.pledgedTo?`He has pledged his voice to <b>${byId[st.pledgedTo].short}</b>.`:""}<br><b class="goldtx">Household channel:</b> ${ag.label} <span class="dim">(${ag.faction}; ${ag.basis})</span>`}));
   }
   body.appendChild(h("div",{class:"intelnote"},"INTELLIGENCE: "+["common knowledge","soundings taken","well informed","every secret known"][lvl]+(lvl<3?" · sound him out (day) or spy on him (night) to learn more":"")));
   openModal(c.short,body,[{label:"Close"}]);
@@ -1916,22 +2468,41 @@ function leanReason(v,lean){
   return "simply the strongest acceptable horse";
 }
 /* ---------- modal machinery ---------- */
-let modalStack=[];
+let modalStack=[], modalSeq=0;
+function focusables(root){return Array.from(root.querySelectorAll('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])')).filter(function(el){return !el.disabled&&el.offsetParent!==null;});}
+function trapFocus(e,root){
+  const f=focusables(root); if(!f.length){e.preventDefault();root.focus();return;}
+  const first=f[0], last=f[f.length-1];
+  if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+  else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+}
 function openModal(title,bodyEl,choices,opts){
   opts=opts||{};
+  const returnFocus=document.activeElement;
+  const titleId="modal-title-"+(++modalSeq);
   const ov=h("div",{class:"overlay"});
-  const m=h("div",{class:"modal"});
-  if(!opts.noClose)m.appendChild(h("button",{class:"mclose",onclick:()=>closeModal(ov)},"✕"));
-  m.appendChild(h("h3",null,title));
+  const m=h("div",{class:"modal",role:"dialog","aria-modal":"true","aria-labelledby":titleId,tabindex:"-1"});
+  ov._returnFocus=returnFocus; ov._noClose=!!opts.noClose;
+  ov._keyHandler=function(e){ if(e.key==="Escape"&&!ov._noClose) closeModal(ov); else if(e.key==="Tab") trapFocus(e,m); };
+  document.addEventListener("keydown",ov._keyHandler);
+  if(!opts.noClose)m.appendChild(h("button",{class:"mclose","aria-label":"Close dialog",onclick:()=>closeModal(ov)},"✕"));
+  m.appendChild(h("h3",{id:titleId},title));
   const b=h("div",{class:"body"}); if(typeof bodyEl==="string")b.innerHTML=bodyEl; else b.appendChild(bodyEl);
   m.appendChild(b);
   if(choices&&choices.length){
     m.appendChild(h("div",{class:"choices"},choices.map(c=>h("button",{onclick:()=>{closeModal(ov);c.fn&&c.fn();}},c.label,c.sub?h("small",null,c.sub):null))));
   }
   ov.appendChild(m);document.body.appendChild(ov);modalStack.push(ov);
+  setTimeout(function(){const f=focusables(m);try{(f[0]||m).focus({preventScroll:true});}catch(e){(f[0]||m).focus();}},0);
   return ov;
 }
-function closeModal(ov){ov.remove();modalStack=modalStack.filter(o=>o!==ov);}
+function closeModal(ov){
+  if(!ov) return;
+  if(ov._keyHandler) document.removeEventListener("keydown",ov._keyHandler);
+  if(ov.parentNode) ov.remove();
+  modalStack=modalStack.filter(o=>o!==ov);
+  if(ov._returnFocus&&document.contains(ov._returnFocus)) setTimeout(function(){try{ov._returnFocus.focus({preventScroll:true});}catch(e){try{ov._returnFocus.focus();}catch(e2){}}},0);
+}
 
 /* ---------- event queue ---------- */
 function qEvent(title,body,choices,noClose){S.queue.push({title,body,choices,noClose});}
@@ -1944,13 +2515,70 @@ function showEvents(){
 /* CONCLAVE 1492 — UI layer, part 2 */
 
 /* ---------- scripted days ---------- */
+/* ---------- seed-gated wildcards: emergent events on variable days, distinct from the scripted calendar ---------- */
+function randPresent(S,pred){
+  const pool=present(S).filter(function(id){return id!==S.playerId && !S.cards[id].out && (!pred||pred(id));});
+  if(!pool.length) return null;
+  return pool[Math.floor(S.rng()*pool.length)];
+}
+const WILDCARDS=[
+  {id:"banchi", min:4, max:10, fn:function(S){
+    const t=randPresent(S);
+    if(!t) return null;
+    return {title:"The Banchi Talk Out of Turn",
+      body:"<p>A clerk of the Spannocchi bank, well paid and badly frightened, sends word of where the smart money is moving. For tonight, at least, you can read <b>"+byId[t].short+"</b> like an open book.</p>",
+      choices:[{label:"Read him.",fn:function(){S.cards[t].intel=Math.max(S.cards[t].intel,2);log(S,"You now know <b>"+byId[t].short+"</b>'s mind — the bankers were generous, or careless.","event");}}]};
+  }},
+  {id:"pasquin", min:5, max:10, fn:function(S){
+    const tally=S.lastTally||{}; const lead=Object.entries(tally).sort(function(a,b){return b[1]-a[1];})[0];
+    let id=(lead&&lead[1]>=4)?lead[0]:randPresent(S,function(x){return byId[x].papabile>=6;});
+    if(!id||id===S.playerId||!S.cards[id]||S.cards[id].out) return null;
+    return {title:"A Pasquinade",
+      body:"<p>Pinned to the chapel screen overnight, a verse in a bad Latin hand mocks <b>"+byId[id].short+"</b> — his appetites, his arithmetic, his hopes of the tiara. The College pretends not to read it. Everyone has read it.</p>",
+      choices:[{label:"Let it do its work.",sub:"His momentum cools",fn:function(){S.papBoost[id]=(S.papBoost[id]||0)-0.6;log(S,"You say nothing. The verse stays up until Terce, and so does the snickering.","event");}},
+        {label:"Tear it down publicly.",sub:"+ integrity; he remembers it",fn:function(){S.integrity=Math.min(100,S.integrity+2);S.R[id][S.playerId]+=0.6;log(S,"You strip the libel from the screen with your own hand. <b>"+byId[id].short+"</b> inclines his head a fraction.","holy");}}]};
+  }},
+  {id:"quarrel", min:4, max:9, fn:function(S){
+    const a=randPresent(S); if(!a) return null;
+    const b=randPresent(S,function(id){return id!==a;}); if(!b) return null;
+    return {title:"Words at Compline",
+      body:"<p>At the last office <b>"+byId[a].short+"</b> and <b>"+byId[b].short+"</b> fall into a low, vicious argument — a benefice, an old slight, who can say. Two cells that were leaning together are not, now.</p>",
+      choices:[{label:"Note the rift.",fn:function(){S.R[a][b]-=1; S.R[b][a]-=1; log(S,"<b>"+byId[a].short+"</b> and <b>"+byId[b].short+"</b> will not be voting together for a while.","event");}}]};
+  }},
+  {id:"relic", min:4, max:10, fn:function(S){
+    return {title:"A Relic Carried In",
+      body:"<p>A reliquary of the True Cross is borne through the chapel for the morning Mass. The zelanti pray with pointed fervour; the worldly examine their nails. For a moment the room remembers what it is supposed to be about.</p>",
+      choices:[{label:"Pray with them.",sub:"The visibly pious gain with the strict",fn:function(){if(S.integrity>=55){present(S).forEach(function(t){if(t!==S.playerId&&byId[t].ideo>=0.6)S.R[t][S.playerId]+=0.4;});log(S,"You kneel, and mean it. The strict men mark who prayed and who merely stood.","holy");}else{log(S,"You kneel with the rest. The strict men, who keep their own counsel, are not yet convinced.","");}}}]};
+  }},
+  {id:"searched", min:5, max:10, fn:function(S){
+    return {title:"A Cell Is Searched",
+      body:"<p>The Masters of Ceremonies, enforcing <i>Ubi periculum</i>, search the cells for letters and gifts passing the wall. Yours is among them.</p>",
+      choices:[{label:"You have nothing to hide.",sub:"Clean hands cost nothing here",fn:function(){if(S.heat>=35){S.heat=Math.max(0,S.heat-4);log(S,"They find enough to confirm what the chapel suspects, and little more. The search, oddly, cools the talk.","event");}else{S.integrity=Math.min(100,S.integrity+1);log(S,"They find a breviary, a comb, and a clean conscience. Word gets around.","holy");}}}]};
+  }}
+];
+function maybeWildcard(day){
+  if(day<4||day>10) return;
+  S.flags.wildCount=S.flags.wildCount||0;
+  S.flags.wildsUsed=S.flags.wildsUsed||{};
+  if(S.flags.wildCount>=2) return;
+  if(S.rng()>=0.24) return;                       // most days pass without one
+  const pool=WILDCARDS.filter(function(w){return day>=w.min&&day<=w.max&&!S.flags.wildsUsed[w.id];});
+  if(!pool.length) return;
+  const w=pool[Math.floor(S.rng()*pool.length)];
+  const e=w.fn(S);
+  if(!e) return;
+  S.flags.wildsUsed[w.id]=true; S.flags.wildCount++;
+  qEvent(e.title,e.body,e.choices,true);
+}
+
 function dawnEvents(day){
   const me=byId[S.playerId];
   if(day===1){
-    qEvent("The Capitulation","<p>Before the first ballot, the College swears its customary capitulation: whoever is elected will continue the Crusade against the Turk, reform the Curia, create no cardinal under thirty, and consult the College in all great matters. Every man here has watched every pope break it.</p><p>The instrument is passed to you.</p>",
-      [{label:"Sign, as all the others sign.",sub:"Custom is custom.",fn:function(){S.capitulationSigned=true;S.integrity=Math.min(100,S.integrity+1);log(S,"You sign the capitulation in a steady hand.","");}},
-       {label:"Sign — and mean it.",sub:"+ integrity; the zelanti notice",fn:function(){S.capitulationSigned=true;S.integrity=Math.min(100,S.integrity+3);present(S).forEach(function(t){if(byId[t].ideo>=0.6)S.R[t][S.playerId]+=0.3;});log(S,"You sign, and add a quiet word about oaths and the keeping of them. "+zelantiWitness()+"'s old eyes rest on you a moment.","");}},
-       {label:"Refuse your signature.",sub:"A scandal; a kind of honesty",fn:function(){S.capitulationSigned=false;present(S).forEach(function(t){S.R[t][S.playerId]-=0.3;});S.papBoost[S.playerId]=(S.papBoost[S.playerId]||0)+0.3;log(S,"You alone decline to sign. A murmur runs the benches — arrogance, or the only honest act in the chapel.","event");}}]);
+    qEvent("The Capitulation","<p>The College spends the day on its election capitulation. Its hard clause restricts how many new cardinals the next pope may create. Around it gather the usual words — reform, the Turk, consultation with the College, restraint over papal fortresses — useful precisely because every pope knows how to interpret them later.</p><p>The instrument is passed to you.</p>",
+      [{label:"Sign the known hard clause.",sub:"Restrict new cardinals; cautious, accurate",fn:function(){S.capitulationSigned=true;S.capitulationClauses=["cardinals"];S.integrity=Math.min(100,S.integrity+1);log(S,"You sign the capitulation, giving weight to the clause that limits new red hats. The young cardinals hear the scratch of the pen most clearly.","");}},
+       {label:"Press the stricter reading.",sub:"Reform, Crusade, consultation, fortresses",fn:function(){S.capitulationSigned=true;S.capitulationClauses=["cardinals","reform","crusade","college","castles"];S.integrity=Math.min(100,S.integrity+3);present(S).forEach(function(t){if(byId[t].ideo>=0.6)S.R[t][S.playerId]+=0.35;else if(byId[t].ambition>=4)S.R[t][S.playerId]-=0.15;});log(S,"You argue for the stricter reading: fewer new cardinals, reform, the Turk, counsel, restraint over castles. The devout approve; the men with nephews do not.","holy");}},
+       {label:"Keep the form brief.",sub:"Worldly men prefer parchment with doors in it",fn:function(){S.capitulationSigned=true;S.capitulationClauses=["cardinals"];present(S).forEach(function(t){if(byId[t].ambition>=4)S.R[t][S.playerId]+=0.2;});log(S,"You sign, but do not labour the clauses. Parchment, like theology, has margins.","");}},
+       {label:"Refuse your signature.",sub:"A scandal; a kind of honesty",fn:function(){S.capitulationSigned=false;S.capitulationClauses=[];present(S).forEach(function(t){S.R[t][S.playerId]-=0.3;});S.papBoost[S.playerId]=(S.papBoost[S.playerId]||0)+0.3;log(S,"You alone decline to sign. A murmur runs the benches — arrogance, or the only honest act in the chapel.","event");}}]);
     if(!me.prepared){
       qEvent("Strip Your Palace?","<p>By Roman custom the mob sacks the palace of the man elected pope. Seven cardinals have already emptied theirs — da Costa, Fregoso, Michiel, Piccolomini, della Rovere of S. Clemente, Savelli, Zeno. The bankers read the carts like entrails.</p>",
         [{label:"Empty it tonight. (300 ducats cartage)",sub:"A public declaration of your candidacy",fn:function(){if(S.cash>=300){S.cash-=300;S.palaceStripped=true;log(S,"By torchlight your plate and tapestries roll toward the Vatican vaults. By morning, every banker in the Borgo has adjusted your price.","deal");}else toast("You lack even the cartage money.");}},
@@ -1958,10 +2586,9 @@ function dawnEvents(day){
     }
   }
   if(day===2){
-    var counts={};votingToday(S).forEach(function(v){var t=topPreference(S,v);if(t)counts[t]=(counts[t]||0)+1;});
-    var top=Object.entries(counts).sort(function(a,b){return b[1]-a[1];}).slice(0,5);
-    var oddsTxt=top.map(function(e,i){return "<b>"+byId[e[0]].short+"</b> "+(["even money","3 to 2","2 to 1","4 to 1","6 to 1"][i]||"long");}).join(" · ");
-    qEvent("The Bankers' Book","<p>A conclavist, for a consideration, recites the odds being written in the Banchi: "+oddsTxt+".</p><p>They were wrong about the last three popes.</p>");
+    var top=consultBankers(S).slice(0,5);
+    var oddsTxt=top.map(function(e){return "<b>"+byId[e.id].short+"</b> "+e.odds;}).join(" · ");
+    qEvent("The Bankers' Book","<p>A conclavist, for a consideration, recites the odds being written in the Banchi: "+oddsTxt+".</p><p>They price stripped palaces, French credit, Borgia liquidity, rumours and yesterday's smiles. They were wrong about the last three popes.</p>");
     if(me.patron && me.patron!=="none"){
       qEvent("A Letter Through the Wall","<p>Despite the seals, a letter reaches you in a hollowed loaf — the hand of <b>"+POWERS[me.patron].name+"</b>. You are instructed to serve your patron's interest in the scrutinies, and reminded, delicately, of all you hold at his pleasure.</p>",
         [{label:"Burn it, and comply.",sub:"His clients among the electors will favour your name (+crown backing)",fn:function(){S.courted[me.patron+":"+S.playerId]=(S.courted[me.patron+":"+S.playerId]||0)+1.4;log(S,"You hold the letter to the candle and resolve to be useful.","deal");}},
@@ -1993,14 +2620,25 @@ function dawnEvents(day){
   if(day===8 && me.patron && me.patron!=="none") qEvent("A Second Letter","<p>Another loaf, another letter — shorter this time. <b>"+POWERS[me.patron].name+"</b> grows impatient with the deadlock, and with you.</p>");
   if(day>=9 && !S.flags.weary){S.flags.weary=true;
     qEvent("Bread, Wine, Water","<p>By the constitution <i>Ubi periculum</i> the College is now reduced to bread, wine and water. The chapel smells of tallow and old men. Gherardo's chaplain is heard praying aloud. Something will break soon, because everything does.</p>");}
+  maybeWildcard(day);
 }
 
 /* ---------- actions UI ---------- */
-function pickTarget(title,filter,fn){
+function canAdvocate(id){
+  return !!(S.cards[id].pledgedTo===S.playerId || S.cards[id].promisesFrom[S.playerId] || rel(S,id,S.playerId)>=2.2);
+}
+function advocateTag(id){
+  if(canAdvocate(id)) return "can advocate for you";
+  if(S.cards[id].pledgedTo) return "pledged to "+byId[S.cards[id].pledgedTo].short;
+  if(S.cards[id].promisesFrom[S.playerId]) return "holds your promise";
+  if(rel(S,id,S.playerId)>=1.2) return "warm to you";
+  return "";
+}
+function pickTarget(title,filter,fn,subFn){
   const grid=h("div",{class:"tgrid"});
   const ov=openModal(title,grid,null);
   present(S).filter(function(id){return id!==S.playerId&&(!filter||filter(id));}).forEach(function(id){
-    const sub=ORDERS[byId[id].order].replace("Cardinal-","")+(S.lastFinal[id]?" · "+rn(S.lastFinal[id])+" voices":"");
+    const sub=subFn?subFn(id):(ORDERS[byId[id].order].replace("Cardinal-","")+(S.lastFinal[id]?" · "+rn(S.lastFinal[id])+" voices":""));
     grid.appendChild(h("button",{onclick:function(){closeModal(ov);fn(id);}},byId[id].short,h("small",null,sub)));
   });
 }
@@ -2036,6 +2674,12 @@ function doColloquy(){
       (S.cards[t].pledgedTo===S.playerId||S.cards[t].promisesFrom[S.playerId]||rel(S,t,S.playerId)>=2.2)?
       {label:"Send him as your advocate…",sub:"He spends his day pressing a man of YOUR choosing on your behalf",fn:function(){doAdvocate(t);}}:null
     ].filter(Boolean));
+  },function(id){
+    const bits=[ORDERS[byId[id].order].replace("Cardinal-","")];
+    if(S.lastFinal[id]) bits.push(rn(S.lastFinal[id])+" voices last");
+    const tag=advocateTag(id); if(tag) bits.push(tag);
+    if(S.cards[id].intel>=2){ const lean=topPreference(S,id); if(lean) bits.push("leans "+byId[lean].short); }
+    return bits.join(" · ");
   });
 }
 function doAdvocate(adv){
@@ -2054,38 +2698,67 @@ function doAdvocate(adv){
     });
   });
 }
+function offerForecastText(t,value,cash,secret,cause){
+  const effective=value+(secret?-Math.round(value*0.15):0)+cash*1.2;
+  const p=offerAcceptChance(S,t,S.playerId,effective);
+  const viab=viability(S,cause);
+  const rival=bestRivalOffer(S,t,S.playerId);
+  if(rival>effective*1.15&&rival>0) return "A rival offer already outweighs yours; he may pocket courtesy and follow the richer promise.";
+  if(byId[t].integrity+S.scruple[t]*30>88) return "He is probably too upright; this risks insult more than movement.";
+  if(viab<0.25&&p>=0.35) return "He may accept, but the vote will not move unless the cause first gains voices.";
+  if(p>=0.68) return "He is likely to accept, and the cause is strong enough for the promise to pull.";
+  if(p>=0.42) return "He may accept; expect gratitude before obedience.";
+  if(byId[t].integrity>=70) return "This risks insult: his scruples are stronger than the inventory.";
+  return "Uncertain. More coin, a better office, or a stronger cause would make this less theatrical.";
+}
 function doOffer(t,secret){
   const c=byId[t];
-  const items=[]; let cash=0; let cause=S.playerId;
+  const items=[]; let cash=0; let cause=S.playerId; let form=secret?"private":"witnessed";
   const body=h("div",null);
+  const forecast=h("div",{class:"howto",html:"<b>Forecast:</b> Choose a cause and inventory."});
+  function totalOffer(){return items.reduce(function(s,it){return s+(it.v||0);},0);}
+  function updateForecast(){forecast.innerHTML="<b>Forecast:</b> "+offerForecastText(t,totalOffer(),cash,secret,cause)+" <span class=\'dim\'>Form: "+promiseForm(form).label+" — "+promiseForm(form).note+".</span>";}
   body.appendChild(h("div",{class:"howto",html:(secret?"A night offer: deniable, the scandal halved — but he discounts the value, and your one night errand is spent. ":"Gifts now, or papal offices <i>contingent on your election</i>. Generosity feeds your reputation for simony, which the upright can smell. ")+"His ballot bends toward the offer's <b>cause</b> in proportion to that cause's electability."}));
+  body.appendChild(forecast);
   const causeBtn=h("button",{class:"gold",style:"margin-bottom:.5rem",onclick:function(){
     chooseCause(t,function(cs){cause=cs;causeBtn.textContent="In the cause of: "+(cs===S.playerId?"my own election":byId[cs].short)+" ✎";
       giftWrap.style.display=cs===S.playerId?"":"none";
       if(cs!==S.playerId){ for(let i=items.length-1;i>=0;i--){ if(items[i].papal) items.splice(i,1); }
-        giftWrap.querySelectorAll("input").forEach(function(x){x.checked=false;}); }});
+        giftWrap.querySelectorAll("input").forEach(function(x){x.checked=false;}); }
+      updateForecast();});
   }},"In the cause of: my own election ✎");
   body.appendChild(causeBtn);
   const list=h("div",{class:"assetlist"});
-  S.assetsLeft.forEach(function(a){ list.appendChild(h("label",null,h("input",{type:"checkbox",onchange:function(e){e.target.checked?items.push(a):items.splice(items.indexOf(a),1);}}),a.label,h("span",{class:"v"},"~"+fmtD(a.v)))); });
+  S.assetsLeft.forEach(function(a){ list.appendChild(h("label",null,h("input",{type:"checkbox",onchange:function(e){e.target.checked?items.push(a):items.splice(items.indexOf(a),1);updateForecast();}}),a.label,h("span",{class:"v"},"~"+fmtD(a.v)))); });
   body.appendChild(list);
   const giftWrap=h("div",{class:"assetlist"});
   S.giftsLeft.forEach(function(g){ const gg=Object.assign({},g,{papal:true});
-    giftWrap.appendChild(h("label",null,h("input",{type:"checkbox",onchange:function(e){e.target.checked?items.push(gg):items.splice(items.indexOf(gg),1);}}),g.label,h("span",{class:"v",html:"upon my election"}))); });
+    giftWrap.appendChild(h("label",null,h("input",{type:"checkbox",onchange:function(e){e.target.checked?items.push(gg):items.splice(items.indexOf(gg),1);updateForecast();}}),g.label,h("span",{class:"v",html:"upon my election"}))); });
   body.appendChild(giftWrap);
+  const formWrap=h("div",{class:"assetlist"});
+  [["private","Private word"],["witnessed","Witnessed promise"],["written","Written instrument"]].forEach(function(f){
+    const input=h("input",{type:"radio",name:"pform",value:f[0],onchange:function(e){if(e.target.checked){form=f[0];updateForecast();}}});
+    if(f[0]===form) input.checked=true;
+    formWrap.appendChild(h("label",null,input,f[1],h("span",{class:"v"},promiseForm(f[0]).note)));
+  });
+  body.appendChild(h("p",{class:"dim",style:"margin-top:.6rem"},"Form of promise:"));
+  body.appendChild(formWrap);
   const cv=h("span",{class:"mono goldtx"},"0 ducats");
   body.appendChild(h("p",{style:"margin-top:.7rem"},"And in coin: ",cv));
-  body.appendChild(h("input",{type:"range",min:0,max:Math.min(S.cash,10000),step:100,value:0,oninput:function(e){cash=+e.target.value;cv.textContent=fmtD(cash);}}));
+  body.appendChild(h("input",{type:"range",min:0,max:Math.min(S.cash,10000),step:100,value:0,oninput:function(e){cash=+e.target.value;cv.textContent=fmtD(cash);updateForecast();}}));
+  updateForecast();
   openModal((secret?"A Night Offer to ":"An Offer to ")+c.short,body,[
     {label:"Make the offer",fn:function(){
       if(secret){ if(S.nightUsed)return toast("The night is spent.");S.nightUsed=true; }
-      const r=actOffer(S,t,items,cash,secret,cause);
+      const r=actOffer(S,t,items,cash,secret,cause,form);
       if(!r.ok)return toast(r.msg);
       if(r.accepted){const how=secret?"sends back a single word: <i>placet</i>.":"studies the inventory, then inclines his head.";
         const cn=cause===S.playerId?"":" — in the cause of <b>"+byId[cause].short+"</b>";
         let warn="";
-        if(viability(S,cause)<0.25)warn=" <span class='dim'>(He pockets the kindness gladly; but he will not waste a ballot on a cause with so few voices. Build the tally, and the promise will pull.)</span>";
-        log(S,"<b>"+c.short+"</b> "+how+" The bargain is struck"+cn+"."+(r.heat?" <span class='dim'>(The chapel has a nose for such things.)</span>":"")+warn,"deal");}
+        if(viability(S,cause)<0.25)warn="<span class='aside'>He pockets the kindness gladly; but he will not waste a ballot on a cause with so few voices. Build the tally, and the promise will pull.</span>";
+        const formTxt="<span class='aside'>"+promiseForm(form).label+(r.leaked?"; word leaks before Compline":"")+(r.heat?" · the chapel has a nose for such things":"")+"</span>";
+        const conflictTxt=(r.conflicts&&r.conflicts.length)?"<span class='aside'>"+r.conflicts.map(function(x){return byId[x.holder].short+" hears that "+x.item.label+" has been promised away";}).join("; ")+"</span>":"";
+        log(S,"<b>"+c.short+"</b> "+how+" The bargain is struck"+cn+"."+formTxt+conflictTxt+warn,"deal");}
       else{const how=r.insulted?"goes pale with anger. <i>'Am I a market stall?'</i>":"declines, with regret that may even be real.";
         log(S,"<b>"+c.short+"</b> "+how,"");}
       done();}},
@@ -2114,7 +2787,7 @@ function addr(theme){
 function doOath(){
   const r=actSwearOath(S);if(!r.ok)return toast(r.msg);
   let txt;
-  if(r.cred>0.8)txt="You rise and swear, clause by clause, to the capitulation — reform, the Crusade, no boy cardinals — and for once nobody smiles. The strict observance are seen to write your name in their books. <span class='dim mono'>(warmed: "+r.warmed.map(function(w){return byId[w].short;}).join(", ")+"; your candidacy gains weight with the upright)</span>";
+  if(r.cred>0.8)txt="You rise and swear to the capitulation as drafted — the hard limit on new red hats, and whatever sharper sense the College can make of reform, the Turk, and counsel. For once nobody smiles. The strict observance are seen to write your name in their books. <span class='dim mono'>(warmed: "+r.warmed.map(function(w){return byId[w].short;}).join(", ")+"; your candidacy gains weight with the upright)</span>";
   else if(r.cred>0.4)txt="You swear to the capitulation. The zelanti weigh the oath against what they have heard of you, and bank a cautious fraction of it. <span class='dim mono'>(modest gains with the strict)</span>";
   else txt="You swear to the capitulation, and from the worldly benches comes a sound that is almost, but not quite, a cough. An oath from a man with your reputation weighs what it weighs. <span class='dim mono'>(almost no effect — your name smells of gold)</span>";
   log(S,txt,r.cred>0.4?"holy":"event");
@@ -2133,24 +2806,101 @@ function openCrowns(){
   });
   openModal("The Crowns and Their Clients",body,[{label:"Close"}]);
 }
+function riskLabel(n){ return n<=10?"low":(n<=22?"medium":"high"); }
+function openAgents(){
+  const a=agentOf(S,S.playerId);
+  const order=S.agentOrder||"quiet";
+  const spyRisk=Math.round(channelRisk(S,S.playerId,S.playerId,0.16)*100);
+  const whisperRisk=Math.round(channelRisk(S,S.playerId,S.playerId,0.22)*100);
+  const offerRisk=Math.round(channelRisk(S,S.playerId,S.playerId,0.02)*100);
+  const letterRisk=Math.round(channelRisk(S,S.playerId,S.playerId,0.08)*100);
+  const forgeRisk=Math.round((clamp(0.34 - 0.04*(a.literacy||3) - 0.03*(a.discretion||3) + (order==="letters"?-0.06:0),0.06,0.42))*100);
+  const body=h("div",null,
+    h("div",{class:"howto",html:"Your household sets the risk profile for the next things you do: spying, whispers, secret offers and rota letters. Choose a standing order, then use the ordinary action buttons."}),
+    h("p",{html:"<b>"+a.label+"</b><br><span class='dim'>"+a.basis+" · faction: "+a.faction+" · standing order: <b class='goldtx'>"+agentOrderLabel(order)+"</b></span>"}),
+    h("p",{class:"mono",html:"loyalty "+a.loyalty+" · discretion "+a.discretion+" · literacy "+a.literacy+" · greed "+a.greed+" · favours "+(a.favours||0)+(a.compromised?" · compromised":"")}));
+  const tbl=h("table",{class:"scoretbl"});
+  [["Spy tonight",spyRisk],["Hostile whisper",whisperRisk],["Secret-offer leak",offerRisk],["Rota interception",letterRisk],["Forgery failure",forgeRisk]].forEach(function(r){
+    tbl.appendChild(h("tr",null,h("td",null,r[0]),h("td",{class:"n"},r[1]+"% · "+riskLabel(r[1]))));
+  });
+  body.appendChild(tbl);
+  body.appendChild(h("div",{class:"howto",html:"Orders last until you change them. <b>Ears open</b> is best before spying; <b>Letter-carriers</b> before rota work; <b>Palms greased</b> before secret offers; <b>Quiet service</b> is the safe default."}));
+  const rows=h("div",{class:"assetlist"});
+  present(S).slice().sort(function(x,y){return byId[x].short.localeCompare(byId[y].short);}).forEach(function(id){
+    const ag=agentOf(S,id);
+    rows.appendChild(h("label",null,byId[id].short,h("span",{class:"v"},ag.label+" · L"+ag.loyalty+" D"+ag.discretion+" W"+ag.literacy+" G"+ag.greed)));
+  });
+  body.appendChild(rows);
+  openModal("Household & Messengers",body,[
+    {label:"Quiet service",sub:"Lowest general exposure",fn:function(){setAgentOrder(S,"quiet");log(S,"Your household is told to carry little, hear less, and keep its eyes down.","");done();}},
+    {label:"Ears open",sub:"Lower risk when spying tonight; slightly noisier elsewhere",fn:function(){setAgentOrder(S,"spy");log(S,"Your household is set to listen: servants, candles, corridor doors, and the men who forget servants have ears.","deal");done();}},
+    {label:"Ready the letter-carriers",sub:"Safer rota letters and forgeries",fn:function(){setAgentOrder(S,"letters");log(S,"Your messengers are given seals, ciphers and a careful route to the rota.","deal");done();}},
+    {label:"Grease the porters",sub:"100 ducats; better secret approaches, a little gossip",fn:function(){if(S.cash<100)return toast("You lack the ready coin.");setAgentOrder(S,"bargains");log(S,"A hundred ducats vanish among porters, candle-boys and men who remember which door stuck at midnight.","deal");done();}},
+    {label:"Close"}
+  ]);
+}
+function openBankers(){
+  const rows=consultBankers(S);
+  const body=h("div",null,h("div",{class:"howto",html:"The Banchi price candidates from visible signs: stripped palaces, reputation, credit, visible tallies, rumours and letters. Before the first scrutiny the book is intentionally short rather than absurdly long: favourites are plausible winners, not 20-to-1 outsiders."}));
+  const tbl=h("table",{class:"scoretbl"});
+  rows.forEach(function(r,i){tbl.appendChild(h("tr",null,h("td",null,(i+1)+". "+byId[r.id].short),h("td",{class:"n"},r.odds)));});
+  body.appendChild(tbl);
+  body.appendChild(h("p",{class:"dim"},"Debt owed at the Banchi: "+fmtD(S.debt||0)+"."));
+  const choices=[
+    {label:"Borrow against your price",sub:"+cash now; debt and a little simony smell",fn:function(){const r=actBorrowAtBanchi(S);if(!r.ok)return toast(r.msg);log(S,"At the Banchi, your current price is good enough for <b>"+fmtD(r.amount)+"</b> in credit. <span class='dim'>(rank "+r.rank+" in the book; debt will follow you into the ending)</span>","deal");done();}},
+    {label:"Talk up your own price",sub:"Spend an hour seeding confidence",fn:function(){const r=actMoveMarket(S,S.playerId,1);if(!r.ok)return toast(r.msg);log(S,r.caught?"Your market talk comes back wearing your livery. The benches dislike a man who buys his own odds.":"The Banchi shorten your price before Vespers. Men pretend not to notice odds; they all know them.",r.caught?"event":"deal");done();}},
+    {label:"Whisper down a rival's price",sub:"Choose a target; traceable",fn:function(){pickTarget("Move the market against…",null,function(t){const r=actMoveMarket(S,t,-1);if(!r.ok)return toast(r.msg);log(S,r.caught?("The whisper against <b>"+byId[t].short+"</b> is traced back to your servant."):("A little arithmetic in the Banchi, a little shrug in the Borgo: <b>"+byId[t].short+"</b>'s price lengthens."),r.caught?"event":"event");done();});}},
+    {label:"Close"}
+  ];
+  openModal("The Banchi and the Odds",body,choices);
+}
+function rotaForecast(power){
+  const P=POWERS[power], m=rotaMessage(power,S), a=agentOf(S,S.playerId);
+  const clients=Object.keys(P.grip||{}).filter(function(id){return S.cards[id]&&!S.cards[id].out;});
+  const myPatron=byId[S.playerId].patron;
+  let obeyChance=power===myPatron?0.78:0.34;
+  if(power==="portugal"&&S.playerId==="costa") obeyChance=0.1;
+  const intercept=Math.round(channelRisk(S,S.playerId,m&&m.helps,0.08)*100);
+  const forge=Math.round((clamp(0.34 - 0.04*(a.literacy||3) - 0.03*(a.discretion||3) + (S.agentOrder==="letters"?-0.06:0),0.06,0.42))*100);
+  return {P,m,clients,obeyChance:Math.round(obeyChance*100),intercept,forge};
+}
+function rotaLetterBody(power){
+  const f=rotaForecast(power), m=f.m, P=f.P;
+  const helps=m&&m.helps&&byId[m.helps]?byId[m.helps].short:"no single man";
+  const hurts=m&&m.hurts&&byId[m.hurts]?byId[m.hurts].short:"no single man";
+  const clients=f.clients.length?f.clients.map(function(id){return byId[id].short;}).join(", "):"no one in the chapel";
+  return "<p><b>"+(m?m.title:P.name)+".</b> "+(m?m.body:"A crown's agents test the seal.")+"</p>"+
+    "<p class='dim'><b>Helps:</b> "+helps+" · <b>Hurts:</b> "+hurts+" · <b>Clients here:</b> "+clients+".</p>"+
+    "<p class='mono dim'>Estimated backing chance if you comply: "+f.obeyChance+"%. Interception risk: "+f.intercept+"%. Forgery risk: "+f.forge+"%.</p>";
+}
 function doRota(){
   const body=h("div",{class:"tgrid"});
-  body.appendChild(h("div",{class:"howto",html:"Ask a crown to back you: if it agrees, its clients among the electors will weigh your name higher in every scrutiny. Your own patron is far likelier to oblige. One attempt per crown, ever."}));
-  const ov=openModal("At the Rota — Treat with a Crown",body,null);
+  body.appendChild(h("div",{class:"howto",html:"The rota is where sealed letters, envoys and crown pressure enter the chapel. Pick a crown to see who it helps, who it hurts, its clients inside, and your odds before spending an hour."}));
+  const ov=openModal("At the Rota — Letters and Ciphers",body,null);
   Object.keys(POWERS).filter(function(p){return p!=="none";}).forEach(function(p){
-    body.appendChild(h("button",{onclick:function(){closeModal(ov);const r=actRota(S,p);if(!r.ok)return toast(r.msg);
-      log(S,r.backed?("At the rota, soft words with the agents of <b>"+r.name+"</b>. By evening their clients in the chapel have received a hint on your behalf. <span class='dim mono'>(his clients now weigh your name higher in the scrutinies)</span>"):("The agents of <b>"+r.name+"</b> hear you out and promise nothing. Crowns spend cardinals; rarely the reverse."),r.backed?"deal":"");
-      done();}},POWERS[p].name));
+    const m=rotaMessage(p,S);
+    const f=rotaForecast(p);
+    body.appendChild(h("button",{onclick:function(){closeModal(ov);openRotaLetter(p);}},POWERS[p].name,h("small",null,(m?m.title:"letter")+" · clients: "+(f.clients.length?f.clients.map(function(id){return byId[id].short;}).join(", "):"none")+" · "+(S.courted[p+":"+S.playerId]?"already backing you":"not yet backing you"))));
   });
+}
+function openRotaLetter(power){
+  const m=rotaMessage(power,S), P=POWERS[power];
+  const body=rotaLetterBody(power);
+  openModal(P.name,body,[
+    {label:"Seek this crown's backing",sub:"Clients weigh your name if it works; safest channel",fn:function(){const r=actRotaChoice(S,power,"obey");if(!r.ok)return toast(r.msg);log(S,r.backed?("At the rota, soft words with the agents of <b>"+r.name+"</b>. By evening their clients have received a hint on your behalf."+(r.intercepted?" <span class='dim'>(The seal was imperfect; others know a letter came.)</span>":"")):("The agents of <b>"+r.name+"</b> hear you out and promise nothing."+(r.intercepted?" <span class='dim'>(And the attempt was noticed.)</span>":"")),r.backed?"deal":"");done();}},
+    {label:"Forward it to its clients",sub:"Warms the named clients; strengthens the cause it helps",fn:function(){const r=actRotaChoice(S,power,"forward");if(!r.ok)return toast(r.msg);log(S,"You pass the substance of <b>"+r.name+"</b>'s letter to its clients: "+(r.clients.length?r.clients.map(function(id){return byId[id].short;}).join(", "):"no one of weight")+". <span class='dim'>(relations improve; its preferred cause gains coherence)</span>","deal");done();}},
+    {label:"Leak it in chapter",sub:"Damages the named enemy; useful with clean hands",fn:function(){const r=actRotaChoice(S,power,"leak");if(!r.ok)return toast(r.msg);log(S,"By dinner the chapel knows the shape of <b>"+r.name+"</b>'s letter."+(r.target?" <b>"+byId[r.target].short+"</b> suffers from the foreign smell of it.":"")+" <span class='dim'>(market noise rises)</span>","event");done();}},
+    {label:"Forge a favourable reply",sub:"Risky; best after readying letter-carriers in Household",fn:function(){const r=actRotaChoice(S,power,"forge");if(!r.ok)return toast(r.msg);log(S,r.caught?("The forgery is detected before None. <b>"+r.name+"</b>'s agents are not amused; nor are the zelanti."):("A reply in your favour goes out through the rota. Whether the crown wrote it first is a scholastic question."),r.caught?"event":"deal");done();}}
+  ],true);
 }
 function doNight(){
   openModal("The Night","<div class='howto'>One errand per night. Spying gives full intelligence on one man; whispers lower a rival's standing but may be traced to you; secret offers are deniable but discounted.</div>",[
-    {label:"Send your conclavist to spy",sub:"Full dossier on one man: deals, pledges, true lean",fn:function(){pickTarget("Spy upon…",null,function(t){const r=actSpy(S,t);
+    {label:"Send your household to spy",sub:"Full dossier on one man: deals, pledges, true lean",fn:function(){pickTarget("Spy upon…",null,function(t){const r=actSpy(S,t);
       if(r.lean)S.cards[t].knownLean=r.lean;
       S.knownBrokers=S.knownBrokers||{};
       r.deals.forEach(function(d){S.knownBrokers[d.broker]=(S.knownBrokers[d.broker]||0)+1;});
       const found=r.deals.length?r.deals.map(function(d){return "promised <i>"+d.label+"</i> by "+byId[d.broker].short;}).join("; ")+".":"no promises bind him.";
-      log(S,r.caught?("Your man is taken behind the cells of <b>"+byId[t].short+"</b> and beaten. Embarrassing."):("Your conclavist returns before Matins. <b>"+byId[t].short+"</b>: "+found+" His heart inclines to <b>"+(r.lean?byId[r.lean].short:"no man")+"</b>."),r.caught?"":"deal");
+      log(S,r.caught?("Your man is taken behind the cells of <b>"+byId[t].short+"</b> and beaten. Embarrassing."):("Your man returns before Matins. <b>"+byId[t].short+"</b>: "+found+" His heart inclines to <b>"+(r.lean?byId[r.lean].short:"no man")+"</b>."),r.caught?"":"deal");
       done();});}},
     {label:"Whisper against a rival",sub:"His women, his health, his debts…",fn:function(){pickTarget("Whisper against…",null,function(t){const r=actRumor(S,t);
       log(S,r.traced?("By morning the slander against <b>"+byId[t].short+"</b> is in every cell — wearing your livery. "+zelantiWitness()+" looks through you at Mass."):("A word here, a raised eyebrow there. By morning <b>"+byId[t].short+"</b> seems somehow… smaller."),"event");
@@ -2197,9 +2947,10 @@ function machineOfferPlayer(broker){
   const price=BORGIA_PRICES[S.playerId];
   const label=(broker==="borgia"&&price)?price.label:("benefices, money, and the gratitude of "+byId[broker].short);
   const v=(broker==="borgia"&&price)?price.v:4000;
-  qEvent("An Offer in the Dark","<p>A conclavist of <b>"+byId[broker].short+"</b> finds you at the night-stool, of all places, and names a price for your voice in the scrutinies: <b>"+label+"</b>.</p>",
+  const hist=(broker==="borgia"&&price&&price.hist)?" <span class='tag dark'>"+price.hist+"</span>":"";
+  qEvent("An Offer in the Dark","<p>A conclavist of <b>"+byId[broker].short+"</b> finds you at the night-stool, of all places, and names a price for your voice in the scrutinies: <b>"+label+"</b>. "+hist+"</p>",
     [{label:"Accept. (the promise is yours)",sub:"− integrity; spoils if he wins",fn:function(){
-        recordPromise(S,broker,S.playerId,label,v,(broker==="borgia"&&S.playerId==="gherardo")?5000:500);
+        recordPromise(S,broker,S.playerId,label,v,(broker==="borgia"&&S.playerId==="gherardo")?5000:500, broker, "witnessed", "NPC offer");
         S.cash+=(broker==="borgia"&&S.playerId==="gherardo")?5000:500;
         S.integrity=Math.max(0,S.integrity-7);S.R[S.playerId][broker]+=1;S.influence+=10;
         log(S,"You name a witness, as is prudent, and the promise of <b>"+byId[broker].short+"</b> is yours: "+label+".","deal");}},
@@ -2213,7 +2964,7 @@ function playerApproaches(){
   const sc=S.signalCourt||{};
   const contenders=present(S).filter(function(id){return id!==me&&(tally[id]||0)>=3&&S.cards[id].pledgedTo!==me;})
     .sort(function(a,b){return ((sc[b]||0)*10+(tally[b]||0))-((sc[a]||0)*10+(tally[a]||0));});
-  const pumps=present(S).filter(function(id){return id!==me&&byId[id].cunning>=6;});
+  const pumps=present(S).filter(function(id){return id!==me&&byId[id].cunning>=4;});
   const tempters=present(S).filter(function(id){return id!==me&&byId[id].cash>=8000&&byId[id].integrity<=45&&!S.flags["gift_"+id];});
   const roll=S.rng();
   if(contenders.length&&roll<0.45){
@@ -2249,14 +3000,14 @@ function playerNightDeals(){
           S.sforzaPivoted=true;S.milanBacks="borgia";S.heat+=14;S.integrity=Math.max(0,S.integrity-6);
           ["palazzo","nepi"].forEach(function(id){const i=S.assetsLeft.findIndex(function(a){return a.id===id;});if(i>=0)S.assetsLeft.splice(i,1);});
           const g=S.giftsLeft.findIndex(function(a){return a.id==="vc";});if(g>=0)S.giftsLeft.splice(g,1);
-          recordPromise(S,"borgia","sforza",BORGIA_PRICES.sforza.label,BORGIA_PRICES.sforza.v,0);
+          recordPromise(S,"borgia","sforza",BORGIA_PRICES.sforza.label,BORGIA_PRICES.sforza.v,0,"borgia","written",BORGIA_PRICES.sforza.hist);
           S.promisesMade.push({to:"sforza",label:BORGIA_PRICES.sforza.label,v:BORGIA_PRICES.sforza.v,cash:0,contingent:true});
           ["sforza","sanseverino","sclafenati","dellaporta","conti"].forEach(function(id){if(!S.cards[id].out)S.cards[id].directive="borgia";});
           S.dealsClosed++;log(S,"Hands are clasped. Somewhere below, mules are being loaded.","deal");}},
        {label:"Offer the Chancery alone.",sub:"A harder bargain — he may walk",fn:function(){
           if(S.rng()<0.45){S.sforzaPivoted=true;S.milanBacks="borgia";S.heat+=9;S.integrity=Math.max(0,S.integrity-4);
             const g=S.giftsLeft.findIndex(function(a){return a.id==="vc";});if(g>=0)S.giftsLeft.splice(g,1);
-            recordPromise(S,"borgia","sforza","the Vice-Chancellorship of the Holy Roman Church",9000,0);
+            recordPromise(S,"borgia","sforza","the Vice-Chancellorship of the Holy Roman Church",9000,0,"borgia","written","In-game alternative");
             S.promisesMade.push({to:"sforza",label:"the Vice-Chancellorship",v:9000,cash:0,contingent:true});
             ["sforza","sanseverino","sclafenati"].forEach(function(id){if(!S.cards[id].out)S.cards[id].directive="borgia";});
             S.dealsClosed++;log(S,"A long silence; then Ascanio laughs and takes your hand. The Chancery it is.","deal");}
@@ -2268,7 +3019,7 @@ function playerNightDeals(){
     S.flags.sforzaSpurned=false;
     const alt=(S.lastTally.carafa||0)>=(S.lastTally.zeno||0)?"carafa":"zeno";
     S.sforzaPivoted=true;S.milanBacks=alt;
-    recordPromise(S,alt,"sforza","the Vice-Chancellorship and the gratitude of the next pontificate",9000,0);
+    recordPromise(S,alt,"sforza","the Vice-Chancellorship and the gratitude of the next pontificate",9000,0,alt,"written","In-game alternative");
     ["sforza","sanseverino","sclafenati"].forEach(function(id){if(!S.cards[id].out)S.cards[id].directive=alt;});
     log(S,"Your spies report what your refusal has purchased: Ascanio has sold Milan's voices to <b>"+byId[alt].short+"</b>.","event");
   }
@@ -2277,13 +3028,13 @@ function playerNightDeals(){
     qEvent("The Vice-Chancellor Comes Calling","<p>Borgia himself, in a plain cloak, smelling faintly of ambergris. He does not sit. He recites, as if reading a bill of lading: <b>the Vice-Chancellorship of the Holy Roman Church. His palazzo — the grandest in Rome. The castle of Nepi. The bishopric of Erlau, ten thousand a year.</b> And four mule-loads of silver to your door before Lauds.</p><p><i>'Make me pope, Ascanio, and you will be the second man in Christendom by Saturday.'</i></p>",
       [{label:"Done. Milan's voices are his.",sub:"The historical bargain · the richest office on earth",fn:function(){
           S.sforzaPivoted=true;S.milanBacks="borgia";S.integrity=Math.max(0,S.integrity-8);S.heat+=6;S.cash+=2000;
-          recordPromise(S,"borgia","sforza",BORGIA_PRICES.sforza.label,BORGIA_PRICES.sforza.v,2000);
+          recordPromise(S,"borgia","sforza",BORGIA_PRICES.sforza.label,BORGIA_PRICES.sforza.v,2000,"borgia","written",BORGIA_PRICES.sforza.hist);
           ["sanseverino","sclafenati"].forEach(function(id){if(!S.cards[id].out)S.cards[id].directive="borgia";});
           S.dealsClosed++;S.influence+=20;
           log(S,"You take his hand. Before Lauds, the first mules cross the Borgo under your livery, and all Rome counts them.","deal");}},
        {label:"Demand more: a red hat for your nephew besides.",sub:"He may balk",fn:function(){
           if(S.rng()<0.6){S.sforzaPivoted=true;S.milanBacks="borgia";S.integrity=Math.max(0,S.integrity-8);S.heat+=7;S.cash+=2000;
-            recordPromise(S,"borgia","sforza",BORGIA_PRICES.sforza.label+", and a red hat in his gift",BORGIA_PRICES.sforza.v+3500,2000);
+            recordPromise(S,"borgia","sforza",BORGIA_PRICES.sforza.label+", and a red hat in his gift",BORGIA_PRICES.sforza.v+3500,2000,"borgia","written",BORGIA_PRICES.sforza.hist);
             ["sanseverino","sclafenati"].forEach(function(id){if(!S.cards[id].out)S.cards[id].directive="borgia";});
             S.dealsClosed++;S.influence+=28;
             log(S,"A pause; the famous smile. <i>'Greed, in a Sforza, is almost piety.'</i> He agrees to everything.","deal");}
@@ -2297,7 +3048,7 @@ function playerNightDeals(){
     qEvent("Della Rovere's Counter","<p>The next night brings the other terror of the College. Giuliano della Rovere does sit, uninvited, filling the cell like weather. His offer is colder and simpler: <b>the legation of Avignon, French benefices worth six thousand a year, and first call on the French deposit</b> — if Milan's voices make him pope.</p>",
       [{label:"Sell to France instead.",sub:"His gratitude, and his gold",fn:function(){
           S.sforzaPivoted=true;S.milanBacks="giuliano";S.integrity=Math.max(0,S.integrity-7);S.cash+=3000;
-          recordPromise(S,"giuliano","sforza","the legation of Avignon and French benefices",8000,3000);
+          recordPromise(S,"giuliano","sforza","the legation of Avignon and French benefices",8000,3000,"giuliano","written","In-game alternative");
           ["sanseverino","sclafenati"].forEach(function(id){if(!S.cards[id].out)S.cards[id].directive="giuliano";});
           S.dealsClosed++;S.influence+=18;
           log(S,"You take the Frenchman's terms. Your brother will be furious, which is its own pleasure.","deal");}},
@@ -2313,7 +3064,7 @@ function openCeremony(kind){
   const cer=$("#ceremony");cer.classList.remove("hidden");
   $("#cer-over").textContent=(kind==="vespers"?"VESPER":"MORNING")+" SCRUTINY · "+DATE_LABELS[S.day].toUpperCase();
   $("#cer-title").textContent="Scrutiny "+rn(S.scrutinies.length+1);
-  $("#tallyzone").innerHTML="";$("#acczone").innerHTML="";$("#cer-controls").innerHTML="";
+  $("#tallyzone").innerHTML="";$("#acczone").innerHTML="";$("#tallysummary").innerHTML="";$("#cer-controls").innerHTML="";
   $("#smokestage").innerHTML='<div class="chimney"></div>';
   $("#cer-thresh").textContent="";
   // ballot picker
@@ -2336,12 +3087,13 @@ function openCeremony(kind){
 }
 function runScrutinyAnim(picks){
   S.lastPlayerBallot=picks.slice();
-  const P=beginScrutiny(S,picks.length?picks:null);
+  const P=beginScrutiny(S,picks);
   const t=threshold(S);
-  $("#cer-thresh").textContent="NEEDED FOR ELECTION: "+rn(t)+" OF "+rn(votingToday(S).length);
+  const electorsNow=votingToday(S).length;
+  $("#cer-thresh").textContent="NEEDED FOR ELECTION: "+rn(t)+" OF "+rn(electorsNow)+" ELECTORS"+(electorsNow<23?" — threshold fallen":"");
   const rows=Object.entries(P.tally).sort(function(a,b){return b[1]-a[1];});
   const tz=$("#tallyzone");
-  const reduced=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const reduced=(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   rows.forEach(function(e,i){
     const row=h("div",{class:"trow",style:"animation-delay:"+(reduced?0:i*0.28)+"s"},
       h("span",{class:"tn"},byId[e[0]].short),
@@ -2353,33 +3105,72 @@ function runScrutinyAnim(picks){
   const wait=reduced?100:rows.length*280+700;
   setTimeout(function(){accessusPhase();},wait);
 }
+function renderTallySummary(P){
+  const host=$("#tallysummary"); if(!host||!P) return;
+  const ids=Array.from(new Set(Object.keys(P.tally||{}).concat(Object.keys(P.running||{})))).sort(function(a,b){return ((P.running&&P.running[b])||P.tally[b]||0)-((P.running&&P.running[a])||P.tally[a]||0);});
+  const t=P.threshold||threshold(S);
+  host.innerHTML="<table aria-label='Scrutiny tally table'><thead><tr><th>Candidate</th><th>Scrutiny</th><th>Accessus</th><th>Final</th></tr></thead><tbody>"+
+    ids.map(function(id){const acc=(P.accessions||[]).filter(function(a){return a.to===id;}).length; const final=(P.running&&P.running[id])||P.tally[id]||0; return "<tr"+(final>=t?" class='over'":"")+"><td>"+byId[id].short+"</td><td class='n'>"+rn(P.tally[id]||0)+"</td><td class='n'>"+(acc?rn(acc):"–")+"</td><td class='n'>"+rn(final)+"</td></tr>";}).join("")+
+    "</tbody></table>";
+}
 function accLine(from,to,delay){
   $("#acczone").appendChild(h("div",{class:"accline",style:"animation-delay:"+delay+"s"},
     h("span",null,"“Accedo domino Cardinali "),h("b",null,byId[to].short),h("span",null,".”  — "+byId[from].short)));
 }
+function accessusChoreographyText(P){
+  if(!P) return "";
+  const th=threshold(S);
+  const rows=Object.entries(P.running).sort(function(a,b){return b[1]-a[1];});
+  if(!rows.length) return "";
+  const leader=rows[0][0], near=rows.filter(function(e){return e[1]>=Math.max(4,th-4);}).map(function(e){return e[0];});
+  const camps=near.slice(0,3).map(function(id){
+    const first=present(S).filter(function(v){return v!==S.playerId&&!S.cards[v].accession&&accessusCandidates(S,v).includes(id)&&utility(S,v,id,{strategic:true})>=7;}).sort(function(a,b){return byId[b].cunning-byId[a].cunning;}).slice(0,2);
+    return "<b>"+byId[id].short+"</b>: "+(first.length?first.map(function(v){return byId[v].short;}).join(", ")+" may move":"his camp waits for a first riser");
+  });
+  return "<b>Coalition choreography:</b> "+camps.join(" · ")+(P.running[leader]>=th-2?" <span class='goldtx'>A single public rise may decide it.</span>":"");
+}
+function cerRecover(){
+  try{ if(!S.scrutinies.length || (S.pendingScrutiny && S.scrutinies[S.scrutinies.length-1].n!==S.pendingScrutiny.n)) finalizeScrutiny(S); }catch(e){}
+  S.flags.finishingAccessus=false;
+  const cc=$("#cer-controls"); if(cc){ cc.innerHTML="";
+    cc.appendChild(h("button",{onclick:function(){$("#ceremony").classList.add("hidden");renderAll();afterScrutiny();}},"The College returns to its cells")); }
+}
 function accessusPhase(){
-  const reduced=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const reduced=(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   const a1=npcAccessusPass(S,1);
   a1.forEach(function(a,i){accLine(a.from,a.to,reduced?0:i*0.5);});
   const wait=reduced?80:a1.length*500+400;
   setTimeout(function(){
+   try{
     const P=S.pendingScrutiny;
+    if(maxRunning(S)>=threshold(S)){
+      const leader=Object.entries(P.running).sort(function(a,b){return b[1]-a[1];})[0][0];
+      $("#acczone").appendChild(h("div",{class:"accline goldtx"},"The threshold is reached for "+byId[leader].short+"."));
+      finishAccessus(true);
+      return;
+    }
     const myOpts=accessusCandidates(S,S.playerId).filter(function(c){return c!==S.playerId;});
     if(!S.cards[S.playerId].accession && myOpts.length && !S.cards[S.playerId].ill){
       const body=h("div",null,h("p",{class:"dim"},"The accessus: any elector may now publicly add one name not on his ballot. The running count stands thus:"),
-        h("p",{class:"mono",html:Object.entries(P.running).sort(function(a,b){return b[1]-a[1];}).map(function(e){return byId[e[0]].short+" "+rn(e[1]);}).join(" · ")+"  <span class='goldtx'>(needed: "+rn(threshold(S))+")</span>"}));
-      const ch=myOpts.map(function(c){return {label:"Accedo domino Cardinali "+byId[c].short,sub:rn(P.running[c]||0)+" voices and rising",fn:function(){playerAccede(S,c);accLine(S.playerId,c,0);finishAccessus();}};});
+        h("p",{class:"mono",html:Object.entries(P.running).sort(function(a,b){return b[1]-a[1];}).map(function(e){return byId[e[0]].short+" "+rn(e[1]);}).join(" · ")+"  <span class='goldtx'>(needed: "+rn(threshold(S))+")</span>"}),
+        h("div",{class:"howto",html:accessusChoreographyText(P)}));
+      const ch=myOpts.map(function(c){return {label:"Accedo domino Cardinali "+byId[c].short,sub:rn(P.running[c]||0)+" voices and rising",fn:function(){playerAccede(S,c);accLine(S.playerId,c,0);finishAccessus(maxRunning(S)>=threshold(S));}};});
       ch.push({label:"I keep my seat.",sub:"Accede to no man",fn:function(){finishAccessus();}});
       openModal("Will You Accede?",body,ch,{noClose:true});
     } else finishAccessus();
+   }catch(e){ if(window.console)console.error("accessus error",e); cerRecover(); }
   },wait);
 }
-function finishAccessus(){
-  const reduced=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const a2=npcAccessusPass(S,2);
+function finishAccessus(skipSecondPass){
+  if(S.flags.finishingAccessus) return;
+  S.flags.finishingAccessus=true;
+  const reduced=(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  const a2=skipSecondPass?[]:npcAccessusPass(S,2);
   a2.forEach(function(a,i){accLine(a.from,a.to,reduced?0:i*0.45);});
   setTimeout(function(){
+   try{
     const r=finalizeScrutiny(S);
+    renderTallySummary(S.scrutinies[S.scrutinies.length-1]);
     const stage=$("#smokestage");
     const n=reduced?3:9;
     for(let i=0;i<n;i++){
@@ -2398,6 +3189,7 @@ function finishAccessus(){
         log(S,"<i>Whisper:</i> <b>"+byId[g.id].short+"</b>'s men have noted that your ballot no longer carries his name.","");}
       if(g.type==="blank")log(S,"<i>Whisper:</i> a blank ballot. The chapel reads it as disdain, or exhaustion.","");
     });
+    judgePlayerBallotPromises(S,S.lastPlayerBallot||[]).forEach(function(n){log(S,"<i>Promise:</i> "+n.html,n.kept?"deal":"event");});
     if(S.flags.scare&&S.flags.scare.pending){
       S.flags.scare.pending=false;
       const sid=S.flags.scare.id;
@@ -2407,15 +3199,21 @@ function finishAccessus(){
         else log(S,"<b>"+byId[sid].short+"</b> does not return to the benches today. His coalition sits very still, doing arithmetic.","event");
       }
     }
-    log(S,"<b>Scrutiny "+rn(sc.n)+".</b> "+Object.entries(sc.final).sort(function(a,b){return b[1]-a[1];}).slice(0,6).map(function(e){return byId[e[0]].short+" "+rn(e[1]);}).join(" · ")+" — needed "+rn(sc.threshold)+". "+(r.elected?"<b>ELECTION.</b>":"No election. The ballots burn black."),"scrut");
+    const electNote=sc.electors<23?(" of "+rn(sc.electors)+" electors; the threshold has fallen"):"";
+    log(S,"<b>Scrutiny "+rn(sc.n)+".</b> "+Object.entries(sc.final).sort(function(a,b){return b[1]-a[1];}).slice(0,6).map(function(e){return byId[e[0]].short+" "+rn(e[1]);}).join(" · ")+" — needed "+rn(sc.threshold)+electNote+". "+(r.elected?"<b>ELECTION.</b>":"No election. The ballots burn black."),"scrut");
+    const why=scrutinyInsights(S,sc); if(why.length) log(S,"<b>Why it moved:</b> "+why.join(" · "),"event");
     const cc=$("#cer-controls");cc.innerHTML="";
+    S.flags.finishingAccessus=false;
     if(r.elected){
+      $("#cer-title").textContent="Electio: "+byId[r.elected].short;
       bell();
       cc.appendChild(h("button",{class:"primary",onclick:function(){$("#ceremony").classList.add("hidden");endGame();}},
-        r.elected===S.playerId?"⚜ The bells are for you":"⚜ Habemus Papam"));
+        r.elected===S.playerId?"⚜ The bells are for you — continue":"⚜ Habemus Papam — continue"));
+      try{ cc.scrollIntoView({block:"nearest"}); }catch(e){}
     } else {
       cc.appendChild(h("button",{onclick:function(){$("#ceremony").classList.add("hidden");afterScrutiny();}},"The College returns to its cells"));
     }
+   }catch(e){ if(window.console)console.error("finalize error",e); cerRecover(); }
   },reduced?120:(a2.length*450+1100));
 }
 function afterScrutiny(){
@@ -2428,15 +3226,26 @@ function afterScrutiny(){
 }
 
 /* ---------- day flow ---------- */
+function confirmTimeSkip(title, body, fn){
+  if(S.ap<=0){ fn(); return; }
+  openModal(title,"<p>"+body+"</p><p class='dim mono'>You still have "+S.ap+" hour"+(S.ap===1?"":"s")+" of the day unused.</p>",[
+    {label:"Continue",sub:"spend the remaining time",fn:fn},
+    {label:"Remain in the chapel",sub:"take another action first"}
+  ]);
+}
 function dayButton(){
   if(BUSY||S.over)return;
   const ph=S.flags.phase;
   if(ph==="dawn"){
+    if(S.day>=12){ endByCompromissum(); return; }
     if(S.day>=3){ openCeremony("morning"); }
     else { S.flags.phase="actions"; renderAll(); }
   } else if(ph==="actions"){
-    if(S.day>=6&&!S.flags.vespersDone&&S.flags.morningDone){ openCeremony("vespers"); }
-    else nightFall();
+    if(S.day>=6&&!S.flags.vespersDone&&S.flags.morningDone){
+      confirmTimeSkip("Proceed to Vespers?","The benches are being called for the second scrutiny.",function(){openCeremony("vespers");});
+    } else {
+      confirmTimeSkip("Retire for the Night?","Once the candles are pinched out, the day will pass and the night engines will turn.",nightFall);
+    }
   }
 }
 function nightFall(){
@@ -2479,32 +3288,43 @@ function nightFall(){
     if(sid){S.flags.scareDone=true;S.flags.scare={id:sid,pending:true};S.papBoost[sid]=(S.papBoost[sid]||0)-1.5;
       qEvent(byId[sid].short+" Falls at Mass","<p>At the morning Mass <b>"+byId[sid].name+"</b> sways at the rail, grips the cloth, and goes down. He is carried to his cell grey-faced and conscious. The chapel spends the rest of the office doing what it does best: recalculating.</p>",[{label:"God preserve him. Probably."}]);}
   }
-  if(S.day===12)qEvent("The Twelfth Day","<p>The College is grey with exhaustion. The Camerlengo gives notice: if no pope is made by tonight, election will pass by <b>compromissum</b> to three of the most upright, and God help whomever they choose.</p>");
+  if(S.day===12)qEvent("The Twelfth Day","<p>The College is grey with exhaustion. The Camerlengo gives notice: no further ordinary scrutiny will be held. The election will now pass by <b>compromissum</b> to three of the most upright, and God help whomever they choose.</p>");
   S.flags.phase="dawn"; S.flags.vespersDone=false; S.flags.morningDone=false;
   dawnEvents(S.day);
   BUSY=false;
   renderAll(); showEvents();
 }
 function endByCompromissum(){
+  if(BUSY||S.over)return;
+  BUSY=true;
+  S.queue=[];
   const committee=present(S).filter(function(id){return id!==S.playerId;})
     .sort(function(a,b){return byId[b].integrity-byId[a].integrity;}).slice(0,3);
-  const playerOn = byId[S.playerId].integrity >= byId[committee[2]].integrity;
+  const playerOn = S.integrity >= byId[committee[2]].integrity;
   if(playerOn){
+    const actualCommittee=committee.slice(0,2).concat([S.playerId]);
     const body=h("div",null,h("p",null,"Twelve days, and no pope. By compromissum the election passes to three: <b>"+committee.slice(0,2).map(function(c){return byId[c].short;}).join(", ")+"</b> — and you. The other two, after long prayer, defer to your judgement. Name the pope."));
     const grid=h("div",{class:"tgrid"});
     present(S).filter(function(id){return id!==S.playerId;}).forEach(function(id){
       grid.appendChild(h("button",{onclick:function(){
-        S.over=true;S.electedId=id;S.byCompromissum=true;S.committee=committee;
+        S.over=true;S.electedId=id;S.byCompromissum=true;S.committee=actualCommittee;
+        log(S,"Twelve days, and no pope. By <b>compromissum</b>, "+actualCommittee.map(function(c){return byId[c].short;}).join(", ")+" choose <b>"+byId[id].short+"</b>.","event");
         document.querySelectorAll(".overlay").forEach(function(o){o.remove();});
+        BUSY=false;
         endGame();
       }},byId[id].short));
     });
     body.appendChild(grid);
     openModal("The Compromissum",body,null,{noClose:true});
+    BUSY=false;
   } else {
-    compromissum(S);
-    log(S,"Twelve days, and no pope. The College, beaten, delegates the election to its three most upright: "+S.committee.map(function(c){return byId[c].short;}).join(", ")+".","event");
-    endGame();
+    const chosen=compromissum(S);
+    const body=h("div",null,
+      h("p",{html:"Twelve days, and no pope. The College, beaten, delegates the election to its three most upright: <b>"+S.committee.map(function(c){return byId[c].short;}).join(", ")+"</b>."}),
+      h("p",{html:"After prayer and a very worldly amount of arithmetic, they choose <b>"+byId[chosen].name+"</b>."})
+    );
+    log(S,"Twelve days, and no pope. The College, beaten, delegates the election to its three most upright: "+S.committee.map(function(c){return byId[c].short;}).join(", ")+". They choose <b>"+byId[chosen].short+"</b>.","event");
+    openModal("The Compromissum",body,[{label:"Announce the choice",fn:function(){BUSY=false;endGame();}}],{noClose:true});
   }
 }
 
@@ -2560,7 +3380,7 @@ function endGame(){
     if(E.kind==="pope_simoniac")body+="<p>Within the week an epigram is being copied in every chancery in Italy: <i>'"+me.short+" sells the keys, the altars, Christ himself. He bought them first; he had the right to sell.'</i> Eleven years from now a della Rovere pope will draft a bull declaring simoniacal elections void — with this conclave in mind.</p>";
     else if(E.kind==="pope_holy")body+="<p>Strangest of all, the chroniclers can find no scandal to report. A pope elected in 1492 with clean hands: Burchard records it twice, as if not believing his own pen.</p>";
     else body+="<p>The bargains you struck will come due — they always do — but tonight the bells of every church in Rome are ringing for you.</p>";
-    if(S.oathSworn)body+=S.heat<35?"<p>And the capitulation you publicly swore? You may even keep it. The zelanti, watching, permit themselves hope — a rare indulgence in this College.</p>":"<p>And the capitulation you publicly swore? It joins its ancestors. Every pope swears; the parchment is patient.</p>";
+    if(S.oathSworn)body+=S.heat<35?"<p>And the capitulation you publicly swore — at least the restriction on new cardinals, and the sharper reforms men heard in it? You may even keep it. The zelanti, watching, permit themselves hope — a rare indulgence in this College.</p>":"<p>And the capitulation you publicly swore? Its hard clause may survive; its margins join their ancestors. Every pope swears; the parchment is patient.</p>";
   } else if(E.kind==="kingmaker"){
     title="THE POPE-MAKER";
     var wr=npcRegnal(E.winner);sub=w.name+" reigns as "+wr+" "+(ORDINAL[wr]||"")+" — and owes you";
@@ -2610,6 +3430,11 @@ function endGame(){
   E.parts.filter(function(p){return p.pts;}).forEach(function(p){tb.appendChild(h("tr",null,h("td",null,p.why),h("td",{class:"n"},String(p.pts))));});
   if(objScore)tb.appendChild(h("tr",null,h("td",null,"Private ambition: "+ob.title),h("td",{class:"n"},String(objScore))));
   tb.appendChild(h("tr",{class:"total"},h("td",null,"INFLUENCE"),h("td",{class:"n"},String(E.score+S.influence+objScore))));
+  // role-normalized verdict: graded against what this role could plausibly do
+  const vd=roleVerdict(E.score+S.influence+objScore, E.kind);
+  const vBox=$("#endverdict"); if(vBox){ vBox.innerHTML="";
+    if(vd) vBox.appendChild(h("div",{class:"verdictbox",html:"<span class='vlabel'>Verdict for your role</span><span class='vgrade'>"+vd.grade+"</span><span class='vline'>"+vd.line+"</span>"}));
+  }
   // private ambition verdict (computed above)
   const oBox=$("#endobj");oBox.innerHTML="";
   if(ob&&obRes){
@@ -2623,19 +3448,28 @@ function endGame(){
     const tbl=h("table",{class:"scoretbl"});
     let totV=0;
     S.promisesMade.forEach(function(p){totV+=p.v||0;
-      tbl.appendChild(h("tr",null,h("td",null,byId[p.to].short+" — "+p.label),h("td",{class:"n"},"~"+(p.v||0))));});
+      const hist=(S.playerId==="borgia"&&BORGIA_PRICES[p.to]&&BORGIA_PRICES[p.to].hist)?" <span class='tag dark'>"+BORGIA_PRICES[p.to].hist+"</span>":"";
+      tbl.appendChild(h("tr",null,h("td",{html:byId[p.to].short+" — "+p.label+hist}),h("td",{class:"n"},"~"+(p.v||0))));});
     tbl.appendChild(h("tr",{class:"total"},h("td",null,"THE PRICE OF THE TIARA — offices alienated before the ring touched your finger"),h("td",{class:"n"},"~"+totV+"d")));
     pBox.appendChild(tbl);
   } else if(isPope){
     pBox.appendChild(h("p",{class:"dim",style:"text-align:center"},"You owe no man — a pope without creditors, rarer than a unicorn."));
+  }
+  if(S.debt){
+    pBox.appendChild(h("p",{class:"dim",style:"text-align:center"},"The Banchi still hold your paper: "+fmtD(S.debt)+" in post-conclave debt."));
+  }
+  if(isPope&&S.capitulationSigned){
+    const clauses=(S.capitulationClauses||[]).map(function(k){return CAPITULATION_CLAUSES[k]?CAPITULATION_CLAUSES[k].label:k;});
+    pBox.appendChild(h("p",{class:"dim",style:"text-align:center"},"The capitulation follows you to the throne: "+(clauses.length?clauses.join("; "):"no clause beyond the signature")+"."));
   }
   // achievements
   const av=$("#endach");av.innerHTML="";
   achievements(E).forEach(function(a){av.appendChild(h("span",{class:"a"},a));});
   // true fates
   const fb=$("#fatesbody");fb.innerHTML="";
-  CARDINALS.forEach(function(c){
-    fb.appendChild(h("div",{class:"fr",html:"<b>"+c.short+(c.id===S.playerId?" (you)":"")+"</b> — "+FATES[c.id]}));
+  (S.initialElectors||present(S)).forEach(function(id){
+    const c=byId[id];
+    fb.appendChild(h("div",{class:"fr",html:"<b>"+c.short+(c.id===S.playerId?" (you)":"")+"</b> — "+(FATES[c.id]||"his later fate is outside this reconstruction.")}));
   });
   // history
   $("#endhist").innerHTML="<h3>WHAT ACTUALLY HAPPENED · AUGUST 1492</h3>"+
@@ -2655,30 +3489,78 @@ function openManual(){
     "<div class='manual'>",
     "<h4>The goal</h4><p>Be elected pope — or, failing that, end the conclave high in the winner's favour: a kingmaker with spoils, or the unbought conscience of the College. Influence is scored at the end either way.</p>",
     "<h4>The shape of a day</h4><p>Dawn events → (from day 3) the morning <b>scrutiny</b> → three hours of actions → one night errand → the night resolves: deals are struck in the dark, men sicken, Milan's broker weighs his price. From day 6, a second scrutiny at Vespers, and the rations begin to bite.</p>",
+    "<p class='dim'>A note on the calendar: the real conclave ran five days — the cardinals entered on 6 August 1492 and elected on the sixth day, 11 August (here, day 6). Past that the dates run on into alternate history: if your College cannot agree, it sits longer than the true one did, under worsening rations, until a pope is made or — on the twelfth day — the election passes by compromissum.</p>",
     "<h4>The scrutiny &amp; the accessus</h4><p>Write up to <b>three names</b> (never your own). Election needs <b>two-thirds of those present</b> — the board shows the line, and it falls if a sick elder is carried out. After the count comes the <i>accessus</i>: any elector may publicly add one name. Accessions only add; a near-winner can be carried over the line in minutes. Black smoke, try again. White smoke, bells.</p>",
     "<h4>Actions</h4><p><b>Colloquy</b> — meet one man: <i>sound him out</i> (+1 intelligence each time; at II his dossier shows his lean and why, at III his secret deals), <i>press for his voice</i> (may win a pledge or reveal his true man), or <i>make an offer</i>.</p>",
     "<p><b>Offers</b> — gifts now, or papal offices <i>payable upon your election</i>. Every offer and plea has a <b>cause</b> — yourself, or any man you would crown — and bends the target\u0027s ballot toward that cause <i>in proportion to its electability</i>: gold spent on a two-vote cause buys gratitude, not ballots. Bribery feeds your <b>reputation for simony</b>, which the upright can smell and will punish.</p>",
     "<p><b>Address the benches</b> — once per theme: raises your standing as a candidate in every later ballot and warms those the theme touches.</p>",
     "<p><b>Devotions</b> — +integrity, −simony reputation, and the strict observance warms to you.</p>",
     "<p><b>Tend the sick</b> — keep an ill elder in the conclave (his vote stays; the threshold doesn't fall) and earn his lasting gratitude, and the chapel's.</p>",
-    "<p><b>At the rota</b> — ask a crown to back you; if it agrees, its clients weigh your name higher ever after. Your own patron is far likelier to say yes. Once per crown.</p>",
-    "<p><b>The night</b> — one errand: spy (full dossier on one man), whisper against a rival (deniable, traceable), a secret offer, or sleep. Expect visitors of your own: contenders pressing for your voice, flatterers fishing for your ballot, rich men leaving inkstands.</p>",
+    "<p><b>At the rota</b> — open crown letters and see, before spending the hour, whom each crown helps, whom it hurts, which clients it holds, your backing chance, and the risk of interception or forgery. You can seek backing, forward the letter to clients, leak it in chapter, or forge a favourable reply.</p>",
+    "<p><b>The night</b> — one errand: spy (full dossier on one man), whisper against a rival (deniable, traceable), a secret offer, or sleep. Your household's loyalty, discretion, literacy and greed shape leaks, caught spies and forged letters.</p>",
     "<p><b>Denounce simony</b> — once you <i>know</i> of bribes (spy on a bought man, or overhear deals), you may itemise a broker's purchases at chapter. His gold turns to lead with every upright elector, and bought men of conscience may return his gifts. With dirty hands of your own, expect laughter.</p>",
     "<p><b>Advocates</b> — a man pledged or warm to you can spend a day pressing a third man on your behalf; old familiars land the words best.</p>",
-    "<h4>The two meters</h4><p><b>Reputation for simony</b> rises with every bribe seen or suspected; past 70 you will be denounced at chapter, and the upright turn from you. <b>Integrity</b> is the other currency: it shapes how the principled treat you, whether you can sit the compromissum committee on day 12, and which ending you deserve.</p>",
+    "<h4>The Banchi</h4><p>The bankers' book prices candidates from visible evidence: stripped palaces, ballot strength, French credit, Borgia liquidity, rumours and letters. Early prices now behave like Renaissance favourites rather than universal longshots. You may borrow against your own price or move the market, but debt and gossip follow you.</p><h4>Fatigue and hunger</h4><p>Rations now create fatigue. Weary electors are more settlement-minded, more vulnerable to illness, and more grateful for care.</p><h4>The two meters</h4><p><b>Reputation for simony</b> rises with every bribe seen or suspected; past 70 you will be denounced at chapter, and the upright turn from you. <b>Integrity</b> is the other currency: it shapes how the principled treat you, whether you can sit the compromissum committee on day 12, and which ending you deserve.</p>",
     "<h4>Reading the College</h4><p>The roster shows each man's last tally and, as your intelligence grows, his lean: <i>→ Savelli?</i> is hearsay; <i>→ Savelli</i> is solid. Gold dot: he holds your promise. Green: pledged to you. Tap any name for the dossier.</p>",
-    "<h4>Your private ambition</h4><p>Most of the notable cardinals carry a secret objective, shown at the start and judged at the end — della Porta\u0027s is to be seriously considered and <i>escape unelected</i>. Achieving it pays influence.</p>",
+    "<h4>Your private ambition</h4><p>Every cardinal carries a historically grounded private objective, shown at the start and judged at the end — della Porta\u0027s is to be seriously considered and <i>escape unelected</i>. Achieving it pays influence.</p>",
     "<h4>Ballots are read</h4><p>The chapel interprets every ballot you cast: constancy draws a contender\u0027s courtship, dropping a leader is noticed, a voice for an elder reads as courtesy. Vote like everyone is watching, because they are.</p>",
     "<h4>The crowns</h4><p>The ♕ panel shows each power\u0027s clients and current favour — including Naples\u0027 mid-conclave change of heart. The Bear and the Column (Orsini and Colonna) will never vote each other\u0027s cause, whatever you pay.</p>",
-    "<h4>Seeds</h4><p>Each conclave is a seeded timeline — share <span class='mono'>?seed=…</span> to share an exact world. The same seed, played differently, ends differently.</p>",
+    "<h4>Household and messengers</h4><p>The ☉ panel is now a working control. Set your household to <b>Quiet service</b>, <b>Ears open</b>, <b>Letter-carriers ready</b>, or <b>Palms greased</b>, then use the ordinary action buttons. The panel previews the risk for spying, whispers, secret offers, rota interception, and forgeries.</p><h4>Optional absent cardinals &amp; saves</h4><p>The historical College has twenty-three electors. On the selection screen you may add any of the four eligible absentees: del Milà, Mendoza, d'Espinay, or d'Aubusson. Use <b>✒ Seal</b> to preserve a live conclave for later, and export the chronicle from the ending.</p><h4>Seeds</h4><p>Each conclave is a seeded timeline — share <span class='mono'>?seed=…</span> to share an exact world. The same seed, played differently, ends differently.</p>",
     "</div>"].join("");
   openModal("How the Conclave Works",html,[{label:"Extra omnes."}]);
+}
+
+/* ---------- save / resume / chronicle export ---------- */
+const SAVE_KEY="extra-omnes-1492-save";
+function serialiseState(){
+  if(!S) return null;
+  const plain=Object.assign({},S,{rngState:S.rng&&S.rng.state,queue:[]});
+  delete plain.rng;
+  return plain;
+}
+function restoreState(obj){
+  obj.rng=mulberry32(obj.rngState||hashSeed(obj.seed));
+  obj.queue=[];
+  obj.officeDebts=obj.officeDebts||[]; obj.marketMoves=obj.marketMoves||[]; obj.debt=obj.debt||0; obj.agentOrder=obj.agentOrder||"quiet"; obj.capitulationClauses=obj.capitulationClauses||[];
+  obj.extraElectors=obj.extraElectors||[]; obj.initialElectors=obj.initialElectors||IDS.filter(function(id){return !byId[id].optional || obj.extraElectors.indexOf(id)>=0 || id===obj.playerId;});
+  obj.cards=obj.cards||{}; obj.agents=obj.agents||{}; IDS.forEach(function(id){ if(!obj.cards[id]) obj.cards[id]={ill:false,illDays:0,out:(obj.initialElectors.indexOf(id)<0),promisesFrom:{},pledgedTo:null,pledgeStrength:0,fatigue:0,morale:0,directive:null,intel:id===obj.playerId?3:0,lastVote:null,accession:null,publicLean:null}; if(!obj.agents[id]){const base=CONCLAVIST_CHANNELS[id]; obj.agents[id]=Object.assign({},base,{compromised:false,favours:0});} if(obj.cards&&obj.cards[id]&&obj.cards[id].fatigue===undefined)obj.cards[id].fatigue=0; });
+  return obj;
+}
+function hasSave(){try{return !!localStorage.getItem(SAVE_KEY);}catch(e){return false;}}
+function saveGame(){
+  if(!S||S.over) return toast("No active conclave to save.");
+  if(modalStack.length||S.flags.phase==="ceremony") return toast("Close the current choice first.");
+  try{localStorage.setItem(SAVE_KEY,JSON.stringify(serialiseState()));toast("Conclave saved.");updateResumeButton();}
+  catch(e){toast("This browser would not allow a save.");}
+}
+function resumeGame(){
+  let raw=null;
+  try{raw=localStorage.getItem(SAVE_KEY);}catch(e){}
+  if(!raw) return toast("No saved conclave found.");
+  try{S=restoreState(JSON.parse(raw));pickedId=S.playerId;if(DEBUG)window.S=S;
+    $("#screen-select").classList.add("hidden");$("#screen-end").classList.add("hidden");$("#ceremony").classList.add("hidden");$("#screen-game").classList.remove("hidden");
+    try{window.scrollTo(0,0);}catch(e){}renderAll();toast("Saved conclave resumed.");}
+  catch(e){toast("The saved conclave could not be read.");}
+}
+function updateResumeButton(){const b=$("#resumebtn"); if(b)b.disabled=!hasSave();}
+function stripHTML(s){const d=document.createElement("div");d.innerHTML=s;return d.textContent||d.innerText||"";}
+function exportChronicle(){
+  const src=S||null; if(!src) return;
+  const lines=["Extra Omnes — Conclave 1492","Seed: "+src.seed,"Played as: "+(byId[src.playerId]?byId[src.playerId].name:src.playerId),"Electors: "+((src.initialElectors&&src.initialElectors.length)||present(src).length)+(((src.extraElectors||[]).length)?" (including "+(src.extraElectors||[]).map(function(id){return byId[id].short;}).join(", ")+")":""),""];
+  (src.log||[]).forEach(function(e){lines.push((DATE_LABELS[e.day]||"")+": "+stripHTML(e.html));});
+  if(src.electedId) lines.push("","Elected: "+byId[src.electedId].name);
+  const blob=new Blob([lines.join("\n")],{type:"text/plain;charset=utf-8"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="extra-omnes-"+src.seed+".txt";document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},0);
 }
 
 /* ---------- bootstrap ---------- */
 function init(){
   renderSelect();
   $("#startbtn").addEventListener("click",startGame);
+  $("#briefbtn").addEventListener("click",openBriefing);
+  $("#resumebtn").addEventListener("click",resumeGame);
+  updateResumeButton();
   $("#daybtn").addEventListener("click",dayButton);
   $("#a-coll").addEventListener("click",doColloquy);
   $("#a-addr").addEventListener("click",doAddress);
@@ -2688,16 +3570,27 @@ function init(){
   $("#a-night").addEventListener("click",doNight);
   $("#again").addEventListener("click",function(){restart(false);});
   $("#replay").addEventListener("click",function(){restart(true);});
+  $("#exportlog").addEventListener("click",exportChronicle);
   $("#mutebtn").addEventListener("click",function(){MUTE=!MUTE;$("#mutebtn").textContent=MUTE?"🔕":"🔔";});
+  $("#savebtn").addEventListener("click",saveGame);
   $("#helpbtn").addEventListener("click",openManual);
   $("#helpbtn2").addEventListener("click",openManual);
   $("#a-coll").title="Meet one cardinal: sound him out, press for his vote, or make an offer.";
   $("#a-addr").title="Speak to the benches: raises your weight as a candidate. Once per theme.";
   $("#a-dev").title="Pray: +integrity, lowers your reputation for simony, warms the strict.";
   $("#a-tend").title="Nurse a sick elder: keeps his vote in the conclave, earns deep gratitude.";
-  $("#a-rota").title="Ask a foreign crown to back you; its clients will favour your name.";
+  $("#a-rota").title="Read, forward, leak or forge crown letters at the rota.";
   $("#a-night").title="One night errand: spy, whisper, secret offer, or sleep.";
   $("#crownsbtn").addEventListener("click",openCrowns);
+  $("#agentsbtn").addEventListener("click",openAgents);
+  $("#marketbtn").addEventListener("click",openBankers);
+  document.querySelectorAll(".rtab").forEach(function(btn){
+    btn.addEventListener("click",function(){
+      const key=btn.getAttribute("data-rtab");
+      document.querySelectorAll(".rtab").forEach(function(b){b.classList.toggle("active",b===btn);});
+      document.querySelectorAll(".rtab-panel").forEach(function(p){p.classList.toggle("active",p.getAttribute("data-panel")===key);});
+    });
+  });
   $("#a-den").addEventListener("click",doDenounce);
   $("#a-den").title="Publicly itemise a rival's bribes: his standing falls with the upright; bought men may break free. Risky with dirty hands.";
 }
