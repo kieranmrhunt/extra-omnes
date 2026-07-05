@@ -364,7 +364,7 @@ function signed(n){return (n>0?"+":"") + Math.round(n)}
 function metricLevel(k,v){const bad=["exposure","fatigue","austrianGrip","frenchAlarm","deadlock"].includes(k);if(v>=78)return bad?"dangerous":"high";if(v>=58)return bad?"rising":"strong";if(v>=36)return "mixed";if(v>=18)return bad?"low":"fragile";return bad?"quiet":"very weak"}
 function axisBand(v){if(v>=1.25)return "very high";if(v>=.55)return "high";if(v>.12)return "moderate";if(v>=-.12)return "middle";if(v>=-.55)return "low";return "very low"}
 function axisBarWidth(v){return clamp((v+1.8)/3.6*100,0,100)}
-function stars(n){return "★".repeat(6-n)+"☆".repeat(n-1)}
+function stars(n){return "★".repeat(n)+"☆".repeat(5-n)}
 function hasTag(e,t){return e.tags.includes(t)}
 function primaryTags(e){return e.tags.slice(0,5)}
 function ballotDate(){return BALLOT_DATES[Math.min(S.ballotNo,BALLOT_DATES.length-1)]}
@@ -624,7 +624,7 @@ function renderSelect(){
 	});
 	visible.forEach(e=>{
 		const card=el("div",{class:"ccard"+(pickedId===e.id?" sel":""),onclick:()=>{pickedId=e.id;$("#startbtn").disabled=false;$("#startbtn").textContent=`Choose ${e.short}`;renderSelect()}},
-			el("div",{class:"meta"},`${ORDER_NAME[e.order]} · age ${e.age}`,`difficulty ${e.difficulty}`),
+			el("div",{class:"meta"},el("span",null,`${ORDER_NAME[e.order]} · age ${e.age}`),el("span",{title:"Player difficulty"},stars(e.difficulty))),
 			el("div",{class:"nm"},e.name),
 			el("div",{class:"office"},e.office),
 			el("div",{class:"chips"},primaryTags(e).map(t=>el("span",{class:"chip"+(t==="Bellisomi"||t==="Mattei"||t==="Austrian"?" hot":"")},displayLabel(t)))),
@@ -708,7 +708,7 @@ function showDossier(id){
 	const axes=["restore","adapt","austria","bourbon","curia","compromise","severity","monastic","temporal"];
 	const axisHtml=axes.map(k=>`<div class="axis"><span>${esc(displayLabel(k))}</span><span class="axbar"><span style="width:${axisBarWidth(e.profile[k]||0)}%"></span></span><span>${axisBand(e.profile[k]||0)}</span></div>`).join("");
 	const votes=S.lastCounts?.[id]||0;
-	showModal(e.name,`<div class="manual"><p><b>${esc(ORDER_NAME[e.order])}</b> · age ${e.age} · ${esc(e.country)}</p><p>${esc(e.office)}</p><p>${esc(e.role)}</p><p>${primaryTags(e).map(t=>`<span class="chip">${esc(displayLabel(t))}</span>`).join(" ")}</p><h4>Current position</h4><p>Last or projected support: <b>${votes}</b>. Papabile rating: <b>${e.papabile}/10</b>. Player difficulty: <b>${e.difficulty}</b>.</p><h4>Political-theological profile</h4>${axisHtml}</div>`,[]);
+	showModal(e.name,`<div class="manual"><p><b>${esc(ORDER_NAME[e.order])}</b> · age ${e.age} · ${esc(e.country)}</p><p>${esc(e.office)}</p><p>${esc(e.role)}</p><p>${primaryTags(e).map(t=>`<span class="chip">${esc(displayLabel(t))}</span>`).join(" ")}</p><h4>Current position</h4><p>Last or projected support: <b>${votes}</b>. Papabile rating: <b>${e.papabile}/10</b>. Player difficulty: <b title="Player difficulty">${stars(e.difficulty)}</b>.</p><h4>Political-theological profile</h4>${axisHtml}</div>`,[]);
 }
 function showExactRoll(){
 	if(!S.lastRoll)return;
