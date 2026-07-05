@@ -343,6 +343,9 @@ const METRIC_HELP = {
 const PRESSURE_KEYS = ["austrianGrip","frenchAlarm","fatigue","deadlock","compromise"];
 const ORDER_NAME = {B:"Cardinal-bishop",P:"Cardinal-priest",D:"Cardinal-deacon"};
 const THRESHOLD = 24;
+const FORECAST_TEMPERATURE = 1.8;
+const BALLOT_TEMPERATURE = 1.8;
+const CHOICE_POOL = 10;
 const BALLOT_DATES = ["30 November 1799","17 December 1799","28 December 1799","4 January 1800","21 January 1800","15 February 1800","1 March 1800","12 March 1800","14 March 1800","After Marengo's rumour"];
 const SAVE_KEY = "extra-omnes-venice-1800-v1";
 const ID = Object.fromEntries(ELECTORS.map(e => [e.id,e]));
@@ -413,8 +416,8 @@ function scoreCandidate(voter,candidate,forecast=false){
 	let score = candidate.papabile*.72 + (S.support[candidate.id]||0) + (S.momentum[candidate.id]||0)*.55 + S.relationships[voter.id][candidate.id] + profileScore(voter,candidate);
 	score += (S.destiny[voter.id]?.[candidate.id]||0)*.72;
 	if(candidate.id===S.playerId)score += (S.metrics.stature-42)/12 + (S.metrics.trust-52)/18 - Math.max(0,S.metrics.exposure-45)/28;
-	if(candidate.id==="bellisomi")score += 2.25 + S.metrics.adaptation/26 - S.metrics.austrianGrip/18 - Math.max(0,S.metrics.deadlock-45)/28;
-	if(candidate.id==="mattei")score += 1.35 + S.metrics.austrianGrip/20 + S.metrics.temporal/34 - S.metrics.frenchAlarm/42 - S.metrics.adaptation/55;
+	if(candidate.id==="bellisomi")score += 1.9 + S.metrics.adaptation/28 - S.metrics.austrianGrip/36 - Math.max(0,S.metrics.deadlock-45)/28;
+	if(candidate.id==="mattei")score += .75 + S.metrics.austrianGrip/38 + S.metrics.temporal/46 - S.metrics.frenchAlarm/34 - S.metrics.adaptation/54;
 	if(candidate.id==="chiaramonti")score += -.4 + S.metrics.compromise/14 + Math.max(0,S.metrics.deadlock-28)/10 + S.metrics.adaptation/45 + (S.ballotNo>=5?1.45:0) + (S.flags.consalviPlan?1.35:0);
 	if(candidate.id==="gerdil")score += S.metrics.temporal/34 - S.metrics.fatigue/24 - (S.metrics.austrianGrip>64?1.0:0);
 	if(candidate.id==="valenti")score += S.metrics.austrianGrip/34 + (S.ballotNo>=4?.55:0) - S.metrics.fatigue/30;
@@ -428,18 +431,47 @@ function scoreCandidate(voter,candidate,forecast=false){
 	if(!forecast)score += (rnd()-.5)*1.05;
 	return score;
 }
+function candidateLikelihoods(voter,forecast=false){
+	const scored = ELECTORS
+		.map(candidate=>({candidate,score:scoreCandidate(voter,candidate,forecast)}))
+		.sort((a,b)=>b.score-a.score)
+		.slice(0,CHOICE_POOL);
+	const best = scored[0].score;
+	const temperature = forecast ? FORECAST_TEMPERATURE : BALLOT_TEMPERATURE;
+	const weighted = scored.map(x=>({candidate:x.candidate,weight:Math.exp((x.score-best)/temperature)}));
+	const total = weighted.reduce((sum,x)=>sum+x.weight,0);
+	return weighted.map(x=>({candidate:x.candidate,probability:x.weight/total}));
+}
 function preferredCandidate(voter,forecast=false){
-	let best = null;
-	let bestScore = -Infinity;
-	for(const cand of ELECTORS){
-		const sc = scoreCandidate(voter,cand,forecast);
-		if(sc>bestScore){bestScore=sc;best=cand}
+	const choices = candidateLikelihoods(voter,forecast);
+	if(forecast)return choices[0].candidate;
+	let r = rnd();
+	for(const choice of choices){
+		r -= choice.probability;
+		if(r<=0)return choice.candidate;
 	}
-	return best;
+	return choices[choices.length-1].candidate;
 }
 function countRoll(roll){const counts={};ELECTORS.forEach(e=>counts[e.id]=0);roll.forEach(v=>{counts[v.candidate]++});return counts}
 function sortedCounts(counts){return Object.entries(counts).map(([id,n])=>({id,n,e:ID[id]})).sort((a,b)=>b.n-a.n || b.e.papabile-a.e.papabile || a.e.rank-b.e.rank)}
-function forecastCounts(){const roll=ELECTORS.map(v=>({voter:v.id,candidate:preferredCandidate(v,true).id}));return countRoll(roll)}
+function apportionForecast(raw){
+	const counts=Object.fromEntries(ELECTORS.map(e=>[e.id,Math.floor(raw[e.id]||0)]));
+	let remaining = ELECTORS.length - Object.values(counts).reduce((sum,n)=>sum+n,0);
+	const remainders = Object.entries(raw)
+		.map(([id,v])=>({id,remainder:v-Math.floor(v)}))
+		.sort((a,b)=>b.remainder-a.remainder || ID[a.id].rank-ID[b.id].rank);
+	for(let i=0;i<remaining;i++)counts[remainders[i].id]++;
+	return counts;
+}
+function forecastCounts(){
+	const raw=Object.fromEntries(ELECTORS.map(e=>[e.id,0]));
+	ELECTORS.forEach(voter=>{
+		candidateLikelihoods(voter,true).forEach(choice=>{
+			raw[choice.candidate.id]+=choice.probability;
+		});
+	});
+	return apportionForecast(raw);
+}
 function applyVirtualVeto(roll){
 	let counts=countRoll(roll);
 	if(counts.bellisomi>=THRESHOLD && S.metrics.austrianGrip>58 && !S.flags.herzanForbearance){
