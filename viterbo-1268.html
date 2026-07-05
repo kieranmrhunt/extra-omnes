@@ -986,6 +986,7 @@ function mulberry(S){
 }
 function hashSeed(s){var h=1779033703;var str=String(s);for(var i=0;i<str.length;i++){h=Math.imul(h^str.charCodeAt(i),3432918353);h=h<<13|h>>>19;}return h>>>0;}
 function clamp(x,lo,hi){ return Math.max(lo,Math.min(hi,x)); }
+function roman(n){var r=[[1000,"M"],[900,"CM"],[500,"D"],[400,"CD"],[100,"C"],[90,"XC"],[50,"L"],[40,"XL"],[10,"X"],[9,"IX"],[5,"V"],[4,"IV"],[1,"I"]],s=""; n=Math.floor(Number(n)||0); for(var i=0;i<r.length;i++){while(n>=r[i][0]){s+=r[i][1]; n-=r[i][0];}} return s||"0"; }
 
 function electorPool(extra){
   var ex = extra || [];
@@ -1293,7 +1294,7 @@ function chooseBallot(S, v){
 
 /* ---------- scrutiny & accessus ---------- */
 function beginScrutiny(S, playerPicks){
-  var P={turn:S.turn, votes:{}, running:{}, accessions:[], threshold:threshold(S)};
+  var P={turn:S.turn, number:S.scrutinies.length+1, votes:{}, running:{}, accessions:[], threshold:threshold(S)};
   votingToday(S).forEach(function(v){
     var b;
     if(v===S.playerId && playerPicks && playerPicks.length) b=playerPicks.slice(0,3);
@@ -1979,7 +1980,7 @@ function renderBoard(){
   var html="<table><tr class='thresh'><td>needed for two-thirds</td><td class='n'>"+th+"</td></tr>";
   if(!rows.length) html+="<tr><td colspan='2' class='dim'>no scrutiny yet held</td></tr>";
   rows.forEach(function(r2){ html+="<tr><td>"+nameOf(r2[0])+"</td><td class='n'>"+r2[1]+"</td></tr>"; });
-  html+="</table><div class='dim' style='margin-top:.4rem;font-size:.72rem'>Scrutiny "+S.scrutinies.length+" of a vacancy that will hold at least 137 recorded ballots.</div>";
+  html+="</table><div class='dim' style='margin-top:.4rem;font-size:.72rem'>Scrutiny "+roman(S.scrutinies.length)+" of a vacancy that will hold at least 137 recorded ballots.</div>";
   b.innerHTML=html;
 }
 function renderMeters(){
@@ -2037,7 +2038,7 @@ function renderLog(){
 function renderDaybtn(){
   var b=$("#daybtn");
   if(S.over){ b.textContent="To the reckoning"; return; }
-  if(!S.scrutinyDone) b.textContent="⚖ Call the scrutiny — "+turnLabel(S.turn);
+  if(!S.scrutinyDone) b.textContent="⚖ Call scrutiny "+roman(S.scrutinies.length+1)+" — "+turnLabel(S.turn);
   else b.textContent="☾ Let the weeks pass — on to "+(TURNS[S.turn+1]?turnLabel(S.turn+1):"the reckoning");
 }
 function renderMotionButton(){
@@ -2563,7 +2564,7 @@ function runCeremony(picks){
   CER={phase:"tally", accBudget: (votingToday(S).indexOf(S.playerId)>=0 && !S.cards[S.playerId].accession)?1:0};
   $("#screen-game").classList.add("hidden");
   $("#ceremony").classList.remove("hidden");
-  $("#cer-over").textContent="SCRUTINY · "+turnLabel(S.turn).toUpperCase();
+  $("#cer-over").textContent="SCRUTINY "+roman(P.number)+" · "+turnLabel(S.turn).toUpperCase();
   $("#cer-title").textContent="The urn on the altar";
   $("#cer-lat").textContent="Eligo in summum pontificem…";
   $("#cer-thresh").textContent="TWO-THIRDS TODAY: "+P.threshold+" OF "+votingToday(S).length;

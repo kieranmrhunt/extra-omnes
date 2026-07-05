@@ -469,7 +469,7 @@ function objectiveFor(e){
 	return {title:"Leave with a pope who owes you",text:"Be elected, or place the winner in your debt.",kind:"influence"};
 }
 function log(html,cls=""){S.log.push({ballot:S.ballotNo,html,cls});renderLog&&renderLog()}
-function phaseName(){if(S.ballotNo===0)return "14 October · before the first scrutiny";return BALLOT_LABELS[Math.min(S.ballotNo,BALLOT_LABELS.length-1)]||`Ballot ${S.ballotNo}`}
+function phaseName(){if(S.ballotNo===0)return "14 October · before the first scrutiny";return BALLOT_LABELS[Math.min(S.ballotNo,BALLOT_LABELS.length-1)]||`Scrutiny ${roman(S.ballotNo)}`}
 function spendAP(){if(S.ap<=0){toast("No conversation window remains before the next scrutiny.");return false}S.ap--;return true}
 function adjustMetric(k,delta){S.metrics[k]=clamp((S.metrics[k]||0)+delta,0,100)}
 function addCandidateMod(id,axis,delta){S.candidateMods[id][axis]=(S.candidateMods[id][axis]||0)+delta}
@@ -614,7 +614,7 @@ function runBallot(playerVote){
 			}
 		}
 	}
-	S.lastRoll=roll;S.lastCounts=counts;const hist={ballot:S.ballotNo,roll:{...roll},counts:{...counts},label:BALLOT_LABELS[S.ballotNo]||`Ballot ${S.ballotNo}`};
+	S.lastRoll=roll;S.lastCounts=counts;const hist={ballot:S.ballotNo,roll:{...roll},counts:{...counts},label:BALLOT_LABELS[S.ballotNo]||`Scrutiny ${roman(S.ballotNo)}`};
 	S.history.push(hist);
 	Object.keys(counts).forEach(id=>{S.momentum[id]=S.momentum[id]*.35 + counts[id]/16});
 	const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
@@ -812,7 +812,7 @@ function renderPlayerBox(){
 	const voteLine=S.history.length?`<br><span class="dim">Latest scrutiny support: <b>${votes}</b> of ${THRESHOLD} needed.</span>`:"";
 	$("#playerBox").innerHTML=`<b>${esc(e.name)}</b><br><span class="dim">${esc(e.office)}</span><br><span class="goldtx">${esc(S.player.objective.title)}</span><br>${esc(S.player.objective.text)}${voteLine}${S.player.withdrawn?`<br><b class="greentx">Transferred to ${esc(ID[S.player.transferTo].short)}</b>`:""}`
 }
-function renderAll(){if(!S)return;$("#dateLabel").textContent=phaseName()+` · scrutiny ${S.ballotNo+1} pending`;$("#apwrap").innerHTML=`Conversation windows ${S.ap} `+"<span class='pip'></span>".repeat(S.ap)+"<span class='pip spent'></span>".repeat(Math.max(0,3-S.ap));renderRoster();renderLog();renderMeters();renderBoard();renderNetworkSummary();renderPlayerBox();$("#ballotBtn").disabled=S.over;["actSound","actNetwork","actAssure","actFloat","actDiscourage","actRest","actTransfer"].forEach(id=>{const b=$("#"+id);if(b)b.disabled=!actionEnabled()});}
+function renderAll(){if(!S)return;$("#dateLabel").textContent=phaseName()+` · scrutiny ${roman(S.ballotNo+1)} pending`;$("#apwrap").innerHTML=`Conversation windows ${S.ap} `+"<span class='pip'></span>".repeat(S.ap)+"<span class='pip spent'></span>".repeat(Math.max(0,3-S.ap));renderRoster();renderLog();renderMeters();renderBoard();renderNetworkSummary();renderPlayerBox();$("#ballotBtn").disabled=S.over;["actSound","actNetwork","actAssure","actFloat","actDiscourage","actRest","actTransfer"].forEach(id=>{const b=$("#"+id);if(b)b.disabled=!actionEnabled()});}
 function openManual(){
 	openModal("How this 1978 build works", `<div class="manual"><p><b>Exact votes:</b> every scrutiny is a full one-name ballot by all 111 electors. The count now opens in a dedicated scrutiny book; the right rail only keeps a compact reminder.</p><p><b>No simony economy:</b> your currency is stature, trust, discretion, assurances, fatigue and the ability to reassure networks.</p><p><b>All 111 are playable:</b> the model does not hard-ban any elector from election. Obscure or implausible figures require a favourable seed, high trust, low exposure, and sustained network work.</p><h4>Reading the numbers</h4><p><b>Votes</b> are literal scrutiny votes. <b>Meters</b> are not votes; they describe the climate of the College. A high Italian lock, for example, does not elect anyone by itself, but it makes non-Italian candidates harder to sell.</p><p><b>Opening papabile profile</b> in the roster is a qualitative starting read: long shot, possible, papabile, or front-runner. It is not a fixed ceiling.</p><p><b>Dossier bars</b> show tendencies rather than arithmetic. Use them to choose assurances: a Curia assurance helps when governance fear is the obstacle; a Council assurance helps where Vatican II confidence is fragile.</p><p><b>The historical pull:</b> Siri and Benelli begin strong, the Italian lock fractures, and Wojtyła becomes increasingly thinkable. The player can derail this, but must provide a more credible settlement.</p><p><b>Actions:</b> soundings reveal individuals; network work moves blocs; assurances reshape the candidate profile; floating raises visibility and exposure; discouraging rivals is risky; transfer lets a blocked candidate become kingmaker.</p></div>`,[{label:"Extra omnes."}])
 }
