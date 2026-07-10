@@ -461,6 +461,28 @@ function preferredCandidate(voter,forecast=false){
 }
 function countRoll(roll){const counts={};ELECTORS.forEach(e=>counts[e.id]=0);roll.forEach(v=>{counts[v.candidate]++});return counts}
 function sortedCounts(counts){return Object.entries(counts).map(([id,n])=>({id,n,e:ID[id]})).sort((a,b)=>b.n-a.n || b.e.papabile-a.e.papabile || a.e.rank-b.e.rank)}
+function correctionTarget(voter,primary,fallback){
+	const options=[primary,fallback,"chiaramonti","bellisomi","mattei"].filter(Boolean);
+	for(const id of options){if(legalCandidateFor(voter,id))return id}
+	const forecast=candidateLikelihoods(ID[voter],true).find(choice=>legalCandidateFor(voter,choice.candidate.id));
+	return forecast?forecast.candidate.id:null;
+}
+function validateBallotRoll(roll,submittedPlayerVote,activeIds){
+	const activeSet=new Set(activeIds);
+	const seen=new Set();
+	if(roll.length!==activeIds.length)throw new Error(`Scrutiny ${S.ballotNo+1}: expected ${activeIds.length} ballots, recorded ${roll.length}`);
+	for(const item of roll){
+		if(!activeSet.has(item.voter))throw new Error(`Scrutiny ${S.ballotNo+1}: inactive or unknown voter ${item.voter}`);
+		if(seen.has(item.voter))throw new Error(`Scrutiny ${S.ballotNo+1}: duplicate vote from ${item.voter}`);
+		seen.add(item.voter);
+		if(!legalCandidateFor(item.voter,item.candidate))throw new Error(`Scrutiny ${S.ballotNo+1}: illegal vote ${item.voter} -> ${item.candidate}`);
+	}
+	for(const id of activeIds){if(!seen.has(id))throw new Error(`Scrutiny ${S.ballotNo+1}: missing vote from ${id}`)}
+	if(submittedPlayerVote&&activeSet.has(S.playerId)){
+		const playerRow=roll.find(item=>item.voter===S.playerId);
+		if(!playerRow||playerRow.candidate!==submittedPlayerVote)throw new Error(`Player ballot changed in scrutiny ${S.ballotNo+1}: submitted ${submittedPlayerVote}, recorded ${playerRow&&playerRow.candidate}`);
+	}
+}
 function apportionForecast(raw){
 	const counts=Object.fromEntries(ELECTORS.map(e=>[e.id,Math.floor(raw[e.id]||0)]));
 	let remaining = activeElectors().length - Object.values(counts).reduce((sum,n)=>sum+n,0);
@@ -485,11 +507,14 @@ function applyVirtualVeto(roll){
 		let moved=0;
 		for(const v of roll){
 			if(counts.bellisomi<threshold())break;
+			if(v.voter===S.playerId)continue;
 			const voter=ID[v.voter];
 			if(v.candidate==="bellisomi" && (hasTag(voter,"Austrian")||hasTag(voter,"Mattei")||hasTag(voter,"Curia")||rnd()<.45)){
-				v.candidate = (S.metrics.compromise>55 && rnd()<.45) ? "chiaramonti" : "mattei";
+				const target=correctionTarget(v.voter,(S.metrics.compromise>55&&rnd()<.45)?"chiaramonti":"mattei","chiaramonti");
+				if(!target)continue;
 				counts.bellisomi--;
-				counts[v.candidate]++;
+				v.candidate = target;
+				counts[target]++;
 				moved++;
 			}
 		}
@@ -505,11 +530,14 @@ function applyVirtualVeto(roll){
 		let moved=0;
 		for(const v of roll){
 			if(counts.mattei<threshold())break;
+			if(v.voter===S.playerId)continue;
 			const voter=ID[v.voter];
 			if(v.candidate==="mattei" && (hasTag(voter,"Bourbon")||hasTag(voter,"Accommodation")||rnd()<.38)){
-				v.candidate = S.metrics.compromise>50 ? "chiaramonti" : "bellisomi";
+				const target=correctionTarget(v.voter,S.metrics.compromise>50?"chiaramonti":"bellisomi","chiaramonti");
+				if(!target)continue;
 				counts.mattei--;
-				counts[v.candidate]++;
+				v.candidate = target;
+				counts[target]++;
 				moved++;
 			}
 		}
@@ -524,16 +552,17 @@ function conductBallot(playerVote){
 	if(S.over)return;
 	const ballotBeingRun=S.ballotNo+1;
 	const scrutinyElectors=activeElectors().length;
+	const scrutinyActiveIds=activeElectors().map(e=>e.id);
 	const scrutinyThreshold=Math.ceil(scrutinyElectors*2/3);
 	const scrutinyDate=ballotDateFor(ballotBeingRun);
 	const playerActive=activeElectors().some(e=>e.id===S.playerId);
 	if(playerActive&&!legalCandidateFor(S.playerId,playerVote))throw new Error(`Invalid player vote: ${S.playerId} cannot vote for ${playerVote}`);
 	const roll=activeElectors().map(voter=>({voter:voter.id,candidate:(voter.id===S.playerId&&playerVote)?playerVote:preferredCandidate(voter,false).id}));
 	applyVirtualVeto(roll);
+	validateBallotRoll(roll,playerVote,scrutinyActiveIds);
 	const counts=countRoll(roll);
 	const sorted=sortedCounts(counts);
 	S.ballotNo++;
-	if(S.ballotNo===1&&!S.flags.herzanArrived){S.flags.herzanArrived=true;log(`<b>Herzan arrives from Vienna.</b> The active electorate rises to ${activeElectors().length}; the two-thirds threshold is now ${threshold()}.`,"event")}
 	S.ap=3;
 	S.lastCounts=counts;
 	S.lastRoll=roll;
@@ -548,6 +577,7 @@ function conductBallot(playerVote){
 		setTimeout(endGame,350);
 		return;
 	}
+	if(S.ballotNo===1&&!S.flags.herzanArrived){S.flags.herzanArrived=true;log(`<b>Herzan arrives from Vienna.</b> The active electorate rises to ${activeElectors().length}; the two-thirds threshold is now ${threshold()}.`,"event")}
 	updateAfterFailedBallot(leader,second);
 	if(S.headless)return;
 	render();

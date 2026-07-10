@@ -565,7 +565,22 @@ function secondChoiceMargin(voter, winner){
 	for(const e of ELECTORS){if(e.id!==winner)alt=Math.max(alt,voterUtility(voter,e.id))}
 	return top-alt;
 }
+function validateBallotRoll(roll,counts,submittedPlayerVote){
+	const recomputed={};
+	for(const e of ELECTORS){
+		const vote=roll[e.id];
+		if(!vote)throw new Error(`Missing vote for ${e.id}`);
+		if(!legalCandidateFor(e.id,vote))throw new Error(`Illegal vote in scrutiny ${S.ballotNo}: ${e.id} -> ${vote}`);
+		recomputed[vote]=(recomputed[vote]||0)+1;
+	}
+	if(submittedPlayerVote&&roll[S.playerId]!==submittedPlayerVote)throw new Error(`Player ballot changed in scrutiny ${S.ballotNo}: submitted ${submittedPlayerVote}, recorded ${roll[S.playerId]}`);
+	for(const e of ELECTORS){
+		const id=e.id;
+		if((counts[id]||0)!==(recomputed[id]||0))throw new Error(`Tally mismatch in scrutiny ${S.ballotNo}: ${id}`);
+	}
+}
 function runBallot(playerVote){
+	if(S.over)throw new Error("Cannot run a scrutiny after an election has been declared.");
 	const ballotBeingRun=S.ballotNo+1;
 	if(playerVote && !legalCandidateFor(S.playerId,playerVote))throw new Error(`Invalid player vote: ${S.playerId} cannot vote for ${playerVote}`);
 	S.ballotNo=ballotBeingRun;
@@ -610,7 +625,7 @@ function runBallot(playerVote){
 		const activePlayerWork = Math.max(0,...Object.values(S.networkWork||{}))>4 || Math.abs(Object.values(S.candidateMods[S.playerId]||{}).reduce((a,b)=>a+Math.abs(b),0))>2.2 || S.metrics.stature>55;
 		let cap = S.ballotNo===7 ? (activePlayerWork&&S.playerId==="wojtyla"?88:73) : (94+Math.floor(rnd()*6));
 		if(counts.wojtyla>cap){
-			const voters=Object.keys(roll).filter(v=>roll[v]==="wojtyla" && v!=="wojtyla").sort((a,b)=>{
+			const voters=Object.keys(roll).filter(v=>v!==S.playerId && roll[v]==="wojtyla" && v!=="wojtyla").sort((a,b)=>{
 				const aa=secondChoiceMargin(a,"wojtyla"), bb=secondChoiceMargin(b,"wojtyla");
 				return aa-bb;
 			});
@@ -621,6 +636,7 @@ function runBallot(playerVote){
 			}
 		}
 	}
+	validateBallotRoll(roll,counts,playerVote);
 	S.lastRoll=roll;S.lastCounts=counts;const hist={ballot:S.ballotNo,roll:{...roll},counts:{...counts},label:BALLOT_LABELS[S.ballotNo]||`Ballot ${S.ballotNo}`};
 	S.history.push(hist);
 	Object.keys(counts).forEach(id=>{S.momentum[id]=S.momentum[id]*.35 + counts[id]/16});

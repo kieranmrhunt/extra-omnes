@@ -317,7 +317,7 @@ input[type=checkbox]{accent-color:var(--scarlet)}
 </head>
 <body>
 <script>
-window.onerror=function(m,s,l,c){var w=document.getElementById("jswarn");
+if(typeof window!=="undefined"&&typeof document!=="undefined")window.onerror=function(m,s,l,c){var w=document.getElementById("jswarn");
   if(w){w.style.display="block";var d=document.createElement("div");
   d.style.cssText="font-family:monospace;font-size:11px;margin-top:8px;color:#c4584a;word-break:break-all";
   d.textContent="\u26A0 "+m+" (line "+l+(c?":"+c:"")+")";w.appendChild(d);}};
@@ -1116,10 +1116,6 @@ if (typeof module !== "undefined") module.exports = { CARDINALS, ABSENT, OBJECTI
    CONCLAVE 1492 — ENGINE (pure logic; no DOM)
    ========================================================================= */
 "use strict";
-if (typeof module !== "undefined") {
-  const D = require("./data.js");
-  for (const k in D) globalThis[k] = D[k];
-}
 
 /* ---------- seeded RNG ---------- */
 function mulberry32(a){
@@ -1474,8 +1470,11 @@ function beginScrutiny(S, playerVote){
   for(const v of voters){
     let b;
     if(v===S.playerId && hasPlayerOverride){
-      b = (Array.isArray(playerVote)?playerVote:[playerVote])
-            .filter(c=>c && c!==v && S.cards[c] && !S.cards[c].out).slice(0,3);
+      const seen = new Set();
+      b = [];
+      (Array.isArray(playerVote)?playerVote:[playerVote]).forEach(c=>{
+        if(c && c!==v && S.cards[c] && !S.cards[c].out && !seen.has(c) && b.length<3){seen.add(c);b.push(c)}
+      });
     } else b = chooseBallot(S,v);
     votes[v]=b; S.cards[v].lastVote=b[0]||null; S.cards[v].accession=null;
   }
@@ -2200,6 +2199,7 @@ function scareCandidate(S){
 }
 
 if (typeof module !== "undefined") module.exports = {
+  CARDINALS, ABSENT, OBJECTIVES, FATES, REL_PAIRS, FEARS, POWERS, PAPAL_GIFTS, BORGIA_PRICES, REGNAL_NAMES, REGNAL_HINT, DATE_LABELS, ORDERS, FIRST_SCRUTINY_HISTORY, ABSENT_CARDINALS, PROMISE_FORMS, CONCLAVIST_CHANNELS, ROTA_MESSAGES, CAPITULATION_CLAUSES, OFFICE_DISPLACEMENT,
   initState, present, votingToday, threshold, utility, papabileEff, viability,
   beginScrutiny, npcAccessusPass, playerAccede, finalizeScrutiny, maxRunning, accessusCandidates,
   runNight, illnessCheck, advanceDay, doSforzaPivot, recordPromise, offerAcceptChance,

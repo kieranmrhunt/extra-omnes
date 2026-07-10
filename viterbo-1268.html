@@ -841,8 +841,8 @@ function nameOf(id){ return byId[id] ? byId[id].short : (OUTSIDERS[id] ? OUTSIDE
 function fullNameOf(id){ return byId[id] ? byId[id].name : (OUTSIDERS[id] ? OUTSIDERS[id].name : id); }
 
 /* ---- regnal names of the age ---- */
-const REGNAL_NAMES = ["Gregory","Clement","Innocent","Alexander","Urban","Honorius","Nicholas","Adrian","Celestine","Martin","John","Boniface","Benedict","Lucius","Anastasius","Victor","Callistus","Sylvester","Leo","Stephen"];
-const REGNAL_HINT = { orsini:"Nicholas", fieschi:"Adrian", savelli:"Honorius", debrie:"Martin", guy:"Eugene", riccardo:"Alexander", odo:"Urban", toledo:"Celestine" };
+const REGNAL_NAMES = ["Gregory","Clement","Innocent","Alexander","Urban","Honorius","Nicholas","Adrian","Celestine","Martin","John","Boniface","Benedict","Lucius","Anastasius","Victor","Callistus","Sylvester","Leo","Stephen","Eugene"];
+const REGNAL_HINT = { orsini:"Nicholas", fieschi:"Adrian", savelli:"Honorius", debrie:"Martin", guy:"Eugene", goffredo:"Callistus", riccardo:"Alexander", odo:"Urban", toledo:"Celestine" };
 const REGNAL_FLAVOR = {
   Nicholas:"The name the Orsini pope will truly take, six years hence — Rome will call him the son of the she-bear.",
   Adrian:"A name of Englishmen and, as it will prove, of very short reigns.",
@@ -985,8 +985,8 @@ function mulberry(S){
   return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
 }
 function hashSeed(s){var h=1779033703;var str=String(s);for(var i=0;i<str.length;i++){h=Math.imul(h^str.charCodeAt(i),3432918353);h=h<<13|h>>>19;}return h>>>0;}
+function keyedUnit(){return ((hashSeed(Array.prototype.join.call(arguments,"|"))%4294967296)/4294967296);}
 function clamp(x,lo,hi){ return Math.max(lo,Math.min(hi,x)); }
-function roman(n){var r=[[1000,"M"],[900,"CM"],[500,"D"],[400,"CD"],[100,"C"],[90,"XC"],[50,"L"],[40,"XL"],[10,"X"],[9,"IX"],[5,"V"],[4,"IV"],[1,"I"]],s=""; n=Math.floor(Number(n)||0); for(var i=0;i<r.length;i++){while(n>=r[i][0]){s+=r[i][1]; n-=r[i][0];}} return s||"0"; }
 
 function electorPool(extra){
   var ex = extra || [];
@@ -1293,12 +1293,36 @@ function chooseBallot(S, v){
 }
 
 /* ---------- scrutiny & accessus ---------- */
+function scrutinyMaxNames(S){ return S.turn<=3?3:2; }
+function legalScrutinyCandidate(S, voter, cand){
+  return !!(byId[cand] && cand!==voter && present(S).indexOf(cand)>=0 && !S.cards[cand].renounced);
+}
+function validateScrutinyBallot(S, voter, picks, allowBlank){
+  if(!Array.isArray(picks)) throw new TypeError("Scrutiny ballot must be an array of candidate ids.");
+  if(picks.length>scrutinyMaxNames(S)) throw new Error("Scrutiny ballot names too many candidates for this round.");
+  if(!allowBlank && !picks.length) throw new Error("Blank AI scrutiny ballot is not legal.");
+  var seen={};
+  picks.forEach(function(c){
+    if(typeof c!=="string") throw new TypeError("Scrutiny ballot candidate ids must be strings.");
+    if(seen[c]) throw new Error("Scrutiny ballot repeats candidate "+c+".");
+    seen[c]=true;
+    if(!legalScrutinyCandidate(S,voter,c)) throw new Error("Illegal scrutiny vote: "+voter+" -> "+c+".");
+  });
+  return picks.slice();
+}
+function validatePlayerPicks(S, playerPicks){
+  if(playerPicks===undefined || playerPicks===null) return null;
+  if(votingToday(S).indexOf(S.playerId)<0) throw new Error("The player is not eligible to vote in this scrutiny.");
+  return validateScrutinyBallot(S,S.playerId,playerPicks,true);
+}
 function beginScrutiny(S, playerPicks){
-  var P={turn:S.turn, number:S.scrutinies.length+1, votes:{}, running:{}, accessions:[], threshold:threshold(S)};
+  var checkedPlayerPicks=validatePlayerPicks(S,playerPicks);
+  var P={turn:S.turn, votes:{}, running:{}, accessions:[], threshold:threshold(S)};
   votingToday(S).forEach(function(v){
     var b;
-    if(v===S.playerId && playerPicks && playerPicks.length) b=playerPicks.slice(0,3);
+    if(v===S.playerId && checkedPlayerPicks!==null) b=checkedPlayerPicks.slice();
     else b=chooseBallot(S,v);
+    b=validateScrutinyBallot(S,v,b,v===S.playerId);
     P.votes[v]=b;
     S.cards[v].lastVote=b[0]||null;
     b.forEach(function(c){ P.running[c]=(P.running[c]||0)+1; });
@@ -1325,7 +1349,16 @@ function npcWantsAccession(S, v, pass){
   return null;
 }
 function scoreOfBallot(S,v,b){ var m=-1e9; b.forEach(function(c){ m=Math.max(m,utility(S,v,c,{strategic:true})); }); return m===-1e9?0:m; }
+function legalAccessionTarget(S, v, to){
+  var P=S.pendingScrutiny;
+  if(!P || !byId[to] || !byId[v]) return false;
+  if(votingToday(S).indexOf(v)<0 || !legalScrutinyCandidate(S,v,to)) return false;
+  if(!Object.prototype.hasOwnProperty.call(P.running,to)) return false;
+  if((P.votes[v]||[]).indexOf(to)>=0) return false;
+  return true;
+}
 function applyAccession(S, v, to){
+  if(!legalAccessionTarget(S,v,to)) throw new Error("Illegal accessus: "+v+" -> "+to+".");
   var P=S.pendingScrutiny;
   P.accessions.push({from:v,to:to});
   P.running[to]=(P.running[to]||0)+1;
@@ -1342,6 +1375,7 @@ function npcAccessusPass(S, pass){
 function playerAccede(S, to){
   if(!S.pendingScrutiny) return false;
   if(S.cards[S.playerId].accession) return false;
+  if(!legalAccessionTarget(S,S.playerId,to)) throw new Error("Illegal player accessus target: "+to+".");
   applyAccession(S,S.playerId,to);
   return true;
 }
@@ -1980,7 +2014,7 @@ function renderBoard(){
   var html="<table><tr class='thresh'><td>needed for two-thirds</td><td class='n'>"+th+"</td></tr>";
   if(!rows.length) html+="<tr><td colspan='2' class='dim'>no scrutiny yet held</td></tr>";
   rows.forEach(function(r2){ html+="<tr><td>"+nameOf(r2[0])+"</td><td class='n'>"+r2[1]+"</td></tr>"; });
-  html+="</table><div class='dim' style='margin-top:.4rem;font-size:.72rem'>Scrutiny "+roman(S.scrutinies.length)+" of a vacancy that will hold at least 137 recorded ballots.</div>";
+  html+="</table><div class='dim' style='margin-top:.4rem;font-size:.72rem'>Scrutiny "+S.scrutinies.length+" of a vacancy that will hold at least 137 recorded ballots.</div>";
   b.innerHTML=html;
 }
 function renderMeters(){
@@ -2038,7 +2072,7 @@ function renderLog(){
 function renderDaybtn(){
   var b=$("#daybtn");
   if(S.over){ b.textContent="To the reckoning"; return; }
-  if(!S.scrutinyDone) b.textContent="⚖ Call scrutiny "+roman(S.scrutinies.length+1)+" — "+turnLabel(S.turn);
+  if(!S.scrutinyDone) b.textContent="⚖ Call the scrutiny — "+turnLabel(S.turn);
   else b.textContent="☾ Let the weeks pass — on to "+(TURNS[S.turn+1]?turnLabel(S.turn+1):"the reckoning");
 }
 function renderMotionButton(){
@@ -2564,7 +2598,7 @@ function runCeremony(picks){
   CER={phase:"tally", accBudget: (votingToday(S).indexOf(S.playerId)>=0 && !S.cards[S.playerId].accession)?1:0};
   $("#screen-game").classList.add("hidden");
   $("#ceremony").classList.remove("hidden");
-  $("#cer-over").textContent="SCRUTINY "+roman(P.number)+" · "+turnLabel(S.turn).toUpperCase();
+  $("#cer-over").textContent="SCRUTINY · "+turnLabel(S.turn).toUpperCase();
   $("#cer-title").textContent="The urn on the altar";
   $("#cer-lat").textContent="Eligo in summum pontificem…";
   $("#cer-thresh").textContent="TWO-THIRDS TODAY: "+P.threshold+" OF "+votingToday(S).length;
@@ -2637,7 +2671,7 @@ function spawnSmoke(white){
   var st=$("#smokestage");
   for(var i=0;i<6;i++){
     var p=h("div",{class:"puff "+(white?"white":"black")});
-    p.style.setProperty("--dx",((mulberry(S)*40-20)|0)+"px");
+    p.style.setProperty("--dx",((keyedUnit(S.seed,S.turn,S.scrutinies.length,white?"white":"black",i)*40-20)|0)+"px");
     p.style.animationDelay=(i*0.35)+"s";
     st.appendChild(p);
     (function(pp){ setTimeout(function(){pp.remove();},4200); })(p);
@@ -3019,7 +3053,7 @@ function resolveCommitteeResult(res, playerPick){
 }
 
 /* ---------- habemus papam & the regnal name ---------- */
-var REGNAL_NUM={Gregory:"X",Clement:"V",Innocent:"V",Alexander:"V",Urban:"V",Honorius:"IV",Nicholas:"III",Adrian:"V",Celestine:"V",Martin:"IV",John:"XXI",Boniface:"VIII",Benedict:"XI",Lucius:"IV",Anastasius:"V",Victor:"V",Callistus:"IV",Sylvester:"IV",Leo:"X",Stephen:"X"};
+var REGNAL_NUM={Gregory:"X",Clement:"V",Innocent:"V",Alexander:"V",Urban:"V",Honorius:"IV",Nicholas:"III",Adrian:"V",Celestine:"V",Martin:"IV",John:"XXI",Boniface:"VIII",Benedict:"XI",Lucius:"IV",Anastasius:"V",Victor:"V",Callistus:"III",Sylvester:"IV",Leo:"X",Stephen:"X",Eugene:"IV"};
 function habemusFlow(id, via){
   $("#screen-game").classList.add("hidden");
   $("#ceremony").classList.remove("hidden");
