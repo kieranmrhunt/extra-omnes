@@ -16,12 +16,14 @@ const seedCount = Number(args.get("seeds") || DEFAULT_SEEDS);
 const full = !!args.get("full");
 const allowMissingHeadless = !!args.get("allow-missing-headless");
 const perRunBudgetMs = Number(args.get("timeout-ms") || (profile === "soak" ? 5000 : 2500));
+const BLANK_PICK_IDS = new Set(["_blank", "blank"]);
 
 const VARIANTS = [
   { file: "1492.html", label: "1492", players: ["borgia", "giuliano", "sforza"], approval: true },
   { file: "viterbo-1268.html", label: "viterbo-1268", players: ["orsini", "annibale", "guy"], approval: true },
   { file: "carafa-winter-1559.html", label: "carafa-winter-1559", players: ["ccarafa", "medici", "morone"], approval: true },
   { file: "venice-1800.html", label: "venice-1800", players: ["bellisomi", "mattei", "chiaramonti"], approval: false },
+  { file: "1903.html", label: "1903", players: ["rampolla", "sarto", "gibbons"], approval: false },
   { file: "october-1978.html", label: "october-1978", players: ["siri", "benelli", "wojtyla"], approval: false },
 ];
 
@@ -191,8 +193,8 @@ function validateBallotRecords(variant, result, knownIds) {
       for (const cand of entry.picks) {
         if (seenPicks.has(cand)) failures.push(`${context}: duplicate candidate ${cand} on ${entry.voter}'s ballot`);
         seenPicks.add(cand);
-        if (!knownIds.has(cand)) failures.push(`${context}: unknown candidate ${cand} on ${entry.voter}'s ballot`);
-        if (cand === entry.voter) failures.push(`${context}: self-vote ${entry.voter}`);
+        if (!knownIds.has(cand) && !BLANK_PICK_IDS.has(cand)) failures.push(`${context}: unknown candidate ${cand} on ${entry.voter}'s ballot`);
+        if (cand === entry.voter && !BLANK_PICK_IDS.has(cand)) failures.push(`${context}: self-vote ${entry.voter}`);
       }
     }
     const electorCount = record.electors || entries.length;
