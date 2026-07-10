@@ -250,6 +250,11 @@ header .date{margin-left:auto;text-align:right;font-family:var(--mono);font-size
 .endsub{text-align:center;font-family:var(--serif);color:var(--paper-dim);font-style:italic;font-size:1.2rem}
 .endbody{font-family:var(--serif);max-width:62ch;margin:1.6rem auto;font-size:1.18rem;line-height:1.6}
 .endbody b{color:var(--gold-bright);font-weight:600}
+.regnal{display:flex;gap:.45rem;flex-wrap:wrap;justify-content:center;margin:.9rem auto;max-width:760px}
+.regnal button{font-family:var(--display);font-size:.98rem}
+.regnal button.sel{border-color:var(--gold);color:var(--gold-bright)}
+.regnalhint{max-width:640px;margin:.2rem auto .9rem;text-align:center;font-family:var(--serif);font-size:1rem;color:var(--paper-dim);font-style:italic;line-height:1.45;min-height:2.3em}
+.regnalhint b{font-style:normal;font-family:var(--display);font-weight:600;color:var(--gold-bright)}
 .ach{display:flex;flex-wrap:wrap;gap:.45rem;justify-content:center;margin-top:1.2rem}
 .ach span{font-family:var(--mono);font-size:.68rem;border:1px solid rgba(205,168,95,.5);color:var(--gold-bright);border-radius:999px;padding:.28rem .6rem;text-transform:uppercase;letter-spacing:.07em}
 .endbar{display:flex;gap:.6rem;justify-content:center;margin:1.8rem 0}
@@ -358,6 +363,7 @@ header .date{margin-left:auto;text-align:right;font-family:var(--mono);font-size
 	<div class="titleblock"><div class="over">THE CONCLAVE IS ENDED</div></div>
 	<h1 class="endtitle" id="endTitle"></h1>
 	<div class="endsub" id="endSub"></div>
+	<div id="endRegnal"></div>
 	<div class="endbody" id="endBody"></div>
 	<div id="endStats"></div>
 	<div class="ach" id="achievements"></div>
@@ -428,7 +434,19 @@ const ASSURANCES = {
 };
 const SAVE_KEY = "extra-omnes-1978-v2";
 const SAVE_SCHEMA = 2;
-const PAPAL_NAMES_1978 = ["Paul VII","John XXIV","Pius XIII","Benedict XVI","Leo XIV","Gregory XVII","Clement XV","Adrian VII","Nicholas VI"];
+const PAPAL_NAMES_1978 = ["John Paul II","Paul VII","John XXIV","Pius XIII","Benedict XVI","Leo XIV","Gregory XVII","Clement XV","Adrian VII","Nicholas VI"];
+const PAPAL_NAME_FLAVOR_1978 = {
+	"John Paul II":"direct continuity with John Paul I, and through him John XXIII and Paul VI: Vatican II, pastoral courage and a Church no longer only Italian.",
+	"Paul VII":"Montinian continuity: Vatican II implemented by disciplined governance, diplomacy and the Roman centre.",
+	"John XXIV":"aggiornamento and pastoral warmth: a Roncallian signal that the Council remains an opening, not a parenthesis.",
+	"Pius XIII":"doctrinal firmness, anti-modern anxiety and restoration of confidence after a volatile year; powerful but deliberately loaded.",
+	"Benedict XVI":"theological depth and peace-making restraint, a name for teaching before theatre.",
+	"Leo XIV":"social teaching, intellectual confidence and engagement with modern politics in the Leonine mode.",
+	"Gregory XVII":"reform through institutions, liturgy and law; a governing name with old Roman weight.",
+	"Clement XV":"reconciliation: healing Curia, Council and national camps without making the compromise look weak.",
+	"Adrian VII":"the non-Italian austerity signal: reform from outside Rome's habits, with Adrian VI's shadow deliberately accepted.",
+	"Nicholas VI":"humanist repair: learning, diplomacy and patient reconstruction after shock."
+};
 const ID = Object.fromEntries(ELECTORS.map(e => [e.id,e]));
 let S = null;
 let pickedId = null;
@@ -440,7 +458,23 @@ function rnd(){return S.rng()}
 function keyedUnit(...parts){return mulberry32(hashSeed(parts.join("|")))()}
 function utilityBallotNo(){return S&&S.utilityBallotNo?S.utilityBallotNo:Math.max(1,(S&&S.ballotNo||0)+1)}
 function legalCandidateFor(voter,cand){return !!(S&&ID[voter]&&ID[cand]&&cand!==voter&&!(S.player.withdrawn&&cand===S.playerId))}
-function papalNameForState(seed,id){return id==="wojtyla"?"John Paul II":PAPAL_NAMES_1978[Math.floor(keyedUnit("papal-name",seed,id)*PAPAL_NAMES_1978.length)]}
+function papalNameFlavor1978(name){return PAPAL_NAME_FLAVOR_1978[name]||"a name with a thinner recent precedent; the new pope would have to define it."}
+function validPapalName1978(name){return Object.prototype.hasOwnProperty.call(PAPAL_NAME_FLAVOR_1978,name)}
+function papalNameForState(seed,id){
+	if(id==="wojtyla")return "John Paul II";
+	const e=ID[id];
+	if(!e)return PAPAL_NAMES_1978[Math.floor(keyedUnit("papal-name",seed,id)*PAPAL_NAMES_1978.length)];
+	if(id==="benelli"||hasTag(e,"Montinian"))return "Paul VII";
+	if(id==="siri"||(e.profile.doctrine>1.2&&e.profile.vatican2<0))return "Pius XIII";
+	if(id==="ratzinger")return "Benedict XVI";
+	if(hasTag(e,"SufferingChurch")||(e.country!=="Italy"&&hasTag(e,"AntiCommunist")))return "John Paul II";
+	if(hasTag(e,"Conciliar")||e.profile.vatican2>1)return "John XXIV";
+	if(hasTag(e,"Religious"))return "Benedict XVI";
+	if(hasTag(e,"GlobalSouth"))return "Adrian VII";
+	if(hasTag(e,"Curia"))return "Gregory XVII";
+	return PAPAL_NAMES_1978[1+Math.floor(keyedUnit("papal-name",seed,id)*(PAPAL_NAMES_1978.length-1))];
+}
+function papalNameOptions1978(id){const suggested=papalNameForState(S.seed,id);return [suggested,...PAPAL_NAMES_1978.filter(n=>n!==suggested)]}
 function papalNameFor(id){return papalNameForState(S.seed,id)}
 function ballotNoise(ballotNo,voter,cand){return (keyedUnit(S.seed,ballotNo,voter,cand)-.5)*(ballotNo<3?3.2:2.1)}
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
@@ -872,6 +906,49 @@ function renderAll(){if(!S)return;$("#dateLabel").textContent=phaseName()+` · s
 function openManual(){
 	openModal("How this 1978 build works", `<div class="manual"><p><b>Exact votes:</b> every scrutiny is a full one-name ballot by all 111 electors. The count now opens in a dedicated scrutiny book; the right rail only keeps a compact reminder.</p><p><b>No simony economy:</b> your currency is stature, trust, discretion, assurances, fatigue and the ability to reassure networks.</p><p><b>All 111 are playable:</b> the model does not hard-ban any elector from election. Obscure or implausible figures require a favourable seed, high trust, low exposure, and sustained network work.</p><h4>Reading the numbers</h4><p><b>Votes</b> are literal scrutiny votes. <b>Meters</b> are not votes; they describe the climate of the College. A high Italian lock, for example, does not elect anyone by itself, but it makes non-Italian candidates harder to sell.</p><p><b>Opening papabile profile</b> in the roster is a qualitative starting read: long shot, possible, papabile, or front-runner. It is not a fixed ceiling.</p><p><b>Dossier bars</b> show tendencies rather than arithmetic. Use them to choose assurances: a Curia assurance helps when governance fear is the obstacle; a Council assurance helps where Vatican II confidence is fragile.</p><p><b>The historical pull:</b> Siri and Benelli begin strong, the Italian lock fractures, and Wojtyła becomes increasingly thinkable. The player can derail this, but must provide a more credible settlement.</p><p><b>Actions:</b> soundings reveal individuals; network work moves blocs; assurances reshape the candidate profile; floating raises visibility and exposure; discouraging rivals is risky; transfer lets a blocked candidate become kingmaker.</p></div>`,[{label:"Extra omnes."}])
 }
+function endBody1978(w,me,name){
+	const isMe=w.id===me.id;
+	let body="";
+	if(isMe){
+		body+=`<p>The count reaches seventy-five and then goes beyond it. The chapel rises around you. Asked whether you accept the canonical election, you answer under a weight no game can fully simulate, and choose the name <b>${esc(name)}</b>.</p>`;
+		if(w.id==="wojtyla")body+=`<p>You speak of a country far away and yet close in faith. Days later the inauguration will give the pontificate its words: do not be afraid; open wide the doors.</p>`;
+		else body+=`<p>This is alternate history: a ${esc(w.country)} pope from the October 1978 College. The hidden model allowed it because your seed, timing and coalition work made enough men imagine the same future at once.</p>`;
+	}else{
+		body+=`<p>You did not leave the chapel as pope. <b>${esc(w.name)}</b> is announced as <b>${esc(name)}</b>. You leave with the consequences of your choices: ${S.player.transferTo===w.id?"you helped transfer support to the winner":"your ballots and network work are written into the chronicle, if not the announcement"}.</p>`;
+		if(w.id==="wojtyla")body+=`<p>The Italian monopoly is broken. For the first time since Adrian VI, Rome receives a non-Italian pope, and this time from behind the Iron Curtain.</p>`;
+	}
+	body+=`<p><b>Final exact scrutiny:</b> ${Object.entries(S.lastCounts).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([id,n])=>`${esc(ID[id].short)} ${n}`).join(" Â· ")}.</p>`;
+	return body;
+}
+function renderRegnal1978(w,me,initial){
+	const host=$("#endRegnal");if(!host)return;
+	host.innerHTML="";
+	const hint=el("div",{class:"regnalhint"});
+	function apply(name,button){
+		S.papalName=name;
+		$("#endTitle").textContent="HABEMUS PAPAM";
+		$("#endSub").textContent=`${w.name} is elected as ${name}`;
+		$("#endBody").innerHTML=endBody1978(w,me,name);
+		hint.innerHTML=`<b>${esc(name)}</b> &mdash; ${esc(papalNameFlavor1978(name))}`;
+		if(button){host.querySelectorAll("button").forEach(b=>b.classList.remove("sel"));button.classList.add("sel")}
+	}
+	if(w.id===me.id){
+		host.appendChild(el("p",{class:"dim",style:"text-align:center"},"By what name shall the Church know you? Each name is a programme as well as a precedent."));
+		const row=el("div",{class:"regnal"});
+		let initialButton=null;
+		papalNameOptions1978(w.id).forEach(name=>{
+			const b=el("button",{type:"button",onclick:()=>apply(name,b)},name+(name===initial?" *":""));
+			row.appendChild(b);
+			if(name===initial)initialButton=b;
+		});
+		host.appendChild(row);
+		host.appendChild(hint);
+		apply(initial,initialButton||row.firstChild);
+	}else{
+		hint.innerHTML=`<b>${esc(initial)}</b> &mdash; ${esc(papalNameFlavor1978(initial))}`;
+		host.appendChild(hint);
+	}
+}
 function endGame(){
 	$("#screen-game").classList.add("hidden");$("#screen-end").classList.remove("hidden");
 	const w=ID[S.electedId], me=ID[S.playerId], isMe=w.id===me.id;
@@ -882,7 +959,8 @@ function endGame(){
 	if(isMe){body+=`<p>The count reaches seventy-five and then goes beyond it. The chapel rises around you. Asked whether you accept the canonical election, you answer under a weight no game can fully simulate.</p>`;if(w.id==="wojtyla")body+=`<p>You speak of a country far away and yet close in faith. Days later the inauguration will give the pontificate its words: do not be afraid; open wide the doors.</p>`;else body+=`<p>This is alternate history: a ${esc(w.country)} pope from the October 1978 College. The hidden model allowed it because your seed, timing and coalition work made enough men imagine the same future at once.</p>`}
 	else{body+=`<p>You did not leave the chapel as pope. You leave with the consequences of your choices: ${S.player.transferTo===w.id?"you helped transfer support to the winner":"your ballots and network work are written into the chronicle, if not the announcement"}.</p>`;if(w.id==="wojtyla")body+=`<p>The Italian monopoly is broken. For the first time since Adrian VI, Rome receives a non-Italian pope, and this time from behind the Iron Curtain.</p>`}
 	body+=`<p><b>Final exact scrutiny:</b> ${Object.entries(S.lastCounts).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([id,n])=>`${esc(ID[id].short)} ${n}`).join(" · ")}.</p>`;
-	$("#endBody").innerHTML=body;
+	$("#endBody").innerHTML=endBody1978(w,me,name);
+	renderRegnal1978(w,me,name);
 	const achieved=objectiveAchieved(w.id);$("#achievements").innerHTML=[isMe?"Elected":"Witness",achieved?"Private objective":"Objective missed",w.id==="wojtyla"?"From a far-away country":"Alternate history",(S.metrics.exposure<25?"Discreet":"Exposed")].map(a=>`<span>${a}</span>`).join("");
 	$("#endStats").innerHTML=`<div class="statusbox"><b>Private objective:</b> ${esc(S.player.objective.title)} — ${achieved?"achieved":"not achieved"}</div><div id="history"></div>`;
 	const rows=S.history.map(h=>`<tr><td>${roman(h.ballot)}</td><td>${Object.entries(h.counts).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([id,n])=>`${esc(ID[id].short)} ${n}`).join(" · ")}</td></tr>`).join("");
@@ -936,7 +1014,11 @@ function validateSavedState(data){
 	}
 	if(data.history.length){const last=data.history[data.history.length-1];if(!savedRollIsValid(data.lastRoll)||!countsMatchRoll(data.lastCounts,data.lastRoll)||JSON.stringify(last.roll)!==JSON.stringify(data.lastRoll)||JSON.stringify(last.counts)!==JSON.stringify(data.lastCounts))return false}
 	else if(data.lastRoll!==null||!isRecord(data.lastCounts)||Object.keys(data.lastCounts).length)return false;
-	if(data.over){if(!ID[data.electedId]||data.papalName!==papalNameForState(data.seed,data.electedId))return false}
+	if(data.over){
+		if(!ID[data.electedId])return false;
+		if(data.electedId===data.playerId){if(!validPapalName1978(data.papalName))return false}
+		else if(data.papalName!==papalNameForState(data.seed,data.electedId))return false;
+	}
 	else if(data.electedId!==null||data.papalName!==null)return false;
 	return true;
 }

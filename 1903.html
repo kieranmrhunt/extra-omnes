@@ -358,6 +358,11 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 .end-sub{text-align:center;font-family:var(--serif);font-size:1.2rem;color:var(--paper-dim);font-style:italic}
 .end-body{max-width:64ch;margin:1.4rem auto;font-family:var(--serif);font-size:1.16rem;line-height:1.58}
 .end-body b{color:var(--gold-pale)}
+.regnal{display:flex;gap:.45rem;flex-wrap:wrap;justify-content:center;margin:.9rem auto;max-width:760px}
+.regnal button{font-family:var(--display);font-size:.98rem}
+.regnal button.sel{border-color:var(--gold);color:var(--gold-pale)}
+.regnalhint{max-width:640px;margin:.2rem auto .9rem;text-align:center;font-family:var(--serif);font-size:1rem;color:var(--paper-dim);font-style:italic;line-height:1.45;min-height:2.3em}
+.regnalhint b{font-style:normal;font-family:var(--display);font-weight:400;color:var(--gold-pale)}
 .achievements{display:flex;flex-wrap:wrap;justify-content:center;gap:.42rem;margin:1rem 0}
 .achievements span{border:1px solid rgba(199,168,92,.55);border-radius:999px;padding:.24rem .56rem;font-family:var(--cond);font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--gold-pale)}
 .endbar{display:flex;flex-wrap:wrap;justify-content:center;gap:.55rem;margin:1.5rem 0}
@@ -478,6 +483,7 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 	<div class="end-over">Habemus Papam</div>
 	<h1 class="end-title" id="endTitle"></h1>
 	<div class="end-sub" id="endSub"></div>
+	<div id="endRegnal"></div>
 	<div class="end-body" id="endBody"></div>
 	<div id="endStats"></div>
 	<div class="achievements" id="achievements"></div>
@@ -1235,8 +1241,24 @@ function objectiveAchieved(S){
 	if(kind==="independence")return S.metrics.freedom>=58 && S.metrics.courtPressure<65;
 	return profileSimilarity(BASE_PROFILE[player.id],profileFor(S,winner.id))>=.78;
 }
+const PAPAL_NAMES_1903=["Pius X","Leo XIV","Benedict XV","Clement XV","Gregory XVII","Innocent XIII","Adrian VII"];
+const PAPAL_NAME_FLAVOR_1903={
+	"Pius X":"suffering, doctrinal firmness and papal independence: the name Sarto chose in honour of the Pius popes who endured the modern state.",
+	"Leo XIV":"Leonian continuity: diplomacy, social teaching, intellectual confidence and Rampolla's Secretariat of State.",
+	"Benedict XV":"Roman restraint and peace-making: a governance name for lowering court temperature after the veto crisis.",
+	"Clement XV":"conciliation after injury: healing the College without conceding a secular right over the conclave.",
+	"Gregory XVII":"monastic reform and institutional discipline: a name for a religious pope who means to govern.",
+	"Innocent XIII":"clean jurisdiction and papal liberty: a legal answer to the wound of the veto.",
+	"Adrian VII":"austere reform from outside the Roman habit: plain speech, correction and suspicion of courtly politics."
+};
+function papalNameFlavor1903(name){return PAPAL_NAME_FLAVOR_1903[name]||"a name with a thinner recent precedent; the new pope would have to define it."}
+function papalNameOptions1903(id){const suggested=nextPapalName(id);return [suggested].concat(PAPAL_NAMES_1903.filter(function(name){return name!==suggested}))}
 function nextPapalName(id){
 	if(id==="sarto")return "Pius X";
+	if(id==="rampolla")return "Leo XIV";
+	if(id==="gotti")return "Gregory XVII";
+	if(id==="oreglia")return "Benedict XV";
+	if(id==="puzyna")return "Innocent XIII";
 	const p=BASE_PROFILE[id];
 	if(p.programme<-.8)return "Pius X";
 	if(p.continuity>.9)return "Leo XIV";
@@ -2052,23 +2074,57 @@ function startPicked(){
 	renderNetworkTabs();
 	render();
 }
-function endGame(){
-	if(!S || !S.electedId)return;
-	const winner=ID[S.electedId];
-	const player=ID[S.playerId];
-	const papalName=nextPapalName(winner.id);
-	$("#screen-game").classList.add("hidden");
-	$("#screen-select").classList.add("hidden");
-	$("#screen-end").classList.remove("hidden");
-	$("#endTitle").textContent=papalName;
-	$("#endSub").textContent=winner.name+" is elected after "+S.ballotNo+" scrutin"+(S.ballotNo===1 ? "y." : "ies.");
+function endBody1903(winner,player,papalName){
 	let body="<p>The sealed identity flaps are not needed: no decisive self-vote exists. <b>"+esc(winner.name)+"</b> accepts and takes the name <b>"+esc(papalName)+"</b>.</p>";
 	if(winner.id==="sarto")body+="<p>The result rhymes with history: the diocesan outsider overtakes both the Secretary of State and the organised curial alternative. As Pius X, Sarto will abolish the claimed right of exclusion in <i>Commissum nobis</i>.</p>";
 	else if(winner.id==="rampolla")body+="<p>This is the great 1903 counterfactual: the College has answered Franz Joseph by electing the excluded man. The Leonian course survives, but the new pontificate begins inside a European diplomatic storm.</p>";
 	else body+="<p>This is an alternate 1903. The historical Sarto transfer has been displaced by a College willing to entrust the post-Leonian Church to "+esc(winner.short)+".</p>";
 	if(winner.id===player.id)body+="<p>You have won the tiara yourself. Your public programme and the debts of interpretation around it now become government.</p>";
 	else body+="<p>You played as <b>"+esc(player.name)+"</b>. Your private objective was <i>"+esc(S.player.objective.title)+"</i>.</p>";
-	$("#endBody").innerHTML=body;
+	return body;
+}
+function renderRegnal1903(winner,player,initial){
+	const host=$("#endRegnal");if(!host)return;
+	host.innerHTML="";
+	const hint=el("div",{class:"regnalhint"});
+	function apply(name,button){
+		S.papalName=name;
+		$("#endTitle").textContent=name;
+		$("#endSub").textContent=winner.name+" is elected after "+S.ballotNo+" scrutin"+(S.ballotNo===1 ? "y." : "ies.");
+		$("#endBody").innerHTML=endBody1903(winner,player,name);
+		hint.innerHTML="<b>"+esc(name)+"</b> &mdash; "+esc(papalNameFlavor1903(name));
+		if(button){$all("button",host).forEach(function(b){b.classList.remove("sel")});button.classList.add("sel")}
+	}
+	if(winner.id===player.id){
+		host.appendChild(el("p",{class:"dim",style:"text-align:center"},"By what name shall the Church know you? Each name is a programme as well as a precedent."));
+		const row=el("div",{class:"regnal"});
+		let initialButton=null;
+		papalNameOptions1903(winner.id).forEach(function(name){
+			const b=el("button",{type:"button",onclick:function(){apply(name,b)}},name+(name===initial?" *":""));
+			row.appendChild(b);
+			if(name===initial)initialButton=b;
+		});
+		host.appendChild(row);
+		host.appendChild(hint);
+		apply(initial,initialButton||row.firstChild);
+	}else{
+		hint.innerHTML="<b>"+esc(initial)+"</b> &mdash; "+esc(papalNameFlavor1903(initial));
+		host.appendChild(hint);
+	}
+}
+function endGame(){
+	if(!S || !S.electedId)return;
+	const winner=ID[S.electedId];
+	const player=ID[S.playerId];
+	const papalName=S.papalName||nextPapalName(winner.id);
+	S.papalName=papalName;
+	$("#screen-game").classList.add("hidden");
+	$("#screen-select").classList.add("hidden");
+	$("#screen-end").classList.remove("hidden");
+	$("#endTitle").textContent=papalName;
+	$("#endSub").textContent=winner.name+" is elected after "+S.ballotNo+" scrutin"+(S.ballotNo===1 ? "y." : "ies.");
+	$("#endBody").innerHTML=endBody1903(winner,player,papalName);
+	renderRegnal1903(winner,player,papalName);
 	const achieved=objectiveAchieved(S);
 	const finalRecord=S.history[S.history.length-1];
 	$("#endStats").innerHTML="<div class='statusbox objective'><b>Private objective</b><br>"+esc(S.player.objective.text)+"<br><span class='"+(achieved ? "goldtx" : "dim")+"'>"+(achieved ? "Achieved" : "Not achieved")+"</span></div><div class='statusbox'><b>Final scrutiny</b><div class='race'>"+scrutinyRows(finalRecord)+"</div></div>";

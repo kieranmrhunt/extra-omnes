@@ -3501,6 +3501,9 @@ function endGame(){
     });
     reg.appendChild(row); reg.appendChild(hintEl);
     if(histBtn) pick(histName,histBtn); else pick(REGNAL_NAMES[0], row.firstChild);
+  } else if(w){
+    const n=npcRegnal(E.winner);
+    reg.appendChild(h("div",{class:"regnalhint",html:"<b>"+n+" "+(ORDINAL[n]||"")+"</b> — "+(REGNAL_FLAVOR[n]||"a name without strong recent precedent; this pontificate would make it mean what it will.")}));
   }
   // private ambition: computed before the score table that displays it
   const ob=OBJECTIVES[S.playerId];

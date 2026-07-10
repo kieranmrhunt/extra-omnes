@@ -862,7 +862,16 @@ const REGNAL_FLAVOR = {
   Alexander:"The name of the pope the Annibaldi called uncle.",
   Celestine:"A hermit's name; it will be tried, one day, and regretted.",
   Eugene:"A name for reform and conciliation, chosen here by the Cistercian of Burgundy.",
-  Callistus:"A Roman peacemaker's invocation of the third Callistus."
+  Callistus:"A Roman peacemaker's invocation of the third Callistus.",
+  John:"apostolic memory and Roman continuity; the most-used papal name, plain enough to be made new.",
+  Boniface:"high papal authority and legal confidence, with the danger of looking imperious to kings.",
+  Benedict:"monastic learning and peace-making restraint.",
+  Lucius:"light-bearing ancientness: a deliberately early-Church name for a worn-out age.",
+  Anastasius:"resurrection and recovery, a name for bringing a deadlocked Church back to life.",
+  Victor:"victory and orthodoxy, combative without being princely.",
+  Sylvester:"Constantinian memory, Roman settlement and the old dream of Christian order.",
+  Leo:"strength, doctrine and Roman voice; a name that teaches as much as rules.",
+  Stephen:"an ancient martyr's name, modest in courtly style but sharp in witness."
 };
 
 /* ---- per-role objectives ---- */
@@ -3351,8 +3360,9 @@ function showEnd(){
   $("#endover").textContent = histLong ? "THE SEE WAS VACANT ONE THOUSAND AND SIX DAYS" : "THE SEE WAS VACANT SOME "+monthsIn(S)+" MONTHS";
   $("#endtitle").textContent = ENDTITLES[E.kind]||"THE RECKONING";
   $("#endsub").innerHTML = byId[S.playerId] ? byId[S.playerId].name+" · "+ORDERS[byId[S.playerId].order]+" of "+byId[S.playerId].title : "";
-  $("#endregnal").innerHTML = (E.kind==="pope"||E.kind==="pope_scrut") && S.regnal ?
-    "<div class='regnalhint'>You take the name <b>"+S.regnal+"</b>"+(REGNAL_FLAVOR[S.regnal.split(" ")[0]]?" — "+REGNAL_FLAVOR[S.regnal.split(" ")[0]]:"")+"</div>" : "";
+  var regBase=S.regnal?S.regnal.split(" ")[0]:"";
+  $("#endregnal").innerHTML = S.regnal ?
+    "<div class='regnalhint'>"+((E.kind==="pope"||E.kind==="pope_scrut")?"You take":"The new pope takes")+" the name <b>"+S.regnal+"</b>"+(REGNAL_FLAVOR[regBase]?" — "+REGNAL_FLAVOR[regBase]:"")+"</div>" : "";
   $("#endbody").innerHTML = endNarrative(E);
   /* final scrutiny record */
   var bb=$("#ballotbody"); bb.innerHTML="";

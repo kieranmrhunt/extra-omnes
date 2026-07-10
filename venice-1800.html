@@ -207,6 +207,11 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 .endsub{text-align:center;font-family:var(--serif);color:var(--paper-dim);font-style:italic;font-size:1.2rem}
 .endbody{font-family:var(--serif);max-width:64ch;margin:1.6rem auto;font-size:1.18rem;line-height:1.6}
 .endbody b{color:var(--gold2);font-weight:600}
+.regnal{display:flex;gap:.45rem;flex-wrap:wrap;justify-content:center;margin:.9rem auto;max-width:760px}
+.regnal button{font-family:var(--display);font-size:.98rem}
+.regnal button.sel{border-color:var(--gold);color:var(--gold2)}
+.regnalhint{max-width:620px;margin:.2rem auto .9rem;text-align:center;font-family:var(--serif);font-size:1rem;color:var(--paper-dim);font-style:italic;line-height:1.45;min-height:2.3em}
+.regnalhint b{font-style:normal;font-family:var(--display);font-weight:600;color:var(--gold2)}
 .ach{display:flex;flex-wrap:wrap;gap:.45rem;justify-content:center;margin-top:1.2rem}
 .ach span{font-family:var(--mono);font-size:.68rem;border:1px solid rgba(202,165,90,.5);color:var(--gold2);border-radius:999px;padding:.28rem .6rem;text-transform:uppercase;letter-spacing:.07em}
 .endbar{display:flex;gap:.6rem;justify-content:center;margin:1.8rem 0;flex-wrap:wrap}
@@ -285,6 +290,7 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 	<div class="titleblock"><div class="over">THE CONCLAVE OF VENICE IS ENDED</div></div>
 	<h1 class="endtitle" id="endTitle"></h1>
 	<div class="endsub" id="endSub"></div>
+	<div id="endRegnal"></div>
 	<div class="endbody" id="endBody"></div>
 	<div id="endStats"></div>
 	<div class="ach" id="achievements"></div>
@@ -356,6 +362,18 @@ const CHOICE_POOL = 10;
 const BALLOT_DATES = ["30 November 1799","17 December 1799","28 December 1799","4 January 1800","21 January 1800","15 February 1800","1 March 1800","12 March 1800","14 March 1800","After Marengo's rumour"];
 const SAVE_KEY = "extra-omnes-venice-1800-v2";
 const SAVE_SCHEMA = 2;
+const PAPAL_NAMES_1800 = ["Pius VII","Leo XII","Clement XV","Gregory XVI","Benedict XV","Innocent XIV","Adrian VII","Urban IX","Nicholas VI"];
+const PAPAL_NAME_FLAVOR_1800 = {
+	"Pius VII":"continuity with Pius VI, the prisoner of Valence: endurance, legitimacy and refusal to concede that revolution has ended the papacy.",
+	"Leo XII":"restoration statecraft: Roman order, episcopal discipline and a more princely answer to the revolutionary age.",
+	"Clement XV":"accommodation and mercy: a name for making the Church livable with hostile governments without calling it surrender.",
+	"Gregory XVI":"monastic and doctrinal gravity: reform from cloistered seriousness, learning and distrust of fashionable politics.",
+	"Benedict XV":"steadiness, peace-making and pastoral restraint: less dramatic than Pius, but suited to a Church exhausted by war and exile.",
+	"Innocent XIV":"clean government and juridical repair: a promise that the Curia will be put back in order before the court is rebuilt.",
+	"Adrian VII":"austere reform with an outsider's edge: plain living, hard correction and little patience for Roman theatre.",
+	"Urban IX":"Roman confidence and temporal government: a name for rebuilding authority in the city and its states.",
+	"Nicholas VI":"humanist repair: libraries, diplomacy and a Rome rebuilt by learning as much as force."
+};
 const ID = Object.fromEntries(ELECTORS.map(e => [e.id,e]));
 let S = null;
 let pickedId = null;
@@ -898,7 +916,11 @@ function validateVeniceSave(data){
 	if(data.ballotNo>0&&!firstWinner&&!data.flags.herzanArrived)return false;
 	if(data.lastForecast!==null){if(!finiteMap(data.lastForecast,ids,[0,35])||!Number.isInteger(data.forecastBallot)||data.forecastBallot!==data.ballotNo+1||typeof data.forecastStale!=="boolean")return false;const total=Object.values(data.lastForecast).reduce((a,b)=>a+b,0);if(total!==(data.flags.herzanArrived?35:34))return false}
 	else if(data.forecastBallot!==null)return false;
-	if(data.over){if(!ID[data.electedId]||data.papalName!==choosePapalName(ID[data.electedId]))return false}
+	if(data.over){
+		if(!ID[data.electedId])return false;
+		if(data.electedId===data.playerId){if(!validPapalName1800(data.papalName))return false}
+		else if(data.papalName!==choosePapalName(ID[data.electedId]))return false;
+	}
 	else if(data.electedId!==null||data.papalName!==null)return false;
 	return true;
 }
@@ -936,12 +958,8 @@ function endGame(){
 	$("#endTitle").textContent = papalName;
 	$("#endSub").textContent = `${winner.name} is elected after ${S.ballotNo} represented rounds.`;
 	const player=ID[S.playerId];
-	let body = `<p>The doors open onto the lagoon. <b>${esc(winner.name)}</b> accepts the burden of a papacy born in exile.</p>`;
-	if(winner.id==="chiaramonti")body += `<p>The result rhymes with history: not the loudest faction, but the compromise that could survive both Vienna and Paris.</p>`;
-	else body += `<p>This is an alternate Venice. The historical Chiaramonti settlement has been displaced by a College willing to gamble on ${esc(winner.short)}.</p>`;
-	if(winner.id===player.id)body += `<p>You have won the tiara yourself — but the road to Rome is still held by soldiers, treaties and winter water.</p>`;
-	else body += `<p>You played as <b>${esc(player.name)}</b>; your objective was <i>${esc(S.player.objective.title)}</i>.</p>`;
-	$("#endBody").innerHTML=body;
+	$("#endBody").innerHTML=endBody1800(winner,player,papalName);
+	renderRegnal1800(winner,player,papalName);
 	const objective=evaluateObjective();
 	$("#endStats").innerHTML=`<div class="statusbox"><b>Private objective — ${objective.achieved?"achieved":"not achieved"}</b><br>${esc(objective.reason)}</div>${renderEndTable()}`;
 	const ach=[];
@@ -988,13 +1006,55 @@ function evaluateObjective(){
 	const achieved=S.metrics.austrianGrip<72&&S.metrics.secrecy>=32;
 	return {achieved,reason:achieved?"The College reached an honourable independent settlement.":"A pope was elected, but crown pressure or public intrigue compromised the settlement."};
 }
+function papalNameFlavor1800(name){return PAPAL_NAME_FLAVOR_1800[name]||"a name with a thinner recent precedent; the new pope would have to make its meaning plain."}
+function validPapalName1800(name){return Object.prototype.hasOwnProperty.call(PAPAL_NAME_FLAVOR_1800,name)}
+function papalNameOptions1800(w){const suggested=choosePapalName(w);return [suggested,...PAPAL_NAMES_1800.filter(n=>n!==suggested)]}
 function choosePapalName(w){
 	if(w.id==="chiaramonti")return "Pius VII";
-	if(hasTag(w,"Restoration"))return "Pius VII";
-	if(hasTag(w,"Accommodation"))return "Clement XV";
+	if(w.id==="bellisomi")return "Clement XV";
+	if(w.id==="mattei"||hasTag(w,"Restoration"))return "Pius VII";
 	if(hasTag(w,"Monastic"))return "Gregory XVI";
+	if(hasTag(w,"Accommodation")||hasTag(w,"Compromise"))return "Clement XV";
 	if(hasTag(w,"Bourbon"))return "Benedict XV";
+	if(hasTag(w,"Curia"))return "Leo XII";
 	return ["Pius VII","Leo XII","Clement XV","Gregory XVI","Benedict XV"][Math.floor(hashSeed(w.id)%5)];
+}
+function endBody1800(winner,player,papalName){
+	let body = `<p>The doors open onto the lagoon. <b>${esc(winner.name)}</b> accepts the burden of a papacy born in exile and takes the name <b>${esc(papalName)}</b>.</p>`;
+	if(winner.id==="chiaramonti")body += `<p>The result rhymes with history: not the loudest faction, but the compromise that could survive both Vienna and Paris.</p>`;
+	else body += `<p>This is an alternate Venice. The historical Chiaramonti settlement has been displaced by a College willing to gamble on ${esc(winner.short)}.</p>`;
+	if(winner.id===player.id)body += `<p>You have won the tiara yourself &mdash; but the road to Rome is still held by soldiers, treaties and winter water.</p>`;
+	else body += `<p>You played as <b>${esc(player.name)}</b>; your objective was <i>${esc(S.player.objective.title)}</i>.</p>`;
+	return body;
+}
+function renderRegnal1800(winner,player,initial){
+	const host=$("#endRegnal");if(!host)return;
+	host.innerHTML="";
+	const hint=el("div",{class:"regnalhint"});
+	function apply(name,button){
+		S.papalName=name;
+		$("#endTitle").textContent=name;
+		$("#endSub").textContent=`${winner.name} is elected after ${S.ballotNo} represented rounds.`;
+		$("#endBody").innerHTML=endBody1800(winner,player,name);
+		hint.innerHTML=`<b>${esc(name)}</b> &mdash; ${esc(papalNameFlavor1800(name))}`;
+		if(button){host.querySelectorAll("button").forEach(b=>b.classList.remove("sel"));button.classList.add("sel")}
+	}
+	if(winner.id===player.id){
+		host.appendChild(el("p",{class:"dim",style:"text-align:center"},"By what name shall the Church know you? Each name is a programme as well as a precedent."));
+		const row=el("div",{class:"regnal"});
+		let initialButton=null;
+		papalNameOptions1800(winner).forEach(name=>{
+			const b=el("button",{type:"button",onclick:()=>apply(name,b)},name+(name===initial?" *":""));
+			row.appendChild(b);
+			if(name===initial)initialButton=b;
+		});
+		host.appendChild(row);
+		host.appendChild(hint);
+		apply(initial,initialButton||row.firstChild);
+	}else{
+		hint.innerHTML=`<b>${esc(initial)}</b> &mdash; ${esc(papalNameFlavor1800(initial))}`;
+		host.appendChild(hint);
+	}
 }
 function renderEndTable(){
 	const final=S.history[S.history.length-1]||{};
