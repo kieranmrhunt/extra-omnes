@@ -363,6 +363,10 @@ function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.remove("hi
 function hashSeed(str){let h=1779033703^String(str).length;for(let i=0;i<String(str).length;i++){h=Math.imul(h^String(str).charCodeAt(i),3432918353);h=h<<13|h>>>19}return h>>>0}
 function mulberry32(a){let s=a>>>0;const r=function(){s|=0;s=s+0x6D2B79F5|0;r.state=s>>>0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296};r.state=s>>>0;r.set=function(v){s=v>>>0;r.state=s>>>0};return r}
 function rnd(){const v=S.rng();S.rngState=S.rng.state;return v}
+function hasArrived(id){return id!=="herzan" || !S || S.ballotNo>=1 || S.flags.herzanArrived}
+function activeElectors(){return ELECTORS.filter(e=>hasArrived(e.id))}
+function threshold(){return Math.ceil(activeElectors().length*2/3)}
+function legalCandidateFor(voter,candidate){return !!(ID[voter]&&ID[candidate]&&voter!==candidate)}
 function signed(n){return (n>0?"+":"") + Math.round(n)}
 function metricLevel(k,v){const bad=["exposure","fatigue","austrianGrip","frenchAlarm","deadlock"].includes(k);if(v>=78)return bad?"dangerous":"high";if(v>=58)return bad?"rising":"strong";if(v>=36)return "mixed";if(v>=18)return bad?"low":"fragile";return bad?"quiet":"very weak"}
 function axisBand(v){if(v>=1.25)return "very high";if(v>=.55)return "high";if(v>.12)return "moderate";if(v>=-.12)return "middle";if(v>=-.55)return "low";return "very low"}
@@ -371,6 +375,7 @@ function stars(n){return "★".repeat(n)+"☆".repeat(5-n)}
 function hasTag(e,t){return e.tags.includes(t)}
 function primaryTags(e){return e.tags.slice(0,5)}
 function ballotDate(){return BALLOT_DATES[Math.min(S.ballotNo,BALLOT_DATES.length-1)]}
+function ballotDateFor(completedBallot){return BALLOT_DATES[Math.min(Math.max(0,completedBallot-1),BALLOT_DATES.length-1)]}
 function toRoman(n){
 	const vals=[[1000,"M"],[900,"CM"],[500,"D"],[400,"CD"],[100,"C"],[90,"XC"],[50,"L"],[40,"XL"],[10,"X"],[9,"IX"],[5,"V"],[4,"IV"],[1,"I"]];
 	let out="";
@@ -397,11 +402,11 @@ function objectiveFor(e){
 	if(hasTag(e,"Curia"))return {title:"The machine must survive exile",text:"Restore Roman governance without selling the conclave to its hosts.",kind:"curia"};
 	return {title:"Leave Venice with a pope",text:"Preserve the Church's independence and bring the exile to an honourable end.",kind:"college"};
 }
-function initState(playerId,seed){
+function initState(playerId,seed,opts={}){
 	const rng = mulberry32(hashSeed(seed));
 	const destiny = {};
 	ELECTORS.forEach(a=>{destiny[a.id]={};ELECTORS.forEach(b=>{destiny[a.id][b.id]=rng()-.5})});
-	S = {version:"venice-1800-v1",seed:String(seed),rng,rngState:rng.state,playerId,ballotNo:0,ap:3,over:false,electedId:null,log:[],history:[],lastCounts:{},lastRoll:null,lastForecast:null,support:{},momentum:{},intel:false,flags:{},destiny,relationships:{},
+	S = {version:"venice-1800-v1",seed:String(seed),rng,rngState:rng.state,playerId,headless:!!opts.headless,ballotNo:0,ap:3,over:false,electedId:null,log:[],history:[],lastCounts:{},lastRoll:null,lastForecast:null,support:{},momentum:{},intel:false,flags:{},destiny,relationships:{},
 		metrics:{stature:42,trust:52,secrecy:68,exposure:8,fatigue:16,austrianGrip:62,frenchAlarm:34,temporal:58,adaptation:42,compromise:18,deadlock:10},
 		player:{objective:objectiveFor(ID[playerId])}
 	};
@@ -413,6 +418,7 @@ function initState(playerId,seed){
 	log(`Bellisomi has breadth, Mattei has Vienna, and the rest of the College hopes the Holy Spirit can still be heard over the ambassadors.`,"");
 }
 function scoreCandidate(voter,candidate,forecast=false){
+	if(voter.id===candidate.id)return -1e9;
 	let score = candidate.papabile*.72 + (S.support[candidate.id]||0) + (S.momentum[candidate.id]||0)*.55 + S.relationships[voter.id][candidate.id] + profileScore(voter,candidate);
 	score += (S.destiny[voter.id]?.[candidate.id]||0)*.72;
 	if(candidate.id===S.playerId)score += (S.metrics.stature-42)/12 + (S.metrics.trust-52)/18 - Math.max(0,S.metrics.exposure-45)/28;
@@ -433,6 +439,7 @@ function scoreCandidate(voter,candidate,forecast=false){
 }
 function candidateLikelihoods(voter,forecast=false){
 	const scored = ELECTORS
+		.filter(candidate=>legalCandidateFor(voter.id,candidate.id))
 		.map(candidate=>({candidate,score:scoreCandidate(voter,candidate,forecast)}))
 		.sort((a,b)=>b.score-a.score)
 		.slice(0,CHOICE_POOL);
@@ -456,7 +463,7 @@ function countRoll(roll){const counts={};ELECTORS.forEach(e=>counts[e.id]=0);rol
 function sortedCounts(counts){return Object.entries(counts).map(([id,n])=>({id,n,e:ID[id]})).sort((a,b)=>b.n-a.n || b.e.papabile-a.e.papabile || a.e.rank-b.e.rank)}
 function apportionForecast(raw){
 	const counts=Object.fromEntries(ELECTORS.map(e=>[e.id,Math.floor(raw[e.id]||0)]));
-	let remaining = ELECTORS.length - Object.values(counts).reduce((sum,n)=>sum+n,0);
+	let remaining = activeElectors().length - Object.values(counts).reduce((sum,n)=>sum+n,0);
 	const remainders = Object.entries(raw)
 		.map(([id,v])=>({id,remainder:v-Math.floor(v)}))
 		.sort((a,b)=>b.remainder-a.remainder || ID[a.id].rank-ID[b.id].rank);
@@ -465,7 +472,7 @@ function apportionForecast(raw){
 }
 function forecastCounts(){
 	const raw=Object.fromEntries(ELECTORS.map(e=>[e.id,0]));
-	ELECTORS.forEach(voter=>{
+	activeElectors().forEach(voter=>{
 		candidateLikelihoods(voter,true).forEach(choice=>{
 			raw[choice.candidate.id]+=choice.probability;
 		});
@@ -474,10 +481,10 @@ function forecastCounts(){
 }
 function applyVirtualVeto(roll){
 	let counts=countRoll(roll);
-	if(counts.bellisomi>=THRESHOLD && S.metrics.austrianGrip>58 && !S.flags.herzanForbearance){
+	if(counts.bellisomi>=threshold() && S.metrics.austrianGrip>58 && !S.flags.herzanForbearance){
 		let moved=0;
 		for(const v of roll){
-			if(counts.bellisomi<THRESHOLD)break;
+			if(counts.bellisomi<threshold())break;
 			const voter=ID[v.voter];
 			if(v.candidate==="bellisomi" && (hasTag(voter,"Austrian")||hasTag(voter,"Mattei")||hasTag(voter,"Curia")||rnd()<.45)){
 				v.candidate = (S.metrics.compromise>55 && rnd()<.45) ? "chiaramonti" : "mattei";
@@ -494,10 +501,10 @@ function applyVirtualVeto(roll){
 		}
 	}
 	counts=countRoll(roll);
-	if(counts.mattei>=THRESHOLD && (S.flags.spanishWarning || S.metrics.frenchAlarm>66)){
+	if(counts.mattei>=threshold() && (S.flags.spanishWarning || S.metrics.frenchAlarm>66)){
 		let moved=0;
 		for(const v of roll){
-			if(counts.mattei<THRESHOLD)break;
+			if(counts.mattei<threshold())break;
 			const voter=ID[v.voter];
 			if(v.candidate==="mattei" && (hasTag(voter,"Bourbon")||hasTag(voter,"Accommodation")||rnd()<.38)){
 				v.candidate = S.metrics.compromise>50 ? "chiaramonti" : "bellisomi";
@@ -513,28 +520,44 @@ function applyVirtualVeto(roll){
 		}
 	}
 }
-function conductBallot(){
+function conductBallot(playerVote){
 	if(S.over)return;
-	const roll=ELECTORS.map(voter=>({voter:voter.id,candidate:preferredCandidate(voter,false).id}));
+	const ballotBeingRun=S.ballotNo+1;
+	const scrutinyElectors=activeElectors().length;
+	const scrutinyThreshold=Math.ceil(scrutinyElectors*2/3);
+	const scrutinyDate=ballotDateFor(ballotBeingRun);
+	const playerActive=activeElectors().some(e=>e.id===S.playerId);
+	if(playerActive&&!legalCandidateFor(S.playerId,playerVote))throw new Error(`Invalid player vote: ${S.playerId} cannot vote for ${playerVote}`);
+	const roll=activeElectors().map(voter=>({voter:voter.id,candidate:(voter.id===S.playerId&&playerVote)?playerVote:preferredCandidate(voter,false).id}));
 	applyVirtualVeto(roll);
 	const counts=countRoll(roll);
 	const sorted=sortedCounts(counts);
 	S.ballotNo++;
+	if(S.ballotNo===1&&!S.flags.herzanArrived){S.flags.herzanArrived=true;log(`<b>Herzan arrives from Vienna.</b> The active electorate rises to ${activeElectors().length}; the two-thirds threshold is now ${threshold()}.`,"event")}
 	S.ap=3;
 	S.lastCounts=counts;
 	S.lastRoll=roll;
-	S.history.push({ballot:S.ballotNo,date:ballotDate(),counts:{...counts},roll:roll.map(v=>({...v}))});
+	S.history.push({ballot:S.ballotNo,date:scrutinyDate,counts:{...counts},roll:roll.map(v=>({...v})),threshold:scrutinyThreshold,electors:scrutinyElectors});
 	const leader=sorted[0];
 	const second=sorted[1];
-	log(`<b>Scrutiny ${toRoman(S.ballotNo)}.</b> ${esc(leader.e.short)} leads with <b>${leader.n}</b>; ${esc(second.e.short)} follows on ${second.n}. The threshold is ${THRESHOLD}.`,"scrut");
-	if(leader.n>=THRESHOLD){
+	log(`<b>Scrutiny ${toRoman(S.ballotNo)}.</b> ${esc(leader.e.short)} leads with <b>${leader.n}</b>; ${esc(second.e.short)} follows on ${second.n}. The threshold is ${scrutinyThreshold}.`,"scrut");
+	if(leader.n>=scrutinyThreshold){
 		S.electedId=leader.id;
 		S.over=true;
+		if(S.headless)return;
 		setTimeout(endGame,350);
 		return;
 	}
 	updateAfterFailedBallot(leader,second);
+	if(S.headless)return;
 	render();
+}
+function openPlayerBallot(){
+	if(!S||S.over)return;
+	const candidates=ELECTORS.filter(c=>legalCandidateFor(S.playerId,c.id)).sort((a,b)=>b.papabile-a.papabile||a.rank-b.rank);
+	showModal("Cast your scrutiny ballot",`<p>Choose one legally eligible candidate. Your own name is excluded.</p><div class="pickgrid" id="ballotPickGrid"></div>`,[],"wide");
+	const grid=document.querySelector("#ballotPickGrid");
+	candidates.forEach(c=>grid.appendChild(el("button",{onclick:()=>{closeModal();conductBallot(c.id)}},c.name,el("small",null,`${displayLabel(c.tags[0])} · ${c.office}`))));
 }
 function updateAfterFailedBallot(leader,second){
 	const gap=leader.n-second.n;
@@ -667,7 +690,7 @@ function renderSelect(){
 }
 function render(){
 	if(!S)return;
-	$("#dateLabel").innerHTML = `${esc(ballotDate())}<br>scrutiny ${toRoman(S.ballotNo+1)} · threshold ${THRESHOLD}`;
+	$("#dateLabel").innerHTML = `${esc(ballotDate())}<br>scrutiny ${toRoman(S.ballotNo+1)} · threshold ${threshold()}`;
 	$("#apwrap").innerHTML = `<span class="ap">AP ${Array.from({length:3},(_,i)=>`<span class="pip ${i>=S.ap?"spent":""}"></span>`).join("")}</span>`;
 	renderLog();
 	renderRoster();
@@ -716,11 +739,12 @@ function renderBoard(){
 	const box=$("#board");
 	const counts=S.lastCounts&&Object.keys(S.lastCounts).length?S.lastCounts:forecastCounts();
 	const rows=sortedCounts(counts).slice(0,8);
-	box.innerHTML=`<div class="threshold">Two-thirds required: <b>${THRESHOLD}</b> of ${ELECTORS.length}</div><div class="board-note">${S.lastRoll?"Last simulated scrutiny":"Projected from current soundings"}</div>`;
+	const th=threshold(), active=activeElectors().length;
+	box.innerHTML=`<div class="threshold">Two-thirds required: <b>${th}</b> of ${active} active electors</div><div class="board-note">${S.lastRoll?"Last simulated scrutiny":"Projected from current soundings"}</div>`;
 	const race=el("div",{class:"race"});
 	rows.forEach((r,i)=>race.appendChild(el("div",{class:"racerow"+(i===0?" lead":"")},
 		el("div",{class:"rname"},r.e.short),
-		el("div",{class:"rtrack"},el("span",{class:"rfill"+(r.n>=THRESHOLD?" win":""),style:`width:${clamp(r.n/THRESHOLD*100,0,100)}%`})),
+		el("div",{class:"rtrack"},el("span",{class:"rfill"+(r.n>=th?" win":""),style:`width:${clamp(r.n/th*100,0,100)}%`})),
 		el("div",{class:"rnum"},String(r.n))
 	)));
 	box.appendChild(race);
@@ -749,7 +773,7 @@ function showExactRoll(){
 }
 function showRules(){
 	showModal("How Venice works",`<div class="manual">
-		<p>You have three actions before each scrutiny. The board shows either projected soundings or the last simulated ballot. The threshold is <b>${THRESHOLD}</b> votes.</p>
+		<p>You have three actions before each scrutiny. The board shows either projected soundings or the last simulated ballot. Herzan is travelling at the opening: the first scrutiny needs <b>23</b> votes from 34 active electors; after his arrival it needs <b>24</b> from 35.</p>
 		<h4>The new mechanics</h4>
 		<p><b>Austrian grip</b> can create a virtual veto, especially against Bellisomi. It can also strengthen Mattei and keep the exiled conclave housed and fed.</p>
 		<p><b>French alarm</b> makes a restoration-only pope dangerous and can trigger Spanish/Bourbon counter-pressure against Mattei. <b>Deadlock</b> and <b>compromise pressure</b> make Chiaramonti and other third names more plausible.</p>
@@ -823,8 +847,10 @@ function choosePapalName(w){
 	return ["Pius VII","Leo XIII","Clement XV","Gregory XVII","Benedict XV"][Math.floor(hashSeed(w.id)%5)];
 }
 function renderEndTable(){
-	const last=S.history[S.history.length-1]?.counts||{};
-	const rows=sortedCounts(last).slice(0,10).map(r=>`<div class="racerow"><div class="rname">${esc(r.e.short)}</div><div class="rtrack"><span class="rfill ${r.n>=THRESHOLD?"win":""}" style="width:${clamp(r.n/THRESHOLD*100,0,100)}%"></span></div><div class="rnum">${r.n}</div></div>`).join("");
+	const final=S.history[S.history.length-1]||{};
+	const last=final.counts||{};
+	const th=final.threshold||threshold();
+	const rows=sortedCounts(last).slice(0,10).map(r=>`<div class="racerow"><div class="rname">${esc(r.e.short)}</div><div class="rtrack"><span class="rfill ${r.n>=th?"win":""}" style="width:${clamp(r.n/th*100,0,100)}%"></span></div><div class="rnum">${r.n}</div></div>`).join("");
 	return `<div class="statusbox"><b>Final scrutiny</b><div class="race">${rows}</div></div>`;
 }
 function exportChronicle(){
@@ -870,13 +896,24 @@ function wire(){
 	$("#actConsalvi").addEventListener("click",actionConsalvi);
 	$("#actSupplies").addEventListener("click",actionSupplies);
 	$("#actPrayer").addEventListener("click",actionPrayer);
-	$("#ballotBtn").addEventListener("click",conductBallot);
+	$("#ballotBtn").addEventListener("click",openPlayerBallot);
 	$("#again").addEventListener("click",()=>{localStorage.removeItem(SAVE_KEY);location.reload()});
 	$("#exportLog").addEventListener("click",exportChronicle);
 	if(localStorage.getItem(SAVE_KEY))$("#resumeBtn").classList.remove("hidden");
 	renderSelect();
 }
-wire();
+function chooseHeadlessPlayerVote(){
+	return preferredCandidate(ID[S.playerId],true).id;
+}
+function runHeadless(seed,playerId,maxBallots=20){
+	initState(playerId||"chiaramonti",seed||"test",{headless:true});
+	while(!S.over&&S.ballotNo<maxBallots)conductBallot(chooseHeadlessPlayerVote());
+	return {seed:S.seed,playerId:S.playerId,winner:S.electedId,ballots:S.ballotNo,history:S.history.map(h=>({ballot:h.ballot,date:h.date,threshold:h.threshold,electors:h.electors,counts:{...h.counts},roll:h.roll.map(v=>({...v}))})),over:S.over};
+}
+const VENICE_1800_ENGINE={ELECTORS,ID,initState,conductBallot,runHeadless,activeElectors,threshold,legalCandidateFor,getState:()=>S};
+if(typeof module!=="undefined")module.exports=VENICE_1800_ENGINE;
+if(typeof window!=="undefined")window.__om=VENICE_1800_ENGINE;
+if(typeof document!=="undefined")wire();
 </script>
 </body>
 </html>
