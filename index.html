@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Extra Omnes: playable browser simulations of five historical papal conclaves.">
 <title>Extra Omnes — Conclave Directory</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=EB+Garamond:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -36,6 +37,9 @@
     line-height:1.55;
   }
   a{color:inherit}
+  a:focus-visible{outline:3px solid var(--gold);outline-offset:4px}
+  .skip-link{position:fixed;left:16px;top:12px;z-index:20;padding:8px 12px;background:var(--parch);color:var(--ink);font-family:var(--mono);font-size:12px;transform:translateY(-180%)}
+  .skip-link:focus{transform:translateY(0)}
   .wrap{width:min(1120px, calc(100% - 32px));margin:0 auto;padding:24px 0 54px}
   header{
     display:flex;
@@ -45,6 +49,7 @@
     padding:0 0 22px;
     border-bottom:1px solid var(--line);
   }
+  .header-nav{width:100%;display:flex;justify-content:space-between;align-items:center;gap:20px}
   .brand{
     text-decoration:none;
     font-family:var(--mono);
@@ -94,7 +99,7 @@
     border-radius:6px;
     padding:16px;
   }
-  .card:hover{border-color:var(--gold)}
+  .card:hover,.card:focus-visible{border-color:var(--gold);background:linear-gradient(160deg,#211b2a,#2c2438)}
   .card.beta,.card.alpha{border-top-color:var(--scarlet)}
   .year{
     font-family:var(--disp);
@@ -139,22 +144,26 @@
     font-size:12px;
   }
   @media(max-width:880px){.grid{grid-template-columns:1fr 1fr}h1{font-size:54px}}
-  @media(max-width:560px){header{display:block}.home{display:inline-block;margin-top:10px}.grid{grid-template-columns:1fr}h1{font-size:42px}.hero{padding-top:42px}}
+  @media(max-width:560px){.header-nav{display:block}.home{display:inline-block;margin-top:10px}.grid{grid-template-columns:1fr}h1{font-size:42px}.hero{padding-top:42px}}
+  @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 </style>
 </head>
 <body>
+  <a class="skip-link" href="#years">Skip to conclave years</a>
   <div class="wrap">
     <header>
-      <a class="brand" href="./">Extra Omnes</a>
-      <a class="home" href="https://kieranmrhunt.github.io/">All projects</a>
+      <nav class="header-nav" aria-label="Project navigation">
+        <a class="brand" href="./index.html">Extra Omnes</a>
+        <a class="home" href="https://kieranmrhunt.github.io/">All projects</a>
+      </nav>
     </header>
     <main>
       <section class="hero">
         <div class="eyebrow">Conclave simulations</div>
         <h1>Choose a year</h1>
-        <p class="lede">The 1492 simulation is the complete build. The other historical conclaves are alpha versions: playable, but still being tested for ballot integrity, balance, copy, and edge cases.</p>
+        <p class="lede">Six playable political simulations built around historical papal elections. The 1492 game is the stable baseline; the other five are revised alpha editions with automated ballot-integrity checks.</p>
       </section>
-      <section class="grid" aria-label="Available Extra Omnes years">
+      <section class="grid" id="years" aria-label="Available Extra Omnes years">
         <a class="card" href="./1492.html">
           <span class="year">1492</span>
           <span class="status">Complete</span>
@@ -166,40 +175,40 @@
           <span class="year">1268</span>
           <span class="status">Alpha</span>
           <h2>Viterbo</h2>
-          <p>The long election under pressure.</p>
+          <p>Viterbo, 1268–71: deadlock, illness, enclosure and a city running out of patience.</p>
           <span class="open">Open alpha</span>
         </a>
         <a class="card alpha" href="./carafa-winter-1559.html">
           <span class="year">1559</span>
           <span class="status">Alpha</span>
           <h2>The Carafa Winter</h2>
-          <p>A colder, sharper conclave scenario.</p>
+          <p>Rome, 1559: forty electors, factional winter and the collapse of the Carafa regime.</p>
           <span class="open">Open alpha</span>
         </a>
         <a class="card alpha" href="./venice-1800.html">
           <span class="year">1800</span>
           <span class="status">Alpha</span>
           <h2>Venice</h2>
-          <p>The exiled conclave under Austrian roofs.</p>
+          <p>Venice, 1799–1800: an exiled college negotiates between Vienna and compromise.</p>
           <span class="open">Open alpha</span>
         </a>
         <a class="card alpha" href="./1903.html">
           <span class="year">1903</span>
           <span class="status">Alpha</span>
           <h2>The Last Veto</h2>
-          <p>Rampolla, Sarto, and the final imperial veto.</p>
+          <p>Rome, 1903: Rampolla, Sarto and the final imperial veto.</p>
           <span class="open">Open alpha</span>
         </a>
         <a class="card alpha" href="./october-1978.html">
           <span class="year">1978</span>
           <span class="status">Alpha</span>
           <h2>October 1978</h2>
-          <p>The second conclave of a volatile year.</p>
+          <p>Rome, October 1978: the second conclave of a volatile year and a divided college.</p>
           <span class="open">Open alpha</span>
         </a>
       </section>
     </main>
-    <footer>Extra Omnes year directory.</footer>
+    <footer>Roster facts and documented events are distinguished in each game from inferred relationships and modelled ballots.</footer>
   </div>
 </body>
 </html>

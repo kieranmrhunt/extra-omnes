@@ -4,415 +4,492 @@
 const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
+const { spawn } = require("child_process");
 
 const ROOT = path.resolve(__dirname, "..");
-const args = new Map(process.argv.slice(2).map((arg) => {
-  const m = arg.match(/^--([^=]+)=(.*)$/);
-  return m ? [m[1], m[2]] : [arg.replace(/^--/, ""), true];
-}));
-const profile = String(args.get("profile") || (args.get("soak") ? "soak" : "quick"));
-const DEFAULT_SEEDS = profile === "soak" ? 80 : 3;
-const seedCount = Number(args.get("seeds") || DEFAULT_SEEDS);
-const full = !!args.get("full");
-const allowMissingHeadless = !!args.get("allow-missing-headless");
-const perRunBudgetMs = Number(args.get("timeout-ms") || (profile === "soak" ? 5000 : 2500));
+const BOOLEAN_ARGS = new Set(["full", "quick"]);
+const VALUE_ARGS = new Set(["seeds", "timeout-ms", "worker"]);
+const args = new Map();
+for (const raw of process.argv.slice(2)) {
+	const match = raw.match(/^--([^=]+)(?:=(.*))?$/);
+	if (!match) throw new Error(`Invalid argument syntax: ${raw}`);
+	const [, name, value] = match;
+	if (!BOOLEAN_ARGS.has(name) && !VALUE_ARGS.has(name)) throw new Error(`Unknown option: --${name}`);
+	if (args.has(name)) throw new Error(`Duplicate option: --${name}`);
+	if (BOOLEAN_ARGS.has(name) && value !== undefined) throw new Error(`--${name} is a flag and does not take a value`);
+	if (VALUE_ARGS.has(name) && (value === undefined || value === "")) throw new Error(`--${name} requires a value`);
+	args.set(name, BOOLEAN_ARGS.has(name) ? true : value);
+}
+const full = args.has("full");
+const quick = args.has("quick") || (!args.has("seeds") && !full);
+if (full && args.has("quick")) throw new Error("--full and --quick cannot be combined");
+if (args.has("seeds") && !/^\d+$/.test(args.get("seeds"))) throw new Error("--seeds must be a positive integer");
+const seedCount = Number(args.get("seeds") || 1);
+if (!Number.isSafeInteger(seedCount) || seedCount < 1) throw new Error("--seeds must be a positive integer");
+if (args.has("timeout-ms") && !/^\d+$/.test(args.get("timeout-ms"))) throw new Error("--timeout-ms must be a positive integer");
+const requestedTimeoutMs = Number(args.get("timeout-ms") || 0);
+if (args.has("timeout-ms") && (!Number.isSafeInteger(requestedTimeoutMs) || requestedTimeoutMs < 1)) throw new Error("--timeout-ms must be a positive integer");
 const BLANK_PICK_IDS = new Set(["_blank", "blank"]);
 
 const VARIANTS = [
-  { file: "1492.html", label: "1492", players: ["borgia", "giuliano", "sforza"], approval: true },
-  { file: "viterbo-1268.html", label: "viterbo-1268", players: ["orsini", "annibale", "guy"], approval: true },
-  { file: "carafa-winter-1559.html", label: "carafa-winter-1559", players: ["ccarafa", "medici", "morone"], approval: true },
-  { file: "venice-1800.html", label: "venice-1800", players: ["bellisomi", "mattei", "chiaramonti"], approval: false },
-  { file: "1903.html", label: "1903", players: ["rampolla", "sarto", "gibbons"], approval: false },
-  { file: "october-1978.html", label: "october-1978", players: ["siri", "benelli", "wojtyla"], approval: false },
+	{ file: "1492.html", label: "1492", players: ["borgia", "giuliano", "sforza"], quickPlayer: "borgia", maxPicks: () => 3, threshold: (n) => Math.ceil(n * 2 / 3) },
+	{ file: "viterbo-1268.html", label: "viterbo-1268", players: ["orsini", "annibale", "paltanieri"], quickPlayer: "orsini", maxPicks: (ballot) => ballot.turn <= 3 ? 3 : 2, threshold: (n) => Math.ceil(n * 2 / 3) },
+	{ file: "carafa-winter-1559.html", label: "carafa-winter-1559", players: ["ccarafa", "medici", "morone"], quickPlayer: "medici", maxPicks: () => 3, threshold: (n) => Math.ceil(n * 2 / 3) },
+	{ file: "venice-1800.html", label: "venice-1800", players: ["bellisomi", "mattei", "chiaramonti"], quickPlayer: "chiaramonti", maxPicks: () => 1, threshold: (n) => Math.ceil(n * 2 / 3) },
+	{ file: "1903.html", label: "1903", players: ["rampolla", "sarto", "gibbons"], quickPlayer: "sarto", maxPicks: () => 1, threshold: (n) => Math.ceil(n * 2 / 3) },
+	{ file: "october-1978.html", label: "october-1978", players: ["siri", "benelli", "wojtyla"], quickPlayer: "wojtyla", maxPicks: () => 1, threshold: (n) => Math.floor(n * 2 / 3) + 1 },
 ];
 
+function fail(message) {
+	throw new Error(message);
+}
+
+function assert(condition, message) {
+	if (!condition) fail(message);
+}
+
 function htmlScripts(html) {
-  return [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)]
-    .map((m) => m[1])
-    .join("\n");
+	return [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)]
+		.map((match) => match[1])
+		.join("\n");
 }
 
 function fakeElement() {
-  return {
-    classList: { add() {}, remove() {}, toggle() {}, contains() { return false; } },
-    style: { setProperty() {} },
-    dataset: {},
-    value: "",
-    checked: false,
-    disabled: false,
-    parentNode: null,
-    appendChild() {},
-    append() {},
-    addEventListener() {},
-    setAttribute() {},
-    getAttribute() { return null; },
-    querySelector() { return fakeElement(); },
-    querySelectorAll() { return []; },
-    remove() {},
-    focus() {},
-    click() {},
-    get textContent() { return ""; },
-    set textContent(_) {},
-    get innerHTML() { return ""; },
-    set innerHTML(_) {},
-  };
+	const attributes = new Map();
+	let textValue = "";
+	let htmlValue = "";
+	const element = {
+		nodeType: 1,
+		className: "",
+		children: [],
+		parentNode: null,
+		classList: { add() {}, remove() {}, toggle() {}, contains() { return false; } },
+		style: { setProperty(name, value) { this[name] = String(value); } },
+		dataset: {},
+		value: "",
+		checked: false,
+		disabled: false,
+		tabIndex: 0,
+		offsetParent: {},
+		appendChild(child) { if (child) { child.parentNode = this; this.children.push(child); } return child; },
+		append(...children) { children.forEach((child) => this.appendChild(child)); },
+		prepend(...children) { children.reverse().forEach((child) => { if (child) { child.parentNode = this; this.children.unshift(child); } }); },
+		addEventListener() {},
+		removeEventListener() {},
+		setAttribute(name, value) { attributes.set(name, String(value)); },
+		getAttribute(name) { return attributes.get(name) || null; },
+		querySelector() { return fakeElement(); },
+		querySelectorAll() { return []; },
+		remove() { this.parentNode = null; },
+		focus() {},
+		click() {},
+		get textContent() { return textValue; },
+		set textContent(value) { textValue = String(value); this.children = []; },
+		get innerHTML() { return htmlValue; },
+		set innerHTML(value) { htmlValue = String(value); this.children = []; },
+	};
+	return element;
 }
 
 function loadVariant(file) {
-  const abs = path.join(ROOT, file);
-  const html = fs.readFileSync(abs, "utf8");
-  const script = htmlScripts(html);
-  const context = {
-    console,
-    window: {},
-    location: { search: "", reload() {} },
-    document: {
-      readyState: "loading",
-      body: fakeElement(),
-      addEventListener() {},
-      querySelector() { return fakeElement(); },
-      querySelectorAll() { return []; },
-      createElement() { return fakeElement(); },
-      createTextNode(text) { return { nodeType: 3, textContent: String(text) }; },
-    },
-    localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} },
-    setTimeout,
-    clearTimeout,
-    URL: { createObjectURL() { return "blob:test"; }, revokeObjectURL() {} },
-    Blob: function Blob() {},
-  };
-  context.window.document = context.document;
-  context.window.localStorage = context.localStorage;
-  vm.createContext(context);
-  const exportProbe = `
+	const abs = path.join(ROOT, file);
+	const html = fs.readFileSync(abs, "utf8");
+	const script = htmlScripts(html);
+	const moduleObject = { exports: {} };
+	const readyCallbacks = [];
+	const elements = new Map();
+	const elementFor = (selector) => {
+		if (!elements.has(selector)) elements.set(selector, fakeElement());
+		return elements.get(selector);
+	};
+	const context = {
+		console,
+		module: moduleObject,
+		exports: moduleObject.exports,
+		window: {},
+		location: { search: "", href: `https://example.invalid/${file}`, reload() {} },
+		document: {
+			readyState: "loading",
+			body: elementFor("body"),
+			activeElement: null,
+			addEventListener(event, callback) { if (event === "DOMContentLoaded" && typeof callback === "function") readyCallbacks.push(callback); },
+			removeEventListener() {},
+			contains() { return true; },
+			getElementById(id) { return elementFor(`#${id}`); },
+			querySelector(selector) { return elementFor(selector); },
+			querySelectorAll() { return []; },
+			createElement() { return fakeElement(); },
+			createTextNode(text) { return { nodeType: 3, textContent: String(text), parentNode: null }; },
+		},
+		localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} },
+		setTimeout,
+		clearTimeout,
+		requestAnimationFrame(callback) { return setTimeout(callback, 0); },
+		cancelAnimationFrame: clearTimeout,
+		URL,
+		URLSearchParams,
+		Blob: function Blob() {},
+	};
+	vm.createContext(context);
+	const exportProbe = `
 ;globalThis.__EO_TEST_EXPORTS__ = {
-  runHeadless: typeof runHeadless === "function" ? runHeadless : null,
-  initState: typeof initState === "function" ? initState : null,
-  runBallot: typeof runBallot === "function" ? runBallot : null,
-  conductBallot: typeof conductBallot === "function" ? conductBallot : null,
-  topPreference: typeof topPreference === "function" ? topPreference : null,
-  beginScrutiny: typeof beginScrutiny === "function" ? beginScrutiny : null,
-  playerAccede: typeof playerAccede === "function" ? playerAccede : null,
-  getState: typeof OCTOBER_1978_ENGINE !== "undefined" ? OCTOBER_1978_ENGINE.getState : (typeof VENICE_1800_ENGINE !== "undefined" ? VENICE_1800_ENGINE.getState : null),
-  ELECTORS: typeof ELECTORS !== "undefined" ? ELECTORS : null,
-  CARDINALS: typeof CARDINALS !== "undefined" ? CARDINALS : null,
-  IDS: typeof IDS !== "undefined" ? IDS : null,
-  ID: typeof ID !== "undefined" ? ID : null,
-  byId: typeof byId !== "undefined" ? byId : null,
-  threshold: typeof threshold === "function" ? threshold : null,
-  windowOm: typeof window !== "undefined" ? window.__om : null
-};`;
-  vm.runInContext(script + exportProbe, context, { filename: file, timeout: 5000 });
-  return context.__EO_TEST_EXPORTS__;
+	runHeadless: typeof runHeadless === "function" ? runHeadless : null,
+	initState: typeof initState === "function" ? initState : null,
+	beginScrutiny: typeof beginScrutiny === "function" ? beginScrutiny : null,
+	playerAccede: typeof playerAccede === "function" ? playerAccede : null,
+	runBallot: typeof runBallot === "function" ? runBallot : null,
+	conductBallot: typeof conductBallot === "function" ? conductBallot : null,
+	topPreference: typeof topPreference === "function" ? topPreference : null,
+	getState: typeof OCTOBER_1978_ENGINE !== "undefined" ? OCTOBER_1978_ENGINE.getState : (typeof VENICE_1800_ENGINE !== "undefined" ? VENICE_1800_ENGINE.getState : (typeof CARAFA_1559_ENGINE !== "undefined" ? CARAFA_1559_ENGINE.getState : null)),
+	activeElectors: typeof activeElectors === "function" ? activeElectors : null,
+	threshold: typeof threshold === "function" ? threshold : null,
+	THRESHOLD: typeof THRESHOLD !== "undefined" ? THRESHOLD : null,
+	legalCandidateFor: typeof legalCandidateFor === "function" ? legalCandidateFor : null,
+	ELECTORS: typeof ELECTORS !== "undefined" ? ELECTORS : null,
+	CARDINALS: typeof CARDINALS !== "undefined" ? CARDINALS : null,
+	ID: typeof ID !== "undefined" ? ID : null,
+	byId: typeof byId !== "undefined" ? byId : null,
+	OUTSIDERS: typeof OUTSIDERS !== "undefined" ? OUTSIDERS : null,
+	windowOm: typeof window !== "undefined" ? window.__om : null
+	};`;
+	vm.runInContext(script + exportProbe, context, { filename: file, timeout: 10000 });
+	for (const callback of readyCallbacks) callback();
+	const selectionGrid = elements.get("#selgrid");
+	if (!selectionGrid || !selectionGrid.children.length) throw new Error(`${file}: UI bootstrap rendered no selection cards`);
+	return Object.assign({ __uiBooted: true, __uiCardsRendered: selectionGrid.children.length }, context.__EO_TEST_EXPORTS__, moduleObject.exports || {}, context.window.__om || {});
 }
 
-function stable(value, seen = new WeakSet()) {
-  if (value === null || typeof value === "string" || typeof value === "number" || typeof value === "boolean") return value;
-  if (typeof value === "function") return value.state === undefined ? undefined : { __functionState: value.state };
-  if (typeof value !== "object") return undefined;
-  if (seen.has(value)) return "[Circular]";
-  seen.add(value);
-  if (Array.isArray(value)) return value.map((v) => stable(v, seen));
-  const out = {};
-  for (const key of Object.keys(value).sort()) {
-    const v = stable(value[key], seen);
-    if (v !== undefined) out[key] = v;
-  }
-  seen.delete(value);
-  return out;
+function cardList(api) {
+	return api.CARDINALS || api.ELECTORS || api.windowOm && (api.windowOm.CARDINALS || api.windowOm.ELECTORS) || [];
 }
 
-function winnerOf(result) {
-  return result && (result.winner || result.electedId || (result.ending && result.ending.electedId) || null);
+function knownCandidateIds(api) {
+	const ids = new Set(cardList(api).map((card) => card.id));
+	Object.keys(api.OUTSIDERS || {}).forEach((id) => ids.add(id));
+	return ids;
 }
 
-function ballotNumber(record, fallback) {
-  return record.ballot || record.n || record.turn || fallback;
-}
-
-function recordsOf(result) {
-  return (result && (result.history || result.scrutinies || result.tallies)) || [];
-}
-
-function expectedThreshold(label, electors) {
-  if (!electors) return null;
-  if (label === "october-1978") return Math.floor((2 * electors) / 3) + 1;
-  return Math.ceil((2 * electors) / 3);
-}
-
-function normaliseEntries(record) {
-  const roll = record.roll || record.votes || null;
-  if (!roll) return [];
-  const raw = Array.isArray(roll) ? roll.map((item) => [item.voter, item.candidate]) : Object.entries(roll);
-  return raw.map(([voter, vote]) => ({
-    voter,
-    picks: Array.isArray(vote) ? vote.slice() : (vote ? [vote] : []),
-  }));
-}
-
-function countPicks(entries) {
-  const counts = {};
-  for (const { picks } of entries) {
-    for (const cand of picks) counts[cand] = (counts[cand] || 0) + 1;
-  }
-  return counts;
-}
-
-function addAccessions(counts, accessions) {
-  const out = { ...counts };
-  for (const a of accessions || []) out[a.to] = (out[a.to] || 0) + 1;
-  return out;
-}
-
-function compareCounts(actual, expected, context, failures) {
-  if (!actual) return;
-  const keys = new Set([...Object.keys(actual), ...Object.keys(expected)]);
-  for (const key of keys) {
-    if ((actual[key] || 0) !== (expected[key] || 0)) {
-      failures.push(`${context}: count mismatch for ${key}: recorded ${actual[key] || 0}, recomputed ${expected[key] || 0}`);
-    }
-  }
-}
-
-function validateBallotRecords(variant, result, knownIds) {
-  const failures = [];
-  const records = recordsOf(result);
-  records.forEach((record, index) => {
-    const context = `${variant.label} seed=${result.seed || "?"} player=${result.playerId || "?"} ballot=${ballotNumber(record, index + 1)}`;
-    const entries = normaliseEntries(record);
-    if (!entries.length) return;
-    const voters = new Set();
-    for (const entry of entries) {
-      if (!knownIds.has(entry.voter)) failures.push(`${context}: unknown voter ${entry.voter}`);
-      if (voters.has(entry.voter)) failures.push(`${context}: duplicate voter ${entry.voter}`);
-      voters.add(entry.voter);
-      if (!variant.approval && entry.picks.length > 1) failures.push(`${context}: one-name ballot has ${entry.picks.length} selections for ${entry.voter}`);
-      if (variant.approval && entry.picks.length > 3) failures.push(`${context}: approval ballot has ${entry.picks.length} selections for ${entry.voter}`);
-      const seenPicks = new Set();
-      for (const cand of entry.picks) {
-        if (seenPicks.has(cand)) failures.push(`${context}: duplicate candidate ${cand} on ${entry.voter}'s ballot`);
-        seenPicks.add(cand);
-        if (!knownIds.has(cand) && !BLANK_PICK_IDS.has(cand)) failures.push(`${context}: unknown candidate ${cand} on ${entry.voter}'s ballot`);
-        if (cand === entry.voter && !BLANK_PICK_IDS.has(cand)) failures.push(`${context}: self-vote ${entry.voter}`);
-      }
-    }
-    const electorCount = record.electors || entries.length;
-    if (record.electors && record.electors !== voters.size) failures.push(`${context}: electors=${record.electors} but roll has ${voters.size} unique voters`);
-    const expected = expectedThreshold(variant.label, electorCount);
-    if (record.threshold !== undefined && expected !== null && record.threshold !== expected) failures.push(`${context}: threshold ${record.threshold}, expected ${expected}`);
-    const rawCounts = countPicks(entries);
-    compareCounts(record.tally, rawCounts, `${context} raw tally`, failures);
-    const finalCounts = addAccessions(rawCounts, record.accessions || []);
-    compareCounts(record.counts, finalCounts, `${context} counts`, failures);
-    compareCounts(record.final, finalCounts, `${context} final`, failures);
-    compareCounts(record.running && record.elected !== undefined ? record.running : null, finalCounts, `${context} running`, failures);
-    for (const a of record.accessions || []) {
-      if (!knownIds.has(a.from)) failures.push(`${context}: accessus from unknown voter ${a.from}`);
-      if (!knownIds.has(a.to)) failures.push(`${context}: accessus to unknown candidate ${a.to}`);
-      if (a.from === a.to) failures.push(`${context}: self-accessus ${a.from}`);
-      const original = entries.find((entry) => entry.voter === a.from);
-      if (original && original.picks.includes(a.to)) failures.push(`${context}: accessus repeats ${a.from}'s written ballot`);
-    }
-  });
-  return failures;
+function electorIds(api) {
+	return new Set(cardList(api).map((card) => card.id));
 }
 
 function assertUniqueIds(label, cards) {
-  if (!cards || !cards.length) return [];
-  const ids = cards.map((c) => c.id);
-  const dupes = ids.filter((id, i) => ids.indexOf(id) !== i);
-  return dupes.length ? [`${label}: duplicate cardinal IDs: ${[...new Set(dupes)].join(", ")}`] : [];
+	assert(cards && cards.length, `${label}: no cardinal roster was exported`);
+	const ids = cards.map((card) => card.id);
+	const duplicates = ids.filter((id, index) => ids.indexOf(id) !== index);
+	assert(!duplicates.length, `${label}: duplicate cardinal IDs: ${[...new Set(duplicates)].join(", ")}`);
 }
 
-function boundedMetricFailures(label, result) {
-  const failures = [];
-  const bounded = new Set(["security", "heat", "integrity", "peril", "carafaperil", "taint", "fatigue", "exposure", "trust", "stature", "worldchurch", "nonitalian", "curiaconfidence"]);
-  function walk(value, pathName, seen = new WeakSet()) {
-    if (!value || typeof value !== "object") return;
-    if (seen.has(value)) return;
-    seen.add(value);
-    for (const [key, child] of Object.entries(value)) {
-      const lower = key.toLowerCase();
-      if (bounded.has(lower) && typeof child === "number" && (child < 0 || child > 100)) failures.push(`${label}: metric ${pathName}${key} out of range: ${child}`);
-      if (child && typeof child === "object") walk(child, `${pathName}${key}.`, seen);
-    }
-  }
-  walk(result, "");
-  return failures;
+function historyOf(result) {
+	return result && (result.history || result.scrutinies || result.tallies) || [];
 }
 
-function validateConfiguredPlayers(variant, cards) {
-  if (!cards || !cards.length) return [`${variant.label}: no CARDINALS/ELECTORS export available for player validation`];
-  const ids = new Set(cards.map((c) => c.id));
-  return variant.players.filter((id) => !ids.has(id)).map((id) => `${variant.label}: configured player '${id}' is not in the roster`);
+function voteEntries(ballot) {
+	const roll = ballot && (ballot.roll || ballot.votes);
+	if (!roll) return [];
+	if (Array.isArray(roll)) {
+		return roll.map((entry) => [entry.voter, Array.isArray(entry.candidate) ? entry.candidate : [entry.candidate]]);
+	}
+	return Object.entries(roll).map(([voter, picks]) => [voter, Array.isArray(picks) ? picks : [picks]]);
 }
 
-function runOne(runner, seed, player, variant) {
-  const started = Date.now();
-  const result = runner(seed, player);
-  const elapsed = Date.now() - started;
-  if (elapsed > perRunBudgetMs) throw new Error(`${variant.label}: seed=${seed}, player=${player} exceeded ${perRunBudgetMs} ms (${elapsed} ms)`);
-  return result;
+function assertBallotIntegrity(variant, api, ballot) {
+	const known = electorIds(api);
+	const entries = voteEntries(ballot);
+	assert(entries.length, `${variant.label}: ballot ${ballot.ballot || ballot.number || "?"} has no vote roll`);
+	const voters = new Set();
+	const directVotes = new Map();
+	const calculated = {};
+	const maxPicks = variant.maxPicks(ballot);
+	for (const [voter, picks] of entries) {
+		assert(known.has(voter), `${variant.label}: unknown voter ${voter} in ballot ${ballot.ballot || ballot.number || "?"}`);
+		assert(!voters.has(voter), `${variant.label}: duplicate voter ${voter}`);
+		voters.add(voter);
+		assert(picks.length <= maxPicks, `${variant.label}: ${voter} supplied ${picks.length} names; maximum is ${maxPicks}`);
+		assert(new Set(picks).size === picks.length, `${variant.label}: duplicate approval name from ${voter}`);
+		directVotes.set(voter, picks);
+		for (const candidate of picks) {
+			assert(known.has(candidate) || BLANK_PICK_IDS.has(candidate), `${variant.label}: unknown candidate ${candidate}`);
+			assert(candidate !== voter || BLANK_PICK_IDS.has(candidate), `${variant.label}: self-vote by ${voter}`);
+			calculated[candidate] = (calculated[candidate] || 0) + 1;
+		}
+	}
+	const accessionSenders = new Set();
+	for (const accession of ballot.accessions || []) {
+		assert(known.has(accession.from) && known.has(accession.to), `${variant.label}: invalid accession target`);
+		assert(voters.has(accession.from), `${variant.label}: accession by an elector absent from the scrutiny roll`);
+		assert(!accessionSenders.has(accession.from), `${variant.label}: multiple accessions by ${accession.from}`);
+		assert(accession.from !== accession.to, `${variant.label}: self-accession by ${accession.from}`);
+		assert(!directVotes.get(accession.from).includes(accession.to), `${variant.label}: ${accession.from} acceded to a name already on his ballot`);
+		accessionSenders.add(accession.from);
+		calculated[accession.to] = (calculated[accession.to] || 0) + 1;
+	}
+	if (Number.isInteger(ballot.electors)) {
+		assert(entries.length === ballot.electors, `${variant.label}: ${entries.length} recorded voters but electorate is ${ballot.electors}`);
+	}
+	if (Number.isInteger(ballot.electors) && Number.isInteger(ballot.threshold)) {
+		assert(ballot.threshold === variant.threshold(ballot.electors), `${variant.label}: threshold ${ballot.threshold} is wrong for ${ballot.electors} electors`);
+	}
+	const recorded = ballot.counts || ballot.final || ballot.running;
+	assert(recorded && typeof recorded === "object" && !Array.isArray(recorded), `${variant.label}: ballot has no recorded tally`);
+	for (const [id, count] of Object.entries(recorded)) {
+		assert((known.has(id) || BLANK_PICK_IDS.has(id)) && Number.isInteger(count) && count >= 0, `${variant.label}: invalid recorded tally for ${id}`);
+	}
+	for (const id of new Set([...Object.keys(recorded), ...Object.keys(calculated)])) {
+		assert(Number(recorded[id] || 0) === Number(calculated[id] || 0), `${variant.label}: tally mismatch for ${id}`);
+	}
+}
+
+function winnerOf(result) {
+	return result && (result.winner || result.electedId || result.ending && result.ending.electedId) || null;
+}
+
+function expectRejected(label, fn) {
+	let rejected = false;
+	try {
+		const result = fn();
+		rejected = result === false || result && (result.ok === false || result.error);
+	} catch (_) {
+		rejected = true;
+	}
+	assert(rejected, label);
+}
+
+function runTargetedChecks(variant, api) {
+	if (variant.label === "1492") {
+		assert(typeof api.initState === "function" && typeof api.beginScrutiny === "function", "1492: validation API is not exported");
+		const state = api.initState("borgia", "1492-validation", "open", []);
+		const ballot = api.beginScrutiny(state, ["carafa", "carafa", "borgia", "not-a-cardinal"]);
+		assert(JSON.stringify(ballot.votes.borgia) === JSON.stringify(["carafa"]), "1492: player approvals were not deduplicated and validated");
+		const presentationState = api.initState("borgia", "1492-presentation", "open", []);
+		const rngBefore = presentationState.rng.state;
+		const oddsFirst = JSON.stringify(api.marketOdds(presentationState));
+		const oddsSecond = JSON.stringify(api.marketOdds(presentationState));
+		assert(oddsFirst === oddsSecond && presentationState.rng.state === rngBefore, "1492: opening the market changed the simulation RNG");
+		return ["approval-validation", "presentation-rng"];
+	}
+	if (variant.label === "viterbo-1268") {
+		assert(typeof api.initState === "function" && typeof api.beginScrutiny === "function" && typeof api.playerAccede === "function" && typeof api.canVote === "function" && typeof api.canBeElected === "function", "Viterbo: validation API is not exported");
+		let state = api.initState("orsini", "viterbo-blank", []);
+		let ballot = api.beginScrutiny(state, []);
+		assert(Array.isArray(ballot.votes.orsini) && ballot.votes.orsini.length === 0, "Viterbo: an explicit blank ballot became an AI ballot");
+		state = api.initState("orsini", "viterbo-invalid", []);
+		expectRejected("Viterbo: invalid/duplicate/self ballot was accepted", () => api.beginScrutiny(state, ["orsini", "orsini", "bogus"]));
+		state = api.initState("orsini", "viterbo-accessus", []);
+		api.beginScrutiny(state, []);
+		expectRejected("Viterbo: bogus accession was accepted", () => api.playerAccede(state, "bogus"));
+		state = api.initState("orsini", "viterbo-illness", []);
+		state.cards.paltanieri.ill = true;
+		assert(!api.canVote(state, "paltanieri") && api.canBeElected(state, "paltanieri"), "Viterbo: illness did not remove the vote while preserving canonical eligibility");
+		assert(api.REGNAL_HINT && api.REGNAL_NUM && api.REGNAL_HINT.guy === "Eugene" && api.REGNAL_NUM.Eugene === "IV" && api.REGNAL_HINT.goffredo === "Callistus" && api.REGNAL_NUM.Callistus === "III", "Viterbo: corrected regnal names are not exported or do not agree");
+		return ["blank-ballot", "approval-validation", "accessus-validation", "illness-eligibility", "regnal-names"];
+	}
+	if (variant.label === "carafa-winter-1559") {
+		assert(typeof api.initState === "function" && typeof api.beginScrutiny === "function" && typeof api.playerAccede === "function" && typeof api.getState === "function", "Carafa Winter: targeted-test API is not exported");
+		let state = api.initState("medici", "carafa-opening", { headless: true });
+		assert(api.present().length === 40 && api.voters().length === 40 && api.threshold() === 27, "Carafa Winter: opening attendance or threshold is wrong");
+		let ballot = api.beginScrutiny([]);
+		assert(Array.isArray(ballot.votes.medici) && ballot.votes.medici.length === 0, "Carafa Winter: an explicit blank ballot became an AI ballot");
+		expectRejected("Carafa Winter: a duplicate ballot was accepted", () => api.beginScrutiny(["cesi", "cesi"]));
+		expectRejected("Carafa Winter: a self-vote was accepted", () => api.beginScrutiny(["medici"]));
+		expectRejected("Carafa Winter: an unknown candidate was accepted", () => api.beginScrutiny(["bogus"]));
+		expectRejected("Carafa Winter: an unknown accessus target was accepted", () => api.playerAccede(ballot, "bogus"));
+
+		state = api.initState("medici", "carafa-illness", { headless: true });
+		state.cards.medici.ill = true;
+		assert(!api.canVote("medici") && api.canBeElected("medici"), "Carafa Winter: illness did not remove the vote while preserving canonical eligibility");
+		state.heat = Infinity;
+		state.integrity = -10;
+		state.taint = NaN;
+		state.security = 140;
+		state.carafaPeril = -1;
+		state.cash = -500;
+		api.normaliseState();
+		assert(["heat", "integrity", "taint", "security", "carafaPeril"].every((key) => Number.isFinite(state[key]) && state[key] >= 0 && state[key] <= 100) && state.cash === 0, "Carafa Winter: state normalisation left an invalid metric");
+
+		state = api.initState("medici", "carafa-attendance", { headless: true });
+		for (let stage = 1; stage <= 9; stage++) {
+			state.stage = stage;
+			api.applyHistoricalAttendance();
+		}
+		assert(api.present().length === 44 && api.voters().length === 44 && api.threshold() === 30, "Carafa Winter: final attendance or threshold is wrong");
+		assert(state.cards.capodiferro.dead && !api.canBeElected("capodiferro"), "Carafa Winter: Capodiferro remains eligible after death");
+		assert(!api.canVote("dubellay") && api.canBeElected("dubellay"), "Carafa Winter: du Bellay's departure was not represented correctly");
+		return ["attendance-40-to-44", "approval-validation", "accessus-validation", "illness-eligibility", "metric-bounds"];
+	}
+	if (variant.label === "october-1978") {
+		assert(typeof api.initState === "function" && typeof api.runBallot === "function" && typeof api.getState === "function", "October 1978: targeted-test API is not exported");
+		assert(cardList(api).length === 111 && api.THRESHOLD === 75, "October 1978: electorate or two-thirds-plus-one threshold is wrong");
+		api.initState("villot", "october-player-ballot", { headless: true });
+		let submitted = null;
+		while (!api.getState().over && api.getState().ballotNo < 12) {
+			submitted = "wojtyla";
+			api.runBallot(submitted);
+			const latest = api.getState().history.at(-1);
+			assert(latest.roll.villot === submitted, `October 1978: submitted ballot ${submitted} was recorded as ${latest.roll.villot}`);
+		}
+		assert(api.getState().over, "October 1978: targeted run did not terminate");
+		const before = JSON.stringify(api.getState().history);
+		api.runBallot("wojtyla");
+		assert(JSON.stringify(api.getState().history) === before, "October 1978: a ballot was accepted after election");
+		const nameA = api.papalNameForState("october-papal-name", "siri");
+		const nameB = api.papalNameForState("october-papal-name", "siri");
+		assert(typeof nameA === "string" && nameA === nameB && / [IVXLCDM]+$/.test(nameA), "October 1978: alternate papal name is invalid or non-deterministic");
+		return ["player-ballot-preserved", "terminal-guard", "papal-name"];
+	}
+	if (variant.label === "venice-1800") {
+		assert(typeof api.initState === "function" && typeof api.conductBallot === "function" && typeof api.getState === "function" && typeof api.activeElectors === "function", "Venice: targeted-test API is not exported");
+		api.initState("mattei", "venice-player-ballot", { headless: true });
+		const state = api.getState();
+		state.support.bellisomi = 100;
+		state.metrics.austrianGrip = 100;
+		api.conductBallot("bellisomi");
+		const latest = api.getState().history.at(-1);
+		const playerEntry = latest.roll.find((entry) => entry.voter === "mattei");
+		assert(playerEntry && playerEntry.candidate === "bellisomi", "Venice: virtual-veto processing overwrote the human ballot");
+		assert(!latest.roll.some((entry) => entry.voter === entry.candidate), "Venice: post-processing created a self-vote");
+		api.initState("herzan", "venice-herzan", { headless: true });
+		assert(!api.activeElectors().some((card) => card.id === "herzan"), "Venice: Herzan is active before arrival");
+		api.conductBallot("bellisomi");
+		const herzanState = api.getState();
+		assert(!herzanState.history[0].roll.some((entry) => entry.voter === "herzan"), "Venice: Herzan voted before arrival");
+		if (herzanState.over) assert(!herzanState.flags.herzanArrived, "Venice: Herzan arrived after an already terminal first ballot");
+		else assert(api.activeElectors().some((card) => card.id === "herzan"), "Venice: Herzan did not arrive for the next round");
+		api.initState("chiaramonti", "venice-presentation", { headless: true });
+		const forecastState = api.getState();
+		const rngBefore = forecastState.rng.state;
+		const forecastFirst = JSON.stringify(api.forecastCounts());
+		const forecastSecond = JSON.stringify(api.forecastCounts());
+		assert(forecastFirst === forecastSecond && forecastState.rng.state === rngBefore, "Venice: soundings changed the simulation RNG");
+		return ["player-ballot-preserved", "self-vote", "herzan-arrival", "presentation-rng"];
+	}
+	return [];
 }
 
 function runHeadlessChecks(variant, api) {
-  const runner = api.runHeadless || (api.windowOm && api.windowOm.runHeadless);
-  if (!runner) {
-    const message = `${variant.label}: no runHeadless export`;
-    return allowMissingHeadless ? { skipped: message } : { failures: [message] };
-  }
-  const cards = api.CARDINALS || api.ELECTORS || (api.windowOm && (api.windowOm.CARDINALS || api.windowOm.ELECTORS)) || [];
-  const knownIds = new Set(cards.map((c) => c.id));
-  const failures = [];
-  failures.push(...validateConfiguredPlayers(variant, cards));
-  if (failures.length) return { failures };
-
-  const players = full ? cards.map((c) => c.id) : variant.players;
-  const winners = new Map();
-  const ballotCounts = [];
-
-  for (let s = 0; s < seedCount; s++) {
-    for (const player of players) {
-      const seed = `${variant.label}-${s}`;
-      let a;
-      let b;
-      try {
-        a = runOne(runner, seed, player, variant);
-        b = runOne(runner, seed, player, variant);
-      } catch (err) {
-        failures.push(`${variant.label}: runtime error seed=${seed} player=${player}: ${err && err.stack || err}`);
-        continue;
-      }
-      const digestA = JSON.stringify(stable(a));
-      const digestB = JSON.stringify(stable(b));
-      if (digestA !== digestB) failures.push(`${variant.label}: non-deterministic run seed=${seed} player=${player}`);
-      failures.push(...validateBallotRecords(variant, a, knownIds));
-      failures.push(...boundedMetricFailures(`${variant.label} seed=${seed} player=${player}`, a));
-      const winner = winnerOf(a) || "unresolved";
-      winners.set(winner, (winners.get(winner) || 0) + 1);
-      ballotCounts.push(recordsOf(a).length || Number(a.ballots || a.day || a.turn || 0));
-      if (!winnerOf(a)) failures.push(`${variant.label}: unresolved run seed=${seed} player=${player}`);
-    }
-  }
-  ballotCounts.sort((a, b) => a - b);
-  const medianBallots = ballotCounts.length ? ballotCounts[Math.floor(ballotCounts.length / 2)] : null;
-  return {
-    runs: ballotCounts.length,
-    medianBallots,
-    maxBallots: ballotCounts.length ? ballotCounts[ballotCounts.length - 1] : null,
-    winners: Object.fromEntries([...winners.entries()].sort((a, b) => b[1] - a[1]).slice(0, 12)),
-    failures,
-  };
+	const runner = api.runHeadless || api.windowOm && api.windowOm.runHeadless;
+	assert(typeof runner === "function", `${variant.label}: no runHeadless export`);
+	assert(api.__uiBooted, `${variant.label}: browser UI bootstrap did not run`);
+	const cards = cardList(api);
+	assertUniqueIds(variant.label, cards);
+	const cardIds = new Set(cards.map((card) => card.id));
+	for (const player of variant.players) {
+		assert(cardIds.has(player), `${variant.label}: configured player ${player} does not exist`);
+	}
+	const players = full ? cards.map((card) => card.id) : quick ? [variant.quickPlayer] : variant.players;
+	const winners = new Map();
+	const ballotCounts = [];
+	for (let seedIndex = 0; seedIndex < seedCount; seedIndex++) {
+		for (const player of players) {
+			const seed = `${variant.label}-${player}-${seedIndex}`;
+			const playerCard = cards.find((card) => card.id === player);
+			const runnerArgs = variant.label === "viterbo-1268" && playerCard && playerCard.optional
+				? [seed, player, [player]]
+				: [seed, player];
+			let first;
+			let second;
+			try {
+				first = runner(...runnerArgs);
+				second = runner(...runnerArgs);
+			} catch (error) {
+				fail(`${variant.label}: runtime error for seed=${seed}, player=${player}: ${error && error.stack || error}`);
+			}
+			assert(JSON.stringify(first) === JSON.stringify(second), `${variant.label}: non-deterministic result for seed=${seed}, player=${player}`);
+			if (variant.label === "viterbo-1268" && playerCard && playerCard.optional) {
+				assert(Array.isArray(first.ids) && first.ids.includes(player) && first.cards && first.cards[player], `${variant.label}: optional player ${player} was not added to the electorate`);
+			}
+			const winner = winnerOf(first);
+			assert(winner, `${variant.label}: unresolved run for seed=${seed}, player=${player}`);
+			assert(knownCandidateIds(api).has(winner), `${variant.label}: unknown winner ${winner}`);
+			const history = historyOf(first);
+			assert(Array.isArray(history) && history.length > 0, `${variant.label}: completed run has no ballot history`);
+			for (const ballot of history) assertBallotIntegrity(variant, api, ballot);
+			const reportedBallots = Number.isInteger(first.ballots) ? first.ballots : history.length;
+			assert(reportedBallots === history.length, `${variant.label}: reports ${reportedBallots} ballots but records ${history.length}`);
+			winners.set(winner, (winners.get(winner) || 0) + 1);
+			ballotCounts.push(reportedBallots);
+		}
+	}
+	ballotCounts.sort((a, b) => a - b);
+	const targeted = runTargetedChecks(variant, api);
+	return {
+		runs: ballotCounts.length,
+		players: players.length,
+		medianBallots: ballotCounts[Math.floor(ballotCounts.length / 2)] || 0,
+		maxBallots: Math.max(...ballotCounts),
+		winners: Object.fromEntries([...winners.entries()].sort((a, b) => b[1] - a[1]).slice(0, 12)),
+		targeted,
+	};
 }
 
-function runOctoberPerturbation(api) {
-  if (!api.initState || !api.runBallot || !api.topPreference || !api.getState) return ["october-1978: perturbation hooks unavailable"];
-  const run = (perturb) => {
-    api.initState("wojtyla", "october-perturb", { headless: true });
-    for (let i = 0; i < 8 && !api.getState().over; i++) {
-      if (perturb) {
-        for (const id of ["siri", "benelli", "wojtyla", "konig", "krol"]) api.topPreference(id);
-      }
-      api.runBallot(api.topPreference(api.getState().playerId));
-    }
-    return JSON.stringify(stable(api.getState().history));
-  };
-  return run(false) === run(true) ? [] : ["october-1978: rendering/topPreference perturbation changes ballot history"];
+function checkStaticFiles() {
+	const index = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
+	const hrefs = [...new Set([...index.matchAll(/href="\.\/([^"#?]+\.html)"/g)].map((match) => match[1]))];
+	for (const href of hrefs) assert(fs.existsSync(path.join(ROOT, href)), `index links to missing file ${href}`);
+	for (const variant of VARIANTS) assert(hrefs.includes(variant.file), `index does not link to ${variant.file}`);
+	for (const variant of VARIANTS) {
+		const html = fs.readFileSync(path.join(ROOT, variant.file), "utf8");
+		assert(/index\.html/.test(html), `${variant.label}: no link back to the directory`);
+		assert(/aria-live=/.test(html), `${variant.label}: toast/status announcements are not exposed to assistive technology`);
+		assert(/prefers-reduced-motion/.test(html), `${variant.label}: no reduced-motion support`);
+	}
+	const anchors = {
+		"carafa-winter-1559.html": ["Porto e Santa Rufina", "S. Maria Nuova", "Marcellus III"],
+		"venice-1800.html": ["Gregory XVI", "Leo XII"],
+		"october-1978.html": ["Paul VII", "John XXIV", "Pius XIII"],
+	};
+	for (const [file, required] of Object.entries(anchors)) {
+		const html = fs.readFileSync(path.join(ROOT, file), "utf8");
+		for (const text of required) assert(html.includes(text), `${file}: missing historical anchor ${text}`);
+	}
+	return VARIANTS.map((variant) => variant.file);
 }
 
-function runPlayerBallotPreservation(api, label) {
-  const failures = [];
-  if (label === "october-1978" && api.initState && api.runBallot && api.topPreference && api.getState) {
-    api.initState("villot", "october-player-ballot", { headless: true });
-    for (let i = 0; i < 6 && !api.getState().over; i++) api.runBallot(api.topPreference(api.getState().playerId));
-    if (!api.getState().over) {
-      api.runBallot("wojtyla");
-      const last = api.getState().history[api.getState().history.length - 1];
-      if (!last || last.roll.villot !== "wojtyla") failures.push("october-1978: player vote for Wojtyla was not preserved");
-    }
-  }
-  if (label === "venice-1800" && api.initState && api.conductBallot && api.getState) {
-    api.initState("mattei", "venice-player-ballot", { headless: true });
-    api.getState().metrics.austrianGrip = 100;
-    api.conductBallot("bellisomi");
-    const row = api.getState().lastRoll && api.getState().lastRoll.find((item) => item.voter === "mattei");
-    if (!row || row.candidate !== "bellisomi") failures.push("venice-1800: player ballot was not preserved through veto pressure");
-  }
-  return failures;
+function workerMain(label) {
+	const variant = VARIANTS.find((item) => item.label === label);
+	assert(variant, `Unknown worker variant ${label}`);
+	const api = loadVariant(variant.file);
+	return runHeadlessChecks(variant, api);
 }
 
-function runViterboApiValidation(api) {
-  const failures = [];
-  if (!api.initState || !api.beginScrutiny || !api.playerAccede) return ["viterbo-1268: API validation hooks unavailable"];
-  const S = api.initState("orsini", "viterbo-api-validation");
-  const invalidBallots = [
-    ["orsini", "orsini", "bogus"],
-    ["bogus"],
-    ["annibale", "annibale"],
-    ["annibale", "guy", "odo", "fieschi"],
-  ];
-  for (const ballot of invalidBallots) {
-    let threw = false;
-    try { api.beginScrutiny(S, ballot); } catch (_) { threw = true; }
-    if (!threw) failures.push(`viterbo-1268: invalid ballot accepted: ${JSON.stringify(ballot)}`);
-    S.pendingScrutiny = null;
-  }
-  const blank = api.beginScrutiny(S, []);
-  if (!blank || !blank.votes || !Array.isArray(blank.votes.orsini) || blank.votes.orsini.length !== 0) failures.push("viterbo-1268: blank player ballot was not preserved as blank");
-  let accedeThrew = false;
-  try { api.playerAccede(S, "bogus"); } catch (_) { accedeThrew = true; }
-  if (!accedeThrew) failures.push("viterbo-1268: bogus player accessus target accepted");
-  return failures;
+function runWorker(variant) {
+	return new Promise((resolve, reject) => {
+		const childArgs = [__filename, `--worker=${variant.label}`, `--seeds=${seedCount}`];
+		if (full) childArgs.push("--full");
+		if (quick) childArgs.push("--quick");
+		const timeoutMs = requestedTimeoutMs || (quick ? 120000 : Math.max(180000, seedCount * 90000));
+		const child = spawn(process.execPath, childArgs, { cwd: ROOT, stdio: ["ignore", "pipe", "pipe"] });
+		let stdout = "";
+		let stderr = "";
+		child.stdout.on("data", (chunk) => { stdout += chunk; });
+		child.stderr.on("data", (chunk) => { stderr += chunk; });
+		const timer = setTimeout(() => {
+			child.kill("SIGKILL");
+			reject(new Error(`${variant.label}: worker exceeded ${timeoutMs} ms`));
+		}, timeoutMs);
+		child.on("error", (error) => { clearTimeout(timer); reject(error); });
+		child.on("close", (code) => {
+			clearTimeout(timer);
+			if (code !== 0) return reject(new Error(stderr.trim() || `${variant.label}: worker exited ${code}`));
+			try { resolve(JSON.parse(stdout)); }
+			catch (error) { reject(new Error(`${variant.label}: invalid worker output: ${stdout}\n${stderr}`)); }
+		});
+	});
 }
 
-function checkIndexLinks() {
-  const index = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
-  const hrefs = [...index.matchAll(/href="\.\/([^"#?]+\.html)"/g)].map((m) => m[1]);
-  const missing = hrefs.filter((href) => !fs.existsSync(path.join(ROOT, href)));
-  return { hrefs, failures: missing.map((href) => `index link missing file: ${href}`) };
+async function main() {
+	if (args.get("worker")) {
+		process.stdout.write(JSON.stringify(workerMain(String(args.get("worker")))));
+		return;
+	}
+	const indexLinks = checkStaticFiles();
+	const results = await Promise.all(VARIANTS.map(runWorker));
+	const variants = {};
+	VARIANTS.forEach((variant, index) => { variants[variant.label] = results[index]; });
+	console.log(JSON.stringify({ seedCount, quick, full, indexLinks, variants }, null, 2));
 }
 
-function main() {
-  const index = checkIndexLinks();
-  const report = { profile, seedCount, full, indexLinks: index.hrefs, variants: {} };
-  const allFailures = [...index.failures];
-  for (const variant of VARIANTS) {
-    const abs = path.join(ROOT, variant.file);
-    if (!fs.existsSync(abs)) {
-      const failure = `${variant.label}: missing file ${variant.file}`;
-      report.variants[variant.label] = { failures: [failure] };
-      allFailures.push(failure);
-      continue;
-    }
-    let api;
-    try {
-      api = loadVariant(variant.file);
-    } catch (err) {
-      const failure = `${variant.label}: load failure: ${err && err.stack || err}`;
-      report.variants[variant.label] = { failures: [failure] };
-      allFailures.push(failure);
-      continue;
-    }
-    const cards = api.CARDINALS || api.ELECTORS || (api.windowOm && (api.windowOm.CARDINALS || api.windowOm.ELECTORS)) || [];
-    const checks = runHeadlessChecks(variant, api);
-    const localFailures = [
-      ...assertUniqueIds(variant.label, cards),
-      ...(checks.failures || []),
-    ];
-    if (variant.label === "october-1978") localFailures.push(...runOctoberPerturbation(api));
-    if (variant.label === "october-1978" || variant.label === "venice-1800") localFailures.push(...runPlayerBallotPreservation(api, variant.label));
-    if (variant.label === "viterbo-1268") localFailures.push(...runViterboApiValidation(api));
-    checks.failures = localFailures;
-    report.variants[variant.label] = checks;
-    allFailures.push(...localFailures);
-  }
-  console.log(JSON.stringify(report, null, 2));
-  if (allFailures.length) {
-    console.error(`\nHarness failed with ${allFailures.length} issue(s):`);
-    allFailures.slice(0, 80).forEach((failure) => console.error(`- ${failure}`));
-    process.exit(1);
-  }
-}
-
-main();
+main().catch((error) => {
+	console.error(error && error.stack || error);
+	process.exit(1);
+});

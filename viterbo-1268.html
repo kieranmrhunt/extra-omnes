@@ -35,6 +35,10 @@ button:disabled{opacity:.35;cursor:not-allowed}
 button.primary{background:var(--porpora);border-color:var(--scarlet)}
 button.primary:hover{background:var(--scarlet)}
 button.gold{border-color:var(--gold-dim);color:var(--gold)}
+.backlink{display:inline-block;color:var(--parch-dim);font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;
+  text-decoration:none;text-transform:uppercase;border-bottom:1px solid transparent}
+.backlink:hover,.backlink:focus-visible{color:var(--gold);border-bottom-color:var(--gold)}
+.backlink:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 .rule{border:none;border-top:1px solid var(--line);margin:1rem 0}
 .smallcaps{font-variant:small-caps;letter-spacing:.08em}
 .mono{font-family:var(--mono);font-size:.85em}
@@ -371,10 +375,11 @@ window.onerror=function(m,s,l,c){var w=document.getElementById("jswarn");
   <span class="fixrow">To play: tap the share icon and choose <b>Open in Safari</b> / <b>Open in Chrome</b> —
   or host the file on the web and open the link.</span>
 </div>
-<div id="toast"></div>
+<div id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
 <section id="screen-select">
   <div class="titleblock">
+    <a class="backlink" href="./index.html" aria-label="Back to the Extra Omnes election directory">← Election directory</a>
     <div class="over">VITERBO · SEDE VACANTE · MCCLXVIII – MCCLXXI</div>
     <h1>EXTRA <em>OMNES</em></h1>
     <div class="sub">The words have not yet been spoken. This is the election that will invent them.<br>One thousand and six days · Nineteen electors · The roof comes off.</div>
@@ -386,16 +391,17 @@ window.onerror=function(m,s,l,c){var w=document.getElementById("jswarn");
     <button id="startbtn" class="primary" disabled>Choose a cardinal</button>
     <button id="briefbtn" style="margin-left:.5rem">New here? Start here</button>
     <button id="helpbtn2" style="margin-left:.5rem">Full rules</button>
-    <div class="seedrow">seed <input id="seedin" placeholder="(providence)"> · optional electors can be added above</div>
+    <div class="seedrow"><label for="seedin">Seed</label> <input id="seedin" placeholder="providence" autocomplete="off" aria-describedby="seedhelp"> · <span id="seedhelp">optional electors can be added above</span></div>
     <div class="seedrow"><button id="resumebtn" disabled>Resume saved election</button></div>
   </div>
 </section>
 
 <section id="screen-game" class="hidden">
   <header class="mast">
-    <span class="crossmark">✠</span><h1>Extra Omnes</h1>
-    <button id="helpbtn" title="How the election works">?</button>
-    <button id="mutebtn" title="bells">🔔</button>
+    <a class="backlink" href="./index.html" aria-label="Back to the Extra Omnes election directory">← Directory</a>
+    <span class="crossmark" aria-hidden="true">✠</span><h1>Extra Omnes</h1>
+    <button id="helpbtn" title="How the election works" aria-label="Open the rules">?</button>
+    <button id="mutebtn" title="bells" aria-label="Mute bells" aria-pressed="false">🔔</button>
     <button id="savebtn" title="Seal this election for later">✒ Seal</button>
     <span id="stagechip" class="open">PALACE OPEN</span>
     <div class="date" id="daylabel"></div>
@@ -424,11 +430,11 @@ window.onerror=function(m,s,l,c){var w=document.getElementById("jswarn");
   </div>
   <div class="col" id="rightcol">
     <div class="rtabs" role="tablist">
-      <button class="rtab active" data-rtab="eminence">Your Eminence</button>
-      <button class="rtab" data-rtab="tally">Tally</button>
-      <button class="rtab" data-rtab="promises">Promises</button>
+      <button class="rtab active" id="tab-eminence" role="tab" aria-selected="true" aria-controls="panel-eminence" data-rtab="eminence">Your Eminence</button>
+      <button class="rtab" id="tab-tally" role="tab" aria-selected="false" aria-controls="panel-tally" data-rtab="tally">Tally</button>
+      <button class="rtab" id="tab-promises" role="tab" aria-selected="false" aria-controls="panel-promises" data-rtab="promises">Promises</button>
     </div>
-    <div class="rtab-panel active" data-panel="eminence">
+    <div class="rtab-panel active" id="panel-eminence" role="tabpanel" aria-labelledby="tab-eminence" data-panel="eminence">
       <div class="colhead"><span>Your Eminence</span></div>
       <div class="meter"><div class="lb"><span>Blame for the deadlock</span><span id="heatval"></span></div><div class="bar"><div class="fill heat" id="heatbar"></div></div></div>
       <div class="meter"><div class="lb"><span>Integrity</span><span id="intval"></span></div><div class="bar"><div class="fill int" id="intbar"></div></div></div>
@@ -437,11 +443,11 @@ window.onerror=function(m,s,l,c){var w=document.getElementById("jswarn");
       <button id="palacebtn" style="width:100%;margin:.15rem 0 .35rem">⌂ The Palace &amp; the City</button>
       <button id="householdbtn" style="width:100%;margin:.15rem 0 .4rem">☉ Household &amp; Messengers</button>
     </div>
-    <div class="rtab-panel" data-panel="tally">
+    <div class="rtab-panel" id="panel-tally" role="tabpanel" aria-labelledby="tab-tally" data-panel="tally">
       <div class="colhead"><span>The Scrutiny Board</span></div>
       <div id="board"></div>
     </div>
-    <div class="rtab-panel" data-panel="promises">
+    <div class="rtab-panel" id="panel-promises" role="tabpanel" aria-labelledby="tab-promises" data-panel="promises">
       <div class="colhead"><span>Promises</span></div>
       <div id="ledger"></div>
     </div>
@@ -480,6 +486,7 @@ window.onerror=function(m,s,l,c){var w=document.getElementById("jswarn");
     <button id="again" class="primary">Another vacancy</button>
     <button id="replay">Replay this seed</button>
     <button id="exportlog">Export chronicle</button>
+    <a class="backlink" href="./index.html">Election directory</a>
   </div>
   <p style="text-align:center" class="mono dim" id="endseed"></p>
 </section>
@@ -841,7 +848,7 @@ function nameOf(id){ return byId[id] ? byId[id].short : (OUTSIDERS[id] ? OUTSIDE
 function fullNameOf(id){ return byId[id] ? byId[id].name : (OUTSIDERS[id] ? OUTSIDERS[id].name : id); }
 
 /* ---- regnal names of the age ---- */
-const REGNAL_NAMES = ["Gregory","Clement","Innocent","Alexander","Urban","Honorius","Nicholas","Adrian","Celestine","Martin","John","Boniface","Benedict","Lucius","Anastasius","Victor","Callistus","Sylvester","Leo","Stephen","Eugene"];
+const REGNAL_NAMES = ["Gregory","Clement","Innocent","Alexander","Urban","Honorius","Nicholas","Adrian","Celestine","Martin","John","Boniface","Benedict","Eugene","Lucius","Anastasius","Victor","Callistus","Sylvester","Leo","Stephen"];
 const REGNAL_HINT = { orsini:"Nicholas", fieschi:"Adrian", savelli:"Honorius", debrie:"Martin", guy:"Eugene", goffredo:"Callistus", riccardo:"Alexander", odo:"Urban", toledo:"Celestine" };
 const REGNAL_FLAVOR = {
   Nicholas:"The name the Orsini pope will truly take, six years hence — Rome will call him the son of the she-bear.",
@@ -853,7 +860,9 @@ const REGNAL_FLAVOR = {
   Innocent:"The great century's name; heavy as a crown twice over.",
   Urban:"The name of the pope who made half this College.",
   Alexander:"The name of the pope the Annibaldi called uncle.",
-  Celestine:"A hermit's name; it will be tried, one day, and regretted."
+  Celestine:"A hermit's name; it will be tried, one day, and regretted.",
+  Eugene:"A name for reform and conciliation, chosen here by the Cistercian of Burgundy.",
+  Callistus:"A Roman peacemaker's invocation of the third Callistus."
 };
 
 /* ---- per-role objectives ---- */
@@ -985,15 +994,16 @@ function mulberry(S){
   return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
 }
 function hashSeed(s){var h=1779033703;var str=String(s);for(var i=0;i<str.length;i++){h=Math.imul(h^str.charCodeAt(i),3432918353);h=h<<13|h>>>19;}return h>>>0;}
-function keyedUnit(){return ((hashSeed(Array.prototype.join.call(arguments,"|"))%4294967296)/4294967296);}
 function clamp(x,lo,hi){ return Math.max(lo,Math.min(hi,x)); }
+function roman(n){var r=[[1000,"M"],[900,"CM"],[500,"D"],[400,"CD"],[100,"C"],[90,"XC"],[50,"L"],[40,"XL"],[10,"X"],[9,"IX"],[5,"V"],[4,"IV"],[1,"I"]],s=""; n=Math.floor(Number(n)||0); for(var i=0;i<r.length;i++){while(n>=r[i][0]){s+=r[i][1]; n-=r[i][0];}} return s||"0"; }
 
 function electorPool(extra){
   var ex = extra || [];
   return CARDINALS.filter(function(c){ return !c.optional || ex.indexOf(c.id)>=0; });
 }
 
-function initState(playerId, seed, extraElectors){
+function initState(playerId, seed, extraElectors, options){
+  options=options||{};
   var S = {
     seed: seed===undefined||seed===null||seed===""?String((Math.random()*1e9)|0):String(seed),
     playerId: playerId||null, turn:1, ap:3, nightUsed:false, over:false,
@@ -1008,6 +1018,7 @@ function initState(playerId, seed, extraElectors){
     myVotesTotal:0, myScrutinies:0, accessionsToPlayer:0, votedBallots:[], deliveredVotes:{},
     scrutinies:[], lastTally:{}, lastFinal:{}, papBoost:{},
     compact:{formed:false, six:[], done:false, motioned:false},
+    historicalMode:!!options.historicalMode, coachSeen:{},
     flags:{tends:0, reconciled:0, chancery:0, frTight:0, frCount:0, cityPetitions:0},
     log:[], extra:(extraElectors||[]).slice(), ach:[]
   };
@@ -1027,8 +1038,17 @@ function initState(playerId, seed, extraElectors){
   return S;
 }
 
-function present(S){ return S.ids.filter(function(id){ var c=S.cards[id]; return !c.dead && !c.away; }); }
-function votingToday(S){ return present(S).filter(function(id){ var c=S.cards[id]; return !c.ill && !c.renounced; }); }
+function present(S){ return S.ids.filter(function(id){ var c=S.cards[id]; return c && !c.dead && !c.away; }); }
+function canVote(S,id){
+  var c=S && S.cards && S.cards[id];
+  return !!(c && !c.dead && !c.away && !c.ill && !c.renounced && !c.out);
+}
+/* Illness removes a cardinal's voice, not his canonical eligibility for election. */
+function canBeElected(S,id){
+  var c=S && S.cards && S.cards[id];
+  return !!(c && !c.dead && !c.away && !c.renounced && !c.out && byId[id]);
+}
+function votingToday(S){ return S.ids.filter(function(id){ return canVote(S,id); }); }
 function threshold(S){ var n=votingToday(S).length; return Math.ceil(2*n/3); }
 function rel(S,a,b){ return clamp((S.R[a]&&S.R[a][b])||0, -4, 4); }
 function bumpRel(S,a,b,v){ if(S.R[a]&&S.R[a][b]!==undefined){ S.R[a][b]=clamp(S.R[a][b]+v,-4,4); } }
@@ -1215,7 +1235,7 @@ function hardship(S){ return clamp(S.stage*0.6 + S.rations*0.8 + S.exhaust*0.35,
 function utility(S, v, c, opts){
   opts=opts||{};
   if(v===c) return -999;
-  var cc=S.cards[c]; if(!cc || cc.dead || cc.away || cc.renounced) return -999;
+  var cc=S.cards[c]; if(!canBeElected(S,c)) return -999;
   var V=byId[v], C=byId[c];
   if(Math.abs(V.ang-C.ang)===4) return -999;         /* pole to pole: never */
   var u = 1.0*papabileEff(S,c);
@@ -1255,10 +1275,9 @@ function utility(S, v, c, opts){
 }
 function scoreAll(S, v){
   var out=[]; var strat = S.turn>=8;
-  var pool=present(S);
+  var pool=S.ids.filter(function(id){return canBeElected(S,id);});
   for(var i=0;i<pool.length;i++){ var c=pool[i];
     if(c===v) continue;
-    if(S.cards[c].renounced) continue;
     var u=utility(S,v,c,{strategic:strat});
     var tau = S.turn<=3?4.2 : S.turn<=6?3.0 : S.turn<=12?2.0 : 1.2;
     u += mulberry(S)*tau;
@@ -1273,9 +1292,9 @@ function chooseBallot(S, v){
   var sc=scoreAll(S,v);
   var courtesyP = S.turn<=3?0.5 : S.turn<=6?0.22 : 0;
   if(courtesyP && mulberry(S)<courtesyP && !S.cards[v].directive && !S.cards[v].pledgedTo){
-    var cb=null,cv=-1e9; var pool=present(S);
+    var cb=null,cv=-1e9; var pool=S.ids.filter(function(id){return canBeElected(S,id);});
     for(var i=0;i<pool.length;i++){ var c=pool[i];
-      if(c===v||S.cards[c].renounced) continue;
+      if(c===v) continue;
       var w = 2.2*rel(S,v,c) + byId[c].integrity/22 + (byId[c].age>=72?2.3:byId[c].age>=60?1.5:0) + mulberry(S)*2.5;
       if(w>cv){cv=w;cb=c;} }
     if(cb && sc[0] && cb!==sc[0].c) return [cb, sc[0].c];
@@ -1293,36 +1312,37 @@ function chooseBallot(S, v){
 }
 
 /* ---------- scrutiny & accessus ---------- */
-function scrutinyMaxNames(S){ return S.turn<=3?3:2; }
-function legalScrutinyCandidate(S, voter, cand){
-  return !!(byId[cand] && cand!==voter && present(S).indexOf(cand)>=0 && !S.cards[cand].renounced);
-}
-function validateScrutinyBallot(S, voter, picks, allowBlank){
-  if(!Array.isArray(picks)) throw new TypeError("Scrutiny ballot must be an array of candidate ids.");
-  if(picks.length>scrutinyMaxNames(S)) throw new Error("Scrutiny ballot names too many candidates for this round.");
-  if(!allowBlank && !picks.length) throw new Error("Blank AI scrutiny ballot is not legal.");
+function scrutinyMaxNames(S){ return S.turn<=3 ? 3 : 2; }
+function validateBallot(S, voter, ballot, maxNames){
+  if(!Array.isArray(ballot)) throw new TypeError("ballot must be an array");
+  if(ballot.length>maxNames) throw new RangeError("ballot contains more than "+maxNames+" names");
   var seen={};
-  picks.forEach(function(c){
-    if(typeof c!=="string") throw new TypeError("Scrutiny ballot candidate ids must be strings.");
-    if(seen[c]) throw new Error("Scrutiny ballot repeats candidate "+c+".");
+  ballot.forEach(function(c){
+    if(typeof c!=="string") throw new TypeError("candidate IDs must be strings");
+    if(seen[c]) throw new Error("duplicate candidate on ballot: "+c);
     seen[c]=true;
-    if(!legalScrutinyCandidate(S,voter,c)) throw new Error("Illegal scrutiny vote: "+voter+" -> "+c+".");
+    if(c===voter) throw new Error("a cardinal may not vote for himself: "+c);
+    if(!byId[c] || !S.cards[c]) throw new Error("unknown candidate: "+c);
+    if(!canBeElected(S,c)) throw new Error("candidate is not eligible: "+c);
   });
-  return picks.slice();
-}
-function validatePlayerPicks(S, playerPicks){
-  if(playerPicks===undefined || playerPicks===null) return null;
-  if(votingToday(S).indexOf(S.playerId)<0) throw new Error("The player is not eligible to vote in this scrutiny.");
-  return validateScrutinyBallot(S,S.playerId,playerPicks,true);
+  return ballot.slice();
 }
 function beginScrutiny(S, playerPicks){
-  var checkedPlayerPicks=validatePlayerPicks(S,playerPicks);
-  var P={turn:S.turn, votes:{}, running:{}, accessions:[], threshold:threshold(S)};
-  votingToday(S).forEach(function(v){
+  if(!S || !Array.isArray(S.ids) || !S.cards) throw new TypeError("invalid election state");
+  if(S.over) throw new Error("the election is already over");
+  if(S.pendingScrutiny) throw new Error("a scrutiny is already in progress");
+  var supplied=playerPicks!==undefined;
+  if(supplied && !Array.isArray(playerPicks)) throw new TypeError("player ballot must be an array or undefined");
+  if(supplied && (!S.playerId || !canVote(S,S.playerId))) throw new Error("the player is not entitled to vote in this scrutiny");
+  var maxNames=scrutinyMaxNames(S);
+  var playerBallot=supplied ? validateBallot(S,S.playerId,playerPicks,maxNames) : null;
+  var voters=votingToday(S);
+  var P={turn:S.turn, number:S.scrutinies.length+1, electors:voters.length, votes:{}, running:{}, accessions:[], threshold:threshold(S)};
+  voters.forEach(function(v){
     var b;
-    if(v===S.playerId && checkedPlayerPicks!==null) b=checkedPlayerPicks.slice();
+    if(v===S.playerId && supplied) b=playerBallot.slice();
     else b=chooseBallot(S,v);
-    b=validateScrutinyBallot(S,v,b,v===S.playerId);
+    b=validateBallot(S,v,b,maxNames);
     P.votes[v]=b;
     S.cards[v].lastVote=b[0]||null;
     b.forEach(function(c){ P.running[c]=(P.running[c]||0)+1; });
@@ -1349,16 +1369,24 @@ function npcWantsAccession(S, v, pass){
   return null;
 }
 function scoreOfBallot(S,v,b){ var m=-1e9; b.forEach(function(c){ m=Math.max(m,utility(S,v,c,{strategic:true})); }); return m===-1e9?0:m; }
-function legalAccessionTarget(S, v, to){
-  var P=S.pendingScrutiny;
-  if(!P || !byId[to] || !byId[v]) return false;
-  if(votingToday(S).indexOf(v)<0 || !legalScrutinyCandidate(S,v,to)) return false;
-  if(!Object.prototype.hasOwnProperty.call(P.running,to)) return false;
-  if((P.votes[v]||[]).indexOf(to)>=0) return false;
+function validateAccession(S,v,to){
+  var P=S && S.pendingScrutiny;
+  if(!P) throw new Error("no scrutiny is in progress");
+  if(S.over) throw new Error("the election is already over");
+  if(Object.keys(P.running).some(function(c){return P.running[c]>=P.threshold;})) throw new Error("the scrutiny already has an elected candidate");
+  if(typeof v!=="string" || !S.cards[v]) throw new Error("unknown elector: "+v);
+  if(!canVote(S,v) || !P.votes[v]) throw new Error("elector is not entitled to accede: "+v);
+  if(S.cards[v].accession) throw new Error("elector has already acceded: "+v);
+  if(typeof to!=="string") throw new TypeError("accession target must be a candidate ID");
+  if(!byId[to] || !S.cards[to]) throw new Error("unknown accession target: "+to);
+  if(!canBeElected(S,to)) throw new Error("accession target is not eligible: "+to);
+  if(to===v) throw new Error("a cardinal may not accede to himself");
+  if((P.votes[v]||[]).indexOf(to)>=0) throw new Error("elector already named this candidate on the ballot");
+  if(!(P.running[to]>0)) throw new Error("accession target was not named in the scrutiny");
   return true;
 }
 function applyAccession(S, v, to){
-  if(!legalAccessionTarget(S,v,to)) throw new Error("Illegal accessus: "+v+" -> "+to+".");
+  validateAccession(S,v,to);
   var P=S.pendingScrutiny;
   P.accessions.push({from:v,to:to});
   P.running[to]=(P.running[to]||0)+1;
@@ -1373,9 +1401,7 @@ function npcAccessusPass(S, pass){
   return acted;
 }
 function playerAccede(S, to){
-  if(!S.pendingScrutiny) return false;
-  if(S.cards[S.playerId].accession) return false;
-  if(!legalAccessionTarget(S,S.playerId,to)) throw new Error("Illegal player accessus target: "+to+".");
+  if(!S || typeof S.playerId!=="string") throw new Error("this election has no player elector");
   applyAccession(S,S.playerId,to);
   return true;
 }
@@ -1543,6 +1569,20 @@ function attemptCompromise(S, opts){
   if(!opts.interactive){ runCommitteeHeadless(S); }
   return {done:true, support:sup};
 }
+function toledoCompactAside(S){
+  var c=S.cards && S.cards.toledo;
+  if(!c || c.dead) return " — those living and present — ";
+  if(c.away) return " — those living and present, John of Toledo consulted beyond the hall — ";
+  if(c.ill) return " — those living and present, John of Toledo consenting from his sick-room — ";
+  return " — those living and present, John of Toledo consenting from his bench — ";
+}
+function toledoAdherence(S){
+  var c=S.cards && S.cards.toledo;
+  if(!c || c.dead) return "";
+  if(c.away) return " John of Toledo is consulted beyond the hall and consents expressly, <i>requisito et expresse consentiente</i>.";
+  if(c.ill) return " John of Toledo consents from his sick-room, <i>requisito et expresse consentiente</i>.";
+  return " John of Toledo rises from his bench and gives his express consent, <i>requisito et expresse consentiente</i>.";
+}
 function formCompact(S, opts){
   opts=opts||{};
   var histSix=["paltanieri","guy","riccardo","ubaldini","orsini","savelli"];
@@ -1556,7 +1596,7 @@ function formCompact(S, opts){
   S.compact.formed=true; S.compact.six=six.slice();
   S.flags.onCommittee = S.playerId ? six.indexOf(S.playerId)>=0 : false;
   var dateBit = (S.turn>=MAXTURN) ? "On the first of September, in the third year of the vacancy, " : "At last, ";
-  log(S, "<b>The compact is sworn.</b> "+dateBit+"the College — those living, those present, John of Toledo consenting from his sick-room — yields its power to <b>six of its own</b>: "+six.map(function(id){return "<b>"+nameOf(id)+"</b>";}).join(", ")+". The terms are exact, and merciless to hope: <i>five of the six</i> may make one of the six pope; to reach any man <i>outside</i> the six — outside the College itself, even — all six must speak as one. A cardinal not of the six cannot be chosen at all.","event");
+  log(S, "<b>The compact is sworn.</b> "+dateBit+"the College"+toledoCompactAside(S)+"yields its power to <b>six of its own</b>: "+six.map(function(id){return "<b>"+nameOf(id)+"</b>";}).join(", ")+". The terms are exact, and merciless to hope: <i>five of the six</i> may make one of the six pope; to reach any man <i>outside</i> the six — outside the College itself, even — all six must speak as one. A cardinal not of the six cannot be chosen at all.","event");
   if(S.cards.hostiensis && !S.cards.hostiensis.dead && S.cards.hostiensis.renounced){
     log(S,"Hostiensis, asked, approves the instrument's law and declines any part in its politics. Both, characteristically.","event");
   }
@@ -1613,6 +1653,35 @@ function committeeCheck(S, tops){
   }
   return null;
 }
+function committeeSettlementResult(S){
+  if(S.historicalMode) return {outsider:"visconti",forced:true,historical:true};
+  /* Visconti retains a strong historical pull, but a counterfactual game is not
+     forced to reproduce him after every divided committee. */
+  if(mulberry(S)<0.68) return {outsider:"visconti",forced:true};
+  var six=S.compact.six;
+  var candidates=six.filter(function(c){return canBeElected(S,c);});
+  if(committeeCandidates(S).indexOf("vicedomino")>=0) candidates.push("vicedomino");
+  var best=null,bestScore=-1e9;
+  candidates.forEach(function(cand){
+    var scorers=six.filter(function(m){return m!==cand;});
+    var vals=scorers.map(function(m){return committeeScore(S,m,cand,4);}).sort(function(a,b){return a-b;});
+    if(!vals.length) return;
+    var mean=vals.reduce(function(a,x){return a+x;},0)/vals.length;
+    var score=mean+0.35*vals[0]+mulberry(S)*3.5;
+    if(score>bestScore){bestScore=score;best=cand;}
+  });
+  if(!best) return {outsider:"visconti",forced:true};
+  return OUTSIDERS[best] ? {outsider:best,forced:true} : {member:best,forced:true};
+}
+function settlementTops(S,res){
+  var chosen=res.outsider||res.member, tops={};
+  S.compact.six.forEach(function(m){
+    tops[m]=(res.member && m===res.member)
+      ? ((S.compact.lastTops&&S.compact.lastTops[m])||"visconti")
+      : chosen;
+  });
+  return tops;
+}
 function handleDecliner(S, oid){
   S.compact.excluded=S.compact.excluded||{};
   S.compact.excluded[oid]=true;
@@ -1633,7 +1702,9 @@ function electOutsider(S, oid){
   var pronouncer = (S.compact.six.indexOf("paltanieri")>=0 && !S.cards.paltanieri.dead) ? "Simone Paltanieri" : nameOf(S.compact.six[0]);
   log(S,"<b>All six as one.</b> "+pronouncer+" rises and pronounces, in the name of the Six and the whole College: elected — <b>"+O.name+"</b>"+(oid==="visconti"?", archdeacon of Liège, at this hour on crusade at Acre. The pope-elect is two thousand miles away and does not know":"")+".","scrut");
   if(oid==="visconti"){
-    log(S,"The remaining cardinals give their adherence one by one. John of Toledo consents from his sick-room, <i>requisito et expresse consentiente</i>; Hostiensis, summoned, approves. The vacancy is over — pending one very long boat journey.","event");
+    var host=S.cards && S.cards.hostiensis;
+    var hostConsent=host && !host.dead ? (host.away || host.renounced ? " Hostiensis, summoned, approves." : " Hostiensis approves from his bench.") : "";
+    log(S,"The remaining cardinals give their adherence one by one."+toledoAdherence(S)+hostConsent+" The vacancy is over — pending one very long boat journey.","event");
   }
   if(S.playerId && S.flags.onCommittee){
     /* did the player back him at the end? UI sets namedWinner explicitly; headless approximates */
@@ -1661,19 +1732,22 @@ function runCommitteeHeadless(S){
     }
   }
   if(!S.over){
-    log(S,"Three rounds, no concord — and then, wearied past faction, the Six reach outside the College altogether, to the one name every letter from the East has been underlining.","event");
-    var tops2={}; S.compact.six.forEach(function(m){tops2[m]="visconti";}); S.compact.lastTops=tops2;
-    if(S.playerId && S.flags.onCommittee) S.flags.backedWinner=true;
-    electOutsider(S,"visconti");
+    var settlement=committeeSettlementResult(S);
+    var chosen=settlement.outsider||settlement.member;
+    log(S,"Three rounds, no concord — and then, wearied past faction, the Six test every remaining objection and settle upon <b>"+nameOf(chosen)+"</b>.","event");
+    S.compact.lastTops=settlementTops(S,settlement);
+    if(S.playerId && S.flags.onCommittee && S.compact.lastTops[S.playerId]===chosen) S.flags.backedWinner=true;
+    if(settlement.outsider) electOutsider(S,settlement.outsider);
+    else electCardinal(S,settlement.member,"compromise");
   }
 }
 
 /* ---------- headless runner (tests & calibration) ---------- */
-function runHeadless(seed, playerId, extraElectors){
-  var S=initState(playerId||null, seed, extraElectors||[]);
+function runHeadless(seed, playerId, extraElectors, options){
+  var S=initState(playerId||null, seed, extraElectors||[], options||{});
   var guard=0;
   while(!S.over && guard++<40){
-    beginScrutiny(S,null);
+    beginScrutiny(S);
     npcAccessusPass(S,1); npcAccessusPass(S,2);
     var r=finalizeScrutiny(S);
     if(r.elected) break;
@@ -1867,16 +1941,79 @@ function histEval(S){
 }
 
 /* ---------- save / restore ---------- */
-function serialiseState(S){ return {v:1, S:S}; }
+var STATE_VERSION=2;
+function plainObject(x){ return !!x && typeof x==="object" && !Array.isArray(x); }
+function saveError(message){ throw new Error("bad save: "+message); }
+function validId(id){ return typeof id==="string" && !!byId[id]; }
+function validateSavedScrutiny(P,ids){
+  if(!plainObject(P) || !plainObject(P.votes) || !plainObject(P.running) || !Array.isArray(P.accessions)) saveError("invalid scrutiny record");
+  if(!Number.isInteger(P.turn) || !Number.isInteger(P.number) || !Number.isInteger(P.threshold) || P.threshold<1) saveError("invalid scrutiny numbers");
+  Object.keys(P.votes).forEach(function(v){
+    if(ids.indexOf(v)<0 || !Array.isArray(P.votes[v]) || P.votes[v].length>3) saveError("invalid ballot for "+v);
+    var seen={};
+    P.votes[v].forEach(function(c){
+      if(ids.indexOf(c)<0 || c===v || seen[c]) saveError("illegal ballot for "+v);
+      seen[c]=true;
+    });
+  });
+  Object.keys(P.running).forEach(function(c){
+    if(ids.indexOf(c)<0 || !Number.isInteger(P.running[c]) || P.running[c]<0) saveError("invalid tally");
+  });
+  P.accessions.forEach(function(a){
+    if(!plainObject(a) || ids.indexOf(a.from)<0 || ids.indexOf(a.to)<0 || a.from===a.to || !P.votes[a.from] || P.votes[a.from].indexOf(a.to)>=0) saveError("invalid accession");
+  });
+}
+function validateSavedState(raw,version){
+  if(!plainObject(raw)) saveError("state is not an object");
+  var X=JSON.parse(JSON.stringify(raw));
+  if(typeof X.seed!=="string" || !validId(X.playerId)) saveError("invalid seed or player");
+  if(!Array.isArray(X.extra) || !Array.isArray(X.ids) || !plainObject(X.cards)) saveError("invalid electorate");
+  var unique={};
+  X.ids.forEach(function(id){ if(!validId(id) || unique[id]) saveError("unknown or duplicate elector"); unique[id]=true; });
+  if(X.ids.indexOf(X.playerId)<0) saveError("player is outside the electorate");
+  X.extra.forEach(function(id){ if(!byId[id] || !byId[id].optional) saveError("invalid optional elector"); });
+  var expected=electorPool(X.extra).map(function(c){return c.id;});
+  if(expected.length!==X.ids.length || expected.some(function(id){return X.ids.indexOf(id)<0;})) saveError("electorate does not match options");
+  ["turn","ap","stage","rations","patience","exhaust","blame","integrity","gifts","deals","intel","rngA"].forEach(function(k){
+    if(typeof X[k]!=="number" || !Number.isFinite(X[k])) saveError("invalid "+k);
+  });
+  if(!Number.isInteger(X.turn) || X.turn<1 || X.turn>MAXTURN+1 || !Number.isInteger(X.ap) || X.ap<0 || X.ap>3) saveError("turn or action points out of range");
+  ["over","electedOutsider","byScrutiny","byCompromissum","kingsHere","kingsCame","nightUsed","scrutinyDone"].forEach(function(k){
+    if(typeof X[k]!=="boolean") saveError("invalid "+k);
+  });
+  X.ids.forEach(function(id){
+    var c=X.cards[id];
+    if(!plainObject(c) || typeof c.vig!=="number" || !Number.isFinite(c.vig) || c.vig<0 || c.vig>6 || !plainObject(c.promisesFrom)) saveError("invalid cardinal state for "+id);
+    ["out","dead","renounced","away","ill"].forEach(function(k){if(typeof c[k]!=="boolean") saveError("invalid "+id+"."+k);});
+    ["lastVote","accession","directive","pledgedTo"].forEach(function(k){if(c[k]!=null && X.ids.indexOf(c[k])<0) saveError("invalid cardinal reference "+id+"."+k);});
+  });
+  ["R","grat","known","fav","deathTurn","lastTally","lastFinal","papBoost","compact","flags","weather","coachSeen"].forEach(function(k){
+    if(k==="coachSeen" && version===1 && X[k]===undefined) X[k]={};
+    if(!plainObject(X[k])) saveError("invalid "+k);
+  });
+  if(X.historicalMode===undefined && version===1) X.historicalMode=false;
+  if(typeof X.historicalMode!=="boolean") saveError("invalid historical mode");
+  if(!Array.isArray(X.scrutinies) || !Array.isArray(X.log) || !Array.isArray(X.votedBallots) || !Array.isArray(X.ach)) saveError("invalid history");
+  X.scrutinies.forEach(function(P){validateSavedScrutiny(P,X.ids);});
+  X.log.forEach(function(e){
+    if(!plainObject(e) || !Number.isInteger(e.t) || typeof e.html!=="string" || typeof e.cls!=="string") saveError("invalid chronicle entry");
+    if(/<(script|iframe|object|embed)\b|\bon\w+\s*=|javascript:/i.test(e.html)) saveError("unsafe chronicle entry");
+  });
+  X.votedBallots.forEach(function(b){if(!Array.isArray(b) || b.length>3) saveError("invalid player ballot history");});
+  if(X.pendingScrutiny) saveError("unfinished scrutiny cannot be restored");
+  if(X.electedId!=null && !byId[X.electedId] && !OUTSIDERS[X.electedId]) saveError("invalid elected candidate");
+  return X;
+}
+function serialiseState(S){ return {v:STATE_VERSION, S:S}; }
 function restoreState(o){
-  if(!o || o.v!==1 || !o.S) throw new Error("bad save");
-  return o.S;
+  if(!plainObject(o) || (o.v!==1 && o.v!==STATE_VERSION) || !o.S) saveError("unsupported version");
+  return validateSavedState(o.S,o.v);
 }
 
 /* =========================================================================
    UI LAYER
    ========================================================================= */
-var S=null, pickedId=null, MUTE=false, modalStack=[];
+var S=null, pickedId=null, MUTE=false, modalStack=[], modalSeq=0;
 var DEBUG=/\bdebug\b/.test(location.search||"");
 function $(q){ return document.querySelector(q); }
 function h(tag,attrs){ var el=document.createElement(tag);
@@ -1901,11 +2038,40 @@ function galero(c1,c2,size){ var s=size||34;
     "<circle cx='8' cy='33' r='1.6' fill='"+c2+"'/><circle cx='32' cy='33' r='1.6' fill='"+c2+"'/>"+
     "<circle cx='5' cy='28' r='1.4' fill='"+c2+"'/><circle cx='35' cy='28' r='1.4' fill='"+c2+"'/></svg>"; }
 function openModal(build){
-  var ov=h("div",{class:"overlay"}); var mo=h("div",{class:"modal"});
+  var previousFocus=document.activeElement;
+  var ov=h("div",{class:"overlay"});
+  var mo=h("div",{class:"modal",role:"dialog","aria-modal":"true",tabindex:"-1"});
   ov.appendChild(mo); document.body.appendChild(ov); modalStack.push(ov);
-  function close(){ var i=modalStack.indexOf(ov); if(i>=0)modalStack.splice(i,1); ov.remove(); }
-  mo.appendChild(h("button",{class:"mclose",onclick:close,"aria-label":"close"},"✕"));
+  var closed=false;
+  function close(){
+    if(closed) return;
+    closed=true;
+    var i=modalStack.indexOf(ov); if(i>=0)modalStack.splice(i,1);
+    ov.remove();
+    if(previousFocus && typeof previousFocus.focus==="function") previousFocus.focus();
+  }
+  mo.appendChild(h("button",{class:"mclose",onclick:close,"aria-label":"Close dialog",title:"Close"},"✕"));
   build(mo, close);
+  var title=mo.querySelector("h3");
+  if(title){ title.id=title.id||("modal-title-"+(++modalSeq)); mo.setAttribute("aria-labelledby",title.id); }
+  else mo.setAttribute("aria-label","Election dialogue");
+  mo.addEventListener("keydown",function(e){
+    if(e.key==="Escape"){
+      if(modalStack[modalStack.length-1]===ov){ e.preventDefault(); e.stopPropagation(); close(); }
+      return;
+    }
+    if(e.key!=="Tab") return;
+    var focusable=Array.prototype.slice.call(mo.querySelectorAll("button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex='-1'])"));
+    if(!focusable.length){ e.preventDefault(); mo.focus(); return; }
+    var first=focusable[0], last=focusable[focusable.length-1];
+    if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
+    else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
+  });
+  setTimeout(function(){
+    if(closed) return;
+    var first=mo.querySelector("button:not([disabled]),a[href],input:not([disabled]),[tabindex]:not([tabindex='-1'])");
+    (first||mo).focus();
+  },0);
   return close;
 }
 function leanGlyph(ang){ return ang<=-2?"⟨⟨":ang===-1?"⟨":ang===1?"⟩":ang>=2?"⟩⟩":"·"; }
@@ -1913,14 +2079,14 @@ function vigWord(v){ return v>=4.5?"hale":v>=3?"holding":v>=2?"worn":v>0.8?"fail
 function relWord(r){ return r>=3?"devoted":r>=2?"warm":r>=1?"friendly":r<=-3?"hostile":r<=-2?"cold":r<=-1?"wary":"civil"; }
 
 /* ---------- selection screen ---------- */
-var extraSel={};
+var extraSel={}, historicalModeSel=false;
 function starsOf(c){ var n=Math.round(c.papabile/2); var s=""; for(var i=0;i<5;i++) s+= i<n?"★":"☆"; return s; }
 function tierOf(c){ return TIER[c.id]||["standard",""]; }
 function renderSelect(){
   var grid=$("#selgrid"); grid.innerHTML="";
   CARDINALS.filter(function(c){return !c.optional;}).forEach(function(c){
     var t=tierOf(c);
-    var card=h("div",{class:"ccard",role:"button",tabindex:"0"});
+    var card=h("div",{class:"ccard",role:"button",tabindex:"0","aria-label":"Choose "+c.name});
     card.innerHTML = "<div class='galero-wrap'>"+galero(c.her[0],c.her[1])+"</div>"+
       "<div class='nm'>"+c.name+"</div>"+
       "<div class='ttl'>"+ORDERS[c.order]+" of "+c.title+"</div>"+
@@ -1945,13 +2111,19 @@ function renderSelect(){
     lab.appendChild(h("span",{html:"<b>"+c.name+"</b> — "+ORDERS[c.order]+"<small>"+c.optnote+"</small>"}));
     opts.appendChild(lab);
   });
+  var histLab=h("label",{for:"histmode"}); var histCb=h("input",{type:"checkbox",id:"histmode"});
+  histCb.checked=historicalModeSel;
+  histCb.addEventListener("change",function(){ historicalModeSel=histCb.checked; });
+  histLab.appendChild(histCb);
+  histLab.appendChild(h("span",{html:"<b>Strict chronicle ending</b><small>If the Six remain divided after three rounds, enforce their documented settlement on Tebaldo Visconti. With this off, Visconti keeps a strong advantage but counterfactual settlements remain possible.</small>"}));
+  opts.appendChild(histLab);
   ab.appendChild(opts);
 }
 function startGame(){
   if(!pickedId) return;
   var seed=$("#seedin").value.trim();
   var extra=Object.keys(extraSel).filter(function(k){return extraSel[k];});
-  S=initState(pickedId, seed||undefined, extra);
+  S=initState(pickedId, seed||undefined, extra,{historicalMode:historicalModeSel});
   if(DEBUG) window.S=S;
   log(S,"You take your bench as <b>"+byId[pickedId].name+"</b>, "+ORDERS[byId[pickedId].order]+" of "+byId[pickedId].title+". "+byId[pickedId].bio,"holy");
   (TURNS[1].ev||[]).forEach(function(eid){ EVENTS[eid](S); });
@@ -1979,7 +2151,7 @@ function renderRoster(){
     bench.appendChild(h("div",{class:"bh"},ORDERS[ord]+"s"));
     ids.forEach(function(id){
       var c=S.cards[id], C=byId[id];
-      var row=h("div",{class:"crow",role:"button",tabindex:"0"});
+      var row=h("div",{class:"crow",role:"button",tabindex:"0","aria-label":"Open dossier for "+C.name});
       if(id===S.playerId) row.classList.add("player");
       if(c.dead) row.classList.add("out");
       else { if(c.away) row.classList.add("gone");
@@ -1995,7 +2167,7 @@ function renderRoster(){
       row.innerHTML="<span class='nm'>"+C.short+"</span><span class='dotrow'>"+dots+"</span>"+
         "<span class='lean'>"+lean+"</span><span class='vt'>"+(S.lastTally[id]||"")+"</span>";
       row.addEventListener("click",function(){openDossier(id);});
-      row.addEventListener("keydown",function(e){ if(e.key==="Enter"){openDossier(id);} });
+      row.addEventListener("keydown",function(e){ if(e.key==="Enter"||e.key===" "){e.preventDefault();openDossier(id);} });
       bench.appendChild(row);
     });
     r.appendChild(bench);
@@ -2014,7 +2186,7 @@ function renderBoard(){
   var html="<table><tr class='thresh'><td>needed for two-thirds</td><td class='n'>"+th+"</td></tr>";
   if(!rows.length) html+="<tr><td colspan='2' class='dim'>no scrutiny yet held</td></tr>";
   rows.forEach(function(r2){ html+="<tr><td>"+nameOf(r2[0])+"</td><td class='n'>"+r2[1]+"</td></tr>"; });
-  html+="</table><div class='dim' style='margin-top:.4rem;font-size:.72rem'>Scrutiny "+S.scrutinies.length+" of a vacancy that will hold at least 137 recorded ballots.</div>";
+  html+="</table><div class='dim' style='margin-top:.4rem;font-size:.72rem'>Scrutiny "+roman(S.scrutinies.length)+" of a vacancy that will hold at least 137 recorded ballots.</div>";
   b.innerHTML=html;
 }
 function renderMeters(){
@@ -2072,7 +2244,7 @@ function renderLog(){
 function renderDaybtn(){
   var b=$("#daybtn");
   if(S.over){ b.textContent="To the reckoning"; return; }
-  if(!S.scrutinyDone) b.textContent="⚖ Call the scrutiny — "+turnLabel(S.turn);
+  if(!S.scrutinyDone) b.textContent="⚖ Call scrutiny "+roman(S.scrutinies.length+1)+" — "+turnLabel(S.turn);
   else b.textContent="☾ Let the weeks pass — on to "+(TURNS[S.turn+1]?turnLabel(S.turn+1):"the reckoning");
 }
 function renderMotionButton(){
@@ -2092,7 +2264,6 @@ function renderAll(){
 }
 
 /* ---------- coach ---------- */
-var COACH_SEEN={};
 function coach(key){
   var TIPS={
     welcome:["The shape of a turn","Spend your <b>three actions</b>, then <b>call the scrutiny</b>. After the count you get one <b>night errand</b>, and the weeks pass. Nobody will reach two-thirds for a long time — that is the point. Position yourself for the ending everyone is refusing to imagine."],
@@ -2103,8 +2274,10 @@ function coach(key){
     compromise:["The Via Compromissi","The compact hands the choice to <b>six named men</b> under merciless rules: five of the six for one of themselves, all six as one for anyone outside — and a cardinal outside the six cannot be chosen at all. If you want the tiara, you want a seat."],
     memento:["Scored on legacy","History has fixed the hour of your death. Your score is gratitude, service and dignity: tend, reconcile, keep the registers, be worth mourning."]
   };
-  if(!TIPS[key]||COACH_SEEN[key]) return;
-  COACH_SEEN[key]=true;
+  if(!S || !TIPS[key]) return;
+  S.coachSeen=S.coachSeen||{};
+  if(S.coachSeen[key]) return;
+  S.coachSeen[key]=true;
   var c=$("#coach"); c.className="show";
   c.innerHTML="<div class='coachbox'><div class='ct'>"+TIPS[key][0]+"</div>"+TIPS[key][1]+
     "<div><button class='coachx'>Understood</button></div></div>";
@@ -2563,14 +2736,14 @@ function dayButton(){
 function startScrutinyUI(){
   var me=S.playerId;
   var canVote = votingToday(S).indexOf(me)>=0;
-  if(!canVote){ runCeremony(null); return; }
+  if(!canVote){ runCeremony(); return; }
   var maxNames = S.turn<=3?3:2;
   var picks=[];
   openModal(function(mo,close){
     mo.appendChild(h("h3",null,"Your ballot — name up to "+maxNames));
-    mo.appendChild(h("div",{class:"body",html:"<p class='dim' style='font-size:.9rem'>Approval ballots, as the old Ordinal allows: every name you write counts one voice. No man may name himself."+(S.myPledgeTo?" Your word stands pledged to <b>"+nameOf(S.myPledgeTo)+"</b>.":"")+"</p>"}));
+    mo.appendChild(h("div",{class:"body",html:"<p class='dim' style='font-size:.9rem'>Approval ballots, as the old Ordinal allows: every name you write counts one voice. No man may name himself. A sick cardinal loses his voice for the day, but remains eligible to be elected."+(S.myPledgeTo?" Your word stands pledged to <b>"+nameOf(S.myPledgeTo)+"</b>.":"")+"</p>"}));
     var g=h("div",{class:"tgrid"});
-    var pool=votingToday(S).concat(present(S).filter(function(x){return S.cards[x].renounced;})).filter(function(x){return x!==me && !S.cards[x].renounced;});
+    var pool=S.ids.filter(function(x){return x!==me && canBeElected(S,x);});
     var btnOf={};
     pool.sort(function(a,b){return (S.lastTally[b]||0)-(S.lastTally[a]||0);}).forEach(function(id){
       var b=h("button",{onclick:function(){
@@ -2593,12 +2766,12 @@ function startScrutinyUI(){
 }
 var CER={};
 function runCeremony(picks){
-  beginScrutiny(S,picks);
+  if(picks===undefined) beginScrutiny(S); else beginScrutiny(S,picks);
   var P=S.pendingScrutiny;
   CER={phase:"tally", accBudget: (votingToday(S).indexOf(S.playerId)>=0 && !S.cards[S.playerId].accession)?1:0};
   $("#screen-game").classList.add("hidden");
   $("#ceremony").classList.remove("hidden");
-  $("#cer-over").textContent="SCRUTINY · "+turnLabel(S.turn).toUpperCase();
+  $("#cer-over").textContent="SCRUTINY "+roman(P.number)+" · "+turnLabel(S.turn).toUpperCase();
   $("#cer-title").textContent="The urn on the altar";
   $("#cer-lat").textContent="Eligo in summum pontificem…";
   $("#cer-thresh").textContent="TWO-THIRDS TODAY: "+P.threshold+" OF "+votingToday(S).length;
@@ -2669,9 +2842,11 @@ function summaryTable(){
 }
 function spawnSmoke(white){
   var st=$("#smokestage");
+  /* Presentation must never advance the election RNG: these offsets are visual only. */
+  var offsets=[-16,9,-6,18,-11,5];
   for(var i=0;i<6;i++){
     var p=h("div",{class:"puff "+(white?"white":"black")});
-    p.style.setProperty("--dx",((keyedUnit(S.seed,S.turn,S.scrutinies.length,white?"white":"black",i)*40-20)|0)+"px");
+    p.style.setProperty("--dx",offsets[i]+"px");
     p.style.animationDelay=(i*0.35)+"s";
     st.appendChild(p);
     (function(pp){ setTimeout(function(){pp.remove();},4200); })(p);
@@ -2784,7 +2959,7 @@ function fastForwardAfterDeath(){
       if(S.turn>=MAXTURN || mulberry(S)<motionChance(S.turn)){ attemptCompromise(S, S.turn>=MAXTURN?{force:true}:{}); if(S.over) break; }
     }
     if(!S.scrutinyDone){
-      beginScrutiny(S,null); npcAccessusPass(S,1); npcAccessusPass(S,2);
+      beginScrutiny(S); npcAccessusPass(S,1); npcAccessusPass(S,2);
       var r=finalizeScrutiny(S); S.scrutinyDone=true;
       if(r.elected) break;
     }
@@ -2929,7 +3104,7 @@ function spectateScene(round){
     } else if(round<3){
       ch.appendChild(h("button",{onclick:function(){close(); spectateScene(round+1);}},"They confer again"));
     } else {
-      ch.appendChild(h("button",{class:"primary",onclick:function(){close(); resolveCommitteeResult({outsider:"visconti", forced:true}, null);}},"…and then, at last, one name"));
+      ch.appendChild(h("button",{class:"primary",onclick:function(){close(); resolveCommitteeResult(committeeSettlementResult(S), null);}},"…and then, at last, one name"));
     }
     mo.appendChild(ch);
   });
@@ -3020,7 +3195,7 @@ function committeeScene(round, prevTops){
       var att=committeeAttempt(round, pick);
       if(att.res) resolveCommitteeResult(att.res, pick);
       else if(round<3){ toast("No concord. The Six adjourn to their separate prayers."); committeeScene(round+1, att.tops); }
-      else resolveCommitteeResult({outsider:"visconti", forced:true}, pick);
+      else resolveCommitteeResult(committeeSettlementResult(S), pick);
     }},"Call the round"+(pick?" — you name "+nameOf(pick):""));
     if(pick && btnOf[pick]) btnOf[pick].classList.add("gold");
     row.appendChild(callBtn);
@@ -3029,7 +3204,9 @@ function committeeScene(round, prevTops){
 }
 function resolveCommitteeResult(res, playerPick){
   if(res.forced){
-    log(S,"Three rounds, no concord — and then, wearied past faction, the Six reach outside the College altogether, to the one name every letter from the East has been underlining.","event");
+    var settlementName=res.outsider||res.member;
+    log(S,"Three rounds, no concord — and then, wearied past faction, the Six test every remaining objection and settle upon <b>"+nameOf(settlementName)+"</b>.","event");
+    S.compact.lastTops=settlementTops(S,res);
   }
   var me=S.playerId;
   if(res.outsider){
@@ -3053,7 +3230,7 @@ function resolveCommitteeResult(res, playerPick){
 }
 
 /* ---------- habemus papam & the regnal name ---------- */
-var REGNAL_NUM={Gregory:"X",Clement:"V",Innocent:"V",Alexander:"V",Urban:"V",Honorius:"IV",Nicholas:"III",Adrian:"V",Celestine:"V",Martin:"IV",John:"XXI",Boniface:"VIII",Benedict:"XI",Lucius:"IV",Anastasius:"V",Victor:"V",Callistus:"III",Sylvester:"IV",Leo:"X",Stephen:"X",Eugene:"IV"};
+var REGNAL_NUM={Gregory:"X",Clement:"V",Innocent:"V",Alexander:"V",Urban:"V",Honorius:"IV",Nicholas:"III",Adrian:"V",Celestine:"V",Martin:"IV",John:"XXI",Boniface:"VIII",Benedict:"XI",Eugene:"IV",Lucius:"IV",Anastasius:"V",Victor:"V",Callistus:"III",Sylvester:"IV",Leo:"X",Stephen:"X"};
 function habemusFlow(id, via){
   $("#screen-game").classList.add("hidden");
   $("#ceremony").classList.remove("hidden");
@@ -3214,7 +3391,7 @@ function showEnd(){
   if(S.electedOutsider && FATES[S.electedId]) fb.appendChild(h("div",{class:"fr",html:"<b>"+fullNameOf(S.electedId)+"</b> "+FATES[S.electedId]}));
   S.ids.slice().sort(benchSort).forEach(function(id){ if(FATES[id]) fb.appendChild(h("div",{class:"fr",html:"<b>"+byId[id].name+"</b> "+FATES[id]})); });
   WORLD_FATES.forEach(function(wf){ fb.appendChild(h("div",{class:"fr",html:"<b>"+wf[0]+"</b> "+wf[1]})); });
-  $("#endseed").textContent="seed "+S.seed+" · "+(S.extra.length?("optional electors: "+S.extra.join(", ")+" · "):"")+"Extra Omnes — Viterbo 1268";
+  $("#endseed").textContent="seed "+S.seed+" · "+(S.extra.length?("optional electors: "+S.extra.join(", ")+" · "):"")+(S.historicalMode?"strict chronicle ending · ":"")+"Extra Omnes — Viterbo 1268";
   try{window.scrollTo(0,0);}catch(e){}
 }
 function backToSelect(){
@@ -3227,9 +3404,9 @@ function backToSelect(){
 }
 function replaySeed(){
   if(!S) return;
-  var seed=S.seed, pid=S.playerId, extras=S.extra.slice();
+  var seed=S.seed, pid=S.playerId, extras=S.extra.slice(), historicalMode=!!S.historicalMode;
   $("#screen-end").classList.add("hidden");
-  S=initState(pid,seed,extras);
+  S=initState(pid,seed,extras,{historicalMode:historicalMode});
   if(DEBUG) window.S=S;
   log(S,"You take your bench once more as <b>"+byId[pid].name+"</b> — the same providence, replayed.","holy");
   (TURNS[1].ev||[]).forEach(function(eid){ EVENTS[eid](S); });
@@ -3261,7 +3438,7 @@ function openManual(){
       "<h4>Promises & blame</h4><p>Offers are era-true: legations, rectorates, rich sees, red hats, the vacant Vice-Chancellorship — payable only if you are elected — plus small gifts in hand. Sealed words pull hardest and leak worst. <b>Blame</b> is the College's and the city's sense that <i>you</i> are the deadlock; the upright shun the blamed, and it is scored against you.</p>"+
       "<h4>The powers</h4><p>Charles works the French benches by envoy and arrives in person only in March 1271 — with the new French king, Philip. Castile's claimant flatters the imperial bench; Edward's letters from Acre slowly give the name <b>Visconti</b> substance; and the Commune of Viterbo has a patience meter with consequences.</p>"+
       "<h4>The Via Compromissi</h4><p>From the kings' visit onward the compromise can be moved — by you, by the elders, or (on 1 September 1271) by sheer force of circumstance. The compact seats <b>six named men</b> (history's six, unless death or your ambition intervenes) under exact terms: <b>five of the six</b> elect one of the six; <b>all six as one</b> elect anyone outside — even outside the College. A cardinal not of the six cannot be chosen at all. On the committee you get three rounds and two efforts per round: advocate, buy a voice, invoke Acre, or stand aside.</p>"+
-      "<h4>Endings</h4><p>Pope (by compact, or — against history — by scrutiny), Architect, Kingmaker, Canonist (Hostiensis's renunciation arc), Memento Mori, Conscience, Survivor, Vae Victis. Each is graded on its own scale; your cardinal's objective adds its bonus; the <b>Chronicle against the Record</b> panel shows where your run held or left the documented road.</p>"+
+      "<h4>Endings</h4><p>Pope (by compact, or — against history — by scrutiny), Architect, Kingmaker, Canonist (Hostiensis's renunciation arc), Memento Mori, Conscience, Survivor, Vae Victis. Each is graded on its own scale; your cardinal's objective adds its bonus; the <b>Chronicle against the Record</b> panel shows where your run held or left the documented road. The optional <b>Strict chronicle ending</b> forces the divided Six back to Visconti after three rounds; otherwise he remains strongly favoured, not inevitable.</p>"+
       "<h4>Provenance — what is documented, modelled, and legend</h4>"+
       "<ul>"+
       "<li><b>Documented:</b> the elector list, factions and family blocs; the enclosure, bread-and-water and roof (palace already <i>discooperto</i> by 8 June 1270); the College's excommunication of the podestà (8 Jan 1270) and anathemas of June 1270; Hostiensis's renunciation of 8 June 1270, his return and his consent; the deaths of Pironti and Báncsa; de Brie and Annibaldi ill (1270); the officials' oath of 22 Aug 1270; Gatti's death that summer; the theft of Clement IV's body; the kings at Viterbo and Henry of Almain's murder (13 March 1271); the compact of 1 September 1271, its exact five-of-six / all-six terms, and the Six by name; Visconti's election, journey and Ubi periculum.</li>"+
@@ -3287,12 +3464,16 @@ function resumeGame(){
   var raw=null; try{ raw=localStorage.getItem(SAVE_KEY); }catch(e){}
   if(!raw) return toast("No sealed vacancy found.");
   try{
-    S=restoreState(JSON.parse(raw)); pickedId=S.playerId; if(DEBUG) window.S=S;
+    S=restoreState(JSON.parse(raw)); pickedId=S.playerId; historicalModeSel=!!S.historicalMode; if($("#histmode")) $("#histmode").checked=historicalModeSel; if(DEBUG) window.S=S;
     $("#screen-select").classList.add("hidden"); $("#screen-end").classList.add("hidden");
     $("#ceremony").classList.add("hidden"); $("#screen-game").classList.remove("hidden");
     try{window.scrollTo(0,0);}catch(e){}
     renderAll(); toast("The seal is broken; the vacancy resumes.");
-  }catch(e){ toast("The sealed vacancy could not be read."); }
+  }catch(e){
+    try{localStorage.removeItem(SAVE_KEY);}catch(ignore){}
+    updateResumeButton();
+    toast("The sealed vacancy was invalid and has been discarded.");
+  }
 }
 function updateResumeButton(){ var b=$("#resumebtn"); if(b) b.disabled=!hasSave(); }
 function stripHTML(sx){ var d=document.createElement("div"); d.innerHTML=sx; return d.textContent||d.innerText||""; }
@@ -3300,7 +3481,8 @@ function exportChronicle(){
   if(!S) return;
   var lines=["Extra Omnes — Viterbo 1268 · The Longest Election","Seed: "+S.seed,
     "Played as: "+(byId[S.playerId]?byId[S.playerId].name:String(S.playerId)),
-    "Electors: "+S.ids.length+(S.extra.length?" (including "+S.extra.map(function(id){return byId[id].short;}).join(", ")+")":""),""];
+    "Electors: "+S.ids.length+(S.extra.length?" (including "+S.extra.map(function(id){return byId[id].short;}).join(", ")+")":""),
+    "Ending mode: "+(S.historicalMode?"strict chronicle":"counterfactual with historical gravity"),""];
   (S.log||[]).forEach(function(e){ lines.push(turnLabel(e.t)+": "+stripHTML(e.html)); });
   if(S.electedId) lines.push("","Elected: "+fullNameOf(S.electedId)+(S.regnal?" — "+S.regnal:""));
   var blob=new Blob([lines.join("\n")],{type:"text/plain;charset=utf-8"});
@@ -3328,7 +3510,12 @@ function init(){
   $("#a-city").addEventListener("click",actCity);
   $("#a-night").addEventListener("click",actNight);
   $("#helpbtn").addEventListener("click",openManual);
-  $("#mutebtn").addEventListener("click",function(){MUTE=!MUTE;$("#mutebtn").textContent=MUTE?"🔕":"🔔";});
+  $("#mutebtn").addEventListener("click",function(){
+    MUTE=!MUTE;
+    $("#mutebtn").textContent=MUTE?"🔕":"🔔";
+    $("#mutebtn").setAttribute("aria-label",MUTE?"Unmute bells":"Mute bells");
+    $("#mutebtn").setAttribute("aria-pressed",MUTE?"true":"false");
+  });
   $("#savebtn").addEventListener("click",saveGame);
   $("#powersbtn").addEventListener("click",openPowers);
   $("#palacebtn").addEventListener("click",openPalace);
@@ -3346,8 +3533,18 @@ function init(){
   document.querySelectorAll(".rtab").forEach(function(btn){
     btn.addEventListener("click",function(){
       var key=btn.getAttribute("data-rtab");
-      document.querySelectorAll(".rtab").forEach(function(b){b.classList.toggle("active",b===btn);});
-      document.querySelectorAll(".rtab-panel").forEach(function(p){p.classList.toggle("active",p.getAttribute("data-panel")===key);});
+      document.querySelectorAll(".rtab").forEach(function(b){
+        var active=b===btn; b.classList.toggle("active",active); b.setAttribute("aria-selected",active?"true":"false");
+      });
+      document.querySelectorAll(".rtab-panel").forEach(function(p){
+        p.classList.toggle("active",p.getAttribute("data-panel")===key);
+      });
+    });
+    btn.addEventListener("keydown",function(e){
+      if(e.key!=="ArrowLeft" && e.key!=="ArrowRight" && e.key!=="Home" && e.key!=="End") return;
+      var tabs=Array.prototype.slice.call(document.querySelectorAll(".rtab"));
+      var i=tabs.indexOf(btn), next=e.key==="Home"?0:e.key==="End"?tabs.length-1:(i+(e.key==="ArrowRight"?1:-1)+tabs.length)%tabs.length;
+      e.preventDefault(); tabs[next].focus(); tabs[next].click();
     });
   });
 }
@@ -3357,13 +3554,14 @@ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded"
 window.__om = {
   CARDINALS:CARDINALS, OUTSIDERS:OUTSIDERS, TURNS:TURNS, MAXTURN:MAXTURN, byId:byId,
   OBJECTIVES:OBJECTIVES, FATES:FATES, HIST_CHECKS:HIST_CHECKS, TIER:TIER, POWERS:POWERS,
+  REGNAL_HINT:REGNAL_HINT, REGNAL_NUM:REGNAL_NUM,
   initState:initState, runHeadless:runHeadless, computeEnding:computeEnding,
   achievementsOf:achievementsOf, histEval:histEval, roleVerdict:roleVerdict,
-  present:present, votingToday:votingToday, threshold:threshold, utility:utility,
-  chooseBallot:chooseBallot, beginScrutiny:beginScrutiny, npcAccessusPass:npcAccessusPass,
+  present:present, canVote:canVote, canBeElected:canBeElected, votingToday:votingToday, threshold:threshold, utility:utility,
+  chooseBallot:chooseBallot, beginScrutiny:beginScrutiny, playerAccede:playerAccede, npcAccessusPass:npcAccessusPass,
   finalizeScrutiny:finalizeScrutiny, runNight:runNight, advanceTurn:advanceTurn,
   attemptCompromise:attemptCompromise, formCompact:formCompact,
-  committeeTops:committeeTops, committeeCheck:committeeCheck, runCommitteeHeadless:runCommitteeHeadless,
+  committeeTops:committeeTops, committeeCheck:committeeCheck, committeeSettlementResult:committeeSettlementResult, runCommitteeHeadless:runCommitteeHeadless,
   serialiseState:serialiseState, restoreState:restoreState, mulberry:mulberry, hashSeed:hashSeed,
   electorPool:electorPool, rollWeather:rollWeather, exposure:exposure
 };

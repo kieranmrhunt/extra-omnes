@@ -32,6 +32,10 @@ button:disabled{opacity:.35;cursor:not-allowed}
 button.primary{background:var(--porpora);border-color:var(--scarlet)}
 button.primary:hover{background:var(--scarlet)}
 button.gold{border-color:var(--gold-dim);color:var(--gold)}
+a{color:var(--gold)}
+.directory-link{display:inline-flex;align-items:center;gap:.3rem;font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-dim);text-decoration:none}
+.directory-link:hover,.directory-link:focus-visible{color:var(--gold);text-decoration:underline}
+.titleblock>.directory-link{margin-bottom:.8rem}
 .rule{border:none;border-top:1px solid var(--line);margin:1rem 0}
 .smallcaps{font-variant:small-caps;letter-spacing:.08em}
 .mono{font-family:var(--mono);font-size:.85em}
@@ -58,6 +62,7 @@ header.mast .date{font-family:var(--mono);font-size:.8rem;color:var(--parch-dim)
 .ccard{background:linear-gradient(160deg,var(--ink2),var(--ink3));border:1px solid var(--line);border-radius:5px;
   padding:.85rem .9rem;cursor:pointer;transition:transform .12s,border-color .12s;position:relative;overflow:hidden}
 .ccard:hover{transform:translateY(-2px);border-color:var(--gold-dim)}
+.ccard:focus-visible,.crow:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .ccard.sel{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)}
 .ccard .nm{font-family:var(--disp);font-size:1.02rem;color:var(--parch)}
 .ccard .ttl{font-size:.8rem;color:var(--parch-dim);font-style:italic;min-height:2.2em}
@@ -317,7 +322,7 @@ input[type=checkbox]{accent-color:var(--scarlet)}
 </head>
 <body>
 <script>
-if(typeof window!=="undefined"&&typeof document!=="undefined")window.onerror=function(m,s,l,c){var w=document.getElementById("jswarn");
+window.onerror=function(m,s,l,c){var w=document.getElementById("jswarn");
   if(w){w.style.display="block";var d=document.createElement("div");
   d.style.cssText="font-family:monospace;font-size:11px;margin-top:8px;color:#c4584a;word-break:break-all";
   d.textContent="\u26A0 "+m+" (line "+l+(c?":"+c:"")+")";w.appendChild(d);}};
@@ -329,10 +334,11 @@ if(typeof window!=="undefined"&&typeof document!=="undefined")window.onerror=fun
   <span class="fixrow">To play: tap the share icon and choose <b>Open in Safari</b> / <b>Open in Chrome</b> —
   or host the file on the web and open the link.</span>
 </div>
-<div id="toast"></div>
+<div id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
 <section id="screen-select">
   <div class="titleblock">
+    <a class="directory-link" href="./index.html">← All conclaves</a>
     <div class="over">ROME · AUGUST MCCCCXCII · SEDE VACANTE</div>
     <h1>EXTRA <em>OMNES</em></h1>
     <div class="sub">"Everyone else, out." · The conclave of 1492 · Twenty-three princes, one throne, five days that bought the keys of Heaven.</div>
@@ -344,14 +350,14 @@ if(typeof window!=="undefined"&&typeof document!=="undefined")window.onerror=fun
     <button id="startbtn" class="primary" disabled>Choose a cardinal</button>
     <button id="briefbtn" style="margin-left:.5rem">New here? Start here</button>
     <button id="helpbtn2" style="margin-left:.5rem">Full rules</button>
-    <div class="seedrow">seed <input id="seedin" placeholder="(providence)"> · optional electors can be added above</div>
+    <label class="seedrow" for="seedin">Seed <input id="seedin" placeholder="(providence)" autocomplete="off"> · optional electors can be added above</label>
     <div class="seedrow"><button id="resumebtn" disabled>Resume saved conclave</button></div>
   </div>
 </section>
 
 <section id="screen-game" class="hidden">
   <header class="mast">
-    <span class="crossmark">✠</span><h1>Extra Omnes</h1>
+    <a class="directory-link" href="./index.html" aria-label="Return to all conclaves">← Years</a><span class="crossmark">✠</span><h1>Extra Omnes</h1>
     <button id="helpbtn" title="How the conclave works">?</button>
     <button id="mutebtn" title="bells">🔔</button>
     <button id="savebtn" title="Seal this conclave for later">✒ Seal</button>
@@ -381,11 +387,11 @@ if(typeof window!=="undefined"&&typeof document!=="undefined")window.onerror=fun
   </div>
   <div class="col" id="rightcol">
     <div class="rtabs" role="tablist">
-      <button class="rtab active" data-rtab="eminence">Your Eminence</button>
-      <button class="rtab" data-rtab="tally">Tally</button>
-      <button class="rtab" data-rtab="promises">Promises</button>
+      <button class="rtab active" id="tab-eminence" role="tab" aria-selected="true" aria-controls="panel-eminence" tabindex="0" data-rtab="eminence">Your Eminence</button>
+      <button class="rtab" id="tab-tally" role="tab" aria-selected="false" aria-controls="panel-tally" tabindex="-1" data-rtab="tally">Tally</button>
+      <button class="rtab" id="tab-promises" role="tab" aria-selected="false" aria-controls="panel-promises" tabindex="-1" data-rtab="promises">Promises</button>
     </div>
-    <div class="rtab-panel active" data-panel="eminence">
+    <div class="rtab-panel active" id="panel-eminence" role="tabpanel" aria-labelledby="tab-eminence" data-panel="eminence">
       <div class="colhead"><span>Your Eminence</span></div>
       <div class="meter"><div class="lb"><span>Reputation for simony</span><span id="heatval"></span></div><div class="bar"><div class="fill heat" id="heatbar"></div></div></div>
       <div class="meter"><div class="lb"><span>Integrity</span><span id="intval"></span></div><div class="bar"><div class="fill int" id="intbar"></div></div></div>
@@ -394,11 +400,11 @@ if(typeof window!=="undefined"&&typeof document!=="undefined")window.onerror=fun
       <button id="agentsbtn" style="width:100%;margin:.15rem 0 .35rem">☉ Household &amp; Messengers</button>
       <button id="marketbtn" style="width:100%;margin:.15rem 0 .4rem">⚖ The Banchi &amp; Odds</button>
     </div>
-    <div class="rtab-panel" data-panel="tally">
+    <div class="rtab-panel" id="panel-tally" role="tabpanel" aria-labelledby="tab-tally" aria-hidden="true" data-panel="tally">
       <div class="colhead"><span>The Scrutiny Board</span></div>
       <div id="board"></div>
     </div>
-    <div class="rtab-panel" data-panel="promises">
+    <div class="rtab-panel" id="panel-promises" role="tabpanel" aria-labelledby="tab-promises" aria-hidden="true" data-panel="promises">
       <div class="colhead"><span>Promises</span></div>
       <div id="ledger"></div>
     </div>
@@ -435,6 +441,7 @@ if(typeof window!=="undefined"&&typeof document!=="undefined")window.onerror=fun
   <details class="fatesbox" id="endfates"><summary>Where they ended — the true fates of the College</summary><div id="fatesbody"></div></details>
   <div class="histbox" id="endhist"></div>
   <div class="endbar">
+    <a class="directory-link" href="./index.html">← All conclaves</a>
     <button id="again" class="primary">Another conclave</button>
     <button id="replay">Replay this seed</button>
     <button id="exportlog">Export chronicle</button>
@@ -445,8 +452,8 @@ if(typeof window!=="undefined"&&typeof document!=="undefined")window.onerror=fun
 <script>
 /* =========================================================================
    CONCLAVE 1492 — DATA LAYER
-   All facts sourced from Burkle-Young (cardinals.fiu.edu), Pastor (History
-   of the Popes V), Setton, and the 1492-conclave literature. See dossier.
+   Facts are sourced from Burkle-Young, Pastor (History of the Popes V),
+   Setton, and the 1492-conclave literature; provenance is summarised in README.
    ideo: 0 = worldly curialist … 1 = devout reformer
    papabile: 0–10 base electability  | integrity: 0–100 bribe resistance
    cash: ducats on hand (game scale) | her: [primary, secondary] heraldic tint
@@ -1110,8 +1117,6 @@ const FATES = {
   despinay:"served Charles VIII and later accompanied the French campaigns in Italy; he died in Paris in 1500.",
   daubusson:"remained Grand Master at Rhodes, a celebrated enemy of the Ottomans, and died there in 1503."
 };
-if (typeof module !== "undefined") module.exports = { CARDINALS, ABSENT, OBJECTIVES, FATES, REL_PAIRS, FEARS, POWERS, PAPAL_GIFTS, BORGIA_PRICES, REGNAL_NAMES, REGNAL_HINT, DATE_LABELS, ORDERS, FIRST_SCRUTINY_HISTORY, ABSENT_CARDINALS, PROMISE_FORMS, CONCLAVIST_CHANNELS, ROTA_MESSAGES, CAPITULATION_CLAUSES, OFFICE_DISPLACEMENT };
-
 /* =========================================================================
    CONCLAVE 1492 — ENGINE (pure logic; no DOM)
    ========================================================================= */
@@ -1140,7 +1145,7 @@ function initState(playerId, seed, mode, extraElectors){
   if(playerId && byId[playerId] && byId[playerId].optional) extras.add(playerId);
   const S = {
     seed:String(seed), rng, rngState:rng.state, extraElectors:Array.from(extras), initialElectors:IDS.filter(id=>!byId[id].optional || extras.has(id)), playerId: playerId||null,
-    day:1, phase:"day", ap:2, nightUsed:false,
+    day:1, phase:"day", ap:3, nightUsed:false,
     over:false, ending:null, electedId:null, regnal:null,
     cash: playerId? byId[playerId].cash : 0,
     integrity: playerId? byId[playerId].integrity : 50,
@@ -1470,11 +1475,8 @@ function beginScrutiny(S, playerVote){
   for(const v of voters){
     let b;
     if(v===S.playerId && hasPlayerOverride){
-      const seen = new Set();
-      b = [];
-      (Array.isArray(playerVote)?playerVote:[playerVote]).forEach(c=>{
-        if(c && c!==v && S.cards[c] && !S.cards[c].out && !seen.has(c) && b.length<3){seen.add(c);b.push(c)}
-      });
+      b = Array.from(new Set(Array.isArray(playerVote)?playerVote:[playerVote]))
+            .filter(c=>typeof c==="string" && c && c!==v && S.cards[c] && !S.cards[c].out).slice(0,3);
     } else b = chooseBallot(S,v);
     votes[v]=b; S.cards[v].lastVote=b[0]||null; S.cards[v].accession=null;
   }
@@ -2198,14 +2200,19 @@ function scareCandidate(S){
   return null;
 }
 
-if (typeof module !== "undefined") module.exports = {
-  CARDINALS, ABSENT, OBJECTIVES, FATES, REL_PAIRS, FEARS, POWERS, PAPAL_GIFTS, BORGIA_PRICES, REGNAL_NAMES, REGNAL_HINT, DATE_LABELS, ORDERS, FIRST_SCRUTINY_HISTORY, ABSENT_CARDINALS, PROMISE_FORMS, CONCLAVIST_CHANNELS, ROTA_MESSAGES, CAPITULATION_CLAUSES, OFFICE_DISPLACEMENT,
+const CONCLAVE_1492_ENGINE = {
+  CARDINALS, ABSENT, OBJECTIVES, FATES, REL_PAIRS, FEARS, POWERS, PAPAL_GIFTS,
+  BORGIA_PRICES, REGNAL_NAMES, REGNAL_HINT, DATE_LABELS, ORDERS,
+  FIRST_SCRUTINY_HISTORY, ABSENT_CARDINALS, PROMISE_FORMS,
+  CONCLAVIST_CHANNELS, ROTA_MESSAGES, CAPITULATION_CLAUSES, OFFICE_DISPLACEMENT,
   initState, present, votingToday, threshold, utility, papabileEff, viability,
   beginScrutiny, npcAccessusPass, playerAccede, finalizeScrutiny, maxRunning, accessusCandidates,
   runNight, illnessCheck, advanceDay, doSforzaPivot, recordPromise, offerAcceptChance,
   actSoundOut, actPressVote, actOffer, actAddress, actDevotions, actTend, actSwearOath, ballotSignals, crownsView, scareCandidate, actRota, actSpy, actRumor,
   computeEnding, compromissum, roleVerdict, runHeadless, topPreference, byId, IDS, rel, getStance, judgePlayerBallotPromises, scrutinyInsights, promiseForm, agentOf, channelRisk, marketOdds, consultBankers, actBorrowAtBanchi, actMoveMarket, actRotaChoice, rotaMessage, fatigueName
 };
+if (typeof module !== "undefined") module.exports = CONCLAVE_1492_ENGINE;
+if (typeof window !== "undefined") window.__om = CONCLAVE_1492_ENGINE;
 
 /* CONCLAVE 1492 — UI layer, part 1 (vanilla JS, no storage, no frameworks) */
 (function(){
@@ -2279,8 +2286,9 @@ function renderSelect(){
   const pool=electorPool();
   if(pickedId && !pool.some(function(c){return c.id===pickedId;})){pickedId=null;$("#startbtn").disabled=true;$("#startbtn").textContent="Choose a cardinal";}
   pool.forEach(c=>{
-    const card=h("div",{class:"ccard"+(pickedId===c.id?" sel":""),onclick:()=>{pickedId=c.id;document.querySelectorAll(".ccard").forEach(e=>e.classList.remove("sel"));card.classList.add("sel");$("#startbtn").disabled=false;
-      $("#startbtn").textContent="Enter the conclave as "+c.short;}},
+    const choose=function(){pickedId=c.id;document.querySelectorAll(".ccard").forEach(e=>{e.classList.remove("sel");e.setAttribute("aria-pressed","false");});card.classList.add("sel");card.setAttribute("aria-pressed","true");$("#startbtn").disabled=false;
+      $("#startbtn").textContent="Enter the conclave as "+c.short;};
+    const card=h("div",{class:"ccard"+(pickedId===c.id?" sel":""),role:"button",tabindex:"0","aria-pressed":pickedId===c.id?"true":"false",onclick:choose,onkeydown:function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();choose();}}},
       h("div",{class:"galero-wrap",html:galero(c.her[0],c.her[1],36)}),
       h("div",{class:"nm"},c.name),
       h("div",{class:"ttl"},ORDERS[c.order]+" of "+c.title+(c.office?" · "+c.office.split("·")[0].trim():"")),
@@ -2345,8 +2353,9 @@ function renderRoster(){
       if(st.promisesFrom[S.playerId])dots.appendChild(h("span",{class:"dot deal",title:"He holds your promise"}));
       if(st.pledgedTo===S.playerId)dots.appendChild(h("span",{class:"dot pledge",title:"Pledged to you"}));
       if(st.intel>=2)dots.appendChild(h("span",{class:"dot intel",title:"Well informed"}));
-      const row=h("div",{class:"crow"+(c.id===S.playerId?" player":"")+(st.out?" out":"")+(st.ill?" ill":""),
-        onclick:()=>openDossier(c.id)},
+      const open=function(){openDossier(c.id);};
+      const row=h("div",{class:"crow"+(c.id===S.playerId?" player":"")+(st.out?" out":"")+(st.ill?" ill":""),role:"button",tabindex:"0","aria-label":"Open dossier for "+c.name,
+        onclick:open,onkeydown:function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();open();}}},
         h("span",{html:galero(c.her[0],c.her[1],20)}),
         h("span",{class:"nm"},c.short),
         h("span",{class:"lean"},leanGlyph(c.id)),
@@ -3211,12 +3220,13 @@ function finishAccessus(skipSecondPass){
     const r=finalizeScrutiny(S);
     renderTallySummary(S.scrutinies[S.scrutinies.length-1]);
     const stage=$("#smokestage");
+    const sc=S.scrutinies[S.scrutinies.length-1];
     const n=reduced?3:9;
     for(let i=0;i<n;i++){
-      const p=h("div",{class:"puff "+(r.elected?"white":"black"),style:"animation-delay:"+(i*0.33)+"s;--dx:"+((S.rng()*40-20).toFixed(0))+"px"});
+      const dx=(hashSeed(S.seed+":smoke:"+sc.n+":"+i)%41)-20;
+      const p=h("div",{class:"puff "+(r.elected?"white":"black"),style:"animation-delay:"+(i*0.33)+"s;--dx:"+dx+"px"});
       stage.appendChild(p);
     }
-    const sc=S.scrutinies[S.scrutinies.length-1];
     S.myVotesTotal=(S.myVotesTotal||0)+(sc.final[S.playerId]||0);
     const sigs=ballotSignals(S,S.lastPlayerBallot||[]);
     sigs.forEach(function(g){
@@ -3400,7 +3410,7 @@ function npcRegnal(id){
   if(REGNAL_HINT[id]) return REGNAL_HINT[id];
   const worldly=["Clement","Leo","Sixtus","Urban"],pious=["Pius","Gregory","Celestine","Innocent"],mid=["Innocent","Nicholas","Paul","Urban"];
   const pool=byId[id].ideo>=0.6?pious:(byId[id].ideo<=0.3?worldly:mid);
-  return pool[Math.floor(S.rng()*pool.length)];
+  return pool[hashSeed(S.seed+":regnal:"+id)%pool.length];
 }
 function renderFinalBallot(){
   const host=$("#ballotbody"); if(!host) return; host.innerHTML="";
@@ -3561,7 +3571,7 @@ function openManual(){
     "<h4>The goal</h4><p>Be elected pope — or, failing that, end the conclave high in the winner's favour: a kingmaker with spoils, or the unbought conscience of the College. Influence is scored at the end either way.</p>",
     "<h4>The shape of a day</h4><p>Dawn events → (from day 3) the morning <b>scrutiny</b> → three hours of actions → one night errand → the night resolves: deals are struck in the dark, men sicken, Milan's broker weighs his price. From day 6, a second scrutiny at Vespers, and the rations begin to bite.</p>",
     "<p class='dim'>A note on the calendar: the real conclave ran five days — the cardinals entered on 6 August 1492 and elected on the sixth day, 11 August (here, day 6). Past that the dates run on into alternate history: if your College cannot agree, it sits longer than the true one did, under worsening rations, until a pope is made or — on the twelfth day — the election passes by compromissum.</p>",
-    "<h4>The scrutiny &amp; the accessus</h4><p>Write up to <b>three names</b> (never your own). Election needs <b>two-thirds of those present</b> — the board shows the line, and it falls if a sick elder is carried out. After the count comes the <i>accessus</i>: any elector may publicly add one name. Accessions only add; a near-winner can be carried over the line in minutes. Black smoke, try again. White smoke, bells.</p>",
+    "<h4>The scrutiny &amp; the accessus</h4><p>Write up to <b>three names</b> (never your own). Election needs <b>two-thirds of those present</b> — the board shows the line, and it falls if a sick elder is carried out. After the count comes the <i>accessus</i>: any elector may publicly add one name. Accessions only add; a near-winner can be carried over the line in minutes. Black smoke, try again. White smoke, bells. <span class='dim'>The chimney colours are a cheerful series-wide visual shorthand, not a claim that the modern signal was used in 1492.</span></p>",
     "<h4>Actions</h4><p><b>Colloquy</b> — meet one man: <i>sound him out</i> (+1 intelligence each time; at II his dossier shows his lean and why, at III his secret deals), <i>press for his voice</i> (may win a pledge or reveal his true man), or <i>make an offer</i>.</p>",
     "<p><b>Offers</b> — gifts now, or papal offices <i>payable upon your election</i>. Every offer and plea has a <b>cause</b> — yourself, or any man you would crown — and bends the target\u0027s ballot toward that cause <i>in proportion to its electability</i>: gold spent on a two-vote cause buys gratitude, not ballots. Bribery feeds your <b>reputation for simony</b>, which the upright can smell and will punish.</p>",
     "<p><b>Address the benches</b> — once per theme: raises your standing as a candidate in every later ballot and warms those the theme touches.</p>",
@@ -3583,21 +3593,34 @@ function openManual(){
 
 /* ---------- save / resume / chronicle export ---------- */
 const SAVE_KEY="extra-omnes-1492-save";
+const SAVE_VERSION=2;
 function serialiseState(){
   if(!S) return null;
-  const plain=Object.assign({},S,{rngState:S.rng&&S.rng.state,queue:[]});
+  const plain=Object.assign({},S,{saveVersion:SAVE_VERSION,rngState:S.rng&&S.rng.state,queue:[]});
   delete plain.rng;
   return plain;
 }
+function validSavedState(obj){
+  if(!obj||obj.saveVersion!==SAVE_VERSION||typeof obj.seed!=="string"||!byId[obj.playerId]) return false;
+  if(!Number.isInteger(obj.day)||obj.day<1||!Number.isFinite(obj.ap)) return false;
+  if(!obj.flags||typeof obj.flags!=="object"||!obj.cards||typeof obj.cards!=="object") return false;
+  if(!Array.isArray(obj.log)||!Array.isArray(obj.scrutinies)||!obj.lastFinal||!obj.lastTally) return false;
+  if(!Number.isFinite(obj.cash)||!Number.isFinite(obj.integrity)||!Number.isFinite(obj.heat)) return false;
+  if(obj.initialElectors&&!Array.isArray(obj.initialElectors)) return false;
+  if((obj.initialElectors||[]).some(function(id){return !byId[id];})) return false;
+  return true;
+}
 function restoreState(obj){
-  obj.rng=mulberry32(obj.rngState||hashSeed(obj.seed));
+  if(!validSavedState(obj)) throw new Error("Unsupported or incomplete save data");
+  obj.rng=mulberry32(Number.isInteger(obj.rngState)?obj.rngState:hashSeed(obj.seed));
   obj.queue=[];
   obj.officeDebts=obj.officeDebts||[]; obj.marketMoves=obj.marketMoves||[]; obj.debt=obj.debt||0; obj.agentOrder=obj.agentOrder||"quiet"; obj.capitulationClauses=obj.capitulationClauses||[];
   obj.extraElectors=obj.extraElectors||[]; obj.initialElectors=obj.initialElectors||IDS.filter(function(id){return !byId[id].optional || obj.extraElectors.indexOf(id)>=0 || id===obj.playerId;});
   obj.cards=obj.cards||{}; obj.agents=obj.agents||{}; IDS.forEach(function(id){ if(!obj.cards[id]) obj.cards[id]={ill:false,illDays:0,out:(obj.initialElectors.indexOf(id)<0),promisesFrom:{},pledgedTo:null,pledgeStrength:0,fatigue:0,morale:0,directive:null,intel:id===obj.playerId?3:0,lastVote:null,accession:null,publicLean:null}; if(!obj.agents[id]){const base=CONCLAVIST_CHANNELS[id]; obj.agents[id]=Object.assign({},base,{compromised:false,favours:0});} if(obj.cards&&obj.cards[id]&&obj.cards[id].fatigue===undefined)obj.cards[id].fatigue=0; });
   return obj;
 }
-function hasSave(){try{return !!localStorage.getItem(SAVE_KEY);}catch(e){return false;}}
+function removeSavedState(){try{localStorage.removeItem(SAVE_KEY);}catch(e){}}
+function hasSave(){try{const raw=localStorage.getItem(SAVE_KEY);if(!raw)return false;const ok=validSavedState(JSON.parse(raw));if(!ok)removeSavedState();return ok;}catch(e){removeSavedState();return false;}}
 function saveGame(){
   if(!S||S.over) return toast("No active conclave to save.");
   if(modalStack.length||S.flags.phase==="ceremony") return toast("Close the current choice first.");
@@ -3608,10 +3631,10 @@ function resumeGame(){
   let raw=null;
   try{raw=localStorage.getItem(SAVE_KEY);}catch(e){}
   if(!raw) return toast("No saved conclave found.");
-  try{S=restoreState(JSON.parse(raw));pickedId=S.playerId;if(DEBUG)window.S=S;
+  try{const restored=restoreState(JSON.parse(raw));S=restored;pickedId=S.playerId;if(DEBUG)window.S=S;
     $("#screen-select").classList.add("hidden");$("#screen-end").classList.add("hidden");$("#ceremony").classList.add("hidden");$("#screen-game").classList.remove("hidden");
     try{window.scrollTo(0,0);}catch(e){}renderAll();toast("Saved conclave resumed.");}
-  catch(e){toast("The saved conclave could not be read.");}
+  catch(e){removeSavedState();updateResumeButton();toast("The saved conclave was incompatible or corrupt and has been discarded.");}
 }
 function updateResumeButton(){const b=$("#resumebtn"); if(b)b.disabled=!hasSave();}
 function stripHTML(s){const d=document.createElement("div");d.innerHTML=s;return d.textContent||d.innerText||"";}
@@ -3655,11 +3678,22 @@ function init(){
   $("#crownsbtn").addEventListener("click",openCrowns);
   $("#agentsbtn").addEventListener("click",openAgents);
   $("#marketbtn").addEventListener("click",openBankers);
-  document.querySelectorAll(".rtab").forEach(function(btn){
-    btn.addEventListener("click",function(){
-      const key=btn.getAttribute("data-rtab");
-      document.querySelectorAll(".rtab").forEach(function(b){b.classList.toggle("active",b===btn);});
-      document.querySelectorAll(".rtab-panel").forEach(function(p){p.classList.toggle("active",p.getAttribute("data-panel")===key);});
+  const tabs=Array.from(document.querySelectorAll(".rtab"));
+  function activateTab(btn,moveFocus){
+    const key=btn.getAttribute("data-rtab");
+    tabs.forEach(function(b){const active=b===btn;b.classList.toggle("active",active);b.setAttribute("aria-selected",active?"true":"false");b.tabIndex=active?0:-1;});
+    document.querySelectorAll(".rtab-panel").forEach(function(p){const active=p.getAttribute("data-panel")===key;p.classList.toggle("active",active);p.setAttribute("aria-hidden",active?"false":"true");});
+    if(moveFocus)btn.focus();
+  }
+  tabs.forEach(function(btn,index){
+    btn.addEventListener("click",function(){activateTab(btn,false);});
+    btn.addEventListener("keydown",function(e){
+      let next=null;
+      if(e.key==="ArrowRight")next=tabs[(index+1)%tabs.length];
+      if(e.key==="ArrowLeft")next=tabs[(index-1+tabs.length)%tabs.length];
+      if(e.key==="Home")next=tabs[0];
+      if(e.key==="End")next=tabs[tabs.length-1];
+      if(next){e.preventDefault();activateTab(next,true);}
     });
   });
   $("#a-den").addEventListener("click",doDenounce);
