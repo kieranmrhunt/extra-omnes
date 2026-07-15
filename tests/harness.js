@@ -348,8 +348,22 @@ function runTargetedChecks(variant, api) {
 		return ["uncertain-soundings", "network-membership", "network-determinism", "player-ballot-preserved", "end-score"];
 	}
 	if (variant.label === "october-1978") {
-		assert(typeof api.initState === "function" && typeof api.runBallot === "function" && typeof api.getState === "function", "October 1978: targeted-test API is not exported");
+		assert(typeof api.initState === "function" && typeof api.runBallot === "function" && typeof api.getState === "function" && typeof api.makeSounding === "function" && typeof api.networkAccess === "function" && typeof api.workNetwork === "function" && typeof api.scoreGame === "function", "October 1978: targeted-test API is not exported");
 		assert(cardList(api).length === 111 && api.THRESHOLD === 75, "October 1978: electorate or two-thirds-plus-one threshold is wrong");
+		api.initState("villot", "october-soundings", { headless: true });
+		const soundingState = JSON.stringify(api.getState());
+		const soundingA = api.makeSounding("siri", 1);
+		const soundingB = api.makeSounding("siri", 1);
+		assert(JSON.stringify(soundingA) === JSON.stringify(soundingB) && JSON.stringify(api.getState()) === soundingState, "October 1978: sounding generation is non-deterministic or mutates state");
+		assert(soundingA.candidates.length === 3 && soundingA.candidates.every((id) => api.ID[id] && id !== "siri") && !Object.hasOwn(soundingA, "score"), "October 1978: sounding is exact, invalid, or includes a self-candidate");
+		assert(api.playerNetworks().includes("Curia") && api.playerNetworks().includes("Montinian"), "October 1978: Villot's modelled networks are not exposed");
+		assert(api.networkAccess("Curia") > api.networkAccess("Africa"), "October 1978: membership does not improve network access");
+		api.initState("villot", "october-network", { headless: true });
+		const networkA = api.workNetwork("Curia", "curia", "villot");
+		const networkStateA = JSON.stringify(api.getState());
+		api.initState("villot", "october-network", { headless: true });
+		const networkB = api.workNetwork("Curia", "curia", "villot");
+		assert(JSON.stringify(networkA) === JSON.stringify(networkB) && networkStateA === JSON.stringify(api.getState()), "October 1978: network action is not seed-deterministic");
 		api.initState("villot", "october-player-ballot", { headless: true });
 		let submitted = null;
 		while (!api.getState().over && api.getState().ballotNo < 12) {
@@ -365,7 +379,10 @@ function runTargetedChecks(variant, api) {
 		const nameA = api.papalNameForState("october-papal-name", "siri");
 		const nameB = api.papalNameForState("october-papal-name", "siri");
 		assert(typeof nameA === "string" && nameA === nameB && / [IVXLCDM]+$/.test(nameA), "October 1978: alternate papal name is invalid or non-deterministic");
-		return ["player-ballot-preserved", "terminal-guard", "papal-name"];
+		const score = api.scoreGame(api.getState());
+		assert(Number.isFinite(score.total) && score.parts.reduce((sum, part) => sum + part.points, 0) === score.total && score.verdict && score.verdict.grade, "October 1978: end score is invalid");
+		assert(/conciliar/.test(api.axisPosition("vatican2", 1.8)) && !/high|middle/.test(api.axisPosition("vatican2", 1.8)), "October 1978: dossier axes still use ambiguous magnitude labels");
+		return ["uncertain-soundings", "network-membership", "network-determinism", "player-ballot-preserved", "terminal-guard", "papal-name", "end-score", "directional-profile"];
 	}
 	if (variant.label === "venice-1800") {
 		assert(typeof api.initState === "function" && typeof api.conductBallot === "function" && typeof api.getState === "function" && typeof api.activeElectors === "function", "Venice: targeted-test API is not exported");
