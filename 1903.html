@@ -324,6 +324,15 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 .network-strip .chips{margin:0}
 .network-strip .chip{color:var(--gold-pale);border-color:rgba(199,168,92,.48)}
 .closest-fit{margin-top:.42rem;font-family:var(--serif);font-size:.8rem;color:var(--paper-dim);line-height:1.25}
+.identity-row{display:grid;grid-template-columns:74px minmax(0,1fr);gap:.72rem;align-items:start}
+.portrait-unit{width:74px}
+.portrait-unit.end-portrait{width:110px;margin:.8rem auto .2rem}
+.cardinal-thumb{position:relative;width:100%;aspect-ratio:4/5;overflow:hidden;border:1px solid rgba(199,168,92,.48);border-radius:4px;background:linear-gradient(145deg,#253541,#111b23)}
+.cardinal-thumb img{position:relative;z-index:1;width:100%;height:100%;display:block;object-fit:cover;object-position:center 18%;filter:sepia(.14) saturate(.82) contrast(1.04)}
+.portrait-fallback{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--display);font-size:1.45rem;color:var(--gold-pale);letter-spacing:.08em}
+.end-portrait .portrait-fallback{font-size:2rem}
+.portrait-credit{display:block;margin-top:.18rem;text-align:center;font-family:var(--cond);font-size:.55rem;line-height:1.15;color:var(--paper-dim);text-transform:uppercase;letter-spacing:.05em}
+.portrait-credit:hover{color:var(--gold-pale)}
 
 .overlay{position:fixed;inset:0;z-index:100;background:rgba(5,9,13,.84);display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(5px);animation:fade .16s ease}
 .modal{width:min(780px,100%);max-height:90vh;overflow:auto;background:linear-gradient(160deg,#1c2a35,#15212b);border:1px solid rgba(199,168,92,.58);border-radius:8px;padding:1.15rem;box-shadow:0 30px 90px rgba(0,0,0,.6);animation:rise .2s ease}
@@ -519,6 +528,7 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 	<div class="end-over">Habemus Papam</div>
 	<h1 class="end-title" id="endTitle"></h1>
 	<div class="end-sub" id="endSub"></div>
+	<div id="endPortrait"></div>
 	<div id="endRegnal"></div>
 	<div class="end-body" id="endBody"></div>
 	<div id="endStats"></div>
@@ -665,6 +675,7 @@ const ELECTORS = [
 
 const ID = Object.fromEntries(ELECTORS.map(function(e){return [e.id,e]}));
 const IDS = ELECTORS.map(function(e){return e.id});
+const PORTRAIT_FILES = {"oreglia":"Luigi_Oreglia.jpg","serafino":"Serafino_Vannutelli_cropped.jpg","mocenni":"Mario_Mocenni.jpg","agliardi":"Antonio_Agliardi.jpg","vincenzo":"Vincenzo_Vannutelli_1913.jpg","satolli":"Satolli,_Francis_Cardinal.jpg","neto":"José Sebastião Neto - Cópia.jpg","capecelatro":"Alfonso-Capecelatro-di-Castelpagano.jpg","langenieux":"Langenieux_photo.jpg","gibbons":"GibbonsPhotoStanding.jpg","rampolla":"Laszlo_-_Cardinal_Mariano_Rampolla.jpg","richard":"Cardinal_Richard.jpg","goossens":"Pierre-Lambert_Goossens.jpg","gruscha":"Anton_Joseph_Gruscha.jpg","dipietro":"Angelo_Di_Pietro.jpg","logue":"Sir_John_Lavery_–_His_Eminence_Cardinal_Logue.jpg","vaszary":"Vaszary Portrait of Prince-Primate Kolos Vaszary 1895.jpg","kopp":"Georg_Kardinal_Kopp.png","perraud":"Mgr Perraud.jpg","sarto":"Pius_X,_by_Ernest_Walter_Histed_(retouched).jpg","sancha":"SANCHA.jpg","svampa":"Ritratto_card._Svampa.jpg","ferrari":"Andrea_Carlo_Ferrari_-_Photo.jpg","gotti":"Girolamo Maria Gotti.jpg","casanas":"Casanas.jpg","manara":"Achille_Manara.jpg","ferrata":"Domenico_Ferrata2.jpg","cretoni":"Serafino_Cretoni.jpg","prisco":"Giuseppe Antonio Prisco.jpg","herrera":"D._José_Martín_de_Herrera_y_de_la_Iglesia._La_Ilustración_Española_y_Americana_1897.jpg","coullie":"Portrait_de_Monseigneur_Pierre-Hector_Coullié.jpg","laboure":"La_Guerche-de-Bretagne_(35)_Basilique_Baie_06-3.jpg","casali":"Casali_del_Drago_photo.jpg","cassetta":"Louis_Duchesne_(1843-1922)_et_le_cardinal_de_la_curie_romaine_Francesco_di_Paola_Cassetta_(1841-1919).jpg","portanova":"Gennaro_Portanova.jpg","francicanava":"FRANCICA-NAVA DI BONTIFÈ, Giuseppe.jpg","mathieu":"Matthieu_Francois-Désiré_Mariani_t_IX_1908_portrait.jpg","respighi":"Cardenal_Pietro_Respighi.jpg","richelmy":"Agostino_Richelmy.jpg","martinelli":"Eakins, Sebastiano Cardinal Martinelli 1902.jpg","skrbensky":"Lev_Skrbenský_(cropped).jpg","boschi":"Cardinale_Giulio_Boschi.png","puzyna":"Jan Puzyna.jpg","nocella":"Carlo Nocella.jpg","aiuti":"Andrea_Aiuti,_Kardinal.jpg","taliani":"Emidio_Taliani.jpg","herrero":"Herrera_by_Barbera.jpg","fischer":"Hasak_-_Der_Dom_zu_Köln_-_V4_-_Kardinal_Fischer.jpg","macchi":"Macchi_luigi.jpg","steinhuber":"Kardinal Andreas Steinhuber1JS.jpg","pierotti":"Raffaele Pierotti detail.jpg","dellavolpe":"Franz_della_Volpe.jpg","vives":"José de Calasanz Félix Santiago Vives y Tutó.jpg","tripepi":"Luigi_Tripepi.jpg","cavagnis":"Riva_G._(1901)_-_Ritratto_del_cardinale_Cavagnis.jpg"};
 const ABSENT = [
 	{name:"Michelangelo (Pietro Geremia) Celesia OSB",office:"Archbishop of Palermo"},
 	{name:"Patrick Francis Moran",office:"Archbishop of Sydney"}
@@ -1509,6 +1520,29 @@ function esc(value){
 		return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[char];
 	});
 }
+function portraitInitials(electorRecord){
+	const parts=electorRecord.name.trim().split(/\s+/).filter(Boolean);
+	return ((parts[0]||"")[0]||"")+((parts[parts.length-1]||"")[0]||"");
+}
+function portraitFor(id){
+	const file=PORTRAIT_FILES[id];
+	if(!file)return null;
+	return {
+		src:"https://commons.wikimedia.org/wiki/Special:Redirect/file/"+encodeURIComponent(file)+"?width=250",
+		source:"https://commons.wikimedia.org/wiki/File:"+encodeURIComponent(file.replace(/ /g,"_"))
+	};
+}
+function portraitMarkup(id,variant){
+	const electorRecord=ID[id];
+	if(!electorRecord)return "";
+	const portrait=portraitFor(id);
+	const extra=variant==="end" ? " end-portrait" : "";
+	const initials=esc(portraitInitials(electorRecord).toUpperCase());
+	const title=portrait ? "Portrait of "+electorRecord.name : "No usable Wikimedia portrait is available for "+electorRecord.name;
+	const image=portrait ? "<img src='"+esc(portrait.src)+"' alt='Portrait of "+esc(electorRecord.name)+"' decoding='async' referrerpolicy='no-referrer' onerror='this.hidden=true'>" : "";
+	const credit=portrait ? "<a class='portrait-credit' href='"+esc(portrait.source)+"' target='_blank' rel='noopener'>Wikimedia source</a>" : "";
+	return "<div class='portrait-unit"+extra+"'><div class='cardinal-thumb' title='"+esc(title)+"'><span class='portrait-fallback' aria-hidden='true'>"+initials+"</span>"+image+"</div>"+credit+"</div>";
+}
 function htmlToText(value){
 	const node=document.createElement("div");
 	node.innerHTML=value;
@@ -1786,9 +1820,9 @@ function renderObjective(){
 	const closest=ELECTORS.filter(function(electorRecord){return electorRecord.id!==S.playerId}).sort(function(a,b){
 		return profileAlignment(S,b.id)-profileAlignment(S,a.id);
 	}).slice(0,3);
-	$("#objectiveBox").innerHTML="<b>"+esc(player.name)+"</b><br>"+esc(objective.title)+" — "+esc(objective.text)+
+	$("#objectiveBox").innerHTML="<div class='identity-row'>"+portraitMarkup(player.id)+"<div><b>"+esc(player.name)+"</b><br>"+esc(objective.title)+" — "+esc(objective.text)+
 		"<div class='network-strip'><b>Your modelling networks</b><div class='chips'>"+networks.map(function(network){return "<span class='chip'>"+esc(network)+"</span>"}).join("")+"</div></div>"+
-		"<div class='closest-fit'><b>Closest modelled profiles:</b> "+closest.map(function(electorRecord){return esc(electorRecord.short)+" "+Math.round(profileAlignment(S,electorRecord.id)*100)+"%"}).join(" · ")+"</div>";
+		"<div class='closest-fit'><b>Most aligned cardinals:</b> "+closest.map(function(electorRecord){return esc(electorRecord.short)+" "+Math.round(profileAlignment(S,electorRecord.id)*100)+"%"}).join(" · ")+"</div></div></div>";
 }
 function renderMeters(){
 	const host=$("#meters");
@@ -2311,6 +2345,7 @@ function endGame(){
 	$("#screen-end").classList.remove("hidden");
 	$("#endTitle").textContent=papalName;
 	$("#endSub").textContent=winner.name+" is elected after "+S.ballotNo+" scrutin"+(S.ballotNo===1 ? "y." : "ies.");
+	$("#endPortrait").innerHTML=portraitMarkup(winner.id,"end");
 	$("#endBody").innerHTML=endBody1903(winner,player,papalName);
 	renderRegnal1903(winner,player,papalName);
 	const score=scoreGame(S);
@@ -2402,6 +2437,7 @@ globalThis.__om1903={
 	forecastCounts:forecastCounts,
 	makeSounding:makeSounding,
 	playerNetworks:playerNetworks,
+	portraitFor:portraitFor,
 	sharedNetworks:sharedNetworks,
 	profileAlignment:profileAlignment,
 	networkAccess:networkAccess,

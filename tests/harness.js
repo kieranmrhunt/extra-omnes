@@ -143,6 +143,7 @@ function loadVariant(file) {
 	makeSounding: typeof makeSounding === "function" ? makeSounding : null,
 	playerNetworks: typeof playerNetworks === "function" ? playerNetworks : null,
 	networkAccess: typeof networkAccess === "function" ? networkAccess : null,
+	portraitFor: typeof portraitFor === "function" ? portraitFor : null,
 	resolveNetworkAction: typeof resolveNetworkAction === "function" ? resolveNetworkAction : null,
 	scoreGame: typeof scoreGame === "function" ? scoreGame : null,
 	topPreference: typeof topPreference === "function" ? topPreference : null,
@@ -324,7 +325,9 @@ function runTargetedChecks(variant, api) {
 		return ["attendance-40-to-44", "approval-validation", "accessus-validation", "illness-eligibility", "metric-bounds"];
 	}
 	if (variant.label === "1903") {
-		assert(typeof api.initState === "function" && typeof api.makeSounding === "function" && typeof api.playerNetworks === "function" && typeof api.networkAccess === "function" && typeof api.resolveNetworkAction === "function" && typeof api.scoreGame === "function", "1903: revised information/network/score API is not exported");
+		assert(typeof api.initState === "function" && typeof api.makeSounding === "function" && typeof api.playerNetworks === "function" && typeof api.networkAccess === "function" && typeof api.resolveNetworkAction === "function" && typeof api.portraitFor === "function" && typeof api.scoreGame === "function", "1903: revised information/network/portrait/score API is not exported");
+		const portrait = api.portraitFor("gibbons");
+		assert(portrait && /commons\.wikimedia\.org/.test(portrait.src) && /File/.test(portrait.source) && api.portraitFor("sanminiatelli") === null, "1903: portrait lookup or fallback is invalid");
 		let state = api.initState("gibbons", "1903-soundings", "historical");
 		const before = JSON.stringify(state);
 		const soundingA = api.makeSounding(state);
@@ -345,11 +348,13 @@ function runTargetedChecks(variant, api) {
 		const completed = api.runHeadless("1903-score", "gibbons", "historical");
 		const score = api.scoreGame(completed);
 		assert(Number.isFinite(score.total) && score.parts.reduce((sum, part) => sum + part.points, 0) === score.total && score.verdict && score.verdict.grade, "1903: end score is invalid");
-		return ["uncertain-soundings", "network-membership", "network-determinism", "player-ballot-preserved", "end-score"];
+		return ["portrait-lookup", "uncertain-soundings", "network-membership", "network-determinism", "player-ballot-preserved", "end-score"];
 	}
 	if (variant.label === "october-1978") {
-		assert(typeof api.initState === "function" && typeof api.runBallot === "function" && typeof api.getState === "function" && typeof api.makeSounding === "function" && typeof api.networkAccess === "function" && typeof api.workNetwork === "function" && typeof api.scoreGame === "function", "October 1978: targeted-test API is not exported");
+		assert(typeof api.initState === "function" && typeof api.runBallot === "function" && typeof api.getState === "function" && typeof api.makeSounding === "function" && typeof api.networkAccess === "function" && typeof api.workNetwork === "function" && typeof api.portraitFor === "function" && typeof api.scoreGame === "function", "October 1978: targeted-test API is not exported");
 		assert(cardList(api).length === 111 && api.THRESHOLD === 75, "October 1978: electorate or two-thirds-plus-one threshold is wrong");
+		const portrait = api.portraitFor("villot");
+		assert(portrait && /commons\.wikimedia\.org/.test(portrait.src) && /File/.test(portrait.source) && api.portraitFor("sidarouss") === null, "October 1978: portrait lookup or fallback is invalid");
 		api.initState("villot", "october-soundings", { headless: true });
 		const soundingState = JSON.stringify(api.getState());
 		const soundingA = api.makeSounding("siri", 1);
@@ -382,7 +387,7 @@ function runTargetedChecks(variant, api) {
 		const score = api.scoreGame(api.getState());
 		assert(Number.isFinite(score.total) && score.parts.reduce((sum, part) => sum + part.points, 0) === score.total && score.verdict && score.verdict.grade, "October 1978: end score is invalid");
 		assert(/conciliar/.test(api.axisPosition("vatican2", 1.8)) && !/high|middle/.test(api.axisPosition("vatican2", 1.8)), "October 1978: dossier axes still use ambiguous magnitude labels");
-		return ["uncertain-soundings", "network-membership", "network-determinism", "player-ballot-preserved", "terminal-guard", "papal-name", "end-score", "directional-profile"];
+		return ["portrait-lookup", "uncertain-soundings", "network-membership", "network-determinism", "player-ballot-preserved", "terminal-guard", "papal-name", "end-score", "directional-profile"];
 	}
 	if (variant.label === "venice-1800") {
 		assert(typeof api.initState === "function" && typeof api.conductBallot === "function" && typeof api.getState === "function" && typeof api.activeElectors === "function", "Venice: targeted-test API is not exported");

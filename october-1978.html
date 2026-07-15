@@ -207,6 +207,15 @@ header .date{margin-left:auto;text-align:right;font-family:var(--mono);font-size
 .statusbox{background:rgba(236,226,207,.04);border:1px solid var(--line);border-radius:9px;padding:.65rem .7rem;margin:.5rem 0;font-family:var(--serif);font-size:1rem;line-height:1.4}
 .statusbox b{font-family:var(--sans);font-size:.86rem}
 .objective{border-color:rgba(205,168,95,.4);background:var(--gold-soft)}
+.identity-row{display:grid;grid-template-columns:74px minmax(0,1fr);gap:.72rem;align-items:start}
+.portrait-unit{width:74px}
+.portrait-unit.end-portrait{width:110px;margin:.8rem auto .2rem}
+.cardinal-thumb{position:relative;width:100%;aspect-ratio:4/5;overflow:hidden;border:1px solid rgba(205,168,95,.48);border-radius:4px;background:linear-gradient(145deg,#312b29,#171415)}
+.cardinal-thumb img{position:relative;z-index:1;width:100%;height:100%;display:block;object-fit:cover;object-position:center 18%;filter:sepia(.12) saturate(.84) contrast(1.04)}
+.portrait-fallback{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--display);font-size:1.45rem;color:var(--gold-bright);letter-spacing:.08em}
+.end-portrait .portrait-fallback{font-size:2rem}
+.portrait-credit{display:block;margin-top:.18rem;text-align:center;font-family:var(--mono);font-size:.55rem;line-height:1.15;color:var(--paper-dim);text-transform:uppercase}
+.portrait-credit:hover{color:var(--gold-bright)}
 
 /* ---- Tables (exact roll / history) ---- */
 #board table,#history table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.8rem}
@@ -395,6 +404,7 @@ header .date{margin-left:auto;text-align:right;font-family:var(--mono);font-size
 	<div class="titleblock"><div class="over">THE CONCLAVE IS ENDED</div></div>
 	<h1 class="endtitle" id="endTitle"></h1>
 	<div class="endsub" id="endSub"></div>
+	<div id="endPortrait"></div>
 	<div id="endRegnal"></div>
 	<div class="endbody" id="endBody"></div>
 	<div id="endStats"></div>
@@ -483,6 +493,7 @@ const PAPAL_NAME_FLAVOR_1978 = {
 	"Nicholas VI":"humanist repair: learning, diplomacy and patient reconstruction after shock."
 };
 const ID = Object.fromEntries(ELECTORS.map(e => [e.id,e]));
+const PORTRAIT_FILES = {"villot":"Jean-Marie_Villot_1978.jpg","samore":"Antonio_Samoré_Argentina_1978.jpg","carpino":"Card.Carpino.jpg","baggio":"Cardinale-sebastiano-baggio.jpg","siri":"Giuseppe_Siri,_arcivescovo_di_Genova.jpg","wyszynski":"Stefan_Wyszyński.jpg","leger":"Paul-Emile_Leger_-_1941.jpg","bueno":"José_María_Bueno_Monreal_(cropped).jpg","konig":"Kardinal_koenig.jpg","alfrink":"Kardinaal_Alfrink.JPG","quintero":"José_Humberto_Cardenal_Quintero.jpg","landazuri":"Juan_Landázuri_Ricketts_(cropped).jpg","silva":"CardenalSilvaHenriquez_cropped.jpg","roy":"Maurice_Roy_en_1956.jpg","seper":"Franjo_Šeper.jpg","zoungrana":"Bundesarchiv_B_145_Bild-F023489-0006,_Bonn,_Lübke_empfängt_Kardinal_Zoungrana.jpg","agnelo_rossi":"Dom_Agnelo_Rossi_(1967).tif","colombo":"658_Card_Giovanni_Colombo.jpg","furstenberg":"Núncio_Apostólico_Maximilien_de_Furstenberg_no_Seminário_Menor_de_Resende_(1964)_-_Arquivo_da_Diocese_de_Lamego.png","maurer":"Kardinal_Maurer_am_31.05.1981_in_Kärlich.jpg","krol":"Ronald_Reagan_and_John_Cardinal_Krol.jpg","ursi":"Corrado_Cardinale_Ursi.jpg","bengsch":"Bundesarchiv_Bild_183-T0924-0004,_Erfurt,_300_Jahre_Wallfahrtskirche_Worbis.jpg","wojtyla":"ADAMELLO_-_PAPA_-_Giovanni_Paolo_II_-_panoramio_(cropped).jpg","pellegrino":"Michele_Pellegrino,_Radio_Vaticana.jpg","scherer":"Vicente_Scherer_e_Eugênio_Salles.tif","rosales":"Julio_Rosales.jpg","parecattil":"Cardinal_Joseph_Parecattil.jpg","marty":"Cardinal_François_Marty.jpg","tarancon":"Vicente_Enrique_y_Tarancón.jpg","munoz_vega":"Pablo_Muñoz_Vega_(cropped).jpg","poma":"Antonio_Poma.jpg","carberry":"John_Joseph_Carberry_(cropped).tif","cooke":"Terence_Cardinal_Cooke,_Archbishop,_Diocese_of_New_York.jpg","kim":"Archbishop_Stephen_Kim_Sou-hwan_1968.jpg","sales":"Cardeal_sales.jpg","willebrands":"Johannes_Willebrands_1982_color.jpg","ribeiro":"Cardeal D. António Ribeiro.jpg","knox":"Dr._Cardinal_James_Knox.jpg","vilela":"Avelar_Brandao.jpg","primatesta":"Cardenal_primatesta.jpg","pappalardo":"Card. Pappalardo (cropped).jpg","gonzalez":"Marcelo_Cardenal_González_Martín_(cropped).jpg","guyot":"Cardinal_Jean-Louis_Guyot.jpg","poletti":"Ugo_Poletti_(cropped).jpg","manning":"Timothy_Manning_1973.jpg","salazar":"Cardenal_José_Salazar_López.jpg","arns":"Paulo_Evaristo_Arns_(1982).jpg","jubany":"Narcís_Jubany.png","volk":"Hermann_Kardinal_Volk.jpg","beras":"Pintura-Cardenal-Beras.jpg","nsubuga":"Visitenkarte_von_Emmanuel_Cardinal_Kiwankuka_Nsubuga_(cropped).png","sin":"Cardinal_Jaime_Sin_in_1988.jpg","lorscheider":"Aloísio_Lorscheider.jpg","lekai":"Laszlolekai.jpg","hume":"Cardinal_Hume_(geograph_3367500).jpg","razafimahatratra":"Victor_Razafimahatratra_(1921-1993).gif","tomasek":"František_Tomášek.jpg","ekandem":"Ekandem.jpg","benelli":"Giovanni_Benelli_1978.jpg","ratzinger":"Benedykt_XVI_(2010-10-17)_2.jpg","nasalli":"Mario_Nasalli_Rocca_di_Corneliano_(cropped).jpg","pignedoli":"Sergio-Pignedoli_(cropped).jpg","bafile":"Konrad_Adenauer_-_Feier_zum_88._Geburtstag_in_der_Redoute-kasf0009.JPG","pironio":"Eduardo_Francisco_Pironio.jpg","gantin":"Gantin_Portrait.jpg","suenens":"Cardinal L. Suenens (3x4 cropped).jpg","garrone":"Le cardinal Gabriel-Marie Garrone à Sainte-Marthe (Rome) le 3 septembre 1968.jpg","renard":"Alexandre Renard 001.jpeg","gray":"Cardinal Gordon Joseph Gray.png","gouyon":"Musée de Bretagne - Paul Gouyon 1964-01.jpg","baum":"William Wakefield Baum (cropped).tif","felici":"Pericle Felici.jpg","paupini":"Giuseppe Cardinale Paupini - Particolare.jpg"};
 let S = null;
 let pickedId = null;
 let activeNetwork = "All";
@@ -513,6 +524,9 @@ function papalNameOptions1978(id){const suggested=papalNameForState(S.seed,id);r
 function papalNameFor(id){return papalNameForState(S.seed,id)}
 function ballotNoise(ballotNo,voter,cand){return (keyedUnit(S.seed,ballotNo,voter,cand)-.5)*(ballotNo<3?3.2:2.1)}
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
+function portraitInitials(e){const parts=e.name.trim().split(/\s+/).filter(Boolean);return (((parts[0]||"")[0]||"")+((parts[parts.length-1]||"")[0]||"")).toUpperCase()}
+function portraitFor(id){const file=PORTRAIT_FILES[id];if(!file)return null;return {src:"https://commons.wikimedia.org/wiki/Special:Redirect/file/"+encodeURIComponent(file)+"?width=250",source:"https://commons.wikimedia.org/wiki/File:"+encodeURIComponent(file.replace(/ /g,"_"))}}
+function portraitMarkup(id,variant){const e=ID[id];if(!e)return "";const portrait=portraitFor(id),extra=variant==="end"?" end-portrait":"",title=portrait?"Portrait of "+e.name:"No usable Wikimedia portrait is available for "+e.name;const image=portrait?`<img src="${esc(portrait.src)}" alt="Portrait of ${esc(e.name)}" decoding="async" referrerpolicy="no-referrer" onerror="this.hidden=true">`:"";const credit=portrait?`<a class="portrait-credit" href="${esc(portrait.source)}" target="_blank" rel="noopener">Wikimedia source</a>`:"";return `<div class="portrait-unit${extra}"><div class="cardinal-thumb" title="${esc(title)}"><span class="portrait-fallback" aria-hidden="true">${esc(portraitInitials(e))}</span>${image}</div>${credit}</div>`}
 function htmlToText(s){const d=document.createElement("div");d.innerHTML=s;return d.textContent||""}
 function $(q){return document.querySelector(q)}
 function el(tag,attrs,...kids){const e=document.createElement(tag);if(attrs){Object.entries(attrs).forEach(([k,v])=>{if(k==="class")e.className=v;else if(k==="html")e.innerHTML=v;else if(k.startsWith("on"))e.addEventListener(k.slice(2),v);else e.setAttribute(k,v)})}kids.flat().forEach(k=>{if(k==null||k===false)return;e.appendChild(k&&k.nodeType?k:document.createTextNode(String(k)))});return e}
@@ -977,7 +991,7 @@ function renderPlayerBox(){
 	const e=ID[S.playerId];
 	const votes=S.history.length?(S.lastCounts[S.playerId]||0):0;
 	const voteLine=S.history.length?`<br><span class="dim">Latest scrutiny support: <b>${votes}</b> of ${THRESHOLD} needed.</span>`:"";
-	$("#playerBox").innerHTML=`<b>${esc(e.name)}</b><br><span class="dim">${esc(e.office)}</span><br><span class="goldtx">Your networks</span><br>${playerNetworks().map(displayLabel).map(esc).join(" · ")||"No strong network recorded"}<br><span class="goldtx">${esc(S.player.objective.title)}</span><br>${esc(S.player.objective.text)}${voteLine}${S.player.withdrawn?`<br><b class="greentx">Transferred to ${esc(ID[S.player.transferTo].short)}</b>`:""}`
+	$("#playerBox").innerHTML=`<div class="identity-row">${portraitMarkup(e.id)}<div><b>${esc(e.name)}</b><br><span class="dim">${esc(e.office)}</span><br><span class="goldtx">Your networks</span><br>${playerNetworks().map(displayLabel).map(esc).join(" · ")||"No strong network recorded"}<br><span class="goldtx">${esc(S.player.objective.title)}</span><br>${esc(S.player.objective.text)}${voteLine}${S.player.withdrawn?`<br><b class="greentx">Transferred to ${esc(ID[S.player.transferTo].short)}</b>`:""}</div></div>`
 }
 function renderAll(){if(!S)return;$("#dateLabel").textContent=phaseName()+` · scrutiny ${S.ballotNo+1} pending`;$("#apwrap").innerHTML=`Conversation windows ${S.ap} `+"<span class='pip'></span>".repeat(S.ap)+"<span class='pip spent'></span>".repeat(Math.max(0,3-S.ap));renderRoster();renderLog();renderMeters();renderBoard();renderNetworkSummary();renderPlayerBox();$("#ballotBtn").disabled=S.over;["actSound","actNetwork","actAssure","actFloat","actDiscourage","actRest"].forEach(id=>{const b=$("#"+id);if(b)b.disabled=!actionEnabled()});const transfer=$("#actTransfer");transfer.disabled=!actionEnabled()||S.player.withdrawn;transfer.textContent=S.player.withdrawn?`Support transferred to ${ID[S.player.transferTo].short}`:"Transfer support";}
 function openManual(){
@@ -1069,6 +1083,7 @@ function endGame(){
 	const name=S.papalName||(S.papalName=papalNameFor(w.id));
 	$("#endTitle").textContent=isMe?"HABEMUS PAPAM":"HABEMUS PAPAM";
 	$("#endSub").textContent=`${w.name} is elected as ${name}`;
+	$("#endPortrait").innerHTML=portraitMarkup(w.id,"end");
 	let body="";
 	if(isMe){body+=`<p>The count reaches seventy-five and then goes beyond it. The chapel rises around you. Asked whether you accept the canonical election, you answer under a weight no game can fully simulate.</p>`;if(w.id==="wojtyla")body+=`<p>You speak of a country far away and yet close in faith. Days later the inauguration will give the pontificate its words: do not be afraid; open wide the doors.</p>`;else body+=`<p>This is alternate history: a ${esc(w.country)} pope from the October 1978 College. The hidden model allowed it because your seed, timing and coalition work made enough men imagine the same future at once.</p>`}
 	else{body+=`<p>You did not leave the chapel as pope. You leave with the consequences of your choices: ${S.player.transferTo===w.id?"you helped transfer support to the winner":"your ballots and network work are written into the chronicle, if not the announcement"}.</p>`;if(w.id==="wojtyla")body+=`<p>The Italian monopoly is broken. For the first time since Adrian VI, Rome receives a non-Italian pope, and this time from behind the Iron Curtain.</p>`}
@@ -1160,7 +1175,7 @@ function runHeadless(seed,playerId,maxBallots=20){
 }
 function startGame(){if(!pickedId)return;initState(pickedId,$("#seedin").value.trim()||Math.floor(Math.random()*1e9));$("#screen-select").classList.add("hidden");$("#screen-game").classList.remove("hidden");renderAll();if(typeof window!=="undefined"&&window.scrollTo)window.scrollTo({top:0,left:0})}
 function boot(){renderSelect();$("#startbtn").onclick=startGame;$("#resumeBtn").onclick=resumeGame;if(hasSave())$("#resumeBtn").classList.remove("hidden");$("#helpSelect").onclick=openManual;$("#manualBtn").onclick=openManual;$("#saveBtn").onclick=saveGame;$("#actSound").onclick=doSound;$("#actNetwork").onclick=doNetwork;$("#actAssure").onclick=doAssure;$("#actFloat").onclick=doFloat;$("#actDiscourage").onclick=doDiscourage;$("#actRest").onclick=doRest;$("#actTransfer").onclick=doTransfer;$("#worldBtn").onclick=showWorld;$("#ballotBtn").onclick=runBallotModal;$("#rosterSearch").addEventListener("input",renderRoster);$("#again").onclick=()=>location.reload();$("#exportLog").onclick=exportChronicle;}
-const OCTOBER_1978_ENGINE={ELECTORS,ID,THRESHOLD,initState,runBallot,runHeadless,topPreference,voterUtility,baseUtility,ballotScore,legalCandidateFor,papalNameForState,validateSavedState,makeSounding,playerNetworks,sharedNetworks,profileAlignment,networkAccess,workNetwork,scoreGame,axisPosition,getState:()=>S};
+const OCTOBER_1978_ENGINE={ELECTORS,ID,THRESHOLD,initState,runBallot,runHeadless,topPreference,voterUtility,baseUtility,ballotScore,legalCandidateFor,papalNameForState,validateSavedState,makeSounding,playerNetworks,sharedNetworks,profileAlignment,networkAccess,workNetwork,portraitFor,scoreGame,axisPosition,getState:()=>S};
 if(typeof module!=="undefined")module.exports=OCTOBER_1978_ENGINE;
 if(typeof window!=="undefined")window.__om=OCTOBER_1978_ENGINE;
 if(typeof document!=="undefined"){if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();}
