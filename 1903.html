@@ -482,10 +482,10 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 </section>
 
 <main id="main">
-<section id="screen-game" class="hidden">
+<section id="screen-game" class="hidden" tabindex="-1" aria-labelledby="gameTitle">
 	<header>
 		<a class="home" href="./index.html">All years</a>
-		<h1>Extra Omnes — 1903</h1>
+		<h1 id="gameTitle">Extra Omnes — 1903</h1>
 		<button id="manualBtn" class="ghost" type="button">Rules</button>
 		<button id="saveBtn" class="ghost" type="button">Seal</button>
 		<div class="date" id="dateLabel"></div>
@@ -2274,7 +2274,23 @@ function resumeGame(){
 	$("#screen-game").classList.remove("hidden");
 	renderNetworkTabs();
 	render();
+	settleGameAtTop();
 	toast("Sealed conclave resumed.");
+}
+function settleGameAtTop(){
+	const game=$("#screen-game");
+	const reset=function(){
+		window.scrollTo({top:0,left:0,behavior:"auto"});
+		document.documentElement.scrollTop=0;
+		document.body.scrollTop=0;
+	};
+	reset();
+	const finish=function(){
+		reset();
+		if(game&&typeof game.focus==="function")game.focus({preventScroll:true});
+	};
+	if(typeof requestAnimationFrame==="function")requestAnimationFrame(function(){requestAnimationFrame(finish)});
+	else setTimeout(finish,0);
 }
 function startPicked(){
 	if(!pickedId)return;
@@ -2287,6 +2303,7 @@ function startPicked(){
 	$("#screen-game").classList.remove("hidden");
 	renderNetworkTabs();
 	render();
+	settleGameAtTop();
 }
 function endBody1903(winner,player,papalName){
 	let body="<p>The sealed identity flaps are not needed: no decisive self-vote exists. <b>"+esc(winner.name)+"</b> accepts and takes the name <b>"+esc(papalName)+"</b>.</p>";
@@ -2396,6 +2413,7 @@ function replayGame(){
 	$("#screen-game").classList.remove("hidden");
 	renderNetworkTabs();
 	render();
+	settleGameAtTop();
 }
 function restartGame(){
 	try{localStorage.removeItem(SAVE_KEY)}catch(error){}
