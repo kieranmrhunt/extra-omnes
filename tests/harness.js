@@ -327,7 +327,7 @@ function runTargetedChecks(variant, api) {
 	if (variant.label === "1903") {
 		assert(typeof api.initState === "function" && typeof api.makeSounding === "function" && typeof api.playerNetworks === "function" && typeof api.networkAccess === "function" && typeof api.resolveNetworkAction === "function" && typeof api.portraitFor === "function" && typeof api.scoreGame === "function", "1903: revised information/network/portrait/score API is not exported");
 		const portrait = api.portraitFor("gibbons");
-		assert(portrait && /commons\.wikimedia\.org/.test(portrait.src) && /File/.test(portrait.source) && api.portraitFor("sanminiatelli") === null, "1903: portrait lookup or fallback is invalid");
+		assert(portrait && /commons\.wikimedia\.org/.test(portrait.src) && /en\.wikipedia\.org/.test(portrait.wikipedia) && !("source" in portrait) && api.portraitFor("sanminiatelli") === null, "1903: portrait link or fallback is invalid");
 		let state = api.initState("gibbons", "1903-soundings", "historical");
 		const before = JSON.stringify(state);
 		const soundingA = api.makeSounding(state);
@@ -354,7 +354,7 @@ function runTargetedChecks(variant, api) {
 		assert(typeof api.initState === "function" && typeof api.runBallot === "function" && typeof api.getState === "function" && typeof api.makeSounding === "function" && typeof api.networkAccess === "function" && typeof api.workNetwork === "function" && typeof api.portraitFor === "function" && typeof api.scoreGame === "function", "October 1978: targeted-test API is not exported");
 		assert(cardList(api).length === 111 && api.THRESHOLD === 75, "October 1978: electorate or two-thirds-plus-one threshold is wrong");
 		const portrait = api.portraitFor("villot");
-		assert(portrait && /commons\.wikimedia\.org/.test(portrait.src) && /File/.test(portrait.source) && api.portraitFor("sidarouss") === null, "October 1978: portrait lookup or fallback is invalid");
+		assert(portrait && /commons\.wikimedia\.org/.test(portrait.src) && /en\.wikipedia\.org/.test(portrait.wikipedia) && !("source" in portrait) && api.portraitFor("sidarouss") === null, "October 1978: portrait link or fallback is invalid");
 		api.initState("villot", "october-soundings", { headless: true });
 		const soundingState = JSON.stringify(api.getState());
 		const soundingA = api.makeSounding("siri", 1);
