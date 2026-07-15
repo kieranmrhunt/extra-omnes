@@ -319,6 +319,11 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 .board-note{font-family:var(--serif);font-size:.86rem;color:var(--paper-dim);line-height:1.25}
 .board-actions{display:grid;grid-template-columns:1fr 1fr;gap:.35rem;margin-top:.45rem}
 .board-actions button{font-family:var(--cond);font-size:.7rem;letter-spacing:.05em;text-transform:uppercase;padding:.35rem .45rem}
+.network-strip{margin-top:.5rem;padding-top:.45rem;border-top:1px solid var(--line);font-family:var(--cond);font-size:.68rem;color:var(--paper-dim);text-transform:uppercase;letter-spacing:.06em}
+.network-strip b{display:block;margin-bottom:.3rem;color:var(--paper);font-size:.65rem}
+.network-strip .chips{margin:0}
+.network-strip .chip{color:var(--gold-pale);border-color:rgba(199,168,92,.48)}
+.closest-fit{margin-top:.42rem;font-family:var(--serif);font-size:.8rem;color:var(--paper-dim);line-height:1.25}
 
 .overlay{position:fixed;inset:0;z-index:100;background:rgba(5,9,13,.84);display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(5px);animation:fade .16s ease}
 .modal{width:min(780px,100%);max-height:90vh;overflow:auto;background:linear-gradient(160deg,#1c2a35,#15212b);border:1px solid rgba(199,168,92,.58);border-radius:8px;padding:1.15rem;box-shadow:0 30px 90px rgba(0,0,0,.6);animation:rise .2s ease}
@@ -332,21 +337,51 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 .choices button{text-align:left;font-family:var(--serif);font-size:1rem;padding:.58rem .7rem}
 .choices button small{display:block;font-family:var(--sans);font-size:.76rem;color:var(--paper-dim);margin-top:.1rem}
 .picker-tools{display:grid;grid-template-columns:1fr 1fr;gap:.45rem;margin-bottom:.5rem}
+.picker-context{border-left:3px solid var(--blue-pale);background:rgba(76,120,148,.11);padding:.5rem .65rem;margin:0 0 .55rem;font-family:var(--serif);font-size:.9rem;color:var(--paper-dim);line-height:1.32}
 .pickgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:.42rem;max-height:52vh;overflow:auto}
 .pickgrid button{text-align:left;font-family:var(--serif);font-size:.98rem;padding:.5rem .6rem}
 .pickgrid button small{display:block;font-family:var(--cond);font-size:.66rem;text-transform:uppercase;letter-spacing:.06em;color:var(--paper-dim);margin-top:.12rem}
+.pickgrid button.self-cause{border-color:var(--gold);background:rgba(199,168,92,.14);box-shadow:inset 3px 0 0 var(--gold)}
+.pickgrid button.self-cause small{color:var(--gold-pale)}
 .callout{border-left:3px solid var(--gold);background:rgba(199,168,92,.11);padding:.55rem .68rem;margin:.48rem 0;font-family:var(--serif);color:var(--paper)}
 .callout.warning{border-left-color:var(--burgundy-bright);background:rgba(142,38,53,.15)}
-.scrutiny-grid{display:grid;grid-template-columns:minmax(280px,1fr) minmax(220px,.72fr);gap:.75rem}
+.scrutiny-grid{display:grid;grid-template-columns:minmax(280px,1fr) minmax(220px,.62fr);gap:.9rem;align-items:start}
 .exact-roll{max-height:390px;overflow:auto;border:1px solid var(--line);margin-top:.5rem}
 .exact-roll table{width:100%;border-collapse:collapse;font-family:var(--cond);font-size:.74rem}
 .exact-roll th,.exact-roll td{border-bottom:1px solid var(--line);padding:.28rem .35rem;text-align:left}
 .exact-roll th{position:sticky;top:0;background:var(--ink-soft);color:var(--gold);font-size:.64rem;text-transform:uppercase;letter-spacing:.08em}
-.axis{display:grid;grid-template-columns:126px 1fr 72px;gap:.38rem;align-items:center;font-family:var(--cond);font-size:.7rem;color:var(--paper-dim);margin:.16rem 0}
+.sealed-rolls>details{border:1px solid var(--line);background:rgba(242,234,216,.025);padding:.55rem .65rem;margin:.45rem 0}
+.sealed-rolls summary{cursor:pointer;font-family:var(--display);color:var(--gold-pale)}
+.axis{display:grid;grid-template-columns:126px 1fr 118px;gap:.38rem;align-items:center;font-family:var(--cond);font-size:.7rem;color:var(--paper-dim);margin:.16rem 0}
 .axis-bar{height:5px;background:#0b1219;border-radius:999px;overflow:hidden;position:relative}
 .axis-bar:before{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--line-strong)}
 .axis-bar span{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--blue-pale))}
 .axis>span:last-child{text-align:right;color:var(--paper)}
+.sounding-row{display:grid;grid-template-columns:86px 1fr 58px;gap:.42rem;align-items:center;margin:.32rem 0}
+.sounding-row .candidate{font-family:var(--cond);font-size:.75rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sounding-track{height:9px;background:#0b1219;border-radius:999px;position:relative;box-shadow:inset 0 0 0 1px var(--line)}
+.sounding-range{position:absolute;top:1px;bottom:1px;border-radius:999px;background:linear-gradient(90deg,var(--blue),var(--gold));min-width:5px}
+.sounding-range:after{content:"";position:absolute;left:50%;top:-2px;bottom:-2px;width:2px;background:var(--paper)}
+.sounding-num{font-family:var(--cond);font-size:.72rem;color:var(--gold-pale);text-align:right}
+.smoke-signal{position:relative;height:165px;overflow:hidden;border:1px solid var(--line);background:linear-gradient(#172530,#0d151c);margin:.35rem 0 .55rem}
+.smoke-signal:after{content:"";position:absolute;left:0;right:0;bottom:0;height:38px;background:#0a1016;border-top:1px solid var(--line)}
+.chimney{position:absolute;left:50%;bottom:26px;width:46px;height:54px;transform:translateX(-50%);background:#34383a;border:1px solid #70716e;z-index:2}
+.chimney:before{content:"";position:absolute;left:-7px;right:-7px;top:-7px;height:10px;background:#4b4d4d;border:1px solid #777}
+.smoke-puff{position:absolute;left:50%;bottom:72px;width:48px;height:30px;border-radius:50%;transform:translateX(-50%);filter:blur(3px);opacity:.84;animation:smokeRise 2.8s ease-out infinite}
+.smoke-puff.p2{width:64px;height:38px;animation-delay:.7s;margin-left:-15px}
+.smoke-puff.p3{width:78px;height:44px;animation-delay:1.4s;margin-left:18px}
+.smoke-puff.p4{width:90px;height:48px;animation-delay:2.1s;margin-left:-9px}
+.smoke-signal.black .smoke-puff{background:#35393b;box-shadow:0 0 18px #24282b}
+.smoke-signal.white .smoke-puff{background:#e8e5db;box-shadow:0 0 20px rgba(255,255,255,.42)}
+.smoke-caption{text-align:center;font-family:var(--cond);font-size:.74rem;text-transform:uppercase;letter-spacing:.12em;color:var(--paper-dim)}
+.scoretbl{width:100%;max-width:560px;margin:1rem auto;font-family:var(--cond);font-size:.84rem;border-collapse:collapse}
+.scoretbl td{padding:.34rem .42rem;border-bottom:1px dotted var(--line)}
+.scoretbl td.n{text-align:right;color:var(--gold-pale)}
+.scoretbl tr.total td{border-top:1px solid var(--gold);border-bottom:none;color:var(--gold-pale);font-size:1rem;font-weight:700}
+.verdictbox{max-width:560px;margin:.75rem auto 1rem;border:1px solid rgba(199,168,92,.5);background:rgba(199,168,92,.09);padding:.72rem .8rem;text-align:center}
+.verdictbox .vlabel{display:block;font-family:var(--cond);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--paper-dim)}
+.verdictbox .vgrade{display:block;font-family:var(--display);font-size:1.55rem;color:var(--gold-pale);margin:.12rem 0}
+.verdictbox .vline{display:block;font-family:var(--serif);color:var(--paper-dim)}
 .manual h3{font-family:var(--display);font-weight:400;text-transform:none;letter-spacing:0;font-size:1.12rem;color:var(--gold-pale);margin:1rem 0 .22rem}
 .manual p,.manual li{font-family:var(--serif);font-size:1.02rem;line-height:1.45;color:var(--paper)}
 .manual ul{padding-left:1.2rem}
@@ -372,6 +407,7 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 #toast.show{opacity:1;transform:translate(-50%,0)}
 @keyframes fade{from{opacity:0}to{opacity:1}}
 @keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes smokeRise{0%{opacity:0;transform:translate(-50%,8px) scale(.72)}22%{opacity:.84}100%{opacity:0;transform:translate(-50%,-82px) scale(1.55)}}
 @media(max-width:1080px){
 	#screen-game{display:flex;flex-direction:column}
 	#centercol{order:1}
@@ -394,7 +430,7 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 	.picker-tools{grid-template-columns:1fr}
 }
 @media(max-width:420px){.actions{grid-template-columns:1fr}.actions button.primary{grid-column:auto}#meters{grid-template-columns:1fr}}
-@media(prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}.smoke-puff{animation:none!important;opacity:.68;transform:translate(-50%,-28px)}.smoke-puff.p2{transform:translate(-50%,-48px)}.smoke-puff.p3{transform:translate(-50%,-68px)}.smoke-puff.p4{transform:translate(-50%,-88px)}}
 </style>
 </head>
 <body>
@@ -461,9 +497,9 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 			<button id="actSound" type="button">Take soundings</button>
 			<button id="actNetwork" type="button">Work a network</button>
 			<button id="actProgramme" type="button">Offer a programme</button>
-			<button id="actFloat" type="button">Float a name</button>
+			<button id="actFloat" type="button">Promote one name</button>
 			<button id="actCourt" type="button">The courts</button>
-			<button id="actBridge" type="button">Broker a third name</button>
+			<button id="actBridge" type="button">Broker a compromise</button>
 			<button id="actRetreat" type="button">Prayer &amp; silence</button>
 			<button id="ballotBtn" class="primary" type="button">Proceed to scrutiny</button>
 		</div>
@@ -527,6 +563,7 @@ const AXES = [
 	{key:"rome",label:"Roman Question",low:"intransigent",high:"practical"}
 ];
 const NETWORKS = ["All","Italy","France","German-speaking","Iberian","Curia","Diocesan","Diplomats","Religious","Leonian","Independent","Papabile"];
+const WORKABLE_NETWORKS = NETWORKS.filter(function(network){return network!=="All" && network!=="Papabile"});
 const COUNTRY_NETWORK = {
 	"Italy":"Italy",
 	"France":"France",
@@ -787,7 +824,7 @@ function initState(playerId,seed,mode){
 		profileMods:Object.fromEntries(IDS.map(function(id){return [id,{}]})),
 		lastCounts:{},
 		lastVotes:[],
-		lastForecast:null,
+		lastSounding:null,
 		history:[],
 		log:[],
 		actionSerial:0,
@@ -802,8 +839,7 @@ function initState(playerId,seed,mode){
 			sartoCrisis:false,
 			sartoConsent:false,
 			sartoSelfPromotion:0,
-			satolliAssurance:false,
-			readExactRoll:false
+			satolliAssurance:false
 		}
 	};
 	addLog(S,"Sixty-two cardinals enter beneath sixty-four violet canopies. Oreglia alone is not a creature of Leo XIII; his canopy is not lowered in mourning for the dead pope.","event","31 July · enclosure");
@@ -819,18 +855,18 @@ function adjustMetric(S,key,delta){
 function addMomentum(S,id,delta){
 	if(!ID[id])return;
 	S.momentum[id]=clamp((S.momentum[id]||0)+delta,-30,100);
-	S.lastForecast=null;
+	if(S.lastSounding)S.lastSounding.stale=true;
 }
 function addProfileMod(S,id,key,delta){
 	if(!ID[id] || !S.profileMods[id] || !AXES.some(function(axis){return axis.key===key}))return;
 	S.profileMods[id][key]=clamp((S.profileMods[id][key]||0)+delta,-1.4,1.4);
-	S.lastForecast=null;
+	if(S.lastSounding)S.lastSounding.stale=true;
 }
 function spendAP(S){
 	if(S.over)return false;
 	if(S.ap<=0)return false;
 	S.ap--;
-	S.lastForecast=null;
+	if(S.lastSounding)S.lastSounding.stale=true;
 	return true;
 }
 
@@ -956,6 +992,66 @@ function capCandidateQuota(quotas,total){
 }
 function forecastCounts(S){
 	return capCandidateQuota(largestRemainder(forecastWeights(S),ELECTORS.length),ELECTORS.length);
+}
+function playerNetworks(S){
+	const player=ID[S.playerId];
+	return WORKABLE_NETWORKS.filter(function(network){return player.tags.includes(network)});
+}
+function sharedNetworks(S,candidateId){
+	const candidate=ID[candidateId];
+	if(!candidate)return [];
+	return playerNetworks(S).filter(function(network){return candidate.tags.includes(network)});
+}
+function profileAlignment(S,candidateId){
+	if(!ID[candidateId])return 0;
+	return profileSimilarity(BASE_PROFILE[S.playerId],profileFor(S,candidateId));
+}
+function networkFit(S,network,candidateId){
+	const members=ELECTORS.filter(function(electorRecord){return electorRecord.tags.includes(network)});
+	if(!members.length)return .5;
+	const candidateProfile=profileFor(S,candidateId);
+	return members.reduce(function(sum,voter){
+		return sum+profileSimilarity(BASE_PROFILE[voter.id],candidateProfile);
+	},0)/members.length;
+}
+function networkAccess(S,network){
+	if(!WORKABLE_NETWORKS.includes(network))return 0;
+	const inside=ID[S.playerId].tags.includes(network);
+	let chance=inside ? .82 : .48;
+	chance+=(S.metrics.trust-BASE_METRICS.trust)*.0022;
+	chance+=(S.metrics.stature-BASE_METRICS.stature)*.0016;
+	chance-=(S.metrics.exposure-BASE_METRICS.exposure)*.0014;
+	if(!inside)chance+=(networkFit(S,network,S.playerId)-.65)*.2;
+	return clamp(chance,.32,.94);
+}
+function makeSounding(S){
+	const exact=forecastCounts(S);
+	const confidence=clamp(.56+(S.metrics.trust-35)/220+(S.metrics.stature-35)/300-S.metrics.exposure/900,.52,.84);
+	const rows=sortedCounts(exact).slice(0,6).map(function(row,index){
+		const baseMargin=row.count>=22 ? 3 : row.count>=9 ? 2 : 3;
+		const margin=clamp(Math.round(baseMargin+(1-confidence)*4+(index>=4 ? 1 : 0)),2,5);
+		const bias=Math.round((unitFrom(S.seed+"|sounding|"+(S.ballotNo+1)+"|"+row.id)-.5)*margin*2);
+		const estimate=clamp(row.count+bias,0,ELECTORS.length);
+		return {id:row.id,estimate,low:clamp(estimate-margin,0,ELECTORS.length),high:clamp(estimate+margin,0,ELECTORS.length)};
+	});
+	return {ballot:S.ballotNo+1,stamp:ballotDate(S.ballotNo+1),confidence,stale:false,rows};
+}
+function resolveNetworkAction(S,network,candidateId){
+	if(!WORKABLE_NETWORKS.includes(network))throw new Error("Unknown network: "+network);
+	if(!ID[candidateId])throw new Error("Unknown candidate: "+candidateId);
+	const chance=networkAccess(S,network);
+	const fit=networkFit(S,network,candidateId);
+	const inside=ID[S.playerId].tags.includes(network);
+	const roll=randomFor(S,"network|"+network+"|"+candidateId);
+	const success=roll<chance;
+	const boost=success ? (inside ? 3.3 : 2.6)+fit*2.4 : .7+fit*.8;
+	addMomentum(S,candidateId,boost);
+	S.player.endorsedId=candidateId;
+	adjustMetric(S,"stature",success ? 3 : 0);
+	adjustMetric(S,"trust",success ? (fit>.7 ? 3 : 1) : -2);
+	adjustMetric(S,"exposure",candidateId===S.playerId ? (success ? 6 : 4) : (success ? 3 : 2));
+	if(candidateId==="sarto" && S.playerId==="sarto")S.flags.sartoSelfPromotion+=success ? 1 : .5;
+	return {success,chance,fit,inside,boost,roll};
 }
 function sortedCounts(counts){
 	return Object.keys(counts).filter(function(id){return id!=="_blank" && ID[id]}).map(function(id){
@@ -1110,7 +1206,7 @@ function applyPostBallot(S,record){
 	}
 	decayMomentum(S);
 	S.ap=3;
-	S.lastForecast=null;
+	if(S.lastSounding)S.lastSounding.stale=true;
 }
 function simulateBallot(S,playerVote){
 	if(S.over)throw new Error("The conclave has ended");
@@ -1240,6 +1336,52 @@ function objectiveAchieved(S){
 	if(kind==="religious")return winner.tags.includes("Religious") || profileFor(S,winner.id).programme<-.7;
 	if(kind==="independence")return S.metrics.freedom>=58 && S.metrics.courtPressure<65;
 	return profileSimilarity(BASE_PROFILE[player.id],profileFor(S,winner.id))>=.78;
+}
+function scoreGame(S){
+	if(!S || !S.electedId)return {total:0,parts:[],kind:"unresolved",verdict:{grade:"UNRESOLVED",line:"The College has not yet elected."}};
+	const winnerId=S.electedId;
+	const parts=[];
+	let total=0;
+	const add=function(points,label){
+		if(!points)return;
+		total+=points;
+		parts.push({points,label});
+	};
+	const votesReceived=S.history.reduce(function(sum,record){return sum+(record.counts[S.playerId]||0)},0);
+	const ballotsForWinner=S.history.filter(function(record){
+		const ballot=record.votes.find(function(vote){return vote.voter===S.playerId});
+		return ballot && ballot.candidate===winnerId;
+	}).length;
+	const achieved=objectiveAchieved(S);
+	add(votesReceived*3,"Votes cast for you across all scrutinies");
+	add(ballotsForWinner*8,"Your ballots for the eventual winner");
+	if(S.player.endorsedId===winnerId && winnerId!==S.playerId)add(45,"You finished behind the winning cause");
+	if(winnerId===S.playerId)add(220,"Elected Supreme Pontiff");
+	if(achieved)add(60,"Private objective achieved");
+	const standing=Math.max(0,Math.round(((S.metrics.stature+S.metrics.trust)/2-42)*1.2));
+	add(standing,"Collegial standing");
+	const exposurePenalty=-Math.max(0,Math.round((S.metrics.exposure-18)*.75));
+	add(exposurePenalty,"Visible overreach");
+	let kind="outmanoeuvred";
+	if(winnerId===S.playerId)kind="pope";
+	else if(S.player.endorsedId===winnerId || ballotsForWinner>=2)kind="kingmaker";
+	else if(achieved)kind="principled";
+	else if(ballotsForWinner)kind="survivor";
+	const bands={
+		pope:[[420,"MAGISTERIAL","A pontificate begun from commanding personal authority."],[330,"COMMANDING","The tiara is yours and the College has given you room to govern."],[250,"SECURE","Elected with a credible hand on the keys."]],
+		kingmaker:[[190,"MASTERFUL","The new pope has your support and the College knows your hand mattered."],[145,"STRONG","You built and sustained a winning cause."],[105,"CAPABLE","You read the settlement and helped it hold."]],
+		principled:[[150,"EXEMPLARY","Your private aim survived the pressure of the veto and the ballots."],[110,"PRINCIPLED","You did not win the room, but you preserved what mattered to your role."],[75,"CREDITABLE","A limited but coherent success."]],
+		survivor:[[95,"DEFT","You joined the settlement before the doors opened."],[55,"ADEQUATE","You found the winning side, if late."]],
+		outmanoeuvred:[[90,"DEFIANT","Your cause lost, but it made the eventual settlement work for victory."],[45,"STUBBORN","You remained present without shaping the final coalition."]]
+	};
+	const fallbacks={pope:["NARROW","The tiara is yours, though your authority will need building."],kingmaker:["MODEST","A hand in the winning coalition, lighter than it might have been."],principled:["QUIET","Your aim survived only faintly."],survivor:["BARE","You turned with the room at the last moment."],outmanoeuvred:["ROUTED","The final settlement passed you by."]};
+	let verdict=null;
+	(bands[kind]||[]).some(function(band){
+		if(total>=band[0]){verdict={grade:band[1],line:band[2]};return true}
+		return false;
+	});
+	if(!verdict){const fallback=fallbacks[kind]||fallbacks.outmanoeuvred;verdict={grade:fallback[0],line:fallback[1]}}
+	return {total,parts,kind,verdict,achieved,votesReceived,ballotsForWinner};
 }
 const PAPAL_NAMES_1903=["Pius X","Leo XIV","Benedict XV","Clement XV","Gregory XVII","Innocent XIII","Adrian VII"];
 const PAPAL_NAME_FLAVOR_1903={
@@ -1422,12 +1564,12 @@ function primaryTags(electorRecord){
 	if(!out.includes(electorRecord.country))out.push(electorRecord.country);
 	return out.slice(0,4);
 }
-function axisBand(value){
-	if(value>=1.2)return "very high";
-	if(value>=.45)return "high";
-	if(value>-.45)return "middle";
-	if(value> -1.2)return "low";
-	return "very low";
+function axisPosition(axis,value){
+	if(value>=1.2)return "strongly "+axis.high;
+	if(value>=.45)return "leans "+axis.high;
+	if(value>-.45)return "mixed";
+	if(value> -1.2)return "leans "+axis.low;
+	return "strongly "+axis.low;
 }
 function axisWidth(value){
 	return clamp((value+2)/4*100,0,100);
@@ -1495,13 +1637,22 @@ function showModal(title,html,choices,extraClass,options){
 	setTimeout(function(){first.focus()},0);
 	return overlay;
 }
+function candidateContext(electorRecord){
+	if(!S)return electorRecord.country+" · "+electorRecord.office;
+	const common=sharedNetworks(S,electorRecord.id);
+	const alignment=Math.round(profileAlignment(S,electorRecord.id)*100);
+	if(electorRecord.id===S.playerId)return "You · your own cause · "+playerNetworks(S).join(", ");
+	return (common.length ? "Shared: "+common.join(", ") : "No shared modelled network")+" · profile alignment "+alignment+"%";
+}
 function chooseElector(title,callback,options){
 	const opts=options||{};
-	const html="<div class='picker-tools'><input id='pickerSearch' type='search' placeholder='Search electors…' aria-label='Search electors'><select id='pickerNetwork' aria-label='Filter electors by network'></select></div><div class='pickgrid' id='pickerGrid'></div>";
+	const context=S && opts.showAlignment!==false ? "<div class='picker-context'>"+(opts.intro ? esc(opts.intro)+"<br>" : "")+"Your private objective: <b>"+esc(S.player.objective.title)+"</b>. Cards show shared modelled networks and profile alignment; alignment is compatibility, not a prediction of support.</div>" : "";
+	const html=context+"<div class='picker-tools'><input id='pickerSearch' type='search' placeholder='Search electors…' aria-label='Search electors'><select id='pickerNetwork' aria-label='Filter electors by network'></select></div><div class='pickgrid' id='pickerGrid'></div>";
 	const overlay=showModal(title,html,[],"wide");
 	const filterSelect=$("#pickerNetwork",overlay);
 	filterSelect.innerHTML=NETWORKS.map(function(network){
-		return "<option value='"+esc(network)+"'>"+esc(network)+"</option>";
+		const yours=S && playerNetworks(S).includes(network) ? " · yours" : "";
+		return "<option value='"+esc(network)+"'>"+esc(network+yours)+"</option>";
 	}).join("");
 	function draw(){
 		const query=$("#pickerSearch",overlay).value.trim().toLowerCase();
@@ -1515,12 +1666,16 @@ function chooseElector(title,callback,options){
 			const hay=[electorRecord.name,electorRecord.short,electorRecord.country,electorRecord.office,electorRecord.tags.join(" ")].join(" ").toLowerCase();
 			return !query || hay.includes(query);
 		});
-		if(opts.sort)list=list.slice().sort(opts.sort);
+		list=list.slice().sort(function(a,b){
+			if(S && a.id===S.playerId && b.id!==S.playerId)return -1;
+			if(S && b.id===S.playerId && a.id!==S.playerId)return 1;
+			return opts.sort ? opts.sort(a,b) : a.rank-b.rank;
+		});
 		list.forEach(function(electorRecord){
-			grid.appendChild(el("button",{type:"button",onclick:function(){
+			grid.appendChild(el("button",{type:"button",class:S && electorRecord.id===S.playerId ? "self-cause" : "",onclick:function(){
 				closeModal();
 				callback(electorRecord.id);
-			}},electorRecord.name,el("small",null,electorRecord.country+" · "+electorRecord.office)));
+			}},electorRecord.name,el("small",null,opts.showAlignment===false ? electorRecord.country+" · "+electorRecord.office : candidateContext(electorRecord))));
 		});
 	}
 	$("#pickerSearch",overlay).addEventListener("input",draw);
@@ -1570,7 +1725,7 @@ function renderNetworkTabs(){
 function renderRoster(){
 	const host=$("#roster");
 	const query=$("#rosterSearch").value.trim().toLowerCase();
-	const counts=Object.keys(S.lastCounts).length ? S.lastCounts : (S.lastForecast||{});
+	const counts=Object.keys(S.lastCounts).length ? S.lastCounts : {};
 	let list=ELECTORS.filter(function(electorRecord){
 		return activeNetwork==="All" || electorRecord.tags.includes(activeNetwork);
 	});
@@ -1590,18 +1745,19 @@ function renderRoster(){
 function showDossier(id){
 	const electorRecord=ID[id];
 	const profile=profileFor(S,id);
-	const support=Object.keys(S.lastCounts).length ? S.lastCounts[id] : (S.lastForecast ? S.lastForecast[id] : null);
+	const sounded=S.lastSounding && !S.lastSounding.stale ? S.lastSounding.rows.find(function(row){return row.id===id}) : null;
+	const publicSupport=Object.keys(S.lastCounts).length ? S.lastCounts[id] : null;
 	const axes=AXES.map(function(axis){
-		return "<div class='axis'><span>"+esc(axis.label)+"</span><span class='axis-bar'><span style='width:"+axisWidth(profile[axis.key])+"%'></span></span><span>"+axisBand(profile[axis.key])+"</span></div>";
+		return "<div class='axis'><span>"+esc(axis.label)+"</span><span class='axis-bar' title='"+esc(axis.low+" to "+axis.high)+"'><span style='width:"+axisWidth(profile[axis.key])+"%'></span></span><span>"+esc(axisPosition(axis,profile[axis.key]))+"</span></div>";
 	}).join("");
 	const tags=primaryTags(electorRecord).map(function(tag){return "<span class='chip'>"+esc(displayTag(tag))+"</span>"}).join(" ");
-	const supportText=support===null ? "not sounded" : String(support);
+	const supportText=sounded ? "confidential estimate <b>"+sounded.low+"–"+sounded.high+"</b>" : publicSupport===null ? "not sounded" : "last public scrutiny <b>"+publicSupport+"</b>";
 	showModal(electorRecord.name,
 		"<div class='manual'><p><b>"+esc(ORDER_NAME[electorRecord.order])+"</b> · age "+electorRecord.age+" · "+esc(electorRecord.country)+"</p>"+
 		"<p>"+esc(electorRecord.office)+"</p><p>"+esc(electorRecord.role)+"</p><p>"+tags+"</p>"+
-		"<h3>Current position</h3><p>Last or confidentially projected support: <b>"+supportText+"</b>. Papabile rating: <b>"+electorRecord.papabile+"/10</b>. Player difficulty: <b>"+stars(electorRecord.difficulty)+"</b>.</p>"+
+		"<h3>Current position</h3><p>Support: "+supportText+". Papabile rating: <b>"+electorRecord.papabile+"/10</b>.</p>"+
 		"<h3>Modelled profile</h3>"+axes+
-		"<div class='callout'>These axes are gameplay abstractions derived from office, nationality and attested alignments. They do not claim knowledge of a secret individual ballot.</div></div>",[]);
+		"<div class='callout'>These are positions on two-ended axes, not importance weights and not ranks among cardinals. For example, <i>leans curial</i> means the profile sits towards the curial end of Government. The axes are gameplay abstractions derived from office, nationality and attested alignments; they do not claim knowledge of a secret individual ballot.</div></div>",[]);
 }
 function renderLog(){
 	const host=$("#log");
@@ -1626,7 +1782,13 @@ function renderDecision(){
 function renderObjective(){
 	const player=ID[S.playerId];
 	const objective=S.player.objective;
-	$("#objectiveBox").innerHTML="<b>"+esc(player.name)+"</b><br>"+esc(objective.title)+" — "+esc(objective.text);
+	const networks=playerNetworks(S);
+	const closest=ELECTORS.filter(function(electorRecord){return electorRecord.id!==S.playerId}).sort(function(a,b){
+		return profileAlignment(S,b.id)-profileAlignment(S,a.id);
+	}).slice(0,3);
+	$("#objectiveBox").innerHTML="<b>"+esc(player.name)+"</b><br>"+esc(objective.title)+" — "+esc(objective.text)+
+		"<div class='network-strip'><b>Your modelling networks</b><div class='chips'>"+networks.map(function(network){return "<span class='chip'>"+esc(network)+"</span>"}).join("")+"</div></div>"+
+		"<div class='closest-fit'><b>Closest modelled profiles:</b> "+closest.map(function(electorRecord){return esc(electorRecord.short)+" "+Math.round(profileAlignment(S,electorRecord.id)*100)+"%"}).join(" · ")+"</div>";
 }
 function renderMeters(){
 	const host=$("#meters");
@@ -1653,27 +1815,45 @@ function renderRace(host,counts,limit){
 	});
 	host.appendChild(race);
 }
+function renderSounding(host,sounding){
+	const box=el("div",{class:"sounding"});
+	sounding.rows.forEach(function(row){
+		const left=clamp(row.low/THRESHOLD*100,0,100);
+		const width=clamp((row.high-row.low)/THRESHOLD*100,1,100-left);
+		box.appendChild(el("div",{class:"sounding-row"},
+			el("span",{class:"candidate"},ID[row.id].short),
+			el("span",{class:"sounding-track"},el("span",{class:"sounding-range",style:"left:"+left+"%;width:"+width+"%"})),
+			el("span",{class:"sounding-num"},row.low+"–"+row.high)
+		));
+	});
+	host.appendChild(box);
+}
 function renderBoard(){
 	const host=$("#board");
 	host.innerHTML="<div class='threshold'>Two-thirds required: <b>"+THRESHOLD+"</b> of "+ELECTORS.length+"</div>";
+	if(S.lastSounding && !S.lastSounding.stale){
+		$("#boardLabel").textContent="soundings";
+		host.appendChild(el("div",{class:"board-note"},"Estimated ranges from partial private lists; confidence "+Math.round(S.lastSounding.confidence*100)+"%. Any further intervention makes them stale."));
+		renderSounding(host,S.lastSounding);
+		return;
+	}
 	if(Object.keys(S.lastCounts).length){
 		$("#boardLabel").textContent="scrutiny "+roman(S.ballotNo);
-		host.appendChild(el("div",{class:"board-note"},"Latest simulated scrutiny. Individual votes are available in the scrutiny book."));
+		host.appendChild(el("div",{class:"board-note"},"Latest public aggregate. Individual simulated ballots remain sealed until the conclave ends."));
 		renderRace(host,S.lastCounts,8);
 		const actions=el("div",{class:"board-actions"});
-		actions.appendChild(el("button",{type:"button",onclick:function(){showExactRoll(S.history[S.history.length-1])}},"Exact roll"));
 		actions.appendChild(el("button",{type:"button",onclick:function(){showScrutiny(S.history[S.history.length-1],false)}},"Scrutiny book"));
 		host.appendChild(actions);
 		return;
 	}
-	if(S.lastForecast){
-		$("#boardLabel").textContent="soundings";
-		host.appendChild(el("div",{class:"board-note"},"Confidential projection taken before the pending scrutiny; actions will invalidate it."));
-		renderRace(host,S.lastForecast,8);
+	if(S.lastSounding){
+		$("#boardLabel").textContent="stale soundings";
+		host.appendChild(el("div",{class:"board-note"},"These notes predate your latest intervention. Estimated ranges are retained as an old snapshot, not a current forecast."));
+		renderSounding(host,S.lastSounding);
 		return;
 	}
 	$("#boardLabel").textContent="unread";
-	host.appendChild(el("div",{class:"board-note"},"No exact numbers are available without spending an action on soundings. The public shape is Rampolla first, Gotti second, Sarto still small."));
+	host.appendChild(el("div",{class:"board-note"},"No private estimate is available. The public shape is Rampolla first, Gotti second, Sarto still small; soundings reveal ranges, never an exact hidden roll."));
 }
 function renderPressures(){
 	const host=$("#pressureSummary");
@@ -1697,7 +1877,11 @@ function renderActions(){
 	else $("#actCourt").textContent=S.flags.vetoDelivered ? "Answer the veto" : "The courts";
 	if(S.flags.sartoCrisis && !S.flags.sartoConsent)$("#actBridge").textContent="Seek Sarto’s consent";
 	else if(S.ballotNo>=2)$("#actBridge").textContent="Work the transfer";
-	else $("#actBridge").textContent="Broker a third name";
+	else $("#actBridge").textContent="Broker a compromise";
+	$("#actSound").title="Spend one action for a partial, uncertain estimate of the pending scrutiny.";
+	$("#actNetwork").title="Canvass a modelling network. Access is stronger when you belong to it.";
+	$("#actFloat").title="Give one candidacy direct momentum, at a visible cost in exposure.";
+	$("#actBridge").title=S.ballotNo<2 ? "Build trust around a non-leading compromise rather than simply advertising a name." : "Shape the organised transfer between the principal alternatives.";
 }
 function render(){
 	if(!S)return;
@@ -1723,44 +1907,31 @@ function requireAP(){
 
 function actionSoundings(){
 	if(!requireAP() || !spendAP(S))return;
-	adjustMetric(S,"exposure",2);
-	adjustMetric(S,"stature",2);
-	S.lastForecast=forecastCounts(S);
-	const top=sortedCounts(S.lastForecast).slice(0,5);
-	addLog(S,"You compare private lists. The room appears to stand at "+top.map(function(row){return "<b>"+row.elector.short+"</b> "+row.count}).join(" · ")+".","event",ballotDate(S.ballotNo+1)+" · soundings");
+	adjustMetric(S,"exposure",1);
+	S.lastSounding=makeSounding(S);
+	const top=S.lastSounding.rows.slice(0,5);
+	addLog(S,"You compare partial private lists. The room appears to place "+top.map(function(row){return "<b>"+ID[row.id].short+"</b> around "+row.low+"–"+row.high}).join(" · ")+". The gaps are real uncertainty, not hidden precision.","event",ballotDate(S.ballotNo+1)+" · soundings");
 	render();
-	showModal("Confidential soundings","<p>These are a deterministic projection of the current state, not a historical claim. Further action may change them.</p><div id='soundingRace'></div>",[]);
-	renderRace($("#soundingRace"),S.lastForecast,8);
-}
-function networkFit(network,candidateId){
-	const members=ELECTORS.filter(function(electorRecord){return electorRecord.tags.includes(network)});
-	if(!members.length)return .5;
-	const candidateProfile=profileFor(S,candidateId);
-	return members.reduce(function(sum,voter){
-		return sum+profileSimilarity(BASE_PROFILE[voter.id],candidateProfile);
-	},0)/members.length;
+	showModal("Confidential soundings","<p>This is a dated estimate assembled from incomplete private lists. The ranges include deliberate observation error; another intervention may make the notes stale.</p><div class='callout'>Confidence: <b>"+Math.round(S.lastSounding.confidence*100)+"%</b>. No exact individual roll is exposed before the election.</div><div id='soundingRace'></div>",[]);
+	renderSounding($("#soundingRace"),S.lastSounding);
 }
 function actionNetwork(){
 	if(!requireAP())return;
-	const choices=NETWORKS.filter(function(network){return network!=="All"}).map(function(network){
+	const own=playerNetworks(S);
+	const choices=WORKABLE_NETWORKS.slice().sort(function(a,b){return (own.includes(b)?1:0)-(own.includes(a)?1:0) || a.localeCompare(b)}).map(function(network){
 		const size=ELECTORS.filter(function(electorRecord){return electorRecord.tags.includes(network)}).length;
-		return {label:network,small:size+" electors in this modelling network",fn:function(){
+		const chance=networkAccess(S,network);
+		const inside=own.includes(network);
+		return {label:network+(inside ? " · your network" : ""),small:Math.round(chance*100)+"% access chance · "+size+" electors in this modelling network",fn:function(){
 			chooseElector("Work "+network+" for whose cause?",function(candidateId){
 				if(!spendAP(S))return;
-				const fit=networkFit(network,candidateId);
-				const boost=3.1+fit*2.2;
-				addMomentum(S,candidateId,boost);
-				S.player.endorsedId=candidateId;
-				adjustMetric(S,"stature",2);
-				adjustMetric(S,"trust",fit>.7 ? 3 : -1);
-				adjustMetric(S,"exposure",candidateId===S.playerId ? 6 : 3);
-				if(candidateId==="sarto" && S.playerId==="sarto")S.flags.sartoSelfPromotion+=1;
-				addLog(S,"You work the <b>"+esc(network)+"</b> benches for <b>"+esc(ID[candidateId].short)+"</b>. "+(fit>.72 ? "The programme fits their instincts." : "The name moves, though not without friction."),"deal",ballotDate(S.ballotNo+1)+" · conversations");
+				const outcome=resolveNetworkAction(S,network,candidateId);
+				addLog(S,"You work the <b>"+esc(network)+"</b> benches for <b>"+esc(ID[candidateId].short)+"</b>. "+(outcome.success ? (outcome.fit>.72 ? "Access and programme both fit; the cause moves cleanly." : "Your access opens doors, though the programme still meets friction.") : "The conversations are courteous but guarded; only a little support moves."),outcome.success ? "deal" : "event",ballotDate(S.ballotNo+1)+" · conversations");
 				render();
-			});
+			},{intro:(inside ? "You belong to this network" : "You are working outside your usual networks")+"; current access chance is "+Math.round(chance*100)+"%."});
 		}};
 	});
-	showModal("Work a network","<p>Networks are fluid lines of persuasion, not formal parties. Choose the bench, then the candidate.</p>",choices);
+	showModal("Work a network","<p>Networks are fluid lines of persuasion, not formal parties. Membership makes introductions and trust more reliable; stature, trust and exposure also affect the displayed access chance.</p>",choices);
 }
 function actionProgramme(){
 	if(!requireAP())return;
@@ -1784,7 +1955,7 @@ function actionProgramme(){
 }
 function actionFloat(){
 	if(!requireAP())return;
-	chooseElector("Float which name?",function(candidateId){
+	chooseElector("Promote whose candidacy?",function(candidateId){
 		if(!spendAP(S))return;
 		let boost=4.1+Math.max(0,S.ballotNo-2)*.28;
 		if(!["rampolla","gotti","sarto"].includes(candidateId) && S.ballotNo>=3)boost+=1.1;
@@ -1796,9 +1967,9 @@ function actionFloat(){
 			S.flags.sartoSelfPromotion+=1.8;
 			adjustMetric(S,"trust",-3);
 		}
-		addLog(S,"You let <b>"+esc(ID[candidateId].name)+"</b> be spoken as a serious possibility. "+(candidateId==="sarto" && S.playerId==="sarto" ? "For a reluctant candidate, the trace of self-promotion is costly." : "A name is now easier to repeat."),"deal",ballotDate(S.ballotNo+1)+" · conversations");
+		addLog(S,"You directly promote <b>"+esc(ID[candidateId].name)+"</b> as a serious possibility. "+(candidateId==="sarto" && S.playerId==="sarto" ? "For a reluctant candidate, the trace of self-promotion is costly." : "The name gains visibility, and so does your hand in advancing it."),"deal",ballotDate(S.ballotNo+1)+" · conversations");
 		render();
-	},{exclude:function(){return false}});
+	},{exclude:function(){return false},intro:"Direct promotion gives a name raw momentum but increases your exposure; it does not build a cross-faction settlement."});
 }
 function showPuzynaDecision(costAP,continuation){
 	const proceed=function(choice){
@@ -1887,15 +2058,15 @@ function actionBridge(){
 		return;
 	}
 	if(S.ballotNo<2){
-		chooseElector("Broker which third name?",function(candidateId){
+		chooseElector("Broker which compromise?",function(candidateId){
 			if(!spendAP(S))return;
-			addMomentum(S,candidateId,5);
+			addMomentum(S,candidateId,3.8);
 			adjustMetric(S,"trust",4);
-			adjustMetric(S,"exposure",3);
+			adjustMetric(S,"exposure",2);
 			S.player.endorsedId=candidateId;
 			addLog(S,"You present <b>"+esc(ID[candidateId].short)+"</b> not as a favourite but as the name both main camps might survive.","deal",ballotDate(S.ballotNo+1)+" · bridge");
 			render();
-		},{filter:function(electorRecord){return !["rampolla","gotti"].includes(electorRecord.id)}});
+		},{filter:function(electorRecord){return !["rampolla","gotti"].includes(electorRecord.id)},intro:"Compromise brokering excludes the two opening leaders. It creates less raw momentum than direct promotion, but more trust and less exposure."});
 		return;
 	}
 	showModal("Work the transfer","<p>Opposition votes can remain with Gotti, move to Sarto, or be released towards another settlement.</p>",[
@@ -1988,12 +2159,18 @@ function exactRollTable(record){
 		return "<tr><td>"+esc(ID[vote.voter].short)+(vote.player ? " <span class='goldtx'>(you)</span>" : "")+"</td><td>"+esc(ID[vote.voter].country)+"</td><td>"+(vote.candidate==="_blank" ? "Blank" : esc(ID[vote.candidate].short))+"</td></tr>";
 	}).join("")+"</tbody></table></div>";
 }
+function smokeMarkup(record){
+	const elected=record.leaderCount>=THRESHOLD;
+	const colour=elected ? "white" : "black";
+	const label=elected ? "White smoke: an election has been reached" : "Black smoke: no election";
+	return "<div class='smoke-signal "+colour+"' role='img' aria-label='"+label+"'><span class='smoke-puff p1'></span><span class='smoke-puff p2'></span><span class='smoke-puff p3'></span><span class='smoke-puff p4'></span><span class='chimney'></span></div><div class='smoke-caption'>"+label+"</div>";
+}
 function showScrutiny(record,advance){
 	const gap=Math.max(0,THRESHOLD-record.leaderCount);
 	let comparison="";
 	if(record.historical)comparison="<div class='callout'><b>Documented aggregate:</b> "+esc(record.historical)+"</div>";
 	const html="<div class='scrutiny-grid'><div><div class='threshold'>"+esc(record.date)+" · "+(gap ? gap+" short of election" : "election reached")+"</div><div class='race'>"+scrutinyRows(record)+"</div>"+comparison+"</div>"+
-		"<div><p>The identity column below is an exact <b>simulated</b> roll. Except for a handful of surviving ballots and accounts, the historical individual votes are unknown.</p><details><summary>Open exact simulated roll</summary>"+exactRollTable(record)+"</details></div></div>";
+		"<div>"+smokeMarkup(record)+"<p class='dim'>The aggregate count is public. Every individual simulated ballot remains under seal until the conclave ends; the historical individual votes are largely unknown.</p></div></div>";
 	const choices=advance ? [{label:S.over ? "Witness the acceptance" : "Return to the conclave",small:S.over ? "The elected cardinal is asked whether he accepts." : "Continue negotiations before the next scrutiny.",fn:function(){
 		if(S.over)endGame();
 		else if(record.ballot===5 && S.flags.sartoCrisis && !S.flags.sartoConsent)showSartoCrisis();
@@ -2003,18 +2180,20 @@ function showScrutiny(record,advance){
 }
 function showExactRoll(record){
 	if(!record)return;
-	S.flags.readExactRoll=true;
+	if(!S.over){toast("The individual simulated ballots remain sealed until the election.");return}
 	showModal("Exact simulated roll — scrutiny "+roman(record.ballot),"<p>This is generated game state, not a claim about how each cardinal historically voted.</p>"+exactRollTable(record),[],"wide");
 }
 
 function showRules(){
 	showModal("How The Last Veto works","<div class='manual'>"+
-		"<p>You have three conversation windows before each scrutiny. Spend them to take soundings, work fluid networks, attach a programme to a candidacy, float a name, manage court pressure, broker transfers or retreat into silence. Then cast your own ballot. You may never vote for yourself.</p>"+
+		"<p>You have three conversation windows before each scrutiny. Spend them to take uncertain soundings, work fluid networks, attach a programme to a candidacy, promote a name, manage court pressure, broker transfers or retreat into silence. Then cast your own ballot. You may never vote for yourself.</p>"+
+		"<h3>Information and persuasion</h3><p><b>Soundings</b> reveal a dated range assembled from incomplete private lists, not a free exact forecast. <b>Work a network</b> has a displayed access chance: membership, trust and stature help; exposure hurts. Candidate pickers show shared networks and modelled profile alignment.</p>"+
+		"<h3>Promotion versus compromise</h3><p><b>Promote one name</b> gives a candidacy direct momentum but visibly identifies your hand. Before the transfer takes shape, <b>Broker a compromise</b> excludes the two opening leaders and builds trust around a survivable third candidate, with less raw momentum and less exposure.</p>"+
 		"<h3>Historical pressure and open conclave</h3><p><b>Historical pressure</b> anchors the room to the documented seven aggregate tallies while allowing your interventions to bend them. <b>Open conclave</b> uses the first scrutiny as its launch point and lets support evolve more freely.</p>"+
 		"<h3>The veto is not a delete button</h3><p>Before scrutiny III, Puzyna carries Franz Joseph’s exclusion of Rampolla. The Holy See never recognised such a right. A public veto creates immediate outrage and sympathy for Rampolla, followed by the practical fear of electing a pope against Vienna.</p>"+
 		"<h3>Sarto’s inverted campaign</h3><p>Sarto’s reluctance is part of his viability. Visible self-promotion damages him. A trusted intermediary can make consent believable without turning him into an ordinary candidate.</p>"+
 		"<h3>What is exact?</h3><ul><li>62 present electors, two absentees and a threshold of 42.</li><li>The seven aggregate scrutiny trajectories and the principal public events.</li><li>The prohibition on self-voting and the College’s decision not to use <i>accessus</i>.</li></ul>"+
-		"<p>Individual ballots, most relationships and all numerical axes are modelling choices. The game uses fluid concerns rather than pretending the College contained modern party factions.</p>"+
+		"<p>Individual ballots, most relationships and all numerical axes are modelling choices. Profile labels describe position on a two-ended axis, not how heavily a cardinal weights that subject and not his rank among the College. The game uses fluid concerns rather than pretending the College contained modern party factions.</p>"+
 		"<h3>Sources</h3><ul>"+
 		"<li><a href='https://fr.wikisource.org/wiki/Les_Derniers_jours_de_L%C3%A9on_XIII_et_le_Conclave_de_1903' target='_blank' rel='noopener'>François-Désiré Mathieu, contemporary account</a></li>"+
 		"<li><a href='https://archive.org/details/sedevacantebeing00gris' target='_blank' rel='noopener'>Hartwell de la Garde Grissell, <i>Sede Vacante</i></a></li>"+
@@ -2112,6 +2291,15 @@ function renderRegnal1903(winner,player,initial){
 		host.appendChild(hint);
 	}
 }
+function scoreSummaryHtml(result){
+	return "<table class='scoretbl'><tbody>"+result.parts.map(function(part){return "<tr><td>"+esc(part.label)+"</td><td class='n'>"+(part.points>0 ? "+" : "")+part.points+"</td></tr>"}).join("")+"<tr class='total'><td>INFLUENCE</td><td class='n'>"+result.total+"</td></tr></tbody></table>"+
+		"<div class='verdictbox'><span class='vlabel'>Verdict for your role</span><span class='vgrade'>"+esc(result.verdict.grade)+"</span><span class='vline'>"+esc(result.verdict.line)+"</span></div>";
+}
+function sealedRollBookHtml(){
+	return "<div class='sealed-rolls'><div class='statusbox'><b>Sealed simulated rolls</b><br>Now that the election is complete, the generated identity rolls may be inspected. They are game state, not historical claims.</div>"+S.history.map(function(record){
+		return "<details><summary>Scrutiny "+roman(record.ballot)+" · "+esc(record.date)+"</summary>"+exactRollTable(record)+"</details>";
+	}).join("")+"</div>";
+}
 function endGame(){
 	if(!S || !S.electedId)return;
 	const winner=ID[S.electedId];
@@ -2125,9 +2313,10 @@ function endGame(){
 	$("#endSub").textContent=winner.name+" is elected after "+S.ballotNo+" scrutin"+(S.ballotNo===1 ? "y." : "ies.");
 	$("#endBody").innerHTML=endBody1903(winner,player,papalName);
 	renderRegnal1903(winner,player,papalName);
-	const achieved=objectiveAchieved(S);
+	const score=scoreGame(S);
+	const achieved=score.achieved;
 	const finalRecord=S.history[S.history.length-1];
-	$("#endStats").innerHTML="<div class='statusbox objective'><b>Private objective</b><br>"+esc(S.player.objective.text)+"<br><span class='"+(achieved ? "goldtx" : "dim")+"'>"+(achieved ? "Achieved" : "Not achieved")+"</span></div><div class='statusbox'><b>Final scrutiny</b><div class='race'>"+scrutinyRows(finalRecord)+"</div></div>";
+	$("#endStats").innerHTML="<div class='statusbox objective'><b>Private objective</b><br>"+esc(S.player.objective.text)+"<br><span class='"+(achieved ? "goldtx" : "dim")+"'>"+(achieved ? "Achieved" : "Not achieved")+"</span></div><div class='statusbox'><b>Final scrutiny</b><div class='race'>"+scrutinyRows(finalRecord)+"</div></div>"+scoreSummaryHtml(score)+sealedRollBookHtml();
 	const achievements=[];
 	if(winner.id===S.playerId)achievements.push("Elected");
 	if(winner.id==="sarto")achievements.push("Historical settlement");
@@ -2135,7 +2324,6 @@ function endGame(){
 	if(S.playerId==="puzyna" && !S.flags.vetoDelivered)achievements.push("Buried the secretum");
 	if(S.metrics.freedom>=70)achievements.push("A free College");
 	if(S.ballotNo<=4)achievements.push("Swift smoke");
-	if(S.flags.readExactRoll)achievements.push("Scrutineer");
 	if(achieved)achievements.push("Private aim");
 	$("#achievements").innerHTML=achievements.map(function(label){return "<span>"+esc(label)+"</span>"}).join("");
 	window.scrollTo({top:0,behavior:"smooth"});
@@ -2143,10 +2331,15 @@ function endGame(){
 function exportChronicle(){
 	if(!S)return;
 	const winner=S.electedId ? ID[S.electedId].name : "none";
-	const lines=["Extra Omnes — 1903: The Last Veto","Seed: "+S.seed,"Mode: "+S.mode,"Player: "+ID[S.playerId].name,"Winner: "+winner,""];
+	const score=S.over ? scoreGame(S) : null;
+	const lines=["Extra Omnes — 1903: The Last Veto","Seed: "+S.seed,"Mode: "+S.mode,"Player: "+ID[S.playerId].name,"Winner: "+winner].concat(score ? ["Influence: "+score.total,"Verdict: "+score.verdict.grade] : []).concat([""]);
 	S.log.forEach(function(entry){lines.push("["+entry.stamp+"] "+htmlToText(entry.message))});
 	S.history.forEach(function(record){
 		lines.push("","Scrutiny "+roman(record.ballot)+": "+sortedCounts(record.counts).map(function(row){return row.elector.short+" "+row.count}).join(" · ")+(record.counts._blank ? " · blank "+record.counts._blank : ""));
+		if(S.over){
+			lines.push("Simulated identity roll (not a historical claim):");
+			record.votes.forEach(function(vote){lines.push("  "+ID[vote.voter].short+" -> "+(vote.candidate==="_blank" ? "Blank" : ID[vote.candidate].short))});
+		}
 	});
 	const blob=new Blob([lines.join("\n")],{type:"text/plain;charset=utf-8"});
 	const url=URL.createObjectURL(blob);
@@ -2207,10 +2400,17 @@ globalThis.__om1903={
 	THRESHOLD:THRESHOLD,
 	initState:initState,
 	forecastCounts:forecastCounts,
+	makeSounding:makeSounding,
+	playerNetworks:playerNetworks,
+	sharedNetworks:sharedNetworks,
+	profileAlignment:profileAlignment,
+	networkAccess:networkAccess,
+	resolveNetworkAction:resolveNetworkAction,
 	simulateBallot:simulateBallot,
 	resolveVeto:resolveVeto,
 	reactToVeto:reactToVeto,
 	resolveSartoConsent:resolveSartoConsent,
+	scoreGame:scoreGame,
 	runHeadless:runHeadless,
 	validateData:validateData
 };

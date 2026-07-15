@@ -139,6 +139,12 @@ function loadVariant(file) {
 	playerAccede: typeof playerAccede === "function" ? playerAccede : null,
 	runBallot: typeof runBallot === "function" ? runBallot : null,
 	conductBallot: typeof conductBallot === "function" ? conductBallot : null,
+	simulateBallot: typeof simulateBallot === "function" ? simulateBallot : null,
+	makeSounding: typeof makeSounding === "function" ? makeSounding : null,
+	playerNetworks: typeof playerNetworks === "function" ? playerNetworks : null,
+	networkAccess: typeof networkAccess === "function" ? networkAccess : null,
+	resolveNetworkAction: typeof resolveNetworkAction === "function" ? resolveNetworkAction : null,
+	scoreGame: typeof scoreGame === "function" ? scoreGame : null,
 	topPreference: typeof topPreference === "function" ? topPreference : null,
 	getState: typeof OCTOBER_1978_ENGINE !== "undefined" ? OCTOBER_1978_ENGINE.getState : (typeof VENICE_1800_ENGINE !== "undefined" ? VENICE_1800_ENGINE.getState : (typeof CARAFA_1559_ENGINE !== "undefined" ? CARAFA_1559_ENGINE.getState : null)),
 	activeElectors: typeof activeElectors === "function" ? activeElectors : null,
@@ -316,6 +322,30 @@ function runTargetedChecks(variant, api) {
 		assert(state.cards.capodiferro.dead && !api.canBeElected("capodiferro"), "Carafa Winter: Capodiferro remains eligible after death");
 		assert(!api.canVote("dubellay") && api.canBeElected("dubellay"), "Carafa Winter: du Bellay's departure was not represented correctly");
 		return ["attendance-40-to-44", "approval-validation", "accessus-validation", "illness-eligibility", "metric-bounds"];
+	}
+	if (variant.label === "1903") {
+		assert(typeof api.initState === "function" && typeof api.makeSounding === "function" && typeof api.playerNetworks === "function" && typeof api.networkAccess === "function" && typeof api.resolveNetworkAction === "function" && typeof api.scoreGame === "function", "1903: revised information/network/score API is not exported");
+		let state = api.initState("gibbons", "1903-soundings", "historical");
+		const before = JSON.stringify(state);
+		const soundingA = api.makeSounding(state);
+		const soundingB = api.makeSounding(state);
+		assert(JSON.stringify(soundingA) === JSON.stringify(soundingB) && JSON.stringify(state) === before, "1903: soundings are non-deterministic or mutate simulation state");
+		assert(soundingA.rows.length > 0 && soundingA.rows.every((row) => Number.isInteger(row.low) && Number.isInteger(row.high) && row.low < row.high && !("count" in row)), "1903: soundings expose exact counts or invalid ranges");
+		const networks = api.playerNetworks(state);
+		assert(networks.includes("Diocesan") && networks.includes("Independent"), "1903: the player's modelled networks are incomplete");
+		assert(api.networkAccess(state, "Diocesan") > api.networkAccess(state, "Curia"), "1903: membership does not improve network access");
+		const firstNetworkState = api.initState("gibbons", "1903-network", "open");
+		const secondNetworkState = api.initState("gibbons", "1903-network", "open");
+		const firstOutcome = api.resolveNetworkAction(firstNetworkState, "Diocesan", "sarto");
+		const secondOutcome = api.resolveNetworkAction(secondNetworkState, "Diocesan", "sarto");
+		assert(JSON.stringify(firstOutcome) === JSON.stringify(secondOutcome) && JSON.stringify(firstNetworkState) === JSON.stringify(secondNetworkState), "1903: network action is not seed-deterministic");
+		state = api.initState("gibbons", "1903-player-ballot", "historical");
+		const record = api.simulateBallot(state, "rampolla");
+		assert(record.votes.find((vote) => vote.voter === "gibbons").candidate === "rampolla", "1903: submitted player ballot was overwritten");
+		const completed = api.runHeadless("1903-score", "gibbons", "historical");
+		const score = api.scoreGame(completed);
+		assert(Number.isFinite(score.total) && score.parts.reduce((sum, part) => sum + part.points, 0) === score.total && score.verdict && score.verdict.grade, "1903: end score is invalid");
+		return ["uncertain-soundings", "network-membership", "network-determinism", "player-ballot-preserved", "end-score"];
 	}
 	if (variant.label === "october-1978") {
 		assert(typeof api.initState === "function" && typeof api.runBallot === "function" && typeof api.getState === "function", "October 1978: targeted-test API is not exported");

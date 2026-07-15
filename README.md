@@ -8,7 +8,7 @@ Single-file browser simulations of historical papal conclaves. Each variant is p
 - `viterbo-1268.html` — alpha.
 - `carafa-winter-1559.html` — alpha.
 - `venice-1800.html` — alpha.
-- `1903.html` — alpha.
+- `1903.html` — beta.
 - `october-1978.html` — alpha.
 
 ## Local Use
