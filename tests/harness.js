@@ -451,7 +451,7 @@ function runTargetedChecks(variant, api) {
 		return ["data-audit", "six-college-rule", "blank-ballot", "approval-validation", "accession-validation", "no-first-scrutiny-accession", "player-ballot-preserved", "uncertain-soundings", "historical-anchor", "open-termination", "papal-name", "end-score"];
 	}
 	if (variant.label === "venice-1800") {
-		assert(typeof api.initState === "function" && typeof api.conductBallot === "function" && typeof api.getState === "function" && typeof api.activeElectors === "function" && typeof api.makeSounding === "function" && typeof api.resolveNetworkAction === "function", "Venice: targeted-test API is not exported");
+		assert(typeof api.initState === "function" && typeof api.conductBallot === "function" && typeof api.getState === "function" && typeof api.activeElectors === "function" && typeof api.makeSounding === "function" && typeof api.resolveNetworkAction === "function" && typeof api.alignmentWithPlayer === "function" && typeof api.supportBriefCandidates === "function", "Venice: targeted-test API is not exported");
 		api.initState("mattei", "venice-player-ballot", { headless: true });
 		const state = api.getState();
 		state.support.bellisomi = 100;
@@ -468,6 +468,12 @@ function runTargetedChecks(variant, api) {
 		assert(!herzanState.history[0].roll.some((entry) => entry.voter === "herzan"), "Venice: Herzan voted before arrival");
 		if (herzanState.over) assert(!herzanState.flags.herzanArrived, "Venice: Herzan arrived after an already terminal first ballot");
 		else assert(api.activeElectors().some((card) => card.id === "herzan"), "Venice: Herzan did not arrive for the next round");
+		api.initState("herzan", "venice-alignment", { headless: true });
+		const matteiAlignment = api.alignmentWithPlayer("mattei");
+		const bellisomiAlignment = api.alignmentWithPlayer("bellisomi");
+		const openingBrief = api.supportBriefCandidates();
+		assert(matteiAlignment.score > bellisomiAlignment.score, "Venice: imperial alignment guidance is miscalibrated");
+		assert(openingBrief.length === 3 && openingBrief.every((choice) => choice.id !== "herzan" && Number.isInteger(choice.alignment.score) && choice.alignment.score >= 0 && choice.alignment.score <= 100), "Venice: opening support brief is invalid");
 		api.initState("chiaramonti", "venice-presentation", { headless: true });
 		const forecastState = api.getState();
 		const rngBefore = forecastState.rng.state;
@@ -497,7 +503,7 @@ function runTargetedChecks(variant, api) {
 		const score = api.scoreGame();
 		assert(Number.isFinite(score.total) && score.parts.reduce((sum, part) => sum + part.points, 0) === score.total && score.verdict && score.verdict.grade, "Venice: end score is invalid");
 		assert(/Austrian-aligned/.test(api.axisPosition("austria", 1.1)) && !/very high|middle/.test(api.axisPosition("austria", 1.1)), "Venice: dossiers still use abstract rather than directional labels");
-		return ["player-ballot-preserved", "self-vote", "herzan-arrival", "historical-opening", "uncertain-soundings", "portrait-lookup", "network-membership", "network-determinism", "alternate-winner", "end-score", "directional-profile"];
+		return ["player-ballot-preserved", "self-vote", "herzan-arrival", "alignment-guidance", "opening-support", "historical-opening", "uncertain-soundings", "portrait-lookup", "network-membership", "network-determinism", "alternate-winner", "end-score", "directional-profile"];
 	}
 	return [];
 }

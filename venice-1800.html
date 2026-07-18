@@ -95,7 +95,7 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 
 #screen-select{max-width:1260px;margin:0 auto;padding:0 1rem 4rem}
 .selbar{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:.6rem;position:sticky;top:0;background:linear-gradient(var(--void2),rgba(17,24,33,.88));padding:.82rem 0;z-index:10;backdrop-filter:blur(7px)}
-.grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(264px,1fr));gap:.82rem}
+.grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(264px,1fr));gap:.82rem;padding-bottom:.8rem}
 .ccard{position:relative;background:linear-gradient(165deg,var(--surface2),var(--surface));border:1px solid var(--line);border-radius:12px;padding:.95rem;cursor:pointer;min-height:186px;transition:border-color .18s ease,box-shadow .18s ease,transform .12s ease}
 .ccard:hover{transform:translateY(-2px);border-color:rgba(202,165,90,.45);box-shadow:0 10px 30px rgba(0,0,0,.35)}
 .ccard.sel{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 10px 30px rgba(140,29,43,.24)}
@@ -116,7 +116,7 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 .portrait-fallback{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--display);font-size:1.35rem;color:var(--gold2);letter-spacing:.08em}
 .end-portrait .portrait-fallback{font-size:2rem}
 .identity-row{display:grid;grid-template-columns:68px minmax(0,1fr);gap:.72rem;align-items:start}
-.startbar{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:center;text-align:center;position:sticky;bottom:0;background:linear-gradient(transparent,var(--void2) 36%);padding:1.35rem 0 .45rem}
+.startbar{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:center;text-align:center;position:sticky;bottom:0;z-index:35;background:rgba(11,15,20,.96);border-top:1px solid var(--line);box-shadow:0 -12px 30px rgba(0,0,0,.32);padding:.72rem .5rem .48rem;backdrop-filter:blur(8px);isolation:isolate}
 .startbar .primary{font-size:1.02rem;padding:.7rem 1.4rem}
 .seedrow{flex-basis:100%;margin-top:.4rem;font-family:var(--mono);font-size:.74rem;color:var(--paper-faint)}
 .seedrow input{padding:.4rem .5rem;width:12rem}
@@ -141,7 +141,7 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 .crow .nm small{display:block;font-family:var(--mono);font-size:.65rem;color:var(--paper-faint);margin-top:1px}
 .crow .vt{font-family:var(--mono);font-size:.77rem;color:var(--gold2);text-align:center}
 .crow .vt:last-child{color:var(--paper-faint)}
-#log{height:49vh;overflow:auto;padding-right:.45rem}
+#log{max-height:49vh;overflow:auto;padding-right:.45rem}
 .le{border-left:3px solid var(--line2);padding:.45rem .65rem;margin-bottom:.5rem;background:rgba(239,229,207,.03);border-radius:0 7px 7px 0;font-family:var(--serif);font-size:1.04rem;line-height:1.42}
 .le .stamp{display:block;font-family:var(--mono);font-size:.62rem;color:var(--paper-faint);text-transform:uppercase;letter-spacing:.12em;margin-bottom:.2rem}
 .le b{font-weight:600;color:var(--gold2)}
@@ -149,9 +149,19 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 .le.event{border-left-color:var(--lagoon);background:rgba(111,159,179,.13)}
 .le.holy{border-left-color:var(--gold);background:rgba(202,165,90,.12)}
 .le.deal{border-left-color:var(--green);background:rgba(106,155,114,.13)}
+.support-brief{border:1px solid rgba(111,159,179,.34);background:rgba(111,159,179,.08);border-radius:8px;padding:.55rem .62rem;margin:0 0 .72rem}
+.support-brief .brief-label{display:block;font-family:var(--mono);font-size:.61rem;letter-spacing:.12em;text-transform:uppercase;color:var(--lagoon);margin-bottom:.38rem}
+.support-candidates{display:flex;gap:.38rem;flex-wrap:wrap}
+.support-candidate{display:flex;flex-direction:column;align-items:flex-start;min-height:0;padding:.36rem .48rem;text-align:left;background:rgba(11,15,20,.46);border-color:rgba(111,159,179,.3)}
+.support-candidate:first-child{border-color:var(--lagoon)}
+.support-candidate b{font-family:var(--serif);font-size:.9rem;color:var(--paper)}
+.support-candidate small{font-family:var(--mono);font-size:.57rem;color:var(--paper-faint);margin-top:.08rem}
+.action-contrast{margin:.55rem 0 -.25rem;font-family:var(--mono);font-size:.67rem;line-height:1.45;color:var(--paper-faint)}
+.action-contrast b{color:var(--gold2);font-weight:500}
 .actions{border-top:1px solid var(--line);margin-top:.8rem;padding-top:.8rem;display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
 .actions button{min-height:48px;font-size:.9rem}
 .actions button.primary{grid-column:1/-1}
+.actions button small{display:block;margin-top:.14rem;font-family:var(--mono);font-size:.62rem;line-height:1.25;color:var(--paper-faint)}
 .ap{font-family:var(--mono);font-size:.74rem;color:var(--paper-dim);letter-spacing:.04em}
 .pip{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--gold);margin-left:4px;box-shadow:0 0 6px rgba(202,165,90,.5)}
 .pip.spent{background:#3d4754;box-shadow:none}
@@ -211,6 +221,10 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 .axis .axbar::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--line2)}
 .axis .axbar span{display:block;height:100%;background:linear-gradient(90deg,#47748a,var(--lagoon))}
 .axis>span:last-child{text-align:right;color:var(--paper)}
+.alignment-summary{display:flex;justify-content:space-between;gap:.8rem;align-items:baseline;font-family:var(--mono);font-size:.7rem;color:var(--paper-dim)}
+.alignment-summary b{font-family:var(--sans);font-size:.86rem;color:var(--gold2)}
+.alignment-track{height:7px;margin:.3rem 0 .38rem;border-radius:999px;background:#0d141c;overflow:hidden}
+.alignment-track span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--scarlet2),var(--gold),var(--green))}
 .manual p{font-family:var(--serif);font-size:1.06rem;color:var(--paper);line-height:1.5;margin:.5rem 0}
 .manual h4{font-family:var(--display);font-weight:600;color:var(--gold2);font-size:1.15rem;margin:1.1rem 0 .2rem;text-transform:none;letter-spacing:0}
 .manual b{color:var(--gold2)}
@@ -238,8 +252,8 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 #toast.show{opacity:1;transform:translate(-50%,0)}
 @keyframes fade{from{opacity:0}to{opacity:1}}
 @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-@media(max-width:1050px){#screen-game{display:flex;flex-direction:column}#screen-game header{order:0}#centercol{order:1}#rightcol{order:2}#leftcol{order:3}.col{border-right:0;border-bottom:1px solid var(--line)}.roster{max-height:380px}.actions{grid-template-columns:1fr 1fr}.selbar{grid-template-columns:1fr 1fr}#log{height:36vh}#meters{grid-template-columns:repeat(3,1fr)}#pressureSummary{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem}.network-card{margin:0}}
-@media(max-width:580px){.grid-cards{grid-template-columns:1fr}.selbar{grid-template-columns:1fr}.actions{grid-template-columns:1fr 1fr}.actions button.primary{grid-column:1/-1}#screen-game header{display:grid;grid-template-columns:auto 1fr auto auto;padding:.7rem}#screen-game header h1{font-size:1.05rem}#screen-game header .date{grid-column:1/-1;width:100%;text-align:left;margin-left:0}.col{padding:.78rem}#log{height:34vh}.phase-label{line-height:1.35}.selection-identity{grid-template-columns:62px minmax(0,1fr)}#meters{grid-template-columns:1fr 1fr}#pressureSummary{grid-template-columns:1fr 1fr}.meter .help,.network-card .dim{display:none}.racerow{grid-template-columns:74px 1fr 48px}.identity-row{grid-template-columns:58px minmax(0,1fr)}.axis{grid-template-columns:92px 1fr;gap:.3rem}.axis>span:last-child{grid-column:1/-1;text-align:left;padding-left:95px;color:var(--paper-dim)}}
+@media(max-width:1050px){#screen-game{display:flex;flex-direction:column}#screen-game header{order:0}#centercol{order:1}#rightcol{order:2}#leftcol{order:3}.col{border-right:0;border-bottom:1px solid var(--line)}.roster{max-height:380px}.actions{grid-template-columns:1fr 1fr}.selbar{grid-template-columns:1fr 1fr}#log{max-height:36vh}#meters{grid-template-columns:repeat(3,1fr)}#pressureSummary{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem}.network-card{margin:0}}
+@media(max-width:580px){.grid-cards{grid-template-columns:1fr}.selbar{grid-template-columns:1fr}.actions{grid-template-columns:1fr 1fr}.actions button.primary{grid-column:1/-1}#screen-game header{display:grid;grid-template-columns:auto 1fr auto auto;padding:.7rem}#screen-game header h1{font-size:1.05rem}#screen-game header .date{grid-column:1/-1;width:100%;text-align:left;margin-left:0}.col{padding:.78rem}#log{max-height:34vh}.phase-label{line-height:1.35}.selection-identity{grid-template-columns:62px minmax(0,1fr)}#meters{grid-template-columns:1fr 1fr}#pressureSummary{grid-template-columns:1fr 1fr}.meter .help,.network-card .dim{display:none}.racerow{grid-template-columns:74px 1fr 48px}.identity-row{grid-template-columns:58px minmax(0,1fr)}.axis{grid-template-columns:92px 1fr;gap:.3rem}.axis>span:last-child{grid-column:1/-1;text-align:left;padding-left:95px;color:var(--paper-dim)}.support-candidate{flex:1 1 calc(50% - .38rem)}}
 @media(prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto}}
 </style>
 </head>
@@ -282,11 +296,13 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 	<div class="col" id="centercol">
 		<div class="colhead"><span>San Giorgio Maggiore</span><span id="apwrap"></span></div>
 		<div class="phase-label" id="phaseLabel"></div>
+		<div id="supportBrief" class="support-brief"></div>
 		<div id="log"></div>
+		<div class="action-contrast"><b>Network promotion</b> builds immediate support through access and fit. <b>Compromise</b> tests a consensus name and grows stronger with deadlock.</div>
 		<div class="actions">
 			<button id="actSound">Soundings</button>
-			<button id="actNetwork">Work your networks</button>
-			<button id="actCompromise">Float compromise</button>
+			<button id="actNetwork">Promote through networks<small>Immediate support · depends on access</small></button>
+			<button id="actCompromise">Broker a compromise<small>Consensus · stronger in deadlock</small></button>
 			<button id="actHerzan">Treat with Herzan</button>
 			<button id="actConsalvi">Consult Consalvi</button>
 			<button id="actSupplies">Petition the monastery</button>
@@ -499,6 +515,32 @@ function profileSimilarity(a,b){
 	return clamp(1-distance,0,1);
 }
 function baseRelationship(a,b){let r=0;if(a.id===b.id)return -.55;for(const t of a.tags){if(b.tags.includes(t))r+=.16}if(a.country===b.country)r+=.28;if(hasTag(a,"Austrian")&&hasTag(b,"Austrian"))r+=.6;if(hasTag(a,"Bourbon")&&hasTag(b,"Bourbon"))r+=.45;if(hasTag(a,"Bellisomi")&&b.id==="bellisomi")r+=.9;if(hasTag(a,"Mattei")&&b.id==="mattei")r+=.9;if(hasTag(a,"Accommodation")&&hasTag(b,"Accommodation"))r+=.45;if(hasTag(a,"Zelanti")&&hasTag(b,"Zelanti"))r+=.45;if(a.id==="herzan"&&b.id==="mattei")r+=1.7;if(a.id==="braschi"&&b.id==="bellisomi")r+=1.35;if(a.id==="albani"&&b.id==="bellisomi")r+=.9;if(a.id==="antonelli"&&b.id==="mattei")r+=1.15;if(a.id==="dugnani"&&b.id==="chiaramonti")r+=.8;if(a.id==="maury"&&b.id==="chiaramonti")r+=.75;if(a.id==="caprara"&&b.id==="mattei")r-=1.0;if(a.id==="herzan"&&b.id==="bellisomi")r-=1.25;return clamp(r,-1.8,2.8)}
+function alignmentLabel(score){
+	if(score>=82)return "strong affinity";
+	if(score>=70)return "aligned";
+	if(score>=58)return "broadly compatible";
+	if(score>=45)return "mixed";
+	return "opposed";
+}
+function alignmentWithPlayer(candidateId,state=S){
+	if(!state||!ID[state.playerId]||!ID[candidateId])return null;
+	const player=ID[state.playerId],candidate=ID[candidateId];
+	if(player.id===candidate.id)return {score:100,label:"your own position",sharedTags:primaryTags(player)};
+	const similarity=profileSimilarity(player,candidate);
+	const relationship=state.relationships?.[player.id]?.[candidate.id]??baseRelationship(player,candidate);
+	const relationshipFit=clamp((relationship+.35)/2.15,0,1);
+	const score=Math.round(clamp((similarity*.78+relationshipFit*.22)*100,0,100));
+	const incidental=new Set(["Elder","Young","Infirm","Papabile","LateArrival","Camerlengo"]);
+	const sharedTags=player.tags.filter(tag=>candidate.tags.includes(tag)&&!incidental.has(tag)).slice(0,4);
+	return {score,label:alignmentLabel(score),sharedTags};
+}
+function supportBriefCandidates(state=S){
+	if(!state||!ID[state.playerId])return [];
+	return candidateLikelihoods(ID[state.playerId],true).slice(0,3).map(choice=>({
+		id:choice.candidate.id,
+		alignment:alignmentWithPlayer(choice.candidate.id,state)
+	}));
+}
 function unitFrom(text){return hashSeed(text)/4294967296}
 function portraitInitials(e){return e.name.split(/\s+/).filter(Boolean).slice(0,2).map(part=>part[0]).join("")}
 function portraitFor(id){
@@ -839,7 +881,7 @@ function actionSoundings(){
 function actionNetwork(){
 	const networks=playerNetworks();
 	if(!networks.length){toast("You have no organised network to work in this phase.");return}
-	showModal("Work your networks",`<p>Your influence travels through circles that know you. Choose one; access measures trust and standing, while a candidate's fit measures how plausible that name is to the circle.</p><div class="pickgrid" id="networkGrid"></div>`,[],"wide");
+	showModal("Promote through your networks",`<p>Make a direct case for one name inside a circle that knows you. This builds immediate support: high access and a good candidate fit improve the result, while a failed approach leaves more trace.</p><div class="pickgrid" id="networkGrid"></div>`,[],"wide");
 	const grid=document.querySelector("#networkGrid");
 	networks.forEach(network=>{
 		const access=networkAccess(S,network);
@@ -866,7 +908,7 @@ function openNetworkTargets(network){
 function actionCompromise(){
 	if(S.ap<=0){toast("No action points remain; proceed to scrutiny.");return}
 	const candidates = ELECTORS.filter(e=>e.papabile>=4 || hasTag(e,"Compromise") || hasTag(e,"Broker")).sort((a,b)=>b.papabile-a.papabile || a.rank-b.rank);
-	showModal("Float a compromise",`<p>Choose a name to make thinkable without yet making it a campaign. Compromise names gain more as deadlock rises.</p><div class="pickgrid"></div>`,[],"wide");
+	showModal("Broker a compromise",`<p>Test a consensus name as a remedy rather than a campaign. This does not require network access: it is modest early, grows stronger as deadlock rises, and particularly suits compromise-minded candidates.</p><div class="pickgrid"></div>`,[],"wide");
 	const grid=document.querySelector(".modal .pickgrid");
 	candidates.forEach(c=>grid.appendChild(el("button",{onclick:()=>{
 		closeModal();
@@ -946,6 +988,7 @@ function render(){
 	$("#dateLabel").innerHTML = `${esc(ballotDate())}<br>represented scrutiny ${toRoman(S.ballotNo+1)} · threshold ${threshold()}`;
 	$("#apwrap").innerHTML = hasArrived(S.playerId)?`<span class="ap">AP ${Array.from({length:3},(_,i)=>`<span class="pip ${i>=S.ap?"spent":""}"></span>`).join("")}</span>`:`<span class="ap">travelling · no vote</span>`;
 	$("#phaseLabel").innerHTML=`<b>${esc(phase.label)}</b> · ${esc(phase.text)}`;
+	renderSupportBrief();
 	renderLog();
 	renderRoster();
 	renderPlayer();
@@ -980,6 +1023,21 @@ function renderRoster(){
 		el("div",{class:"nm"},e.short,el("small",null,travelling?"Travelling · admitted 12 December":displayLabel(e.tags[0]))),
 		el("div",{class:"vt",title:valueTitle},value)
 	))});
+}
+function renderSupportBrief(){
+	const host=$("#supportBrief");
+	const choices=supportBriefCandidates();
+	host.innerHTML="";
+	host.appendChild(el("span",{class:"brief-label"},S.ballotNo===0?"Likely opening support":"Best-aligned viable names now"));
+	const list=el("div",{class:"support-candidates"});
+	choices.forEach(choice=>{
+		const candidate=ID[choice.id],alignment=choice.alignment;
+		list.appendChild(el("button",{type:"button",class:"support-candidate","aria-label":`Open dossier for ${candidate.name}`,onclick:()=>showDossier(candidate.id)},
+			el("b",null,candidate.short),
+			el("small",null,`${alignment.score}% ${alignment.label}`)
+		));
+	});
+	host.appendChild(list);
 }
 function renderPlayer(){
 	const p=ID[S.playerId];
@@ -1047,8 +1105,14 @@ function showDossier(id){
 	const axes=["restore","adapt","austria","bourbon","curia","compromise","severity","monastic","temporal"];
 	const axisHtml=axes.map(k=>`<div class="axis"><span>${esc(PROFILE_LABELS[k]||displayLabel(k))}</span><span class="axbar"><span style="width:${axisBarWidth(e.profile[k]||0)}%"></span></span><span>${esc(axisPosition(k,e.profile[k]||0))}</span></div>`).join("");
 	const range=soundingRow(id),hasLast=S.lastCounts&&Object.keys(S.lastCounts).length;
-	const supportText=range?`Latest soundings: <b>${range.low}–${range.high}</b>${S.soundingStale?" (stale)":""}`:hasLast?`Last modelled scrutiny: <b>${S.lastCounts[id]||0}</b>`:"No support estimate: take Soundings first.";
-	showModal(e.name,`<div class="manual"><div class="identity-row">${portraitMarkup(id,"dossier-portrait")}<div><p><b>${esc(ORDER_NAME[e.order])}</b> · age ${e.age} · ${esc(e.country)}${!hasArrived(id)?" · <b>travelling; admitted 12 December</b>":""}</p><p>${esc(e.office)}</p></div></div><p>${esc(e.role)}</p><p>${primaryTags(e).map(t=>`<span class="chip">${esc(displayLabel(t))}</span>`).join(" ")}</p><h4>Current position</h4><p>${supportText}. Papabile rating: <b>${e.papabile}/10</b>. Player difficulty: <b title="Player difficulty">${stars(e.difficulty)}</b>.</p><h4>Political-theological profile</h4>${axisHtml}</div>`,[]);
+	const supportText=range?`Latest soundings: <b>${range.low}–${range.high}</b>${S.soundingStale?" (stale)":""}`:hasLast?`Last modelled scrutiny: <b>${S.lastCounts[id]||0}</b>`:"No support estimate: take Soundings first";
+	const alignment=alignmentWithPlayer(id);
+	const alignmentNote=id===S.playerId
+		?"This is your own political-theological position."
+		:alignment.sharedTags.length
+			?`Shared ground: ${alignment.sharedTags.map(displayLabel).map(esc).join(" · ")}.`
+			:"No strong network overlap; this affinity comes mainly from political and theological position.";
+	showModal(e.name,`<div class="manual"><div class="identity-row">${portraitMarkup(id,"dossier-portrait")}<div><p><b>${esc(ORDER_NAME[e.order])}</b> · age ${e.age} · ${esc(e.country)}${!hasArrived(id)?" · <b>travelling; admitted 12 December</b>":""}</p><p>${esc(e.office)}</p></div></div><p>${esc(e.role)}</p><p>${primaryTags(e).map(t=>`<span class="chip">${esc(displayLabel(t))}</span>`).join(" ")}</p><h4>Current position</h4><p>${supportText}. Papabile rating: <b>${e.papabile}/10</b>. Player difficulty: <b title="Player difficulty">${stars(e.difficulty)}</b>.</p><h4>Alignment with you</h4><div class="alignment-summary"><b>${esc(alignment.label)}</b><span>${alignment.score}% modelled alignment</span></div><div class="alignment-track"><span style="width:${alignment.score}%"></span></div><p class="dim">${alignmentNote}</p><h4>Political-theological profile</h4>${axisHtml}</div>`,[]);
 }
 function showExactRoll(){
 	if(!S.lastRoll)return;
@@ -1061,6 +1125,7 @@ function showRules(){
 			<p>You have three actions before each represented scrutiny. The historical conclave held many more ballots than this playable chronology displays: each dated round condenses a phase of the long deadlock rather than claiming to recreate every secret vote.</p>
 			<p><b>Soundings are uncertain.</b> They give guarded ranges, not an omniscient tally, and later manoeuvres make them stale. The scrutiny book shows the modelled roll from this play-through only; it is not presented as a recovered historical ballot.</p>
 			<p><b>Your networks are personal.</b> A cardinal can work only circles to which he belongs. Access reflects trust and exposure; fit reflects how plausible a candidate is to that circle. Failure still creates a little notice, but leaves a larger trace.</p>
+			<p><b>Promotion and compromise do different work.</b> Network promotion makes an immediate case for a candidate and can fail if access or fit is poor. Brokering a compromise always places a name into circulation, but it is modest before the factions deadlock and strongest for broadly acceptable candidates.</p>
 			<p>Herzan is travelling at the opening: the 30 November round needs <b>23</b> votes from 34 active electors. He was admitted on 12 December; later rounds need <b>24</b> from 35. If you play Herzan, you observe the opening round while travelling and begin acting after arrival.</p>
 		<h4>Venice's pressures</h4>
 		<p><b>Austrian grip</b> can create a virtual veto against Bellisomi or Gerdil. It can strengthen Mattei, but makes the College look dependent on its host.</p>
@@ -1385,7 +1450,7 @@ function runHeadless(seed,playerId,maxBallots=20){
 	}
 	return {seed:S.seed,playerId:S.playerId,winner:S.electedId,papalName:S.papalName,ballots:S.ballotNo,history:S.history.map(h=>({ballot:h.ballot,date:h.date,threshold:h.threshold,electors:h.electors,counts:{...h.counts},roll:h.roll.map(v=>({...v}))})),over:S.over,score:S.over?scoreGame().total:0};
 }
-const VENICE_1800_ENGINE={ELECTORS,ID,initState,conductBallot,runHeadless,activeElectors,threshold,legalCandidateFor,validateBallotRoll,validateVeniceSave,forecastCounts,makeSounding,phaseForState,playerNetworks,networkAccess,networkFit,resolveNetworkAction,portraitFor,axisPosition,choosePapalName,evaluateObjective,scoreGame,getState:()=>S};
+const VENICE_1800_ENGINE={ELECTORS,ID,initState,conductBallot,runHeadless,activeElectors,threshold,legalCandidateFor,validateBallotRoll,validateVeniceSave,forecastCounts,makeSounding,phaseForState,playerNetworks,networkAccess,networkFit,resolveNetworkAction,alignmentWithPlayer,supportBriefCandidates,portraitFor,axisPosition,choosePapalName,evaluateObjective,scoreGame,getState:()=>S};
 if(typeof module!=="undefined")module.exports=VENICE_1800_ENGINE;
 if(typeof window!=="undefined")window.__om=VENICE_1800_ENGINE;
 if(typeof document!=="undefined")wire();
