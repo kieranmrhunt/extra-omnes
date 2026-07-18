@@ -102,10 +102,20 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 .ccard .nm{font-family:var(--display);font-weight:600;font-size:1.12rem;color:#fff;margin:.14rem 0 .1rem;line-height:1.15}
 .ccard .office{font-family:var(--serif);font-size:.92rem;color:var(--paper-dim);min-height:2.6em;line-height:1.3}
 .ccard .meta{font-family:var(--mono);font-size:.68rem;color:var(--gold);display:flex;justify-content:space-between;gap:.5rem;letter-spacing:.02em}
+.selection-identity{display:grid;grid-template-columns:68px minmax(0,1fr);gap:.72rem;align-items:start;margin-top:.5rem}
+.selection-identity .office{min-height:0}
 .chips{display:flex;flex-wrap:wrap;gap:.28rem;margin:.5rem 0}
 .chip{font-family:var(--mono);font-size:.58rem;text-transform:uppercase;letter-spacing:.07em;border:1px solid var(--line2);border-radius:999px;padding:.13rem .4rem;color:var(--paper-dim)}
 .chip.hot{border-color:rgba(198,76,88,.65);color:#e8a1a8}
 .hook{font-family:var(--serif);font-size:.95rem;color:var(--paper-dim);font-style:italic;border-top:1px solid var(--line);padding-top:.5rem;margin-top:.5rem;line-height:1.3}
+.portrait-unit{display:block;width:68px;flex:none}
+.portrait-unit.end-portrait{width:112px;margin:.8rem auto .2rem}
+.cardinal-thumb{position:relative;display:block;width:100%;aspect-ratio:4/5;border:1px solid var(--line2);border-radius:7px;overflow:hidden;background:linear-gradient(145deg,#253442,#121a22)}
+.portrait-link{position:relative;z-index:1;display:block;width:100%;height:100%}
+.cardinal-thumb img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block;filter:saturate(.78) contrast(1.03)}
+.portrait-fallback{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--display);font-size:1.35rem;color:var(--gold2);letter-spacing:.08em}
+.end-portrait .portrait-fallback{font-size:2rem}
+.identity-row{display:grid;grid-template-columns:68px minmax(0,1fr);gap:.72rem;align-items:start}
 .startbar{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:center;text-align:center;position:sticky;bottom:0;background:linear-gradient(transparent,var(--void2) 36%);padding:1.35rem 0 .45rem}
 .startbar .primary{font-size:1.02rem;padding:.7rem 1.4rem}
 .seedrow{flex-basis:100%;margin-top:.4rem;font-family:var(--mono);font-size:.74rem;color:var(--paper-faint)}
@@ -145,6 +155,7 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 .ap{font-family:var(--mono);font-size:.74rem;color:var(--paper-dim);letter-spacing:.04em}
 .pip{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--gold);margin-left:4px;box-shadow:0 0 6px rgba(202,165,90,.5)}
 .pip.spent{background:#3d4754;box-shadow:none}
+.phase-label{font-family:var(--mono);font-size:.67rem;color:var(--lagoon);letter-spacing:.05em;margin:.1rem 0 .7rem}
 #meters{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.45rem .8rem}
 .meter{margin:.1rem 0 .35rem}
 .meter .lb{display:flex;justify-content:space-between;gap:.4rem;font-family:var(--mono);font-size:.64rem;text-transform:uppercase;letter-spacing:.06em;color:var(--paper-dim);margin-bottom:.18rem}
@@ -171,8 +182,11 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 .rtrack{position:relative;height:10px;background:#0d141c;border-radius:999px;overflow:hidden;box-shadow:inset 0 0 0 1px var(--line)}
 .rtrack::after{content:"";position:absolute;right:0;top:0;bottom:0;width:2px;background:var(--gold);opacity:.55}
 .rfill{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--scarlet),var(--gold));transition:width .55s cubic-bezier(.2,.7,.2,1)}
+.range-track{position:relative;height:10px;background:#0d141c;border-radius:999px;overflow:hidden;box-shadow:inset 0 0 0 1px var(--line)}
+.range-track::after{content:"";position:absolute;right:0;top:0;bottom:0;width:2px;background:var(--gold);opacity:.55}
+.range-band{position:absolute;top:1px;height:8px;border-radius:999px;background:linear-gradient(90deg,var(--lagoon),var(--gold2));opacity:.88}
 .rfill.win{background:linear-gradient(90deg,var(--gold),#fff1cf);box-shadow:0 0 10px rgba(239,208,138,.7)}
-.rnum{font-family:var(--mono);font-size:.78rem;color:var(--gold2);text-align:right}
+.rnum{font-family:var(--mono);font-size:.72rem;color:var(--gold2);text-align:right;white-space:nowrap}
 .board-note{font-family:var(--serif);font-size:.92rem;color:var(--paper-dim);line-height:1.35;margin:.35rem 0 .55rem}
 .rollbtn{width:100%;margin-top:.55rem;font-family:var(--mono);font-size:.7rem;letter-spacing:.06em;color:var(--paper-dim)}
 .overlay{position:fixed;inset:0;background:rgba(6,8,11,.82);z-index:90;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px);animation:fade .18s ease}
@@ -192,7 +206,7 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 .exact-roll table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.76rem}
 .exact-roll td,.exact-roll th{border-bottom:1px solid var(--line);padding:.3rem .38rem;text-align:left}
 .exact-roll th{color:var(--gold);font-size:.64rem;text-transform:uppercase;letter-spacing:.08em;position:sticky;top:0;background:var(--surface2)}
-.axis{display:grid;grid-template-columns:128px 1fr 74px;gap:.45rem;align-items:center;font-family:var(--mono);font-size:.72rem;color:var(--paper-dim);margin:.16rem 0}
+.axis{display:grid;grid-template-columns:118px minmax(70px,1fr) minmax(128px,1.35fr);gap:.45rem;align-items:center;font-family:var(--mono);font-size:.7rem;color:var(--paper-dim);margin:.22rem 0}
 .axis .axbar{height:5px;background:#0d141c;border-radius:999px;overflow:hidden;position:relative}
 .axis .axbar::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--line2)}
 .axis .axbar span{display:block;height:100%;background:linear-gradient(90deg,#47748a,var(--lagoon))}
@@ -207,6 +221,10 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 .endsub{text-align:center;font-family:var(--serif);color:var(--paper-dim);font-style:italic;font-size:1.2rem}
 .endbody{font-family:var(--serif);max-width:64ch;margin:1.6rem auto;font-size:1.18rem;line-height:1.6}
 .endbody b{color:var(--gold2);font-weight:600}
+.score-total{text-align:center;font-family:var(--display);font-size:2rem;color:var(--gold2);margin:.3rem 0}
+.score-grade{text-align:center;font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--paper-dim)}
+.score-parts{display:grid;grid-template-columns:1fr auto;gap:.3rem .8rem;margin-top:.7rem;font-family:var(--mono);font-size:.72rem}
+.score-parts span:nth-child(even){text-align:right;color:var(--gold2)}
 .regnal{display:flex;gap:.45rem;flex-wrap:wrap;justify-content:center;margin:.9rem auto;max-width:760px}
 .regnal button{font-family:var(--display);font-size:.98rem}
 .regnal button.sel{border-color:var(--gold);color:var(--gold2)}
@@ -220,8 +238,8 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 #toast.show{opacity:1;transform:translate(-50%,0)}
 @keyframes fade{from{opacity:0}to{opacity:1}}
 @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-@media(max-width:1050px){#screen-game{display:flex;flex-direction:column}#screen-game header{order:0}#centercol{order:1}#rightcol{order:2}#leftcol{order:3}.col{border-right:0;border-bottom:1px solid var(--line)}.roster{max-height:380px}.actions{grid-template-columns:1fr 1fr}.selbar{grid-template-columns:1fr 1fr}#log{height:42vh}}
-@media(max-width:580px){.grid-cards{grid-template-columns:1fr}.selbar{grid-template-columns:1fr}.actions{grid-template-columns:1fr}.actions button.primary{grid-column:auto}#screen-game header{flex-wrap:wrap}#screen-game header .date{width:100%;text-align:left;margin-left:0}#meters{grid-template-columns:1fr 1fr}}
+@media(max-width:1050px){#screen-game{display:flex;flex-direction:column}#screen-game header{order:0}#centercol{order:1}#rightcol{order:2}#leftcol{order:3}.col{border-right:0;border-bottom:1px solid var(--line)}.roster{max-height:380px}.actions{grid-template-columns:1fr 1fr}.selbar{grid-template-columns:1fr 1fr}#log{height:36vh}#meters{grid-template-columns:repeat(3,1fr)}#pressureSummary{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem}.network-card{margin:0}}
+@media(max-width:580px){.grid-cards{grid-template-columns:1fr}.selbar{grid-template-columns:1fr}.actions{grid-template-columns:1fr 1fr}.actions button.primary{grid-column:1/-1}#screen-game header{display:grid;grid-template-columns:auto 1fr auto auto;padding:.7rem}#screen-game header h1{font-size:1.05rem}#screen-game header .date{grid-column:1/-1;width:100%;text-align:left;margin-left:0}.col{padding:.78rem}#log{height:34vh}.phase-label{line-height:1.35}.selection-identity{grid-template-columns:62px minmax(0,1fr)}#meters{grid-template-columns:1fr 1fr}#pressureSummary{grid-template-columns:1fr 1fr}.meter .help,.network-card .dim{display:none}.racerow{grid-template-columns:74px 1fr 48px}.identity-row{grid-template-columns:58px minmax(0,1fr)}.axis{grid-template-columns:92px 1fr;gap:.3rem}.axis>span:last-child{grid-column:1/-1;text-align:left;padding-left:95px;color:var(--paper-dim)}}
 @media(prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto}}
 </style>
 </head>
@@ -263,14 +281,14 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 	</div>
 	<div class="col" id="centercol">
 		<div class="colhead"><span>San Giorgio Maggiore</span><span id="apwrap"></span></div>
+		<div class="phase-label" id="phaseLabel"></div>
 		<div id="log"></div>
 		<div class="actions">
 			<button id="actSound">Soundings</button>
-			<button id="actBellisomi">Work Bellisomi</button>
-			<button id="actMattei">Work Mattei</button>
+			<button id="actNetwork">Work your networks</button>
 			<button id="actCompromise">Float compromise</button>
 			<button id="actHerzan">Treat with Herzan</button>
-			<button id="actConsalvi">Use Consalvi</button>
+			<button id="actConsalvi">Consult Consalvi</button>
 			<button id="actSupplies">Petition the monastery</button>
 			<button id="actPrayer">Prayer / silence</button>
 			<button id="ballotBtn" class="primary">Proceed to scrutiny</button>
@@ -279,17 +297,19 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 	<div class="col" id="rightcol">
 		<div class="colhead"><span>Your standing</span></div>
 		<div id="playerBox" class="statusbox objective"></div>
-		<div id="meters"></div>
 		<div class="colhead" style="margin-top:.8rem"><span>Scrutiny board</span></div>
 		<div id="board"></div>
-		<div class="colhead" style="margin-top:.8rem"><span>Pressures</span></div>
+		<div class="colhead" style="margin-top:.8rem"><span>Conclave pressures</span></div>
 		<div id="pressureSummary"></div>
+		<div class="colhead" style="margin-top:.8rem"><span>Your position</span></div>
+		<div id="meters"></div>
 	</div>
 </section>
 <section id="screen-end" class="hidden">
 	<div class="titleblock"><div class="over">THE CONCLAVE OF VENICE IS ENDED</div></div>
 	<h1 class="endtitle" id="endTitle"></h1>
 	<div class="endsub" id="endSub"></div>
+	<div id="endPortrait"></div>
 	<div id="endRegnal"></div>
 	<div class="endbody" id="endBody"></div>
 	<div id="endStats"></div>
@@ -317,7 +337,7 @@ const ELECTORS = [
 	{rank:14,id:"archetti",short:"Archetti",name:"Giovanni Andrea Archetti",country:"Cisalpine Republic",age:68,order:"P",office:"Archbishop-bishop of Ascoli Piceno; former nuncio",role:"Diplomatic experience, useful to whichever party survives.",tags:["Curia","Diplomat","Mattei","Compromise","Cisalpine"],papabile:5,difficulty:3,profile:{restore:.75,adapt:.0,austria:.55,bourbon:.05,curia:1.0,compromise:.55,severity:.65,monastic:0,temporal:.75}},
 	{rank:15,id:"gdoria",short:"G. Doria",name:"Giuseppe Maria Doria Pamphilj",country:"Republic of Genoa",age:48,order:"P",office:"Former Secretary of State; archbishop in partibus",role:"Genoese administrator with family influence and Roman reach.",tags:["Curia","Roman","Compromise","Young"],papabile:5,difficulty:3,profile:{restore:.55,adapt:.15,austria:.2,bourbon:.05,curia:1.25,compromise:.75,severity:.5,monastic:0,temporal:.65}},
 	{rank:16,id:"chiaramonti",short:"Chiaramonti",name:"Barnaba Chiaramonti",country:"Cisalpine Republic",age:57,order:"P",office:"Bishop of Imola; Benedictine of San Callisto",role:"The real compromise: a monk-bishop who has lived under French rule without surrendering the Church.",tags:["Compromise","Monastic","Cisalpine","Accommodation","Pastor","Papabile"],papabile:7,difficulty:2,profile:{restore:.55,adapt:.65,austria:.15,bourbon:.0,curia:.55,compromise:1.55,severity:.25,monastic:1.45,temporal:.55}},
-	{rank:17,id:"bellisomi",short:"Bellisomi",name:"Carlo Bellisomi",country:"Cisalpine Republic",age:63,order:"P",office:"Archbishop-bishop of Cesena; former nuncio",role:"The early viable candidate: conciliatory, experienced, and unacceptable to the imperial bloc.",tags:["Bellisomi","Accommodation","Diplomat","Pastor","Papabile"],papabile:9,difficulty:2,profile:{restore:.25,adapt:1.05,austria:-.65,bourbon:.05,curia:.65,compromise:1.0,severity:.1,monastic:0,temporal:.4}},
+	{rank:17,id:"bellisomi",short:"Bellisomi",name:"Carlo Bellisomi",country:"Cisalpine Republic",age:63,order:"P",office:"Archbishop-bishop of Cesena; former nuncio",role:"The early viable candidate: conciliatory, experienced, and unacceptable to the imperial bloc.",tags:["Bellisomi","Accommodation","Diplomat","Pastor","Papabile"],papabile:9,difficulty:3,profile:{restore:.25,adapt:1.05,austria:-.65,bourbon:.05,curia:.65,compromise:1.0,severity:.1,monastic:0,temporal:.4}},
 	{rank:18,id:"lorenzana",short:"Lorenzana",name:"Francisco Antonio de Lorenzana",country:"Spain",age:77,order:"P",office:"Archbishop of Toledo; Spanish agent",role:"Spain's voice inside the College; a late veto could arrive through him.",tags:["Spanish","Crown","Bourbon","Broker","Elder"],papabile:3,difficulty:5,profile:{restore:.9,adapt:-.15,austria:-.15,bourbon:1.15,curia:.55,compromise:.45,severity:.65,monastic:0,temporal:.75}},
 	{rank:19,id:"busca",short:"Busca",name:"Ignazio Busca",country:"Republic of Genoa",age:68,order:"P",office:"Former Secretary of State",role:"A cautious administrator, scarred by the diplomacy of disaster.",tags:["Curia","Restoration","Diplomat","Compromise"],papabile:4,difficulty:4,profile:{restore:.85,adapt:-.15,austria:.35,bourbon:.05,curia:1.2,compromise:.45,severity:.65,monastic:0,temporal:.9}},
 	{rank:20,id:"borgia",short:"Borgia",name:"Stefano Borgia",country:"Papal States",age:68,order:"P",office:"Prefect of Propaganda Fide; scholar and collector",role:"World-Church memory in a College obsessed with lost territory.",tags:["Curia","Scholar","Compromise","Roman","WorldChurch"],papabile:5,difficulty:3,profile:{restore:.55,adapt:.2,austria:.05,bourbon:.0,curia:1.15,compromise:.95,severity:.35,monastic:0,temporal:.45}},
@@ -339,6 +359,29 @@ const ELECTORS = [
 ];
 const FACTIONS = ["All","Bellisomi","Mattei","Austrian","Bourbon","French","Roman","Curia","Restoration","Accommodation","Compromise","Monastic","Broker","Elder","Young"];
 const DISPLAY_LABELS = {Bellisomi:"Bellisomi bloc",Mattei:"Mattei bloc",Austrian:"Austrian/imperial",Bourbon:"Bourbon courts",Accommodation:"Accommodation",Compromise:"Compromise",Monastic:"Monastic",Broker:"Broker",Camerlengo:"Camerlengo",LateArrival:"Late arrival",WorldChurch:"World Church",Zelanti:"Zelanti"};
+const WORKABLE_NETWORKS = ["Bellisomi","Mattei","Austrian","Bourbon","French","Roman","Curia","Restoration","Accommodation","Compromise","Monastic","Broker","Pastor","Diplomat","Zelanti","Cisalpine","Neapolitan","Crown"];
+const PORTRAIT_FILES = {
+	albani:"Ritratto di Giovanni Francesco Albani (1720-1803).jpg",
+	stuart:"Circle of Anton Raphael Mengs, Henry Benedict Maria Clement Stuart, Cardinal York (ca 1750) -001.jpg",
+	antonelli:"Cardinale Leonardo Antonelli.jpg",
+	valenti:"Cardinale Luigi Valenti Gonzaga.jpg",
+	carafa:"Maron - Francesco Carafa.jpg",
+	zelada:"Anton Raphael Mengs - Bildnis des Kardinals Zelada (Art Institute of Chicago).jpg",
+	calcagnini:"1776 GUIDO CALCAGNINI - CALCAGNINI GUIDO.JPG",
+	honorati:"Cardinal Honorati.JPG",
+	gioannetti:"Portret van kardinaal Andrea Gioannetti, RP-P-1909-4880 (cropped).jpg",
+	gerdil:"Hyacinthe-Sigismond Gerdil.jpg",
+	herzan:"Franziskus von Paula Herzan von Harras.jpg",
+	mattei:"Alessandro Mattei.jpg",
+	archetti:"Giovanni Andrea Archetti.jpg",
+	gdoria:"Giuseppe Maria Doria Pamphilj.jpg",
+	chiaramonti:"Sir Thomas Lawrence - Portrait of Pope Pius VII.jpg",
+	bellisomi:"Carlo Bellisomi.jpg",
+	lorenzana:"El cardenal Francisco Antonio de Lorenzana (Museo del Prado).jpg",
+	busca:"Ignazio Busca.jpg",
+	borgia:"Stefano Borgia.jpg"
+};
+const WIKIPEDIA_PAGES = {albani:1756345,stuart:62777,antonelli:5684559,valenti:24786938,carafa:35583812,zelada:14000141,calcagnini:35584252,honorati:35887114,gioannetti:35929576,gerdil:9366617,herzan:35571553,mattei:13550527,archetti:15296966,gdoria:31649234,chiaramonti:69246,bellisomi:35571681,lorenzana:15463384,busca:11477939,borgia:15457766};
 const METRIC_LABELS = {stature:"Stature",trust:"Trust",secrecy:"Secrecy",exposure:"Exposure",fatigue:"Exile fatigue",austrianGrip:"Austrian grip",frenchAlarm:"French alarm",temporal:"Temporal restoration",adaptation:"Accommodation",compromise:"Compromise pressure",deadlock:"Deadlock"};
 const METRIC_HELP = {
 	stature:"How much weight your judgement carries in the cloister.",
@@ -354,14 +397,27 @@ const METRIC_HELP = {
 	deadlock:"How plainly the College has trapped itself between two failed candidacies."
 };
 const PRESSURE_KEYS = ["austrianGrip","frenchAlarm","fatigue","deadlock","compromise"];
+const POSITION_KEYS = ["stature","trust","secrecy","exposure","temporal","adaptation"];
+const AXIS_DIRECTIONS = {
+	restore:["accommodation","restoration"],
+	adapt:["restorationist","adaptationist"],
+	austria:["independent of Vienna","Austrian-aligned"],
+	bourbon:["distant from Bourbon courts","Bourbon-aligned"],
+	curia:["diocesan","curial"],
+	compromise:["factional","compromise-minded"],
+	severity:["conciliatory","rigorist"],
+	monastic:["secular","monastic"],
+	temporal:["spiritual-first","temporal restoration"]
+};
+const PROFILE_LABELS = {restore:"Restoration",adapt:"Accommodation",austria:"Relation to Vienna",bourbon:"Bourbon courts",curia:"Curial outlook",compromise:"Compromise",severity:"Discipline",monastic:"Monastic life",temporal:"Temporal power"};
 const ORDER_NAME = {B:"Cardinal-bishop",P:"Cardinal-priest",D:"Cardinal-deacon"};
 const THRESHOLD = 24;
 const FORECAST_TEMPERATURE = 1.8;
 const BALLOT_TEMPERATURE = 1.8;
 const CHOICE_POOL = 10;
-const BALLOT_DATES = ["30 November 1799","17 December 1799","28 December 1799","4 January 1800","21 January 1800","15 February 1800","1 March 1800","12 March 1800","14 March 1800","After Marengo's rumour"];
-const SAVE_KEY = "extra-omnes-venice-1800-v2";
-const SAVE_SCHEMA = 2;
+const BALLOT_DATES = ["30 November 1799","17 December 1799","28 December 1799","4 January 1800","21 January 1800","15 February 1800","1 March 1800","12 March 1800","14 March 1800","15 March 1800 · alternate continuation","16 March 1800 · alternate continuation"];
+const SAVE_KEY = "extra-omnes-venice-1800-v3";
+const SAVE_SCHEMA = 3;
 const PAPAL_NAMES_1800 = ["Pius VII","Leo XII","Clement XV","Gregory XVI","Benedict XV","Innocent XIV","Adrian VII","Urban IX","Nicholas VI"];
 const PAPAL_NAME_FLAVOR_1800 = {
 	"Pius VII":"continuity with Pius VI, the prisoner of Valence: endurance, legitimacy and refusal to concede that revolution has ended the papacy.",
@@ -386,6 +442,7 @@ function htmlToText(s){const d=document.createElement("div");d.innerHTML=s;retur
 function $(q){return document.querySelector(q)}
 function el(tag,attrs,...kids){const e=document.createElement(tag);if(attrs){Object.entries(attrs).forEach(([k,v])=>{if(k==="class")e.className=v;else if(k==="html")e.innerHTML=v;else if(k.startsWith("on"))e.addEventListener(k.slice(2),v);else e.setAttribute(k,v)})}kids.flat().forEach(k=>{if(k==null||k===false)return;e.appendChild(k&&k.nodeType?k:document.createTextNode(String(k)))});return e}
 function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.remove("hidden");t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),2600)}
+function scrollToTop(){if(typeof window!=="undefined"&&typeof window.scrollTo==="function")window.scrollTo(0,0)}
 function hashSeed(str){let h=1779033703^String(str).length;for(let i=0;i<String(str).length;i++){h=Math.imul(h^String(str).charCodeAt(i),3432918353);h=h<<13|h>>>19}return h>>>0}
 function mulberry32(a){let s=a>>>0;const r=function(){s|=0;s=s+0x6D2B79F5|0;r.state=s>>>0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296};r.state=s>>>0;r.set=function(v){s=v>>>0;r.state=s>>>0};return r}
 function rnd(){const v=S.rng();S.rngState=S.rng.state;return v}
@@ -395,7 +452,14 @@ function threshold(){return Math.ceil(activeElectors().length*2/3)}
 function legalCandidateFor(voter,candidate){return !!(ID[voter]&&ID[candidate]&&voter!==candidate)}
 function signed(n){return (n>0?"+":"") + Math.round(n)}
 function metricLevel(k,v){const bad=["exposure","fatigue","austrianGrip","frenchAlarm","deadlock"].includes(k);if(v>=78)return bad?"dangerous":"high";if(v>=58)return bad?"rising":"strong";if(v>=36)return "mixed";if(v>=18)return bad?"low":"fragile";return bad?"quiet":"very weak"}
-function axisBand(v){if(v>=1.25)return "very high";if(v>=.55)return "high";if(v>.12)return "moderate";if(v>=-.12)return "middle";if(v>=-.55)return "low";return "very low"}
+function axisPosition(key,value){
+	const labels=AXIS_DIRECTIONS[key]||["low","high"];
+	if(value>=1.2)return `strongly ${labels[1]}`;
+	if(value>=.45)return `leans ${labels[1]}`;
+	if(value>-.45)return `between ${labels[0]} and ${labels[1]}`;
+	if(value>-1.2)return `leans ${labels[0]}`;
+	return `strongly ${labels[0]}`;
+}
 function axisBarWidth(v){return clamp((v+1.8)/3.6*100,0,100)}
 function stars(n){return "★".repeat(n)+"☆".repeat(5-n)}
 function hasTag(e,t){return e.tags.includes(t)}
@@ -416,7 +480,76 @@ function modMetric(k,n){S.metrics[k]=clamp((S.metrics[k]||0)+n,0,100)}
 function modSupport(id,n){S.support[id]=clamp((S.support[id]||0)+n,-6,12)}
 function modMomentum(id,n){S.momentum[id]=clamp((S.momentum[id]||0)+n,-6,14)}
 function profileScore(voter,candidate){let s=0;for(const k of Object.keys(candidate.profile)){s += (voter.profile[k]||0)*(candidate.profile[k]||0)*.34}return s}
+function profileSimilarity(a,b){
+	const keys=Object.keys(a.profile);
+	const distance=keys.reduce((sum,k)=>sum+Math.abs((a.profile[k]||0)-(b.profile[k]||0)),0)/(keys.length*3.6);
+	return clamp(1-distance,0,1);
+}
 function baseRelationship(a,b){let r=0;if(a.id===b.id)return -.55;for(const t of a.tags){if(b.tags.includes(t))r+=.16}if(a.country===b.country)r+=.28;if(hasTag(a,"Austrian")&&hasTag(b,"Austrian"))r+=.6;if(hasTag(a,"Bourbon")&&hasTag(b,"Bourbon"))r+=.45;if(hasTag(a,"Bellisomi")&&b.id==="bellisomi")r+=.9;if(hasTag(a,"Mattei")&&b.id==="mattei")r+=.9;if(hasTag(a,"Accommodation")&&hasTag(b,"Accommodation"))r+=.45;if(hasTag(a,"Zelanti")&&hasTag(b,"Zelanti"))r+=.45;if(a.id==="herzan"&&b.id==="mattei")r+=1.7;if(a.id==="braschi"&&b.id==="bellisomi")r+=1.35;if(a.id==="albani"&&b.id==="bellisomi")r+=.9;if(a.id==="antonelli"&&b.id==="mattei")r+=1.15;if(a.id==="dugnani"&&b.id==="chiaramonti")r+=.8;if(a.id==="maury"&&b.id==="chiaramonti")r+=.75;if(a.id==="caprara"&&b.id==="mattei")r-=1.0;if(a.id==="herzan"&&b.id==="bellisomi")r-=1.25;return clamp(r,-1.8,2.8)}
+function unitFrom(text){return hashSeed(text)/4294967296}
+function portraitInitials(e){return e.name.split(/\s+/).filter(Boolean).slice(0,2).map(part=>part[0]).join("")}
+function portraitFor(id){
+	const file=PORTRAIT_FILES[id],page=WIKIPEDIA_PAGES[id];
+	if(!file||!page)return null;
+	return {
+		src:`https://commons.wikimedia.org/wiki/Special:Redirect/file/${encodeURIComponent(file)}?width=320`,
+		wikipedia:`https://en.wikipedia.org/?curid=${page}`
+	};
+}
+function portraitMarkup(id,variant=""){
+	const e=ID[id],portrait=portraitFor(id);
+	if(!portrait)return `<span class="portrait-unit ${esc(variant)}"><span class="cardinal-thumb"><span class="portrait-fallback" aria-hidden="true">${esc(portraitInitials(e))}</span></span></span>`;
+	return `<span class="portrait-unit ${esc(variant)}"><span class="cardinal-thumb"><a class="portrait-link" href="${esc(portrait.wikipedia)}" target="_blank" rel="noopener" title="Portrait and biography of ${esc(e.name)}"><img src="${esc(portrait.src)}" alt="Portrait of ${esc(e.name)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"><span class="portrait-fallback" style="display:none" aria-hidden="true">${esc(portraitInitials(e))}</span></a></span></span>`;
+}
+function phaseForState(state=S){
+	const ballot=state?state.ballotNo:0;
+	if(ballot<=1)return {id:"opening",label:"Opening majority",text:"Bellisomi has the broadest early coalition, but Vienna is organising a ceiling."};
+	if(ballot<=4)return {id:"blockade",label:"Imperial blockade",text:"Bellisomi and Mattei divide the College while Herzan turns preference into pressure."};
+	if(ballot<=6)return {id:"alternatives",label:"Search for alternatives",text:"Gerdil, Valenti and quieter committee names are tested against both courts."};
+	return {id:"settlement",label:"The late settlement",text:"Factional candidates have shown their limits; compromise and governing capacity now matter most."};
+}
+function historicalPhaseBias(candidateId,ballotNo=S.ballotNo){
+	if(ballotNo<=1)return candidateId==="bellisomi"?2.6:candidateId==="mattei"?.55:candidateId==="chiaramonti"?-1.35:0;
+	if(ballotNo<=4)return candidateId==="bellisomi"?1.25:candidateId==="mattei"?1.25:candidateId==="chiaramonti"?-.9:["gerdil","valenti"].includes(candidateId)?.3:0;
+	if(ballotNo<=6)return ["gerdil","valenti","calcagnini","honorati","borgia","archetti"].includes(candidateId)?1.25:["bellisomi","mattei"].includes(candidateId)?.25:candidateId==="chiaramonti"?-.3:0;
+	return candidateId==="chiaramonti"?3.15:["bellisomi","mattei"].includes(candidateId)?-1.05:["gerdil","valenti","calcagnini","honorati","borgia","dugnani"].includes(candidateId)?.35:0;
+}
+function playerNetworks(state=S){
+	const player=ID[state.playerId];
+	return WORKABLE_NETWORKS.filter(network=>player.tags.includes(network)&&ELECTORS.some(e=>e.id!==player.id&&e.tags.includes(network)));
+}
+function networkMembers(network){return ELECTORS.filter(e=>e.tags.includes(network))}
+function networkFit(state,network,candidateId){
+	const candidate=ID[candidateId],members=networkMembers(network);
+	if(!candidate||!members.length)return 0;
+	return members.reduce((sum,member)=>sum+profileSimilarity(member,candidate),0)/members.length;
+}
+function networkAccess(state,network){
+	const player=ID[state.playerId],members=networkMembers(network).filter(e=>e.id!==player.id);
+	if(!members.length)return 0;
+	const inside=player.tags.includes(network);
+	const relationship=members.reduce((sum,e)=>sum+(state.relationships[player.id]?.[e.id]||0),0)/members.length;
+	return clamp((inside?.66:.28)+relationship*.1+(state.metrics.trust-50)/250-(state.metrics.exposure-35)/350,0,1);
+}
+function resolveNetworkAction(state,network,candidateId){
+	if(state!==S)throw new Error("Network actions must resolve against the active conclave");
+	if(!playerNetworks(state).includes(network)||!ID[candidateId])throw new Error("Invalid network action");
+	const access=networkAccess(state,network),fit=networkFit(state,network,candidateId);
+	const roll=unitFrom(`${state.seed}|${state.ballotNo}|${network}|${candidateId}|${state.networkActions.length}`);
+	const chance=clamp(.18+access*.48+fit*.32-state.metrics.exposure/500,.12,.9);
+	const success=roll<chance;
+	const gain=success?.85+access*.65+fit*.55:.18+fit*.25;
+	modSupport(candidateId,gain);
+	modMetric("trust",success?3:-1);
+	modMetric("exposure",success?3:6);
+	if(["Austrian","Mattei","Restoration","Crown"].includes(network)){modMetric("austrianGrip",success?3:1);modMetric("temporal",3)}
+	if(["Bellisomi","Accommodation","Cisalpine","Pastor"].includes(network))modMetric("adaptation",4);
+	if(["Compromise","Broker","Diplomat","Curia","Monastic"].includes(network))modMetric("compromise",3);
+	state.player.endorsedId=candidateId;
+	const result={network,candidateId,success,access,fit,gain,roll};
+	state.networkActions.push(result);
+	return result;
+}
 function objectiveFor(e){
 	if(e.id==="chiaramonti")return {title:"A monk without a faction",text:"Become the compromise only after Bellisomi and Mattei have spent themselves.",kind:"win_late"};
 	if(e.id==="bellisomi")return {title:"Break the virtual veto",text:"Win before Vienna can freeze your ceiling, or hand the settlement to a humane compromise.",kind:"bellisomi"};
@@ -432,9 +565,9 @@ function initState(playerId,seed,opts={}){
 	const rng = mulberry32(hashSeed(seed));
 	const destiny = {};
 	ELECTORS.forEach(a=>{destiny[a.id]={};ELECTORS.forEach(b=>{destiny[a.id][b.id]=rng()-.5})});
-	S = {schemaVersion:SAVE_SCHEMA,version:"venice-1800-v2",seed:String(seed),rng,rngState:rng.state,playerId,headless:!!opts.headless,ballotNo:0,ap:3,over:false,electedId:null,papalName:null,log:[],history:[],lastCounts:{},lastRoll:null,lastForecast:null,forecastBallot:null,forecastStale:false,support:{},momentum:{},intel:false,flags:{herzanArrived:false},destiny,relationships:{},
+	S = {schemaVersion:SAVE_SCHEMA,version:"venice-1800-v3",seed:String(seed),rng,rngState:rng.state,playerId,headless:!!opts.headless,ballotNo:0,ap:3,over:false,electedId:null,papalName:null,log:[],history:[],lastCounts:{},lastRoll:null,lastSounding:null,soundingStale:false,networkActions:[],support:{},momentum:{},flags:{herzanArrived:false},destiny,relationships:{},
 		metrics:{stature:42,trust:52,secrecy:68,exposure:8,fatigue:16,austrianGrip:62,frenchAlarm:34,temporal:58,adaptation:42,compromise:18,deadlock:10},
-		player:{objective:objectiveFor(ID[playerId])}
+		player:{objective:objectiveFor(ID[playerId]),endorsedId:null}
 	};
 	ELECTORS.forEach(a=>{S.relationships[a.id]={};ELECTORS.forEach(b=>{S.relationships[a.id][b.id]=baseRelationship(a,b)});S.support[a.id]=0;S.momentum[a.id]=0});
 	if(playerId==="herzan")S.ap=0;
@@ -444,10 +577,12 @@ function initState(playerId,seed,opts={}){
 	if(playerId==="herzan")log(`You have not yet reached the island. The opening represented scrutiny will be resolved while you travel; you enter the cloister on <b>12 December</b> and vote thereafter.`,"event");
 	log(`Your private objective: <b>${esc(S.player.objective.title)}</b> — ${esc(S.player.objective.text)}`,"event");
 	log(`Bellisomi has breadth, Mattei has Vienna, and the rest of the College hopes the Holy Spirit can still be heard over the ambassadors.`,"");
+	return S;
 }
 function scoreCandidate(voter,candidate,forecast=false){
 	if(voter.id===candidate.id)return -1e9;
 	let score = candidate.papabile*.72 + (S.support[candidate.id]||0) + (S.momentum[candidate.id]||0)*.55 + S.relationships[voter.id][candidate.id] + profileScore(voter,candidate);
+	score += historicalPhaseBias(candidate.id);
 	score += (S.destiny[voter.id]?.[candidate.id]||0)*.72;
 	if(candidate.id===S.playerId)score += (S.metrics.stature-42)/12 + (S.metrics.trust-52)/18 - Math.max(0,S.metrics.exposure-45)/28;
 	if(candidate.id==="bellisomi")score += 1.9 + S.metrics.adaptation/28 - S.metrics.austrianGrip/36 - Math.max(0,S.metrics.deadlock-45)/28;
@@ -507,6 +642,21 @@ function forecastCounts(){
 	});
 	return apportionForecast(raw);
 }
+function makeSounding(state=S){
+	const forecast=forecastCounts();
+	const phase=phaseForState(state);
+	const baseMargin=phase.id==="opening"?3:phase.id==="settlement"?2:4;
+	const rows=sortedCounts(forecast).slice(0,8).map(({id,n})=>{
+		const noise=Math.floor(unitFrom(`${state.seed}|sounding|${state.ballotNo}|${id}`)*3)-1;
+		const centre=clamp(n+noise,0,activeElectors().length);
+		const margin=baseMargin+(unitFrom(`${state.seed}|margin|${state.ballotNo}|${id}`)>.68?1:0);
+		return {id,low:Math.max(0,centre-margin),high:Math.min(activeElectors().length,centre+margin)};
+	});
+	return {ballot:state.ballotNo+1,phase:phase.id,confidence:phase.id==="blockade"?"low":"moderate",rows};
+}
+function soundingRow(id,state=S){
+	return state.lastSounding?.rows?.find(row=>row.id===id)||null;
+}
 function vetoReplacement(voterId,blocked,preferred,alternatives){
 	const legal=[preferred,...alternatives].filter((id,i,a)=>id!==blocked&&a.indexOf(id)===i&&legalCandidateFor(voterId,id));
 	if(!legal.length)throw new Error(`No legal veto-pressure alternative for ${voterId}`);
@@ -565,6 +715,26 @@ function applyVirtualVeto(roll,playerVote=null){
 			log(`Word from Madrid and fear of Paris make a Mattei election look like a provocation. His column fractures before the threshold.`,"event");
 		}
 	}
+	counts=countRoll(roll);
+	if(counts.gerdil>=threshold() && S.metrics.austrianGrip>65 && !S.flags.herzanForbearance){
+		let moved=0;
+		for(const v of roll){
+			if(counts.gerdil<threshold())break;
+			if(v.voter===S.playerId)continue;
+			const voter=ID[v.voter];
+			if(v.candidate==="gerdil"&&(hasTag(voter,"Austrian")||hasTag(voter,"Mattei")||rnd()<.36)){
+				v.candidate=vetoReplacement(v.voter,"gerdil","valenti",["valenti","mattei","calcagnini","chiaramonti"]);
+				counts.gerdil--;
+				counts[v.candidate]++;
+				moved++;
+			}
+		}
+		if(moved){
+			S.flags.gerdilBlocked=true;
+			modMetric("deadlock",6);
+			log(`Gerdil's theological authority cannot overcome Vienna's reservations. Imperial votes peel away before his column reaches two-thirds.`,"event");
+		}
+	}
 	validateBallotRoll(roll,playerVote);
 }
 function conductBallot(playerVote){
@@ -584,7 +754,7 @@ function conductBallot(playerVote){
 	S.ballotNo++;
 	S.lastCounts=counts;
 	S.lastRoll=roll;
-	S.lastForecast=null;S.forecastBallot=null;S.forecastStale=false;S.intel=false;
+	S.lastSounding=null;S.soundingStale=false;
 	const hist={ballot:S.ballotNo,date:scrutinyDate,counts:{...counts},roll:roll.map(v=>({...v})),threshold:scrutinyThreshold,electors:scrutinyElectors};
 	S.history.push(hist);
 	const leader=sorted[0];
@@ -623,19 +793,20 @@ function updateAfterFailedBallot(leader,second){
 	modMetric("exposure",-3);
 	Object.keys(S.momentum).forEach(k=>S.momentum[k]*=.82);
 	modMomentum(leader.id,1.0);
-	if(S.ballotNo===1){modSupport("bellisomi",.7);log(`Early soundings show Bellisomi close enough to alarm Vienna and not close enough to end the matter.`,"event")}
-	if(S.ballotNo===2){modSupport("mattei",.8);modMetric("austrianGrip",5);log(`The imperial party organises around Mattei. The monastery feels less like refuge and more like a host's house.`,"event")}
-	if(S.ballotNo===4){modMetric("compromise",8);log(`Names beyond the two blocs begin to circulate: Gerdil, Valenti, Calcagnini, Honorati — and, still softly, Chiaramonti of Imola.`,"deal")}
-	if(S.ballotNo===5){S.flags.commissionTalk=true;modMetric("compromise",10);log(`A committee of names is proposed and fails, but the failure itself is instructive: no one can win as a factional trophy.`,"event")}
-	if(S.ballotNo===6){S.flags.spanishWarning=true;modMetric("frenchAlarm",9);log(`Lorenzana receives sharper Spanish instructions. Mattei's name now carries not just Vienna but the risk of a counter-veto.`,"event")}
-	if(S.ballotNo===7 && !S.flags.consalviPlan){S.flags.consalviPlan=true;modSupport("chiaramonti",1.8);modMetric("compromise",12);log(`Consalvi's arithmetic becomes a whispered theology: a bishop who can say no to revolution without pretending it never happened.`,"deal")}
+	if(S.ballotNo===1){modSupport("bellisomi",.7);log(`Bellisomi's opening breadth is now undeniable. It is close enough to alarm Vienna and not close enough to end the matter.`,"event")}
+	if(S.ballotNo===2){modSupport("mattei",.8);modMetric("austrianGrip",5);log(`Bellisomi reaches his documented high-water mark in the historical struggle, but the missing votes do not move. The imperial party organises around Mattei.`,"event")}
+	if(S.ballotNo===3){modMetric("austrianGrip",4);log(`Herzan waits on clearer instructions from Vienna. Silence itself becomes pressure: no elector knows which accommodation the host will tolerate.`,"event")}
+	if(S.ballotNo===5){S.flags.commissionTalk=true;modMetric("compromise",10);log(`A committee begins testing names beyond the two principal blocs: Gerdil, Valenti, Calcagnini, Honorati and Borgia. No list yet commands a majority.`,"event")}
+	if(S.ballotNo===6){S.flags.spanishWarning=true;modMetric("frenchAlarm",9);modSupport("gerdil",.55);modSupport("valenti",.55);log(`Gerdil and Valenti are sounded as alternatives while Lorenzana receives sharper Spanish instructions. Mattei now carries both Vienna and the risk of a counter-veto.`,"event")}
+	if(S.ballotNo===7 && !S.flags.consalviPlan){S.flags.consalviPlan=true;modSupport("chiaramonti",1.8);modMetric("compromise",12);log(`Dugnani and Consalvi bring Chiaramonti of Imola into serious calculation: a bishop who can resist revolution without pretending it never happened.`,"deal")}
+	if(S.ballotNo>=9){modMetric("compromise",5);modSupport("chiaramonti",.5);log(`The historical settlement has slipped past its date. Every further represented round belongs to an alternate Venice, under mounting pressure to accept a governable compromise.`,"event")}
 }
-function markForecastStale(){if(S&&S.lastForecast)S.forecastStale=true}
+function markSoundingStale(){if(S&&S.lastSounding)S.soundingStale=true}
 function spendAP(){
 	if(S.over)return false;
 	if(!hasArrived(S.playerId)){toast("You have not yet entered the conclave.");return false}
 	if(S.ap<=0){toast("No action points remain; proceed to scrutiny.");return false}
-	markForecastStale();
+	markSoundingStale();
 	S.ap--;
 	return true;
 }
@@ -644,34 +815,38 @@ function actionSoundings(){
 	modMetric("stature",5);
 	modMetric("exposure",6);
 	modMetric("secrecy",-4);
-	const fc=forecastCounts();
-	const top=sortedCounts(fc).slice(0,4);
-	S.intel=true;
-	S.lastForecast=fc;
-	S.forecastBallot=S.ballotNo+1;
-	S.forecastStale=false;
-	log(`You take soundings cell by cell. The room, if pushed now, seems to incline towards ${top.map(x=>`<b>${esc(x.e.short)}</b> ${x.n}`).join(", ")}.`,"event");
+	S.lastSounding=makeSounding();
+	S.soundingStale=false;
+	const top=S.lastSounding.rows.slice(0,4);
+	log(`You take soundings cell by cell. The replies are guarded: ${top.map(row=>`<b>${esc(ID[row.id].short)}</b> ${row.low}–${row.high}`).join(", ")}. These are ranges, not opened ballots.`,"event");
 	render();
 }
-function actionBellisomi(){
-	if(!spendAP())return;
-	modSupport("bellisomi",1.35);
-	modMetric("adaptation",6);
-	modMetric("trust",3);
-	modMetric("austrianGrip",4);
-	modMetric("exposure",5);
-	log(`You work the Bellisomi benches: not surrender to France, you argue, but a pastor who can speak to the world left after Valence. Vienna notices.`,"deal");
-	render();
+function actionNetwork(){
+	const networks=playerNetworks();
+	if(!networks.length){toast("You have no organised network to work in this phase.");return}
+	showModal("Work your networks",`<p>Your influence travels through circles that know you. Choose one; access measures trust and standing, while a candidate's fit measures how plausible that name is to the circle.</p><div class="pickgrid" id="networkGrid"></div>`,[],"wide");
+	const grid=document.querySelector("#networkGrid");
+	networks.forEach(network=>{
+		const access=networkAccess(S,network);
+		grid.appendChild(el("button",{onclick:()=>openNetworkTargets(network)},displayLabel(network),el("small",null,`${Math.round(access*100)}% access · ${networkMembers(network).length} cardinals`)));
+	});
 }
-function actionMattei(){
-	if(!spendAP())return;
-	modSupport("mattei",1.35);
-	modMetric("temporal",7);
-	modMetric("austrianGrip",6);
-	modMetric("frenchAlarm",5);
-	modMetric("secrecy",-3);
-	log(`You steady Mattei's cause: the Patrimony must be restored, not negotiated away in the first week of the next pontificate. The French shadow lengthens.`,"deal");
-	render();
+function openNetworkTargets(network){
+	const candidates=ELECTORS.slice().sort((a,b)=>networkFit(S,network,b.id)-networkFit(S,network,a.id)||b.papabile-a.papabile||a.rank-b.rank);
+	showModal(`${displayLabel(network)} network`,`<p>Whose name will you test? A poor fit can still gain a little notice, but it is likelier to expose the attempt.</p><div class="pickgrid" id="networkTargetGrid"></div>`,[],"wide");
+	const grid=document.querySelector("#networkTargetGrid");
+	candidates.forEach(candidate=>{
+		const fit=networkFit(S,network,candidate.id);
+		grid.appendChild(el("button",{onclick:()=>{
+			closeModal();
+			if(!spendAP())return;
+			const result=resolveNetworkAction(S,network,candidate.id);
+			log(result.success
+				?`Your <b>${esc(displayLabel(network))}</b> circle begins carrying <b>${esc(candidate.short)}</b> from cell to cell. The fit is credible, though no promise is binding.`
+				:`The <b>${esc(displayLabel(network))}</b> circle hears the case for <b>${esc(candidate.short)}</b>, but the approach feels premature and leaves more trace than support.`,"deal");
+			render();
+		}},candidate.name,el("small",null,`${Math.round(fit*100)}% fit · ${candidate.office}`)));
+	});
 }
 function actionCompromise(){
 	if(S.ap<=0){toast("No action points remain; proceed to scrutiny.");return}
@@ -743,8 +918,7 @@ function renderSelect(){
 		const choose=()=>{pickedId=e.id;$("#startbtn").disabled=false;$("#startbtn").textContent=`Choose ${e.short}`;renderSelect()};
 		const card=el("div",{class:"ccard"+(pickedId===e.id?" sel":""),role:"button",tabindex:"0","aria-pressed":String(pickedId===e.id),"aria-label":`Play as ${e.name}`,onclick:choose,onkeydown:event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();choose()}}},
 			el("div",{class:"meta"},el("span",null,`${ORDER_NAME[e.order]} · age ${e.age}`),el("span",{title:"Player difficulty"},stars(e.difficulty))),
-			el("div",{class:"nm"},e.name),
-			el("div",{class:"office"},e.office),
+			el("div",{class:"selection-identity",html:`${portraitMarkup(e.id,"selection")}<div><div class="nm">${esc(e.name)}</div><div class="office">${esc(e.office)}</div></div>`}),
 			el("div",{class:"chips"},primaryTags(e).map(t=>el("span",{class:"chip"+(t==="Bellisomi"||t==="Mattei"||t==="Austrian"?" hot":"")},displayLabel(t)))),
 			el("div",{class:"hook"},e.role)
 		);
@@ -753,8 +927,10 @@ function renderSelect(){
 }
 function render(){
 	if(!S)return;
+	const phase=phaseForState();
 	$("#dateLabel").innerHTML = `${esc(ballotDate())}<br>represented scrutiny ${toRoman(S.ballotNo+1)} · threshold ${threshold()}`;
 	$("#apwrap").innerHTML = hasArrived(S.playerId)?`<span class="ap">AP ${Array.from({length:3},(_,i)=>`<span class="pip ${i>=S.ap?"spent":""}"></span>`).join("")}</span>`:`<span class="ap">travelling · no vote</span>`;
+	$("#phaseLabel").innerHTML=`<b>${esc(phase.label)}</b> · ${esc(phase.text)}`;
 	renderLog();
 	renderRoster();
 	renderPlayer();
@@ -762,7 +938,7 @@ function render(){
 	renderBoard();
 	renderPressures();
 	const canAct=!S.over&&hasArrived(S.playerId)&&S.ap>0;
-	["actSound","actBellisomi","actMattei","actCompromise","actConsalvi","actSupplies","actPrayer"].forEach(id=>$("#"+id).disabled=!canAct);
+	["actSound","actNetwork","actCompromise","actConsalvi","actSupplies","actPrayer"].forEach(id=>$("#"+id).disabled=!canAct);
 	$("#actHerzan").disabled=!canAct||!hasArrived("herzan");
 	$("#ballotBtn").disabled=S.over;
 	$("#ballotBtn").textContent=hasArrived(S.playerId)?"Proceed to represented scrutiny":"Resolve opening scrutiny while travelling";
@@ -775,29 +951,32 @@ function renderLog(){
 function renderRoster(){
 	const box=$("#roster");
 	const q=$("#rosterSearch").value.trim().toLowerCase();
-	const showingForecast=!!(S.lastForecast&&S.forecastBallot===S.ballotNo+1);
-	const counts=showingForecast?S.lastForecast:(S.lastCounts&&Object.keys(S.lastCounts).length?S.lastCounts:null);
 	let list=ELECTORS.filter(e=>activeFaction==="All"||e.tags.includes(activeFaction));
 	if(q)list=list.filter(e=>[e.name,e.short,e.office,e.tags.join(" ")].join(" ").toLowerCase().includes(q));
-	$("#rosterCount").textContent=`${list.length}/${ELECTORS.length}`;
+	const present=activeElectors().length,travelling=ELECTORS.length-present;
+	$("#rosterCount").textContent=activeFaction==="All"&&!q?`${present} present${travelling?` · ${travelling} travelling`:""}`:`${list.length} shown`;
 	box.innerHTML="";
 	list.forEach(e=>{
-		const travelling=!hasArrived(e.id),open=()=>showDossier(e.id);
+		const travelling=!hasArrived(e.id),open=()=>showDossier(e.id),range=soundingRow(e.id);
+		const value=range?`${range.low}–${range.high}`:(S.lastCounts&&Object.keys(S.lastCounts).length?String(S.lastCounts[e.id]||0):"—");
+		const valueTitle=range?"Latest uncertain soundings":S.lastRoll?"Last modelled represented scrutiny":"No soundings yet";
 		box.appendChild(el("div",{class:"crow"+(e.id===S.playerId?" player":"")+(travelling?" travelling":""),role:"button",tabindex:"0","aria-label":`Open dossier for ${e.name}${travelling?", travelling":""}`,onclick:open,onkeydown:event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();open()}}},
 		el("div",{class:"vt"},String(e.rank)),
 		el("div",{class:"nm"},e.short,el("small",null,travelling?"Travelling · admitted 12 December":displayLabel(e.tags[0]))),
-		el("div",{class:"vt",title:counts?(showingForecast?"Latest soundings":"Last represented scrutiny"):"No soundings yet"},counts?String(counts[e.id]||0):"—")
+		el("div",{class:"vt",title:valueTitle},value)
 	))});
 }
 function renderPlayer(){
 	const p=ID[S.playerId];
 	const obj=S.player.objective;
-	$("#playerBox").innerHTML = `<b>${esc(p.name)}</b><br>${esc(p.office)}<br><span class="dim">${esc(obj.title)} — ${esc(obj.text)}</span>`;
+	const networks=playerNetworks().map(displayLabel).join(" · ");
+	$("#playerBox").innerHTML = `<div class="identity-row">${portraitMarkup(p.id,"player-portrait")}<div><b>${esc(p.name)}</b><br>${esc(p.office)}<br><span class="dim">${esc(networks||"Independent")}</span></div></div><div class="dim" style="margin-top:.55rem"><b>${esc(obj.title)}</b> — ${esc(obj.text)}</div>`;
 }
 function renderMeters(){
 	const box=$("#meters");
 	box.innerHTML="";
-	Object.entries(S.metrics).forEach(([k,v])=>{
+	POSITION_KEYS.forEach(k=>{
+		const v=S.metrics[k];
 		const bad=["exposure","fatigue","austrianGrip","frenchAlarm","deadlock"].includes(k);
 		box.appendChild(el("div",{class:"meter"},
 			el("div",{class:"lb"},el("span",null,METRIC_LABELS[k]),el("span",null,metricLevel(k,v))),
@@ -808,21 +987,30 @@ function renderMeters(){
 }
 function renderBoard(){
 	const box=$("#board");
-	const showingForecast=!!(S.lastForecast&&S.forecastBallot===S.ballotNo+1);
-	const counts=showingForecast?S.lastForecast:(S.lastCounts&&Object.keys(S.lastCounts).length?S.lastCounts:null);
-	if(!counts){box.innerHTML=`<div class="threshold">Two-thirds required: <b>${threshold()}</b> of ${activeElectors().length} active electors</div><div class="board-note">No reliable projection yet. Use <b>Soundings</b> to obtain a snapshot of the next represented scrutiny.</div>`;return}
-	const rows=sortedCounts(counts).slice(0,8);
+	const sounding=S.lastSounding;
+	const counts=S.lastCounts&&Object.keys(S.lastCounts).length?S.lastCounts:null;
+	if(!sounding&&!counts){box.innerHTML=`<div class="threshold">Two-thirds required: <b>${threshold()}</b> of ${activeElectors().length} active electors</div><div class="board-note">No reliable projection yet. Use <b>Soundings</b> to obtain guarded ranges for the next represented scrutiny.</div>`;return}
 	const th=threshold(), active=activeElectors().length;
-	const note=showingForecast?`Soundings for represented scrutiny ${toRoman(S.forecastBallot)}${S.forecastStale?" · snapshot is now stale after later manoeuvres":""}`:`Last represented scrutiny (${esc(S.history[S.history.length-1]?.date||"")})`;
+	const note=sounding?`${sounding.confidence} confidence soundings for represented scrutiny ${toRoman(sounding.ballot)}${S.soundingStale?" · now stale after later manoeuvres":""}`:`Last modelled represented scrutiny (${esc(S.history[S.history.length-1]?.date||"")})`;
 	box.innerHTML=`<div class="threshold">Two-thirds required: <b>${th}</b> of ${active} active electors</div><div class="board-note">${note}</div>`;
 	const race=el("div",{class:"race"});
-	rows.forEach((r,i)=>race.appendChild(el("div",{class:"racerow"+(i===0?" lead":"")},
-		el("div",{class:"rname"},r.e.short),
-		el("div",{class:"rtrack"},el("span",{class:"rfill"+(r.n>=th?" win":""),style:`width:${clamp(r.n/th*100,0,100)}%`})),
-		el("div",{class:"rnum"},String(r.n))
-	)));
+	if(sounding){
+		sounding.rows.forEach((row,i)=>race.appendChild(el("div",{class:"racerow"+(i===0?" lead":"")},
+			el("div",{class:"rname"},ID[row.id].short),
+			el("div",{class:"range-track"},el("span",{class:"range-band",style:`left:${row.low/active*100}%;width:${(row.high-row.low)/active*100}%`})),
+			el("div",{class:"rnum"},`${row.low}–${row.high}`)
+		)));
+	}else{
+		sortedCounts(counts).slice(0,8).forEach((r,i)=>race.appendChild(el("div",{class:"racerow"+(i===0?" lead":"")},
+			el("div",{class:"rname"},r.e.short),
+			el("div",{class:"rtrack"},el("span",{class:"rfill"+(r.n>=th?" win":""),style:`width:${clamp(r.n/th*100,0,100)}%`})),
+			el("div",{class:"rnum"},String(r.n))
+		)));
+	}
 	box.appendChild(race);
-	box.appendChild(el("button",{class:"rollbtn",onclick:showExactRoll,disabled:!S.lastRoll},"Exact roll"));
+	const rollButton=el("button",{class:"rollbtn",onclick:showExactRoll},"Open last scrutiny book");
+	rollButton.disabled=!S.lastRoll;
+	box.appendChild(rollButton);
 }
 function renderPressures(){
 	const box=$("#pressureSummary");
@@ -836,24 +1024,27 @@ function renderPressures(){
 function showDossier(id){
 	const e=ID[id];
 	const axes=["restore","adapt","austria","bourbon","curia","compromise","severity","monastic","temporal"];
-	const axisHtml=axes.map(k=>`<div class="axis"><span>${esc(displayLabel(k))}</span><span class="axbar"><span style="width:${axisBarWidth(e.profile[k]||0)}%"></span></span><span>${axisBand(e.profile[k]||0)}</span></div>`).join("");
-	const showingForecast=!!(S.lastForecast&&S.forecastBallot===S.ballotNo+1),counts=showingForecast?S.lastForecast:(S.lastCounts&&Object.keys(S.lastCounts).length?S.lastCounts:null);
-	const supportText=counts?`${showingForecast?"Latest soundings":"Last represented scrutiny"}: <b>${counts[id]||0}</b>${showingForecast&&S.forecastStale?" (stale snapshot)":""}`:"No support estimate: take Soundings first.";
-	showModal(e.name,`<div class="manual"><p><b>${esc(ORDER_NAME[e.order])}</b> · age ${e.age} · ${esc(e.country)}${!hasArrived(id)?" · <b>travelling; admitted 12 December</b>":""}</p><p>${esc(e.office)}</p><p>${esc(e.role)}</p><p>${primaryTags(e).map(t=>`<span class="chip">${esc(displayLabel(t))}</span>`).join(" ")}</p><h4>Current position</h4><p>${supportText}. Papabile rating: <b>${e.papabile}/10</b>. Player difficulty: <b title="Player difficulty">${stars(e.difficulty)}</b>.</p><h4>Political-theological profile</h4>${axisHtml}</div>`,[]);
+	const axisHtml=axes.map(k=>`<div class="axis"><span>${esc(PROFILE_LABELS[k]||displayLabel(k))}</span><span class="axbar"><span style="width:${axisBarWidth(e.profile[k]||0)}%"></span></span><span>${esc(axisPosition(k,e.profile[k]||0))}</span></div>`).join("");
+	const range=soundingRow(id),hasLast=S.lastCounts&&Object.keys(S.lastCounts).length;
+	const supportText=range?`Latest soundings: <b>${range.low}–${range.high}</b>${S.soundingStale?" (stale)":""}`:hasLast?`Last modelled scrutiny: <b>${S.lastCounts[id]||0}</b>`:"No support estimate: take Soundings first.";
+	showModal(e.name,`<div class="manual"><div class="identity-row">${portraitMarkup(id,"dossier-portrait")}<div><p><b>${esc(ORDER_NAME[e.order])}</b> · age ${e.age} · ${esc(e.country)}${!hasArrived(id)?" · <b>travelling; admitted 12 December</b>":""}</p><p>${esc(e.office)}</p></div></div><p>${esc(e.role)}</p><p>${primaryTags(e).map(t=>`<span class="chip">${esc(displayLabel(t))}</span>`).join(" ")}</p><h4>Current position</h4><p>${supportText}. Papabile rating: <b>${e.papabile}/10</b>. Player difficulty: <b title="Player difficulty">${stars(e.difficulty)}</b>.</p><h4>Political-theological profile</h4>${axisHtml}</div>`,[]);
 }
 function showExactRoll(){
 	if(!S.lastRoll)return;
 	const latest=S.history[S.history.length-1];
 	const rows=S.lastRoll.map(v=>`<tr><td>${esc(ID[v.voter].short)}</td><td>${esc(displayLabel(ID[v.voter].tags[0]))}</td><td>${esc(ID[v.candidate].short)}</td></tr>`).join("");
-	showModal("The scrutiny book",`<p class="dim">Represented scrutiny ${toRoman(latest.ballot)}, ${esc(latest.date)} · ${latest.electors} electors · threshold ${latest.threshold}.</p><div class="exact-roll"><table><thead><tr><th>Elector</th><th>Bench</th><th>Vote</th></tr></thead><tbody>${rows}</tbody></table></div>`,[],"wide");
+	showModal("The scrutiny book",`<p class="dim">Modelled represented scrutiny ${toRoman(latest.ballot)}, ${esc(latest.date)} · ${latest.electors} electors · threshold ${latest.threshold}. Secret ballots from the historical conclave do not survive as a complete roll; this book records this play-through's simulation.</p><div class="exact-roll"><table><thead><tr><th>Elector</th><th>Bench</th><th>Vote</th></tr></thead><tbody>${rows}</tbody></table></div>`,[],"wide");
 }
 function showRules(){
 	showModal("How Venice works",`<div class="manual">
-			<p>You have three actions before each represented scrutiny. The historical conclave held many more ballots than this playable chronology displays: each dated round condenses a phase of the long deadlock rather than claiming to recreate every secret vote. The board shows a projection only after you spend an action on Soundings; later manoeuvres mark that snapshot stale.</p><p>Herzan is travelling at the opening: the 30 November round needs <b>23</b> votes from 34 active electors. He was admitted on 12 December; later rounds need <b>24</b> from 35. If you play Herzan, you observe the opening round while travelling and begin acting after arrival.</p>
-		<h4>The new mechanics</h4>
-		<p><b>Austrian grip</b> can create a virtual veto, especially against Bellisomi. It can also strengthen Mattei and keep the exiled conclave housed and fed.</p>
-		<p><b>French alarm</b> makes a restoration-only pope dangerous and can trigger Spanish/Bourbon counter-pressure against Mattei. <b>Deadlock</b> and <b>compromise pressure</b> make Chiaramonti and other third names more plausible.</p>
-		<p><b>Consalvi</b> is not a playable elector here; he is the secretary whose arithmetic can turn failed factions into a settlement.</p>
+			<p>You have three actions before each represented scrutiny. The historical conclave held many more ballots than this playable chronology displays: each dated round condenses a phase of the long deadlock rather than claiming to recreate every secret vote.</p>
+			<p><b>Soundings are uncertain.</b> They give guarded ranges, not an omniscient tally, and later manoeuvres make them stale. The scrutiny book shows the modelled roll from this play-through only; it is not presented as a recovered historical ballot.</p>
+			<p><b>Your networks are personal.</b> A cardinal can work only circles to which he belongs. Access reflects trust and exposure; fit reflects how plausible a candidate is to that circle. Failure still creates a little notice, but leaves a larger trace.</p>
+			<p>Herzan is travelling at the opening: the 30 November round needs <b>23</b> votes from 34 active electors. He was admitted on 12 December; later rounds need <b>24</b> from 35. If you play Herzan, you observe the opening round while travelling and begin acting after arrival.</p>
+		<h4>Venice's pressures</h4>
+		<p><b>Austrian grip</b> can create a virtual veto against Bellisomi or Gerdil. It can strengthen Mattei, but makes the College look dependent on its host.</p>
+		<p><b>French alarm</b> makes a restoration-only pope dangerous and can trigger Spanish/Bourbon counter-pressure against Mattei. <b>Deadlock</b> and <b>compromise pressure</b> first test alternative names, then make Chiaramonti's governing compromise plausible.</p>
+		<p><b>Consalvi</b> is not a playable elector here; he is the secretary whose arithmetic can turn failed factions into a settlement. Portraits link to the subject's biography where a usable historical image survives.</p>
 		<div class="callout warning">The historical result is not forced. A strong player or a fortunate seed can elect another pope, but Venice should usually punish naked crown control and reward a late compromise.</div>
 	</div>`,[]);
 }
@@ -899,13 +1090,16 @@ function savedCountsMatch(counts,roll){
 }
 function validateVeniceSave(data){
 	const ids=ELECTORS.map(e=>e.id),metricKeys=Object.keys(METRIC_LABELS);
-	if(!isRecord(data)||data.schemaVersion!==SAVE_SCHEMA||data.version!=="venice-1800-v2"||typeof data.seed!=="string"||!data.seed||!ID[data.playerId])return false;
+	if(!isRecord(data)||data.schemaVersion!==SAVE_SCHEMA||data.version!=="venice-1800-v3"||typeof data.seed!=="string"||!data.seed||!ID[data.playerId])return false;
 	if(!Number.isInteger(data.ballotNo)||data.ballotNo<0||data.ballotNo>100||!Number.isInteger(data.ap)||data.ap<0||data.ap>3||typeof data.over!=="boolean")return false;
 	if(!Number.isInteger(data.rngState)||data.rngState<0||data.rngState>0xffffffff||!Array.isArray(data.log)||!Array.isArray(data.history)||data.history.length!==data.ballotNo)return false;
 	if(!data.log.every(x=>isRecord(x)&&Number.isInteger(x.turn)&&x.turn>=0&&x.turn<=data.ballotNo&&typeof x.stamp==="string"&&typeof x.msg==="string"&&typeof x.cls==="string"))return false;
 	if(!finiteMap(data.metrics,metricKeys,[0,100])||!finiteMap(data.support,ids)||!finiteMap(data.momentum,ids))return false;
 	if(!isRecord(data.relationships)||!isRecord(data.destiny)||!ids.every(id=>finiteMap(data.relationships[id],ids)&&finiteMap(data.destiny[id],ids,[-.5,.5])))return false;
-	if(!isRecord(data.flags)||typeof data.flags.herzanArrived!=="boolean"||typeof data.intel!=="boolean"||!isRecord(data.player)||!isRecord(data.player.objective)||typeof data.player.objective.title!=="string"||typeof data.player.objective.text!=="string"||typeof data.player.objective.kind!=="string")return false;
+	if(!isRecord(data.flags)||typeof data.flags.herzanArrived!=="boolean"||!isRecord(data.player)||!isRecord(data.player.objective)||typeof data.player.objective.title!=="string"||typeof data.player.objective.text!=="string"||typeof data.player.objective.kind!=="string")return false;
+	if(data.player.endorsedId!==null&&!ID[data.player.endorsedId])return false;
+	if(typeof data.soundingStale!=="boolean"||!Array.isArray(data.networkActions)||data.networkActions.length>(data.ballotNo+1)*3)return false;
+	if(!data.networkActions.every(action=>isRecord(action)&&WORKABLE_NETWORKS.includes(action.network)&&ID[action.candidateId]&&typeof action.success==="boolean"&&["access","fit","gain","roll"].every(k=>typeof action[k]==="number"&&Number.isFinite(action[k]))))return false;
 	for(let i=0;i<data.history.length;i++){
 		const h=data.history[i],electors=i===0?34:35,required=Math.ceil(electors*2/3);
 		if(!isRecord(h)||h.ballot!==i+1||h.electors!==electors||h.threshold!==required||typeof h.date!=="string"||!savedVeniceRollIsValid(h.roll,h.ballot)||!savedCountsMatch(h.counts,h.roll))return false;
@@ -914,8 +1108,11 @@ function validateVeniceSave(data){
 	else if(data.lastRoll!==null||!isRecord(data.lastCounts)||Object.keys(data.lastCounts).length)return false;
 	const firstWinner=data.history[0]&&Object.values(data.history[0].counts).some(n=>n>=23);
 	if(data.ballotNo>0&&!firstWinner&&!data.flags.herzanArrived)return false;
-	if(data.lastForecast!==null){if(!finiteMap(data.lastForecast,ids,[0,35])||!Number.isInteger(data.forecastBallot)||data.forecastBallot!==data.ballotNo+1||typeof data.forecastStale!=="boolean")return false;const total=Object.values(data.lastForecast).reduce((a,b)=>a+b,0);if(total!==(data.flags.herzanArrived?35:34))return false}
-	else if(data.forecastBallot!==null)return false;
+	if(data.lastSounding!==null){
+		const sounding=data.lastSounding,active=data.flags.herzanArrived?35:34,seen=new Set();
+		if(!isRecord(sounding)||sounding.ballot!==data.ballotNo+1||!["opening","blockade","alternatives","settlement"].includes(sounding.phase)||!["low","moderate"].includes(sounding.confidence)||!Array.isArray(sounding.rows)||sounding.rows.length<1||sounding.rows.length>8)return false;
+		if(!sounding.rows.every(row=>isRecord(row)&&ID[row.id]&&!seen.has(row.id)&&seen.add(row.id)&&Number.isInteger(row.low)&&Number.isInteger(row.high)&&row.low>=0&&row.high<=active&&row.low<=row.high))return false;
+	}else if(data.soundingStale)return false;
 	if(data.over){
 		if(!ID[data.electedId])return false;
 		if(data.electedId===data.playerId){if(!validPapalName1800(data.papalName))return false}
@@ -947,6 +1144,7 @@ function resumeGame(){
 	renderFactionTabs();
 	if(S.over){$("#screen-game").classList.add("hidden");endGame()}
 	else{$("#screen-end").classList.add("hidden");$("#screen-game").classList.remove("hidden");render()}
+	scrollToTop();
 	toast("Sealed conclave resumed.");
 }
 function endGame(){
@@ -954,14 +1152,17 @@ function endGame(){
 	$("#screen-game").classList.add("hidden");
 	$("#screen-select").classList.add("hidden");
 	$("#screen-end").classList.remove("hidden");
+	scrollToTop();
 	const papalName = S.papalName||(S.papalName=choosePapalName(winner));
 	$("#endTitle").textContent = papalName;
 	$("#endSub").textContent = `${winner.name} is elected after ${S.ballotNo} represented rounds.`;
 	const player=ID[S.playerId];
+	$("#endPortrait").innerHTML=portraitMarkup(winner.id,"end-portrait");
 	$("#endBody").innerHTML=endBody1800(winner,player,papalName);
 	renderRegnal1800(winner,player,papalName);
 	const objective=evaluateObjective();
-	$("#endStats").innerHTML=`<div class="statusbox"><b>Private objective — ${objective.achieved?"achieved":"not achieved"}</b><br>${esc(objective.reason)}</div>${renderEndTable()}`;
+	const score=scoreGame();
+	$("#endStats").innerHTML=`<div class="statusbox"><div class="score-grade">${esc(score.verdict.grade)}</div><div class="score-total">${score.total}</div><div class="dim" style="text-align:center">${esc(score.verdict.line)}</div><div class="score-parts">${score.parts.map(part=>`<span>${esc(part.label)}</span><span>${signed(part.points)}</span>`).join("")}</div></div><div class="statusbox"><b>Private objective — ${objective.achieved?"achieved":"not achieved"}</b><br>${esc(objective.reason)}</div>${renderEndTable()}`;
 	const ach=[];
 	if(winner.id===S.playerId)ach.push("Elected in exile");
 	if(winner.id==="chiaramonti")ach.push("Historical settlement");
@@ -971,6 +1172,28 @@ function endGame(){
 	if(S.ballotNo<=4)ach.push("Swift smoke");
 	if(objective.achieved)ach.push("Private objective");
 	$("#achievements").innerHTML=ach.map(a=>`<span>${esc(a)}</span>`).join("");
+}
+function scoreGame(state=S){
+	if(state!==S||!state.over)return {total:0,parts:[],verdict:{grade:"Unfinished",line:"The conclave remains open."}};
+	const objective=evaluateObjective();
+	const playerVotes=state.history.reduce((sum,h)=>sum+(h.counts[state.playerId]||0),0);
+	const foresight=state.history.reduce((sum,h)=>sum+(h.roll.find(v=>v.voter===state.playerId)?.candidate===state.electedId?1:0),0);
+	const parts=[
+		{label:"Votes drawn across the conclave",points:playerVotes*3},
+		{label:"Ballots cast for the eventual pope",points:foresight*8},
+		{label:"Last public endorsement proved right",points:state.player.endorsedId===state.electedId?35:0},
+		{label:"Elected pope",points:state.playerId===state.electedId?200:0},
+		{label:"Private objective",points:objective.achieved?60:0},
+		{label:"Independent College",points:state.metrics.austrianGrip<50?25:0},
+		{label:"Trust, secrecy and restraint",points:Math.round((state.metrics.trust+state.metrics.secrecy-state.metrics.exposure)/5)}
+	].filter(part=>part.points!==0);
+	const total=parts.reduce((sum,part)=>sum+part.points,0);
+	let verdict={grade:"Participant",line:"You were present, but Venice moved mostly around you."};
+	if(total>=260)verdict={grade:"Pontiff",line:"You mastered both the arithmetic and the burden of the election."};
+	else if(total>=170)verdict={grade:"Kingmaker",line:"The final settlement bears your political and spiritual judgement."};
+	else if(total>=105)verdict={grade:"Broker",line:"You helped make an impossible name acceptable."};
+	else if(total>=55)verdict={grade:"Elector",line:"Your choices mattered, even when the College resisted them."};
+	return {total,parts,verdict};
 }
 function evaluateObjective(){
 	const winner=ID[S.electedId],kind=S.player.objective.kind;
@@ -1023,6 +1246,11 @@ function endBody1800(winner,player,papalName){
 	let body = `<p>The doors open onto the lagoon. <b>${esc(winner.name)}</b> accepts the burden of a papacy born in exile and takes the name <b>${esc(papalName)}</b>.</p>`;
 	if(winner.id==="chiaramonti")body += `<p>The result rhymes with history: not the loudest faction, but the compromise that could survive both Vienna and Paris.</p>`;
 	else body += `<p>This is an alternate Venice. The historical Chiaramonti settlement has been displaced by a College willing to gamble on ${esc(winner.short)}.</p>`;
+	if(S.metrics.austrianGrip>=68)body+=`<p>Vienna's protection has become part of the new pontificate's debt. Every promise of restored territory will be heard against the conditions of the conclave's Austrian refuge.</p>`;
+	else if(S.metrics.austrianGrip<38)body+=`<p>The College leaves San Giorgio with unusual independence from its host. That freedom may cost territory, but it gives the election a legitimacy no court can easily claim as its own.</p>`;
+	if(S.metrics.adaptation>S.metrics.temporal+12)body+=`<p>The prevailing mandate is accommodation: govern the Church in the Europe that survived the Revolution, not the Europe that preceded it.</p>`;
+	else if(S.metrics.temporal>S.metrics.adaptation+12)body+=`<p>The prevailing mandate is restoration. Rome, territory and public authority will press upon the new pope before reform can begin.</p>`;
+	else body+=`<p>The mandate is deliberately unresolved, balancing temporal restoration with the practical accommodations demanded by revolutionary Europe.</p>`;
 	if(winner.id===player.id)body += `<p>You have won the tiara yourself &mdash; but the road to Rome is still held by soldiers, treaties and winter water.</p>`;
 	else body += `<p>You played as <b>${esc(player.name)}</b>; your objective was <i>${esc(S.player.objective.title)}</i>.</p>`;
 	return body;
@@ -1087,6 +1315,7 @@ function startPicked(){
 	$("#screen-game").classList.remove("hidden");
 	renderFactionTabs();
 	render();
+	scrollToTop();
 }
 function wire(){
 	const fsel=$("#factionFilter");
@@ -1099,8 +1328,7 @@ function wire(){
 	$("#resumeBtn").addEventListener("click",resumeGame);
 	$("#rosterSearch").addEventListener("input",renderRoster);
 	$("#actSound").addEventListener("click",actionSoundings);
-	$("#actBellisomi").addEventListener("click",actionBellisomi);
-	$("#actMattei").addEventListener("click",actionMattei);
+	$("#actNetwork").addEventListener("click",actionNetwork);
 	$("#actCompromise").addEventListener("click",actionCompromise);
 	$("#actHerzan").addEventListener("click",actionHerzan);
 	$("#actConsalvi").addEventListener("click",actionConsalvi);
@@ -1115,12 +1343,28 @@ function wire(){
 function chooseHeadlessPlayerVote(){
 	return preferredCandidate(ID[S.playerId],true).id;
 }
+function chooseHeadlessNetworkTarget(){
+	const player=ID[S.playerId],kind=S.player.objective.kind;
+	if(player.papabile>=6)return player.id;
+	if(kind==="bellisomi")return "bellisomi";
+	if(kind==="mattei"||kind==="austria")return "mattei";
+	if(kind==="broker"||kind==="college")return S.ballotNo>=5?"chiaramonti":player.id;
+	if(kind==="bourbon")return S.ballotNo>=4?"honorati":"bellisomi";
+	if(kind==="curia")return S.ballotNo>=5?"chiaramonti":player.id;
+	return player.id;
+}
 function runHeadless(seed,playerId,maxBallots=20){
 	initState(playerId||"chiaramonti",seed||"test",{headless:true});
-	while(!S.over&&S.ballotNo<maxBallots)conductBallot(chooseHeadlessPlayerVote());
-	return {seed:S.seed,playerId:S.playerId,winner:S.electedId,papalName:S.papalName,ballots:S.ballotNo,history:S.history.map(h=>({ballot:h.ballot,date:h.date,threshold:h.threshold,electors:h.electors,counts:{...h.counts},roll:h.roll.map(v=>({...v}))})),over:S.over};
+	while(!S.over&&S.ballotNo<maxBallots){
+		if(hasArrived(S.playerId)){
+			const network=playerNetworks().sort((a,b)=>networkAccess(S,b)-networkAccess(S,a))[0];
+			if(network)resolveNetworkAction(S,network,chooseHeadlessNetworkTarget());
+		}
+		conductBallot(chooseHeadlessPlayerVote());
+	}
+	return {seed:S.seed,playerId:S.playerId,winner:S.electedId,papalName:S.papalName,ballots:S.ballotNo,history:S.history.map(h=>({ballot:h.ballot,date:h.date,threshold:h.threshold,electors:h.electors,counts:{...h.counts},roll:h.roll.map(v=>({...v}))})),over:S.over,score:S.over?scoreGame().total:0};
 }
-const VENICE_1800_ENGINE={ELECTORS,ID,initState,conductBallot,runHeadless,activeElectors,threshold,legalCandidateFor,validateBallotRoll,validateVeniceSave,forecastCounts,choosePapalName,evaluateObjective,getState:()=>S};
+const VENICE_1800_ENGINE={ELECTORS,ID,initState,conductBallot,runHeadless,activeElectors,threshold,legalCandidateFor,validateBallotRoll,validateVeniceSave,forecastCounts,makeSounding,phaseForState,playerNetworks,networkAccess,networkFit,resolveNetworkAction,portraitFor,axisPosition,choosePapalName,evaluateObjective,scoreGame,getState:()=>S};
 if(typeof module!=="undefined")module.exports=VENICE_1800_ENGINE;
 if(typeof window!=="undefined")window.__om=VENICE_1800_ENGINE;
 if(typeof document!=="undefined")wire();

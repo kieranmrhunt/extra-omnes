@@ -146,6 +146,7 @@ function loadVariant(file) {
 	networkAccess: typeof networkAccess === "function" ? networkAccess : null,
 	portraitFor: typeof portraitFor === "function" ? portraitFor : null,
 	resolveNetworkAction: typeof resolveNetworkAction === "function" ? resolveNetworkAction : null,
+	axisPosition: typeof axisPosition === "function" ? axisPosition : null,
 	scoreGame: typeof scoreGame === "function" ? scoreGame : null,
 	topPreference: typeof topPreference === "function" ? topPreference : null,
 	getState: typeof OCTOBER_1978_ENGINE !== "undefined" ? OCTOBER_1978_ENGINE.getState : (typeof VENICE_1800_ENGINE !== "undefined" ? VENICE_1800_ENGINE.getState : (typeof CARAFA_1559_ENGINE !== "undefined" ? CARAFA_1559_ENGINE.getState : null)),
@@ -450,7 +451,7 @@ function runTargetedChecks(variant, api) {
 		return ["data-audit", "six-college-rule", "blank-ballot", "approval-validation", "accession-validation", "no-first-scrutiny-accession", "player-ballot-preserved", "uncertain-soundings", "historical-anchor", "open-termination", "papal-name", "end-score"];
 	}
 	if (variant.label === "venice-1800") {
-		assert(typeof api.initState === "function" && typeof api.conductBallot === "function" && typeof api.getState === "function" && typeof api.activeElectors === "function", "Venice: targeted-test API is not exported");
+		assert(typeof api.initState === "function" && typeof api.conductBallot === "function" && typeof api.getState === "function" && typeof api.activeElectors === "function" && typeof api.makeSounding === "function" && typeof api.resolveNetworkAction === "function", "Venice: targeted-test API is not exported");
 		api.initState("mattei", "venice-player-ballot", { headless: true });
 		const state = api.getState();
 		state.support.bellisomi = 100;
@@ -473,7 +474,30 @@ function runTargetedChecks(variant, api) {
 		const forecastFirst = JSON.stringify(api.forecastCounts());
 		const forecastSecond = JSON.stringify(api.forecastCounts());
 		assert(forecastFirst === forecastSecond && forecastState.rng.state === rngBefore, "Venice: soundings changed the simulation RNG");
-		return ["player-ballot-preserved", "self-vote", "herzan-arrival", "presentation-rng"];
+		const openingForecast = JSON.parse(forecastFirst);
+		assert(openingForecast.bellisomi > openingForecast.mattei, "Venice: opening calibration does not give Bellisomi the broader coalition");
+		const stateBeforeSounding = JSON.stringify(forecastState);
+		const soundingA = api.makeSounding();
+		const soundingB = api.makeSounding();
+		assert(JSON.stringify(soundingA) === JSON.stringify(soundingB) && JSON.stringify(forecastState) === stateBeforeSounding, "Venice: soundings are non-deterministic or mutate simulation state");
+		assert(soundingA.rows.length > 0 && soundingA.rows.every((row) => Number.isInteger(row.low) && Number.isInteger(row.high) && row.low < row.high && !("count" in row) && !("total" in row)), "Venice: soundings expose exact counts or invalid ranges");
+		assert(api.portraitFor("chiaramonti") && /commons/.test(api.portraitFor("chiaramonti").src) && api.portraitFor("martiniana") === null, "Venice: portrait lookup or fallback is invalid");
+		const networks = api.playerNetworks();
+		assert(networks.includes("Monastic") && networks.includes("Compromise") && api.networkAccess(forecastState, "Monastic") > api.networkAccess(forecastState, "Austrian"), "Venice: Chiaramonti's network access is not calibrated to his identity");
+		const networkResultA = JSON.stringify(api.resolveNetworkAction(forecastState, "Monastic", "chiaramonti"));
+		api.initState("chiaramonti", "venice-presentation", { headless: true });
+		const networkResultB = JSON.stringify(api.resolveNetworkAction(api.getState(), "Monastic", "chiaramonti"));
+		assert(networkResultA === networkResultB, "Venice: identical network actions are not deterministic");
+		api.initState("mattei", "venice-bellisomi-route", { headless: true });
+		const alternateState = api.getState();
+		alternateState.support.bellisomi = 100;
+		alternateState.metrics.austrianGrip = 20;
+		api.conductBallot("bellisomi");
+		assert(api.getState().electedId === "bellisomi", "Venice: a decisive Bellisomi route remains impossible after the imperial ceiling is broken");
+		const score = api.scoreGame();
+		assert(Number.isFinite(score.total) && score.parts.reduce((sum, part) => sum + part.points, 0) === score.total && score.verdict && score.verdict.grade, "Venice: end score is invalid");
+		assert(/Austrian-aligned/.test(api.axisPosition("austria", 1.1)) && !/very high|middle/.test(api.axisPosition("austria", 1.1)), "Venice: dossiers still use abstract rather than directional labels");
+		return ["player-ballot-preserved", "self-vote", "herzan-arrival", "historical-opening", "uncertain-soundings", "portrait-lookup", "network-membership", "network-determinism", "alternate-winner", "end-score", "directional-profile"];
 	}
 	return [];
 }
