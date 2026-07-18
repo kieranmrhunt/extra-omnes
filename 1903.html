@@ -277,7 +277,7 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 .decision .kicker{font-family:var(--cond);font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
 .decision b{display:block;font-family:var(--display);font-weight:400;color:var(--gold-pale);margin:.08rem 0 .16rem}
 .decision p{font-family:var(--serif);font-size:.96rem;color:var(--paper-dim);margin:0;line-height:1.32}
-#log{height:43vh;min-height:260px;overflow:auto;padding-right:.4rem}
+#log{max-height:43vh;overflow:auto;padding-right:.4rem}
 .log-entry{border-left:3px solid var(--line-strong);padding:.42rem .6rem;margin-bottom:.45rem;background:rgba(242,234,216,.03);font-family:var(--serif);font-size:1.01rem;line-height:1.4}
 .log-entry .stamp{display:block;font-family:var(--cond);font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--paper-faint);margin-bottom:.14rem}
 .log-entry b{color:var(--gold-pale);font-weight:600}
@@ -285,8 +285,11 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 .log-entry.event{border-left-color:var(--blue-pale);background:rgba(76,120,148,.13)}
 .log-entry.deal{border-left-color:#8bc09d;background:rgba(95,143,117,.13)}
 .log-entry.holy{border-left-color:var(--gold);background:rgba(199,168,92,.1)}
+.action-contrast{margin:.58rem 0 -.25rem;font-family:var(--cond);font-size:.72rem;line-height:1.4;color:var(--paper-faint)}
+.action-contrast b{color:var(--gold-pale);font-weight:500}
 .actions{display:grid;grid-template-columns:repeat(3,1fr);gap:.44rem;border-top:1px solid var(--line);padding-top:.68rem;margin-top:.68rem}
 .actions button{min-height:46px;font-family:var(--cond);letter-spacing:.025em}
+.actions button small{display:block;margin-top:.14rem;font-size:.66rem;line-height:1.2;color:var(--paper-faint);letter-spacing:.015em}
 .actions button.primary{grid-column:1/-1;font-family:var(--sans);letter-spacing:0}
 .ap{font-family:var(--cond);font-size:.75rem;color:var(--paper-dim)}
 .pip{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--gold);margin-left:4px;box-shadow:0 0 5px rgba(199,168,92,.5)}
@@ -426,7 +429,7 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 	#leftcol{order:3}
 	.col{border-right:0;border-bottom:1px solid var(--line)}
 	.roster{max-height:380px}
-	#log{height:40vh}
+	#log{max-height:40vh}
 	.selbar{grid-template-columns:1fr 1fr}
 }
 @media(max-width:640px){
@@ -504,13 +507,14 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 		<div class="colhead"><span>The Sistine Chapel</span><span id="apwrap"></span></div>
 		<div class="decision" id="decision"></div>
 		<div id="log" aria-live="polite"></div>
+		<div class="action-contrast" id="actionContrast"></div>
 		<div class="actions" id="actionbar">
 			<button id="actSound" type="button">Take soundings</button>
 			<button id="actNetwork" type="button">Work a network</button>
 			<button id="actProgramme" type="button">Offer a programme</button>
-			<button id="actFloat" type="button">Promote one name</button>
+			<button id="actFloat" type="button">Promote one name<small>Direct momentum · more exposure</small></button>
 			<button id="actCourt" type="button">The courts</button>
-			<button id="actBridge" type="button">Broker a compromise</button>
+			<button id="actBridge" type="button">Broker a compromise<small>Third candidate · more trust</small></button>
 			<button id="actRetreat" type="button">Prayer &amp; silence</button>
 			<button id="ballotBtn" class="primary" type="button">Proceed to scrutiny</button>
 		</div>
@@ -1904,6 +1908,29 @@ function renderPressures(){
 		));
 	});
 }
+function actionRouteCopy(state){
+	if(state.flags.sartoCrisis && !state.flags.sartoConsent)return {
+		label:"Seek Sarto’s consent",
+		subtitle:"Unlock transfer · preserve reluctance",
+		name:"Sarto’s consent",
+		description:"makes the transfer credible without turning reluctance into a personal campaign.",
+		title:"Secure Sarto’s consent so the organised transfer can proceed without obvious self-promotion."
+	};
+	if(state.ballotNo>=2)return {
+		label:"Work the transfer",
+		subtitle:"Shift a coalition · choose its destination",
+		name:"Transfer work",
+		description:"moves an organised coalition between alternatives rather than merely advertising one name.",
+		title:"Shape the organised transfer between the principal alternatives."
+	};
+	return {
+		label:"Broker a compromise",
+		subtitle:"Third candidate · more trust",
+		name:"Compromise brokering",
+		description:"tests a survivable third candidate, trading some raw momentum for trust and discretion.",
+		title:"Build trust around a non-leading compromise rather than simply advertising a name."
+	};
+}
 function renderActions(){
 	const disabled=S.over || S.ap<=0;
 	["actSound","actNetwork","actProgramme","actFloat","actCourt","actBridge","actRetreat"].forEach(function(id){
@@ -1912,13 +1939,14 @@ function renderActions(){
 	$("#ballotBtn").disabled=S.over;
 	if(S.playerId==="puzyna" && !S.flags.vetoResolved)$("#actCourt").textContent="The secretum";
 	else $("#actCourt").textContent=S.flags.vetoDelivered ? "Answer the veto" : "The courts";
-	if(S.flags.sartoCrisis && !S.flags.sartoConsent)$("#actBridge").textContent="Seek Sarto’s consent";
-	else if(S.ballotNo>=2)$("#actBridge").textContent="Work the transfer";
-	else $("#actBridge").textContent="Broker a compromise";
+	const route=actionRouteCopy(S);
+	$("#actFloat").innerHTML="Promote one name<small>Direct momentum · more exposure</small>";
+	$("#actBridge").innerHTML=esc(route.label)+"<small>"+esc(route.subtitle)+"</small>";
+	$("#actionContrast").innerHTML="<b>Direct promotion</b> gives one name immediate momentum and makes your hand visible. <b>"+esc(route.name)+"</b> "+esc(route.description);
 	$("#actSound").title="Spend one action for a partial, uncertain estimate of the pending scrutiny.";
 	$("#actNetwork").title="Canvass a modelling network. Access is stronger when you belong to it.";
 	$("#actFloat").title="Give one candidacy direct momentum, at a visible cost in exposure.";
-	$("#actBridge").title=S.ballotNo<2 ? "Build trust around a non-leading compromise rather than simply advertising a name." : "Shape the organised transfer between the principal alternatives.";
+	$("#actBridge").title=route.title;
 }
 function render(){
 	if(!S)return;
@@ -2463,6 +2491,7 @@ globalThis.__om1903={
 	profileAlignment:profileAlignment,
 	networkAccess:networkAccess,
 	resolveNetworkAction:resolveNetworkAction,
+	actionRouteCopy:actionRouteCopy,
 	simulateBallot:simulateBallot,
 	resolveVeto:resolveVeto,
 	reactToVeto:reactToVeto,

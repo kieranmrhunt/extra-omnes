@@ -146,6 +146,7 @@ function loadVariant(file) {
 	networkAccess: typeof networkAccess === "function" ? networkAccess : null,
 	portraitFor: typeof portraitFor === "function" ? portraitFor : null,
 	resolveNetworkAction: typeof resolveNetworkAction === "function" ? resolveNetworkAction : null,
+	actionRouteCopy: typeof actionRouteCopy === "function" ? actionRouteCopy : null,
 	axisPosition: typeof axisPosition === "function" ? axisPosition : null,
 	scoreGame: typeof scoreGame === "function" ? scoreGame : null,
 	topPreference: typeof topPreference === "function" ? topPreference : null,
@@ -327,7 +328,7 @@ function runTargetedChecks(variant, api) {
 		return ["attendance-40-to-44", "approval-validation", "accessus-validation", "illness-eligibility", "metric-bounds"];
 	}
 	if (variant.label === "1903") {
-		assert(typeof api.initState === "function" && typeof api.makeSounding === "function" && typeof api.playerNetworks === "function" && typeof api.networkAccess === "function" && typeof api.resolveNetworkAction === "function" && typeof api.portraitFor === "function" && typeof api.scoreGame === "function", "1903: revised information/network/portrait/score API is not exported");
+		assert(typeof api.initState === "function" && typeof api.makeSounding === "function" && typeof api.playerNetworks === "function" && typeof api.networkAccess === "function" && typeof api.resolveNetworkAction === "function" && typeof api.actionRouteCopy === "function" && typeof api.portraitFor === "function" && typeof api.scoreGame === "function", "1903: revised information/network/portrait/score API is not exported");
 		const portrait = api.portraitFor("gibbons");
 		assert(portrait && /assets\/portraits\/1903\/gibbons\.webp$/.test(portrait.src) && /en\.wikipedia\.org/.test(portrait.wikipedia) && !("source" in portrait) && api.portraitFor("sanminiatelli") === null, "1903: portrait link or fallback is invalid");
 		let state = api.initState("gibbons", "1903-soundings", "historical");
@@ -336,6 +337,13 @@ function runTargetedChecks(variant, api) {
 		const soundingB = api.makeSounding(state);
 		assert(JSON.stringify(soundingA) === JSON.stringify(soundingB) && JSON.stringify(state) === before, "1903: soundings are non-deterministic or mutate simulation state");
 		assert(soundingA.rows.length > 0 && soundingA.rows.every((row) => Number.isInteger(row.low) && Number.isInteger(row.high) && row.low < row.high && !("count" in row)), "1903: soundings expose exact counts or invalid ranges");
+		const routeState = api.initState("gibbons", "1903-route-copy", "open");
+		assert(api.actionRouteCopy(routeState).label === "Broker a compromise" && /more trust/.test(api.actionRouteCopy(routeState).subtitle), "1903: opening promotion/compromise distinction is missing");
+		routeState.ballotNo = 2;
+		assert(api.actionRouteCopy(routeState).label === "Work the transfer", "1903: transfer-phase action copy is incorrect");
+		routeState.flags.sartoCrisis = true;
+		routeState.flags.sartoConsent = false;
+		assert(api.actionRouteCopy(routeState).label === "Seek Sarto’s consent", "1903: Sarto-consent action copy is incorrect");
 		const networks = api.playerNetworks(state);
 		assert(networks.includes("Diocesan") && networks.includes("Independent"), "1903: the player's modelled networks are incomplete");
 		assert(api.networkAccess(state, "Diocesan") > api.networkAccess(state, "Curia"), "1903: membership does not improve network access");
@@ -350,7 +358,7 @@ function runTargetedChecks(variant, api) {
 		const completed = api.runHeadless("1903-score", "gibbons", "historical");
 		const score = api.scoreGame(completed);
 		assert(Number.isFinite(score.total) && score.parts.reduce((sum, part) => sum + part.points, 0) === score.total && score.verdict && score.verdict.grade, "1903: end score is invalid");
-		return ["portrait-lookup", "uncertain-soundings", "network-membership", "network-determinism", "player-ballot-preserved", "end-score"];
+		return ["portrait-lookup", "uncertain-soundings", "action-route-copy", "network-membership", "network-determinism", "player-ballot-preserved", "end-score"];
 	}
 	if (variant.label === "october-1978") {
 		assert(typeof api.initState === "function" && typeof api.runBallot === "function" && typeof api.getState === "function" && typeof api.makeSounding === "function" && typeof api.networkAccess === "function" && typeof api.workNetwork === "function" && typeof api.portraitFor === "function" && typeof api.scoreGame === "function", "October 1978: targeted-test API is not exported");
