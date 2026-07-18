@@ -1,0 +1,1317 @@
+{
+  "about": "Local WebP derivatives resized from Wikimedia Commons source files. See each Commons description page for complete and current attribution and licence terms.",
+  "portraits": {
+    "1800/albani.webp": {
+      "commons_file": "Ritratto di Giovanni Francesco Albani (1720-1803).jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Ritratto_di_Giovanni_Francesco_Albani_(1720-1803).jpg",
+      "creator": "Vincenzo Milione",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1800/stuart.webp": {
+      "commons_file": "Circle of Anton Raphael Mengs, Henry Benedict Maria Clement Stuart, Cardinal York (ca 1750) -001.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Circle_of_Anton_Raphael_Mengs,_Henry_Benedict_Maria_Clement_Stuart,_Cardinal_York_(ca_1750)_-001.jpg",
+      "creator": "Circle of Anton Raphael Mengs",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1800/antonelli.webp": {
+      "commons_file": "Cardinale Leonardo Antonelli.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Cardinale_Leonardo_Antonelli.jpg",
+      "creator": "Unidentified painter",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1800/valenti.webp": {
+      "commons_file": "Cardinale Luigi Valenti Gonzaga.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Cardinale_Luigi_Valenti_Gonzaga.jpg",
+      "creator": "Unidentified painter",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1800/carafa.webp": {
+      "commons_file": "Maron - Francesco Carafa.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Maron_-_Francesco_Carafa.jpg",
+      "creator": "Anton von Maron",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1800/zelada.webp": {
+      "commons_file": "Anton Raphael Mengs - Bildnis des Kardinals Zelada (Art Institute of Chicago).jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Anton_Raphael_Mengs_-_Bildnis_des_Kardinals_Zelada_(Art_Institute_of_Chicago).jpg",
+      "creator": "Anton Raphael Mengs",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1800/calcagnini.webp": {
+      "commons_file": "1776 GUIDO CALCAGNINI - CALCAGNINI GUIDO.JPG",
+      "source": "https://commons.wikimedia.org/wiki/File:1776_GUIDO_CALCAGNINI_-_CALCAGNINI_GUIDO.JPG",
+      "creator": "Unknown authorUnknown author",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1800/honorati.webp": {
+      "commons_file": "Cardinal Honorati.JPG",
+      "source": "https://commons.wikimedia.org/wiki/File:Cardinal_Honorati.JPG",
+      "creator": "Unidentified painter",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1800/gioannetti.webp": {
+      "commons_file": "Portret van kardinaal Andrea Gioannetti, RP-P-1909-4880 (cropped).jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Portret_van_kardinaal_Andrea_Gioannetti,_RP-P-1909-4880_(cropped).jpg",
+      "creator": "Rijksmuseum",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1800/gerdil.webp": {
+      "commons_file": "Hyacinthe-Sigismond Gerdil.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Hyacinthe-Sigismond_Gerdil.jpg",
+      "creator": "After Pompeo Batoni",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1800/herzan.webp": {
+      "commons_file": "Franziskus von Paula Herzan von Harras.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Franziskus_von_Paula_Herzan_von_Harras.jpg",
+      "creator": "Unidentified painter",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1800/mattei.webp": {
+      "commons_file": "Alessandro Mattei.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Alessandro_Mattei.jpg",
+      "creator": "Carlo Antonini",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1800/archetti.webp": {
+      "commons_file": "Giovanni Andrea Archetti.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Giovanni_Andrea_Archetti.jpg",
+      "creator": "Unknown authorUnknown author",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1800/gdoria.webp": {
+      "commons_file": "Giuseppe Maria Doria Pamphilj.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Giuseppe_Maria_Doria_Pamphilj.jpg",
+      "creator": "Gaspare Landi",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1800/chiaramonti.webp": {
+      "commons_file": "Sir Thomas Lawrence - Portrait of Pope Pius VII.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Sir_Thomas_Lawrence_-_Portrait_of_Pope_Pius_VII.jpg",
+      "creator": "Thomas Lawrence",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1800/bellisomi.webp": {
+      "commons_file": "Carlo Bellisomi.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Carlo_Bellisomi.jpg",
+      "creator": "Unknown 18th century Italian engraver",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1800/borgia.webp": {
+      "commons_file": "Stefano Borgia.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Stefano_Borgia.jpg",
+      "creator": "Unidentified painter",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1800/vincenti.webp": {
+      "commons_file": "Ippolito Antonio Vincenti Mareri.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Ippolito_Antonio_Vincenti_Mareri.jpg",
+      "creator": "Unknown 18th century Italian engraver",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/oreglia.webp": {
+      "commons_file": "Luigi_Oreglia.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Luigi_Oreglia.jpg",
+      "creator": "Unknown authorUnknown author",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/neto.webp": {
+      "commons_file": "José Sebastião Neto - Cópia.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Jos%C3%A9_Sebasti%C3%A3o_Neto_-_C%C3%B3pia.jpg",
+      "creator": "Photograph",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/capecelatro.webp": {
+      "commons_file": "Alfonso-Capecelatro-di-Castelpagano.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Alfonso-Capecelatro-di-Castelpagano.jpg",
+      "creator": "Unknown authorUnknown author",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/dipietro.webp": {
+      "commons_file": "Angelo_Di_Pietro.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Angelo_Di_Pietro.jpg",
+      "creator": "Unknown authorUnknown author",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/vaszary.webp": {
+      "commons_file": "Vaszary Portrait of Prince-Primate Kolos Vaszary 1895.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Vaszary_Portrait_of_Prince-Primate_Kolos_Vaszary_1895.jpg",
+      "creator": "János Vaszary",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/sarto.webp": {
+      "commons_file": "Pius_X,_by_Ernest_Walter_Histed_(retouched).jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Pius_X,_by_Ernest_Walter_Histed_(retouched).jpg",
+      "creator": "Ernest Walter Histed",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/ferrari.webp": {
+      "commons_file": "Andrea_Carlo_Ferrari_-_Photo.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Andrea_Carlo_Ferrari_-_Photo.jpg",
+      "creator": "unknown - Original uploader was Della Balda at Italian Wikipedia",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/gotti.webp": {
+      "commons_file": "Girolamo Maria Gotti.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Girolamo_Maria_Gotti.jpg",
+      "creator": "Unknown authorUnknown author",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/manara.webp": {
+      "commons_file": "Achille_Manara.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Achille_Manara.jpg",
+      "creator": "Unknown 19th century Italian photographer",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/cretoni.webp": {
+      "commons_file": "Serafino_Cretoni.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Serafino_Cretoni.jpg",
+      "creator": "Unknown 19th century Italian portrait painter",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/boschi.webp": {
+      "commons_file": "Cardinale_Giulio_Boschi.png",
+      "source": "https://commons.wikimedia.org/wiki/File:Cardinale_Giulio_Boschi.png",
+      "creator": "Unknown early 20th century Italian photographer",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/katschthaler.webp": {
+      "commons_file": "Johannes Katschthaler.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Johannes_Katschthaler.jpg",
+      "creator": "Salzburger Photograph Ellinger",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/villot.webp": {
+      "commons_file": "Jean-Marie_Villot_1978.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Jean-Marie_Villot_1978.jpg",
+      "creator": "Unknown photographer for Anefo",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/siri.webp": {
+      "commons_file": "Giuseppe_Siri,_arcivescovo_di_Genova.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Giuseppe_Siri,_arcivescovo_di_Genova.jpg",
+      "creator": "The original uploader was RiccardoP1983 at Italian Wikipedia.",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/wyszynski.webp": {
+      "commons_file": "Stefan_Wyszyński.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Stefan_Wyszy%C5%84ski.jpg",
+      "creator": "Janusz Trocha",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/konig.webp": {
+      "commons_file": "Kardinal_koenig.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Kardinal_koenig.jpg",
+      "creator": "The original uploader was Walter Ching at English Wikipedia.",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/maurer.webp": {
+      "commons_file": "Kardinal_Maurer_am_31.05.1981_in_Kärlich.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Kardinal_Maurer_am_31.05.1981_in_K%C3%A4rlich.jpg",
+      "creator": "See Commons source",
+      "license": "CC BY-SA 2.0 de",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0/de/deed.en",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/wojtyla.webp": {
+      "commons_file": "ADAMELLO_-_PAPA_-_Giovanni_Paolo_II_-_panoramio_(cropped).jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:ADAMELLO_-_PAPA_-_Giovanni_Paolo_II_-_panoramio_(cropped).jpg",
+      "creator": "Gregorini Demetrio",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/tarancon.webp": {
+      "commons_file": "Vicente_Enrique_y_Tarancón.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Vicente_Enrique_y_Taranc%C3%B3n.jpg",
+      "creator": "Conferencia Episcopal Española",
+      "license": "CC BY-SA 2.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/beras.webp": {
+      "commons_file": "Pintura-Cardenal-Beras.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Pintura-Cardenal-Beras.jpg",
+      "creator": "IacobusL",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/sin.webp": {
+      "commons_file": "Cardinal_Jaime_Sin_in_1988.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Cardinal_Jaime_Sin_in_1988.jpg",
+      "creator": "Ernmuhl",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/benelli.webp": {
+      "commons_file": "Giovanni_Benelli_1978.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Giovanni_Benelli_1978.jpg",
+      "creator": "Unknown photographer for Anefo",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/ratzinger.webp": {
+      "commons_file": "Benedykt_XVI_(2010-10-17)_2.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Benedykt_XVI_(2010-10-17)_2.jpg",
+      "creator": "Kancelaria Prezydenta RP",
+      "license": "GFDL 1.2",
+      "license_url": "https://gnu.org/licenses/old-licenses/fdl-1.2.html",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/bafile.webp": {
+      "commons_file": "Konrad_Adenauer_-_Feier_zum_88._Geburtstag_in_der_Redoute-kasf0009.JPG",
+      "source": "https://commons.wikimedia.org/wiki/File:Konrad_Adenauer_-_Feier_zum_88._Geburtstag_in_der_Redoute-kasf0009.JPG",
+      "creator": "CDU, Fotograf: Peter Bouserath",
+      "license": "CC BY-SA 3.0 de",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1800/lorenzana.webp": {
+      "commons_file": "El cardenal Francisco Antonio de Lorenzana (Museo del Prado).jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:El_cardenal_Francisco_Antonio_de_Lorenzana_(Museo_del_Prado).jpg",
+      "creator": "Matías Moreno",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1800/busca.webp": {
+      "commons_file": "Ignazio Busca.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Ignazio_Busca.jpg",
+      "creator": "Unknown authorUnknown author",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1800/martiniana.webp": {
+      "commons_file": "Portret van kardinaal Carlo Giuseppe Filippa della Martiniana Portretten van kardinalen (serietitel), RP-P-1909-4822.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Portret_van_kardinaal_Carlo_Giuseppe_Filippa_della_Martiniana_Portretten_van_kardinalen_(serietitel),_RP-P-1909-4822.jpg",
+      "creator": "Rijksmuseum",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1800/caprara.webp": {
+      "commons_file": "Protaso Gerolamo Stambucchi – Portrait of Giovanni Battista Caprara Montecuccoli – Google Art Project.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Protaso_Gerolamo_Stambucchi_%E2%80%93_Portrait_of_Giovanni_Battista_Caprara_Montecuccoli_%E2%80%93_Google_Art_Project.jpg",
+      "creator": "Protasio Girolamo Stambucchi",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1800/dugnani.webp": {
+      "commons_file": "Antonio Dugnani.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Antonio_Dugnani.jpg",
+      "creator": "Unidentified painter",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1800/maury.webp": {
+      "commons_file": "Cardinal Maury.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Cardinal_Maury.jpg",
+      "creator": "Jean-Baptiste Vérité",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1800/bussi.webp": {
+      "commons_file": "1794 IOANNES BAPTISTA DE PRETIS - BUSSI DEPRETIS GIOVANNI BATTISTA.JPG",
+      "source": "https://commons.wikimedia.org/wiki/File:1794_IOANNES_BAPTISTA_DE_PRETIS_-_BUSSI_DEPRETIS_GIOVANNI_BATTISTA.JPG",
+      "creator": "Unknown authorUnknown author",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1800/pignatelli.webp": {
+      "commons_file": "Pignatelli Francesco Maria.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Pignatelli_Francesco_Maria.jpg",
+      "creator": "Unidentified painter",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1800/roverella.webp": {
+      "commons_file": "Aurelio Roverella.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Aurelio_Roverella.jpg",
+      "creator": "Unidentified painter",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1800/somaglia.webp": {
+      "commons_file": "Giulio Maria della Somaglia.JPG",
+      "source": "https://commons.wikimedia.org/wiki/File:Giulio_Maria_della_Somaglia.JPG",
+      "creator": "Gaspare Landi",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1800/adoria.webp": {
+      "commons_file": "Antonio Maria Doria Pamphilj.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Antonio_Maria_Doria_Pamphilj.jpg",
+      "creator": "Vincenzo Milione",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1800/braschi.webp": {
+      "commons_file": "Branschi-onesti.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Branschi-onesti.jpg",
+      "creator": "Unidentified painter",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1800/ruffo.webp": {
+      "commons_file": "Cardinale Fabrizio Ruffo.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Cardinale_Fabrizio_Ruffo.jpg",
+      "creator": "Ambito Napoletano",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1800/livizzani.webp": {
+      "commons_file": "Marco Caricchia, Ritratto del cardinale Carlo Livizzani, olio su tela sagomata, 1788, Museo Civico di Modena.tif",
+      "source": "https://commons.wikimedia.org/wiki/File:Marco_Caricchia,_Ritratto_del_cardinale_Carlo_Livizzani,_olio_su_tela_sagomata,_1788,_Museo_Civico_di_Modena.tif",
+      "creator": "Marco Caricchia",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/serafino.webp": {
+      "commons_file": "Serafino_Vannutelli_cropped.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Serafino_Vannutelli_cropped.jpg",
+      "creator": "Unknown authorUnknown author",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/mocenni.webp": {
+      "commons_file": "Mario_Mocenni.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Mario_Mocenni.jpg",
+      "creator": "Erulo Eroli",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/agliardi.webp": {
+      "commons_file": "Antonio_Agliardi.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Antonio_Agliardi.jpg",
+      "creator": "Cabinet card (Rome)",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/vincenzo.webp": {
+      "commons_file": "Vincenzo_Vannutelli_1913.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Vincenzo_Vannutelli_1913.jpg",
+      "creator": "Agence de presse Meurisse",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/satolli.webp": {
+      "commons_file": "Satolli,_Francis_Cardinal.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Satolli,_Francis_Cardinal.jpg",
+      "creator": "F. Gutekunst",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/langenieux.webp": {
+      "commons_file": "Langenieux_photo.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Langenieux_photo.jpg",
+      "creator": "inconnu ; versement et modifications : G.Garitan",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/gibbons.webp": {
+      "commons_file": "GibbonsPhotoStanding.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:GibbonsPhotoStanding.jpg",
+      "creator": "Unknown authorUnknown author",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/rampolla.webp": {
+      "commons_file": "Laszlo_-_Cardinal_Mariano_Rampolla.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Laszlo_-_Cardinal_Mariano_Rampolla.jpg",
+      "creator": "Philip de László",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/richard.webp": {
+      "commons_file": "Cardinal_Richard.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Cardinal_Richard.jpg",
+      "creator": "Photograph",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/goossens.webp": {
+      "commons_file": "Pierre-Lambert_Goossens.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Pierre-Lambert_Goossens.jpg",
+      "creator": "Unknown authorUnknown author",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/gruscha.webp": {
+      "commons_file": "Anton_Joseph_Gruscha.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Anton_Joseph_Gruscha.jpg",
+      "creator": "Unidentified photographer",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/logue.webp": {
+      "commons_file": "Sir_John_Lavery_–_His_Eminence_Cardinal_Logue.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Sir_John_Lavery_%E2%80%93_His_Eminence_Cardinal_Logue.jpg",
+      "creator": "John Lavery",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/kopp.webp": {
+      "commons_file": "Georg_Kardinal_Kopp.png",
+      "source": "https://commons.wikimedia.org/wiki/File:Georg_Kardinal_Kopp.png",
+      "creator": "Unknown authorUnknown author",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/perraud.webp": {
+      "commons_file": "Mgr Perraud.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Mgr_Perraud.jpg",
+      "creator": "HdL85",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/sancha.webp": {
+      "commons_file": "SANCHA.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:SANCHA.jpg",
+      "creator": "Félix Badillo y Rodrigo",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/svampa.webp": {
+      "commons_file": "Ritratto_card._Svampa.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Ritratto_card._Svampa.jpg",
+      "creator": "FaustoK",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/casanas.webp": {
+      "commons_file": "Casanas.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Casanas.jpg",
+      "creator": "Photograph",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/ferrata.webp": {
+      "commons_file": "Domenico_Ferrata2.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Domenico_Ferrata2.jpg",
+      "creator": "Unknown authorUnknown author",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/prisco.webp": {
+      "commons_file": "Giuseppe Antonio Prisco.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Giuseppe_Antonio_Prisco.jpg",
+      "creator": "P.Greppi, Italian portrait painter of the 19th century",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/herrera.webp": {
+      "commons_file": "D._José_Martín_de_Herrera_y_de_la_Iglesia._La_Ilustración_Española_y_Americana_1897.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:D._Jos%C3%A9_Mart%C3%ADn_de_Herrera_y_de_la_Iglesia._La_Ilustraci%C3%B3n_Espa%C3%B1ola_y_Americana_1897.jpg",
+      "creator": "Unknown authorUnknown author",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/coullie.webp": {
+      "commons_file": "Portrait_de_Monseigneur_Pierre-Hector_Coullié.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Portrait_de_Monseigneur_Pierre-Hector_Coulli%C3%A9.jpg",
+      "creator": "Victoire\n\nS. Farges",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/laboure.webp": {
+      "commons_file": "La_Guerche-de-Bretagne_(35)_Basilique_Baie_06-3.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:La_Guerche-de-Bretagne_(35)_Basilique_Baie_06-3.jpg",
+      "creator": "GO69",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/casali.webp": {
+      "commons_file": "Casali_del_Drago_photo.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Casali_del_Drago_photo.jpg",
+      "creator": "Unknown authorUnknown author",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/cassetta.webp": {
+      "commons_file": "Louis_Duchesne_(1843-1922)_et_le_cardinal_de_la_curie_romaine_Francesco_di_Paola_Cassetta_(1841-1919).jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Louis_Duchesne_(1843-1922)_et_le_cardinal_de_la_curie_romaine_Francesco_di_Paola_Cassetta_(1841-1919).jpg",
+      "creator": "Photographe anonyme.",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/portanova.webp": {
+      "commons_file": "Gennaro_Portanova.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Gennaro_Portanova.jpg",
+      "creator": "Unknown authorUnknown author",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/francicanava.webp": {
+      "commons_file": "FRANCICA-NAVA DI BONTIFÈ, Giuseppe.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:FRANCICA-NAVA_DI_BONTIF%C3%88,_Giuseppe.jpg",
+      "creator": "Unknown authorUnknown author",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/mathieu.webp": {
+      "commons_file": "Matthieu_Francois-Désiré_Mariani_t_IX_1908_portrait.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Matthieu_Francois-D%C3%A9sir%C3%A9_Mariani_t_IX_1908_portrait.jpg",
+      "creator": "Unknown authorUnknown author",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/respighi.webp": {
+      "commons_file": "Cardenal_Pietro_Respighi.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Cardenal_Pietro_Respighi.jpg",
+      "creator": "Gaumata",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/richelmy.webp": {
+      "commons_file": "Agostino_Richelmy.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Agostino_Richelmy.jpg",
+      "creator": "Unknown authorUnknown author",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/martinelli.webp": {
+      "commons_file": "Eakins, Sebastiano Cardinal Martinelli 1902.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Eakins,_Sebastiano_Cardinal_Martinelli_1902.jpg",
+      "creator": "Thomas Eakins",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/skrbensky.webp": {
+      "commons_file": "Lev_Skrbenský_(cropped).jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Lev_Skrbensk%C3%BD_(cropped).jpg",
+      "creator": "Karel Miloslav Hlaváček",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/puzyna.webp": {
+      "commons_file": "Jan Puzyna.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Jan_Puzyna.jpg",
+      "creator": "See Commons source",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/nocella.webp": {
+      "commons_file": "Carlo Nocella.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Carlo_Nocella.jpg",
+      "creator": "Unknown 19th century Italian photographer",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/aiuti.webp": {
+      "commons_file": "Andrea_Aiuti,_Kardinal.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Andrea_Aiuti,_Kardinal.jpg",
+      "creator": "zeitgenössischer Fotograf",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/taliani.webp": {
+      "commons_file": "Emidio_Taliani.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Emidio_Taliani.jpg",
+      "creator": "zeitgenössischer Fotograf",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/herrero.webp": {
+      "commons_file": "Herrera_by_Barbera.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Herrera_by_Barbera.jpg",
+      "creator": "Camillo Gioja Barbera",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/fischer.webp": {
+      "commons_file": "Hasak_-_Der_Dom_zu_Köln_-_V4_-_Kardinal_Fischer.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Hasak_-_Der_Dom_zu_K%C3%B6ln_-_V4_-_Kardinal_Fischer.jpg",
+      "creator": "Max Hasak (1856-1934)",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/macchi.webp": {
+      "commons_file": "Macchi_luigi.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Macchi_luigi.jpg",
+      "creator": "araldicavaticana.com",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/steinhuber.webp": {
+      "commons_file": "Kardinal Andreas Steinhuber1JS.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Kardinal_Andreas_Steinhuber1JS.jpg",
+      "creator": "Baumgarten, Leo Gesellschaft",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/pierotti.webp": {
+      "commons_file": "Raffaele Pierotti detail.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Raffaele_Pierotti_detail.jpg",
+      "creator": "Unknown authorUnknown author",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/dellavolpe.webp": {
+      "commons_file": "Franz_della_Volpe.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Franz_della_Volpe.jpg",
+      "creator": "Leo-Gesellschaft, Wien",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/vives.webp": {
+      "commons_file": "José de Calasanz Félix Santiago Vives y Tutó.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Jos%C3%A9_de_Calasanz_F%C3%A9lix_Santiago_Vives_y_Tut%C3%B3.jpg",
+      "creator": "Unknown authorUnknown author",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/tripepi.webp": {
+      "commons_file": "Luigi_Tripepi.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Luigi_Tripepi.jpg",
+      "creator": ".\n\nThe original uploader was Zombieontheroad at Italian Wikipedia.",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/cavagnis.webp": {
+      "commons_file": "Riva_G._(1901)_-_Ritratto_del_cardinale_Cavagnis.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Riva_G._(1901)_-_Ritratto_del_cardinale_Cavagnis.jpg",
+      "creator": "Giuseppe Riva",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1903/lecot.webp": {
+      "commons_file": "Bordeaux - Cardinal Lecot 1.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Bordeaux_-_Cardinal_Lecot_1.jpg",
+      "creator": "Ch. Chambon circa 1900-1920",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/samore.webp": {
+      "commons_file": "Antonio_Samoré_Argentina_1978.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Antonio_Samor%C3%A9_Argentina_1978.jpg",
+      "creator": "Diario Clarín de Argentina",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/carpino.webp": {
+      "commons_file": "Card.Carpino.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Card.Carpino.jpg",
+      "creator": "Unknown authorUnknown author",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/baggio.webp": {
+      "commons_file": "Cardinale-sebastiano-baggio.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Cardinale-sebastiano-baggio.jpg",
+      "creator": "The original uploader was Manuel M at Italian Wikipedia. Later version(s) were uploaded by RiccardoP1983 at Italian Wikipedia.",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/leger.webp": {
+      "commons_file": "Paul-Emile_Leger_-_1941.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Paul-Emile_Leger_-_1941.jpg",
+      "creator": "BAnQ Vieux-Montréal - Fonds La Presse",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/bueno.webp": {
+      "commons_file": "José_María_Bueno_Monreal_(cropped).jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Jos%C3%A9_Mar%C3%ADa_Bueno_Monreal_(cropped).jpg",
+      "creator": "Unknown authorUnknown author",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/alfrink.webp": {
+      "commons_file": "Kardinaal_Alfrink.JPG",
+      "source": "https://commons.wikimedia.org/wiki/File:Kardinaal_Alfrink.JPG",
+      "creator": "Aartsbisschoppelijk Archief Utrecht",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/quintero.webp": {
+      "commons_file": "José_Humberto_Cardenal_Quintero.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Jos%C3%A9_Humberto_Cardenal_Quintero.jpg",
+      "creator": "Arquidiócesis de Caracas",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/landazuri.webp": {
+      "commons_file": "Juan_Landázuri_Ricketts_(cropped).jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Juan_Land%C3%A1zuri_Ricketts_(cropped).jpg",
+      "creator": "Padreleon",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/silva.webp": {
+      "commons_file": "CardenalSilvaHenriquez_cropped.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:CardenalSilvaHenriquez_cropped.jpg",
+      "creator": "http://www.chicozaldivar.cl",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/roy.webp": {
+      "commons_file": "Maurice_Roy_en_1956.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Maurice_Roy_en_1956.jpg",
+      "creator": "Trans Canada Air Lines",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/seper.webp": {
+      "commons_file": "Franjo_Šeper.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Franjo_%C5%A0eper.jpg",
+      "creator": "Duh",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/zoungrana.webp": {
+      "commons_file": "Bundesarchiv_B_145_Bild-F023489-0006,_Bonn,_Lübke_empfängt_Kardinal_Zoungrana.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Bundesarchiv_B_145_Bild-F023489-0006,_Bonn,_L%C3%BCbke_empf%C3%A4ngt_Kardinal_Zoungrana.jpg",
+      "creator": "Ludwig Wegmann",
+      "license": "CC BY-SA 3.0 de",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/agnelo_rossi.webp": {
+      "commons_file": "Dom_Agnelo_Rossi_(1967).tif",
+      "source": "https://commons.wikimedia.org/wiki/File:Dom_Agnelo_Rossi_(1967).tif",
+      "creator": "UnknownUnknown",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/colombo.webp": {
+      "commons_file": "658_Card_Giovanni_Colombo.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:658_Card_Giovanni_Colombo.jpg",
+      "creator": "RiccardoP1983 at Italian Wikipedia",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/furstenberg.webp": {
+      "commons_file": "Núncio_Apostólico_Maximilien_de_Furstenberg_no_Seminário_Menor_de_Resende_(1964)_-_Arquivo_da_Diocese_de_Lamego.png",
+      "source": "https://commons.wikimedia.org/wiki/File:N%C3%BAncio_Apost%C3%B3lico_Maximilien_de_Furstenberg_no_Semin%C3%A1rio_Menor_de_Resende_(1964)_-_Arquivo_da_Diocese_de_Lamego.png",
+      "creator": "Unknown authorUnknown author",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/krol.webp": {
+      "commons_file": "Ronald_Reagan_and_John_Cardinal_Krol.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Ronald_Reagan_and_John_Cardinal_Krol.jpg",
+      "creator": "Jack Kightlinger",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/ursi.webp": {
+      "commons_file": "Corrado_Cardinale_Ursi.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Corrado_Cardinale_Ursi.jpg",
+      "creator": "PD - Unknown",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/bengsch.webp": {
+      "commons_file": "Bundesarchiv_Bild_183-T0924-0004,_Erfurt,_300_Jahre_Wallfahrtskirche_Worbis.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Bundesarchiv_Bild_183-T0924-0004,_Erfurt,_300_Jahre_Wallfahrtskirche_Worbis.jpg",
+      "creator": "Jürgen Ludwig",
+      "license": "CC BY-SA 3.0 de",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/pellegrino.webp": {
+      "commons_file": "Michele_Pellegrino,_Radio_Vaticana.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Michele_Pellegrino,_Radio_Vaticana.jpg",
+      "creator": "sconosciuto",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/scherer.webp": {
+      "commons_file": "Vicente_Scherer_e_Eugênio_Salles.tif",
+      "source": "https://commons.wikimedia.org/wiki/File:Vicente_Scherer_e_Eug%C3%AAnio_Salles.tif",
+      "creator": "UnknownUnknown",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/rosales.webp": {
+      "commons_file": "Julio_Rosales.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Julio_Rosales.jpg",
+      "creator": "Photographer: unknown\n\nPublisher: Semana Revista Ilustrada Hispano-Filipina",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/parecattil.webp": {
+      "commons_file": "Cardinal_Joseph_Parecattil.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Cardinal_Joseph_Parecattil.jpg",
+      "creator": "Kickbuttowski 619",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/marty.webp": {
+      "commons_file": "Cardinal_François_Marty.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Cardinal_Fran%C3%A7ois_Marty.jpg",
+      "creator": "Studio Harcourt",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/munoz_vega.webp": {
+      "commons_file": "Pablo_Muñoz_Vega_(cropped).jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Pablo_Mu%C3%B1oz_Vega_(cropped).jpg",
+      "creator": "Cancillería del Ecuador from Ecuador",
+      "license": "CC BY-SA 2.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/poma.webp": {
+      "commons_file": "Antonio_Poma.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Antonio_Poma.jpg",
+      "creator": "Romanuspontifex",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/carberry.webp": {
+      "commons_file": "John_Joseph_Carberry_(cropped).tif",
+      "source": "https://commons.wikimedia.org/wiki/File:John_Joseph_Carberry_(cropped).tif",
+      "creator": "William Fitz-Patrick",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/cooke.webp": {
+      "commons_file": "Terence_Cardinal_Cooke,_Archbishop,_Diocese_of_New_York.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Terence_Cardinal_Cooke,_Archbishop,_Diocese_of_New_York.jpg",
+      "creator": "Bernard Gotfryd",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/kim.webp": {
+      "commons_file": "Archbishop_Stephen_Kim_Sou-hwan_1968.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Archbishop_Stephen_Kim_Sou-hwan_1968.jpg",
+      "creator": "Unknown Author",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/sales.webp": {
+      "commons_file": "Cardeal_sales.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Cardeal_sales.jpg",
+      "creator": "Iury10",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/willebrands.webp": {
+      "commons_file": "Johannes_Willebrands_1982_color.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Johannes_Willebrands_1982_color.jpg",
+      "creator": "Croes, Rob C. for Anefo",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/ribeiro.webp": {
+      "commons_file": "Cardeal D. António Ribeiro.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Cardeal_D._Ant%C3%B3nio_Ribeiro.jpg",
+      "creator": "Joseolgon",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/vilela.webp": {
+      "commons_file": "Avelar_Brandao.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Avelar_Brandao.jpg",
+      "creator": "CELAM",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/primatesta.webp": {
+      "commons_file": "Cardenal_primatesta.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Cardenal_primatesta.jpg",
+      "creator": "Unknown authorUnknown author",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/pappalardo.webp": {
+      "commons_file": "Card. Pappalardo (cropped).jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Card._Pappalardo_(cropped).jpg",
+      "creator": "Sir87",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/gonzalez.webp": {
+      "commons_file": "Marcelo_Cardenal_González_Martín_(cropped).jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Marcelo_Cardenal_Gonz%C3%A1lez_Mart%C3%ADn_(cropped).jpg",
+      "creator": "Unknown authorUnknown author",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/guyot.webp": {
+      "commons_file": "Cardinal_Jean-Louis_Guyot.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Cardinal_Jean-Louis_Guyot.jpg",
+      "creator": "Jorel Bernard",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/poletti.webp": {
+      "commons_file": "Ugo_Poletti_(cropped).jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Ugo_Poletti_(cropped).jpg",
+      "creator": "Unknown authorUnknown author",
+      "license": "Attribution",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/manning.webp": {
+      "commons_file": "Timothy_Manning_1973.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Timothy_Manning_1973.jpg",
+      "creator": "Larry Bessel, Los Angeles Times",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/salazar.webp": {
+      "commons_file": "Cardenal_José_Salazar_López.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Cardenal_Jos%C3%A9_Salazar_L%C3%B3pez.jpg",
+      "creator": "Conferencia del Episcopado Mexicano",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/arns.webp": {
+      "commons_file": "Paulo_Evaristo_Arns_(1982).jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Paulo_Evaristo_Arns_(1982).jpg",
+      "creator": "Marcel Antonisse / Anefo",
+      "license": "CC BY-SA 3.0 nl",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/nl/deed.en",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/jubany.webp": {
+      "commons_file": "Narcís_Jubany.png",
+      "source": "https://commons.wikimedia.org/wiki/File:Narc%C3%ADs_Jubany.png",
+      "creator": "Oto Vega Ponce",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/volk.webp": {
+      "commons_file": "Hermann_Kardinal_Volk.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Hermann_Kardinal_Volk.jpg",
+      "creator": "Resaucation",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/nsubuga.webp": {
+      "commons_file": "Visitenkarte_von_Emmanuel_Cardinal_Kiwankuka_Nsubuga_(cropped).png",
+      "source": "https://commons.wikimedia.org/wiki/File:Visitenkarte_von_Emmanuel_Cardinal_Kiwankuka_Nsubuga_(cropped).png",
+      "creator": "Kno-Biesdorf",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/lorscheider.webp": {
+      "commons_file": "Aloísio_Lorscheider.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Alo%C3%ADsio_Lorscheider.jpg",
+      "creator": "Antônio Cruz/ABr",
+      "license": "CC BY 3.0 br",
+      "license_url": "https://creativecommons.org/licenses/by/3.0/br/deed.en",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/lekai.webp": {
+      "commons_file": "Laszlolekai.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Laszlolekai.jpg",
+      "creator": "Ernmuhl at lb.wikipedia",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/hume.webp": {
+      "commons_file": "Cardinal_Hume_(geograph_3367500).jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Cardinal_Hume_(geograph_3367500).jpg",
+      "creator": "Stephen McKay",
+      "license": "CC BY-SA 2.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/razafimahatratra.webp": {
+      "commons_file": "Victor_Razafimahatratra_(1921-1993).gif",
+      "source": "https://commons.wikimedia.org/wiki/File:Victor_Razafimahatratra_(1921-1993).gif",
+      "creator": "Grentidez",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/tomasek.webp": {
+      "commons_file": "František_Tomášek.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Franti%C5%A1ek_Tom%C3%A1%C5%A1ek.jpg",
+      "creator": "Martin Davídek",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/ekandem.webp": {
+      "commons_file": "Ekandem.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Ekandem.jpg",
+      "creator": "Fides",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/nasalli.webp": {
+      "commons_file": "Mario_Nasalli_Rocca_di_Corneliano_(cropped).jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Mario_Nasalli_Rocca_di_Corneliano_(cropped).jpg",
+      "creator": "Associated Press",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/pignedoli.webp": {
+      "commons_file": "Sergio-Pignedoli_(cropped).jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Sergio-Pignedoli_(cropped).jpg",
+      "creator": "Fides",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/pironio.webp": {
+      "commons_file": "Eduardo_Francisco_Pironio.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Eduardo_Francisco_Pironio.jpg",
+      "creator": "Trabajo propio",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/gantin.webp": {
+      "commons_file": "Gantin_Portrait.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Gantin_Portrait.jpg",
+      "creator": "The original uploader was Diwi at German Wikipedia.; \n\n(Original text: Fotograf des Vatikan)",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/suenens.webp": {
+      "commons_file": "Cardinal L. Suenens (3x4 cropped).jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Cardinal_L._Suenens_(3x4_cropped).jpg",
+      "creator": "Polla ta deina",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/garrone.webp": {
+      "commons_file": "Le cardinal Gabriel-Marie Garrone à Sainte-Marthe (Rome) le 3 septembre 1968.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Le_cardinal_Gabriel-Marie_Garrone_%C3%A0_Sainte-Marthe_(Rome)_le_3_septembre_1968.jpg",
+      "creator": "Creizh29",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/renard.webp": {
+      "commons_file": "Alexandre Renard 001.jpeg",
+      "source": "https://commons.wikimedia.org/wiki/File:Alexandre_Renard_001.jpeg",
+      "creator": "Geraldshields11",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/gray.webp": {
+      "commons_file": "Cardinal Gordon Joseph Gray.png",
+      "source": "https://commons.wikimedia.org/wiki/File:Cardinal_Gordon_Joseph_Gray.png",
+      "creator": "Eman Bonnici",
+      "license": "CC BY-SA 2.5",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.5",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/gouyon.webp": {
+      "commons_file": "Musée de Bretagne - Paul Gouyon 1964-01.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Mus%C3%A9e_de_Bretagne_-_Paul_Gouyon_1964-01.jpg",
+      "creator": "Sigismond Michalowski",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/baum.webp": {
+      "commons_file": "William Wakefield Baum (cropped).tif",
+      "source": "https://commons.wikimedia.org/wiki/File:William_Wakefield_Baum_(cropped).tif",
+      "creator": "William Fitz-Patrick",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/felici.webp": {
+      "commons_file": "Pericle Felici.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Pericle_Felici.jpg",
+      "creator": "Original uploaded by: PolishBoy123 Furaffinity",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/paupini.webp": {
+      "commons_file": "Giuseppe Cardinale Paupini - Particolare.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Giuseppe_Cardinale_Paupini_-_Particolare.jpg",
+      "creator": "Krepideia",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/munoz_duque.webp": {
+      "commons_file": "D. Aníbal Muñoz Duque.JPG",
+      "source": "https://commons.wikimedia.org/wiki/File:D._An%C3%ADbal_Mu%C3%B1oz_Duque.JPG",
+      "creator": "~~×α£đ~~es",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1978/medeiros.webp": {
+      "commons_file": "Cardinalhm.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Cardinalhm.jpg",
+      "creator": "Richard Whitney",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    }
+  }
+}

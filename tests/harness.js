@@ -329,7 +329,7 @@ function runTargetedChecks(variant, api) {
 	if (variant.label === "1903") {
 		assert(typeof api.initState === "function" && typeof api.makeSounding === "function" && typeof api.playerNetworks === "function" && typeof api.networkAccess === "function" && typeof api.resolveNetworkAction === "function" && typeof api.portraitFor === "function" && typeof api.scoreGame === "function", "1903: revised information/network/portrait/score API is not exported");
 		const portrait = api.portraitFor("gibbons");
-		assert(portrait && /commons\.wikimedia\.org/.test(portrait.src) && /en\.wikipedia\.org/.test(portrait.wikipedia) && !("source" in portrait) && api.portraitFor("sanminiatelli") === null, "1903: portrait link or fallback is invalid");
+		assert(portrait && /assets\/portraits\/1903\/gibbons\.webp$/.test(portrait.src) && /en\.wikipedia\.org/.test(portrait.wikipedia) && !("source" in portrait) && api.portraitFor("sanminiatelli") === null, "1903: portrait link or fallback is invalid");
 		let state = api.initState("gibbons", "1903-soundings", "historical");
 		const before = JSON.stringify(state);
 		const soundingA = api.makeSounding(state);
@@ -356,7 +356,7 @@ function runTargetedChecks(variant, api) {
 		assert(typeof api.initState === "function" && typeof api.runBallot === "function" && typeof api.getState === "function" && typeof api.makeSounding === "function" && typeof api.networkAccess === "function" && typeof api.workNetwork === "function" && typeof api.portraitFor === "function" && typeof api.scoreGame === "function", "October 1978: targeted-test API is not exported");
 		assert(cardList(api).length === 111 && api.THRESHOLD === 75, "October 1978: electorate or two-thirds-plus-one threshold is wrong");
 		const portrait = api.portraitFor("villot");
-		assert(portrait && /commons\.wikimedia\.org/.test(portrait.src) && /en\.wikipedia\.org/.test(portrait.wikipedia) && !("source" in portrait) && api.portraitFor("sidarouss") === null, "October 1978: portrait link or fallback is invalid");
+		assert(portrait && /assets\/portraits\/1978\/villot\.webp$/.test(portrait.src) && /en\.wikipedia\.org/.test(portrait.wikipedia) && !("source" in portrait) && api.portraitFor("sidarouss") === null, "October 1978: portrait link or fallback is invalid");
 		api.initState("villot", "october-soundings", { headless: true });
 		const soundingState = JSON.stringify(api.getState());
 		const soundingA = api.makeSounding("siri", 1);
@@ -481,7 +481,7 @@ function runTargetedChecks(variant, api) {
 		const soundingB = api.makeSounding();
 		assert(JSON.stringify(soundingA) === JSON.stringify(soundingB) && JSON.stringify(forecastState) === stateBeforeSounding, "Venice: soundings are non-deterministic or mutate simulation state");
 		assert(soundingA.rows.length > 0 && soundingA.rows.every((row) => Number.isInteger(row.low) && Number.isInteger(row.high) && row.low < row.high && !("count" in row) && !("total" in row)), "Venice: soundings expose exact counts or invalid ranges");
-		assert(api.portraitFor("chiaramonti") && /commons/.test(api.portraitFor("chiaramonti").src) && api.portraitFor("martiniana") === null, "Venice: portrait lookup or fallback is invalid");
+		assert(api.portraitFor("chiaramonti") && /assets\/portraits\/1800\/chiaramonti\.webp$/.test(api.portraitFor("chiaramonti").src) && api.portraitFor("martiniana") && api.portraitFor("carandini") === null, "Venice: portrait lookup or fallback is invalid");
 		const networks = api.playerNetworks();
 		assert(networks.includes("Monastic") && networks.includes("Compromise") && api.networkAccess(forecastState, "Monastic") > api.networkAccess(forecastState, "Austrian"), "Venice: Chiaramonti's network access is not calibrated to his identity");
 		const networkResultA = JSON.stringify(api.resolveNetworkAction(forecastState, "Monastic", "chiaramonti"));

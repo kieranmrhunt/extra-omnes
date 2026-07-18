@@ -379,9 +379,22 @@ const PORTRAIT_FILES = {
 	bellisomi:"Carlo Bellisomi.jpg",
 	lorenzana:"El cardenal Francisco Antonio de Lorenzana (Museo del Prado).jpg",
 	busca:"Ignazio Busca.jpg",
-	borgia:"Stefano Borgia.jpg"
+	borgia:"Stefano Borgia.jpg",
+	martiniana:"Portret van kardinaal Carlo Giuseppe Filippa della Martiniana Portretten van kardinalen (serietitel), RP-P-1909-4822.jpg",
+	caprara:"Protaso Gerolamo Stambucchi – Portrait of Giovanni Battista Caprara Montecuccoli – Google Art Project.jpg",
+	dugnani:"Antonio Dugnani.jpg",
+	vincenti:"Ippolito Antonio Vincenti Mareri.jpg",
+	maury:"Cardinal Maury.jpg",
+	bussi:"1794 IOANNES BAPTISTA DE PRETIS - BUSSI DEPRETIS GIOVANNI BATTISTA.JPG",
+	pignatelli:"Pignatelli Francesco Maria.jpg",
+	roverella:"Aurelio Roverella.jpg",
+	somaglia:"Giulio Maria della Somaglia.JPG",
+	adoria:"Antonio Maria Doria Pamphilj.jpg",
+	braschi:"Branschi-onesti.jpg",
+	ruffo:"Cardinale Fabrizio Ruffo.jpg",
+	livizzani:"Marco Caricchia, Ritratto del cardinale Carlo Livizzani, olio su tela sagomata, 1788, Museo Civico di Modena.tif"
 };
-const WIKIPEDIA_PAGES = {albani:1756345,stuart:62777,antonelli:5684559,valenti:24786938,carafa:35583812,zelada:14000141,calcagnini:35584252,honorati:35887114,gioannetti:35929576,gerdil:9366617,herzan:35571553,mattei:13550527,archetti:15296966,gdoria:31649234,chiaramonti:69246,bellisomi:35571681,lorenzana:15463384,busca:11477939,borgia:15457766};
+const WIKIPEDIA_PAGES = {albani:1756345,stuart:62777,antonelli:5684559,valenti:24786938,carafa:35583812,zelada:14000141,calcagnini:35584252,honorati:35887114,gioannetti:35929576,gerdil:9366617,herzan:35571553,mattei:13550527,archetti:15296966,gdoria:31649234,chiaramonti:69246,bellisomi:35571681,lorenzana:15463384,busca:11477939,borgia:15457766,caprara:2300882,maury:510184,bussi:20558591,pignatelli:79806534,somaglia:8025210,adoria:12022944,braschi:44089525,ruffo:358559};
 const METRIC_LABELS = {stature:"Stature",trust:"Trust",secrecy:"Secrecy",exposure:"Exposure",fatigue:"Exile fatigue",austrianGrip:"Austrian grip",frenchAlarm:"French alarm",temporal:"Temporal restoration",adaptation:"Accommodation",compromise:"Compromise pressure",deadlock:"Deadlock"};
 const METRIC_HELP = {
 	stature:"How much weight your judgement carries in the cloister.",
@@ -490,10 +503,10 @@ function unitFrom(text){return hashSeed(text)/4294967296}
 function portraitInitials(e){return e.name.split(/\s+/).filter(Boolean).slice(0,2).map(part=>part[0]).join("")}
 function portraitFor(id){
 	const file=PORTRAIT_FILES[id],page=WIKIPEDIA_PAGES[id];
-	if(!file||!page)return null;
+	if(!file)return null;
 	return {
-		src:`https://commons.wikimedia.org/wiki/Special:Redirect/file/${encodeURIComponent(file)}?width=320`,
-		wikipedia:`https://en.wikipedia.org/?curid=${page}`
+		src:`assets/portraits/1800/${encodeURIComponent(id)}.webp`,
+		wikipedia:page?`https://en.wikipedia.org/?curid=${page}`:`https://commons.wikimedia.org/wiki/File:${encodeURIComponent(file)}`
 	};
 }
 function portraitMarkup(id,variant=""){
@@ -820,6 +833,8 @@ function actionSoundings(){
 	const top=S.lastSounding.rows.slice(0,4);
 	log(`You take soundings cell by cell. The replies are guarded: ${top.map(row=>`<b>${esc(ID[row.id].short)}</b> ${row.low}–${row.high}`).join(", ")}. These are ranges, not opened ballots.`,"event");
 	render();
+	showModal("Confidential soundings",`<p>These dated ranges are assembled from guarded conversations, not an opened ballot. A later intervention will make the report stale.</p><div class="callout"><b>${esc(displayLabel(S.lastSounding.confidence))} confidence</b> · represented scrutiny ${toRoman(S.lastSounding.ballot)} · threshold ${threshold()}</div><div id="veniceSoundingRace"></div>`,[]);
+	appendSoundingRace(document.querySelector("#veniceSoundingRace"),S.lastSounding);
 }
 function actionNetwork(){
 	const networks=playerNetworks();
@@ -985,6 +1000,16 @@ function renderMeters(){
 		));
 	});
 }
+function appendSoundingRace(host,sounding){
+	const active=activeElectors().length;
+	const race=el("div",{class:"race"});
+	sounding.rows.forEach((row,i)=>race.appendChild(el("div",{class:"racerow"+(i===0?" lead":"")},
+		el("div",{class:"rname"},ID[row.id].short),
+		el("div",{class:"range-track"},el("span",{class:"range-band",style:`left:${row.low/active*100}%;width:${(row.high-row.low)/active*100}%`})),
+		el("div",{class:"rnum"},`${row.low}–${row.high}`)
+	)));
+	host.appendChild(race);
+}
 function renderBoard(){
 	const box=$("#board");
 	const sounding=S.lastSounding;
@@ -995,11 +1020,7 @@ function renderBoard(){
 	box.innerHTML=`<div class="threshold">Two-thirds required: <b>${th}</b> of ${active} active electors</div><div class="board-note">${note}</div>`;
 	const race=el("div",{class:"race"});
 	if(sounding){
-		sounding.rows.forEach((row,i)=>race.appendChild(el("div",{class:"racerow"+(i===0?" lead":"")},
-			el("div",{class:"rname"},ID[row.id].short),
-			el("div",{class:"range-track"},el("span",{class:"range-band",style:`left:${row.low/active*100}%;width:${(row.high-row.low)/active*100}%`})),
-			el("div",{class:"rnum"},`${row.low}–${row.high}`)
-		)));
+		appendSoundingRace(box,sounding);
 	}else{
 		sortedCounts(counts).slice(0,8).forEach((r,i)=>race.appendChild(el("div",{class:"racerow"+(i===0?" lead":"")},
 			el("div",{class:"rname"},r.e.short),
@@ -1007,7 +1028,7 @@ function renderBoard(){
 			el("div",{class:"rnum"},String(r.n))
 		)));
 	}
-	box.appendChild(race);
+	if(!sounding)box.appendChild(race);
 	const rollButton=el("button",{class:"rollbtn",onclick:showExactRoll},"Open last scrutiny book");
 	rollButton.disabled=!S.lastRoll;
 	box.appendChild(rollButton);

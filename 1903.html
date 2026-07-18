@@ -173,6 +173,9 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 .ccard .name{font-family:var(--display);font-size:1.05rem;color:#fff;margin:.28rem 0 .12rem;line-height:1.18}
 .ccard .office{font-family:var(--serif);font-size:.94rem;color:var(--paper-dim);min-height:2.55em;line-height:1.28}
 .ccard .role{font-family:var(--serif);font-style:italic;font-size:.9rem;color:var(--paper-dim);border-top:1px solid var(--line);padding-top:.45rem;margin-top:.45rem;line-height:1.25}
+.selection-identity{display:grid;grid-template-columns:74px minmax(0,1fr);gap:.7rem;align-items:start;margin-top:.5rem}
+.selection-identity .name{margin-top:.05rem}
+.selection-identity .office{min-height:0}
 .chips{display:flex;flex-wrap:wrap;gap:.26rem;margin:.46rem 0}
 .chip{font-family:var(--cond);font-size:.64rem;text-transform:uppercase;letter-spacing:.08em;border:1px solid var(--line-strong);border-radius:999px;padding:.1rem .38rem;color:var(--paper-dim)}
 .chip.hot{border-color:rgba(196,75,93,.65);color:#ec9aa4}
@@ -674,7 +677,7 @@ const ELECTORS = [
 
 const ID = Object.fromEntries(ELECTORS.map(function(e){return [e.id,e]}));
 const IDS = ELECTORS.map(function(e){return e.id});
-const PORTRAIT_FILES = {"oreglia":"Luigi_Oreglia.jpg","serafino":"Serafino_Vannutelli_cropped.jpg","mocenni":"Mario_Mocenni.jpg","agliardi":"Antonio_Agliardi.jpg","vincenzo":"Vincenzo_Vannutelli_1913.jpg","satolli":"Satolli,_Francis_Cardinal.jpg","neto":"José Sebastião Neto - Cópia.jpg","capecelatro":"Alfonso-Capecelatro-di-Castelpagano.jpg","langenieux":"Langenieux_photo.jpg","gibbons":"GibbonsPhotoStanding.jpg","rampolla":"Laszlo_-_Cardinal_Mariano_Rampolla.jpg","richard":"Cardinal_Richard.jpg","goossens":"Pierre-Lambert_Goossens.jpg","gruscha":"Anton_Joseph_Gruscha.jpg","dipietro":"Angelo_Di_Pietro.jpg","logue":"Sir_John_Lavery_–_His_Eminence_Cardinal_Logue.jpg","vaszary":"Vaszary Portrait of Prince-Primate Kolos Vaszary 1895.jpg","kopp":"Georg_Kardinal_Kopp.png","perraud":"Mgr Perraud.jpg","sarto":"Pius_X,_by_Ernest_Walter_Histed_(retouched).jpg","sancha":"SANCHA.jpg","svampa":"Ritratto_card._Svampa.jpg","ferrari":"Andrea_Carlo_Ferrari_-_Photo.jpg","gotti":"Girolamo Maria Gotti.jpg","casanas":"Casanas.jpg","manara":"Achille_Manara.jpg","ferrata":"Domenico_Ferrata2.jpg","cretoni":"Serafino_Cretoni.jpg","prisco":"Giuseppe Antonio Prisco.jpg","herrera":"D._José_Martín_de_Herrera_y_de_la_Iglesia._La_Ilustración_Española_y_Americana_1897.jpg","coullie":"Portrait_de_Monseigneur_Pierre-Hector_Coullié.jpg","laboure":"La_Guerche-de-Bretagne_(35)_Basilique_Baie_06-3.jpg","casali":"Casali_del_Drago_photo.jpg","cassetta":"Louis_Duchesne_(1843-1922)_et_le_cardinal_de_la_curie_romaine_Francesco_di_Paola_Cassetta_(1841-1919).jpg","portanova":"Gennaro_Portanova.jpg","francicanava":"FRANCICA-NAVA DI BONTIFÈ, Giuseppe.jpg","mathieu":"Matthieu_Francois-Désiré_Mariani_t_IX_1908_portrait.jpg","respighi":"Cardenal_Pietro_Respighi.jpg","richelmy":"Agostino_Richelmy.jpg","martinelli":"Eakins, Sebastiano Cardinal Martinelli 1902.jpg","skrbensky":"Lev_Skrbenský_(cropped).jpg","boschi":"Cardinale_Giulio_Boschi.png","puzyna":"Jan Puzyna.jpg","nocella":"Carlo Nocella.jpg","aiuti":"Andrea_Aiuti,_Kardinal.jpg","taliani":"Emidio_Taliani.jpg","herrero":"Herrera_by_Barbera.jpg","fischer":"Hasak_-_Der_Dom_zu_Köln_-_V4_-_Kardinal_Fischer.jpg","macchi":"Macchi_luigi.jpg","steinhuber":"Kardinal Andreas Steinhuber1JS.jpg","pierotti":"Raffaele Pierotti detail.jpg","dellavolpe":"Franz_della_Volpe.jpg","vives":"José de Calasanz Félix Santiago Vives y Tutó.jpg","tripepi":"Luigi_Tripepi.jpg","cavagnis":"Riva_G._(1901)_-_Ritratto_del_cardinale_Cavagnis.jpg"};
+const PORTRAIT_FILES = {"oreglia":"Luigi_Oreglia.jpg","serafino":"Serafino_Vannutelli_cropped.jpg","mocenni":"Mario_Mocenni.jpg","agliardi":"Antonio_Agliardi.jpg","vincenzo":"Vincenzo_Vannutelli_1913.jpg","satolli":"Satolli,_Francis_Cardinal.jpg","neto":"José Sebastião Neto - Cópia.jpg","capecelatro":"Alfonso-Capecelatro-di-Castelpagano.jpg","langenieux":"Langenieux_photo.jpg","gibbons":"GibbonsPhotoStanding.jpg","rampolla":"Laszlo_-_Cardinal_Mariano_Rampolla.jpg","richard":"Cardinal_Richard.jpg","goossens":"Pierre-Lambert_Goossens.jpg","gruscha":"Anton_Joseph_Gruscha.jpg","dipietro":"Angelo_Di_Pietro.jpg","logue":"Sir_John_Lavery_–_His_Eminence_Cardinal_Logue.jpg","vaszary":"Vaszary Portrait of Prince-Primate Kolos Vaszary 1895.jpg","kopp":"Georg_Kardinal_Kopp.png","perraud":"Mgr Perraud.jpg","sarto":"Pius_X,_by_Ernest_Walter_Histed_(retouched).jpg","sancha":"SANCHA.jpg","svampa":"Ritratto_card._Svampa.jpg","ferrari":"Andrea_Carlo_Ferrari_-_Photo.jpg","gotti":"Girolamo Maria Gotti.jpg","casanas":"Casanas.jpg","manara":"Achille_Manara.jpg","ferrata":"Domenico_Ferrata2.jpg","cretoni":"Serafino_Cretoni.jpg","prisco":"Giuseppe Antonio Prisco.jpg","herrera":"D._José_Martín_de_Herrera_y_de_la_Iglesia._La_Ilustración_Española_y_Americana_1897.jpg","coullie":"Portrait_de_Monseigneur_Pierre-Hector_Coullié.jpg","laboure":"La_Guerche-de-Bretagne_(35)_Basilique_Baie_06-3.jpg","casali":"Casali_del_Drago_photo.jpg","cassetta":"Louis_Duchesne_(1843-1922)_et_le_cardinal_de_la_curie_romaine_Francesco_di_Paola_Cassetta_(1841-1919).jpg","portanova":"Gennaro_Portanova.jpg","francicanava":"FRANCICA-NAVA DI BONTIFÈ, Giuseppe.jpg","mathieu":"Matthieu_Francois-Désiré_Mariani_t_IX_1908_portrait.jpg","respighi":"Cardenal_Pietro_Respighi.jpg","richelmy":"Agostino_Richelmy.jpg","martinelli":"Eakins, Sebastiano Cardinal Martinelli 1902.jpg","skrbensky":"Lev_Skrbenský_(cropped).jpg","boschi":"Cardinale_Giulio_Boschi.png","puzyna":"Jan Puzyna.jpg","nocella":"Carlo Nocella.jpg","aiuti":"Andrea_Aiuti,_Kardinal.jpg","taliani":"Emidio_Taliani.jpg","herrero":"Herrera_by_Barbera.jpg","fischer":"Hasak_-_Der_Dom_zu_Köln_-_V4_-_Kardinal_Fischer.jpg","macchi":"Macchi_luigi.jpg","steinhuber":"Kardinal Andreas Steinhuber1JS.jpg","pierotti":"Raffaele Pierotti detail.jpg","dellavolpe":"Franz_della_Volpe.jpg","vives":"José de Calasanz Félix Santiago Vives y Tutó.jpg","tripepi":"Luigi_Tripepi.jpg","cavagnis":"Riva_G._(1901)_-_Ritratto_del_cardinale_Cavagnis.jpg","lecot":"Bordeaux - Cardinal Lecot 1.jpg","katschthaler":"Johannes Katschthaler.jpg"};
 const WIKIPEDIA_PAGES = {"oreglia":7403918,"serafino":4038352,"mocenni":15559290,"agliardi":1552,"vincenzo":1719530,"satolli":7452336,"langenieux":10418697,"gibbons":1483405,"rampolla":753037,"richard":3085739,"goossens":9194393,"gruscha":11771180,"dipietro":12218098,"logue":1698011,"kopp":8583169,"sarto":59205,"sancha":12240450,"svampa":35628815,"ferrari":11798119,"casanas":15543968,"manara":66425921,"ferrata":1781119,"cretoni":15243953,"prisco":27755120,"herrera":8012133,"coullie":12343088,"laboure":23249740,"casali":35637448,"cassetta":15120719,"portanova":27707574,"mathieu":11894748,"respighi":11054145,"richelmy":14367064,"skrbensky":8344414,"boschi":15187580,"nocella":23606160,"aiuti":41999661,"taliani":15523990,"herrero":64312817,"fischer":14241158,"macchi":12023196,"dellavolpe":12023294,"tripepi":4497968,"cavagnis":15962129,"neto":12361875,"capecelatro":6033109,"vaszary":8615853,"perraud":11894882,"gotti":7404489,"martinelli":12561817,"steinhuber":66470190,"pierotti":66416033,"puzyna":"Jan_Puzyna_de_Kosielsko","vives":"José_de_Calasanz_Vives_y_Tutó"};
 const ABSENT = [
 	{name:"Michelangelo (Pietro Geremia) Celesia OSB",office:"Archbishop of Palermo"},
@@ -1529,7 +1532,7 @@ function portraitFor(id){
 	if(!file)return null;
 	const page=WIKIPEDIA_PAGES[id];
 	return {
-		src:"https://commons.wikimedia.org/wiki/Special:Redirect/file/"+encodeURIComponent(file)+"?width=250",
+		src:"assets/portraits/1903/"+encodeURIComponent(id)+".webp",
 		wikipedia:typeof page==="number" ? "https://en.wikipedia.org/?curid="+page : (page ? "https://en.wikipedia.org/wiki/"+encodeURIComponent(page) : null)
 	};
 }
@@ -1537,11 +1540,11 @@ function portraitMarkup(id,variant){
 	const electorRecord=ID[id];
 	if(!electorRecord)return "";
 	const portrait=portraitFor(id);
-	const extra=variant==="end" ? " end-portrait" : "";
+	const extra=variant==="end" ? " end-portrait" : (variant==="selection" ? " selection-portrait" : "");
 	const initials=esc(portraitInitials(electorRecord).toUpperCase());
 	const title=portrait ? "Portrait of "+electorRecord.name : "No usable Wikimedia portrait is available for "+electorRecord.name;
-	const imageTag=portrait ? "<img src='"+esc(portrait.src)+"' alt='Portrait of "+esc(electorRecord.name)+"' decoding='async' referrerpolicy='no-referrer' onerror='this.hidden=true'>" : "";
-	const image=portrait&&portrait.wikipedia ? "<a class='portrait-link' href='"+esc(portrait.wikipedia)+"' target='_blank' rel='noopener' aria-label='Read about "+esc(electorRecord.name)+" on Wikipedia'>"+imageTag+"</a>" : imageTag;
+	const imageTag=portrait ? "<img src='"+esc(portrait.src)+"' alt='Portrait of "+esc(electorRecord.name)+"' loading='lazy' decoding='async' referrerpolicy='no-referrer' onerror='this.hidden=true'>" : "";
+	const image=portrait&&portrait.wikipedia&&variant!=="selection" ? "<a class='portrait-link' href='"+esc(portrait.wikipedia)+"' target='_blank' rel='noopener' aria-label='Read about "+esc(electorRecord.name)+" on Wikipedia'>"+imageTag+"</a>" : imageTag;
 	return "<div class='portrait-unit"+extra+"'><div class='cardinal-thumb' title='"+esc(title)+"'><span class='portrait-fallback' aria-hidden='true'>"+initials+"</span>"+image+"</div></div>";
 }
 function htmlToText(value){
@@ -1736,8 +1739,7 @@ function renderSelect(){
 			renderSelect();
 		}},
 			el("div",{class:"meta"},el("span",null,ORDER_NAME[electorRecord.order]+" · age "+electorRecord.age),el("span",{title:"Player difficulty"},stars(electorRecord.difficulty))),
-			el("div",{class:"name"},electorRecord.name),
-			el("div",{class:"office"},electorRecord.office),
+			el("div",{class:"selection-identity",html:portraitMarkup(electorRecord.id,"selection")+"<div><div class='name'>"+esc(electorRecord.name)+"</div><div class='office'>"+esc(electorRecord.office)+"</div></div>"}),
 			el("div",{class:"chips"},primaryTags(electorRecord).map(function(tag){
 				return el("span",{class:"chip"+(tag==="Papabile" ? " hot" : "")},displayTag(tag));
 			})),
