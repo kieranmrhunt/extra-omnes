@@ -82,11 +82,34 @@
     color:var(--parch);
   }
   .lede{margin:20px 0 0;max-width:60ch;color:var(--muted);font-size:20px}
+  .status-groups{margin-top:34px}
+  .status-group + .status-group{margin-top:34px}
+  .group-heading{
+    display:flex;
+    align-items:baseline;
+    gap:12px;
+    padding-bottom:9px;
+    border-bottom:1px solid var(--line);
+  }
+  .group-heading h2{
+    margin:0;
+    font-family:var(--disp);
+    font-size:27px;
+    line-height:1;
+    color:var(--parch);
+  }
+  .group-count{
+    font-family:var(--mono);
+    font-size:10.5px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--faint);
+  }
   .grid{
     display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));
+    grid-template-columns:repeat(3,minmax(0,1fr));
     gap:12px;
-    margin-top:22px;
+    margin-top:14px;
   }
   .card{
     min-height:238px;
@@ -120,7 +143,7 @@
     padding:3px 7px;
   }
   .beta .status,.alpha .status{background:var(--scarlet);color:var(--parch)}
-  h2{
+  .card h3{
     font-family:var(--disp);
     font-weight:700;
     font-size:25px;
@@ -163,57 +186,83 @@
         <h1>Choose a year</h1>
         <p class="lede">Seven playable political simulations built around historical papal elections. The 1492 game is the stable baseline; the other six are actively developed editions with automated ballot-integrity checks.</p>
       </section>
-      <section class="grid" id="years" aria-label="Available Extra Omnes years">
-        <a class="card" href="./1492.html">
-          <span class="year">1492</span>
-          <span class="status">Complete</span>
-          <h2>Conclave 1492</h2>
-          <p>The original Extra Omnes simulation.</p>
-          <span class="open">Open year</span>
-        </a>
-        <a class="card alpha" href="./viterbo-1268.html">
-          <span class="year">1268</span>
-          <span class="status">Alpha</span>
-          <h2>Viterbo</h2>
-          <p>Viterbo, 1268–71: deadlock, illness, enclosure and a city running out of patience.</p>
-          <span class="open">Open alpha</span>
-        </a>
-        <a class="card alpha" href="./constance-1417.html">
-          <span class="year">1417</span>
-          <span class="status">Alpha</span>
-          <h2>Constance</h2>
-          <p>Constance, 1417: fifty-three electors, six locks, and the end of the Great Schism.</p>
-          <span class="open">Open alpha</span>
-        </a>
-        <a class="card alpha" href="./carafa-winter-1559.html">
-          <span class="year">1559</span>
-          <span class="status">Alpha</span>
-          <h2>The Carafa Winter</h2>
-          <p>Rome, 1559: forty electors, factional winter and the collapse of the Carafa regime.</p>
-          <span class="open">Open alpha</span>
-        </a>
-        <a class="card alpha" href="./venice-1800.html">
-          <span class="year">1800</span>
-          <span class="status">Alpha</span>
-          <h2>Venice</h2>
-          <p>Venice, 1799–1800: an exiled college negotiates between Vienna and compromise.</p>
-          <span class="open">Open alpha</span>
-        </a>
-        <a class="card beta" href="./1903.html">
-          <span class="year">1903</span>
-          <span class="status">Beta</span>
-          <h2>The Last Veto</h2>
-          <p>Rome, 1903: Rampolla, Sarto and the final imperial veto.</p>
-          <span class="open">Open beta</span>
-        </a>
-        <a class="card alpha" href="./october-1978.html">
-          <span class="year">1978</span>
-          <span class="status">Alpha</span>
-          <h2>October 1978</h2>
-          <p>Rome, October 1978: the second conclave of a volatile year and a divided college.</p>
-          <span class="open">Open alpha</span>
-        </a>
-      </section>
+      <div class="status-groups" id="years" aria-label="Available Extra Omnes years">
+        <section class="status-group" aria-labelledby="complete-heading">
+          <div class="group-heading">
+            <h2 id="complete-heading">Complete</h2>
+            <span class="group-count">1 game</span>
+          </div>
+          <div class="grid">
+            <a class="card" href="./1492.html">
+              <span class="year">1492</span>
+              <span class="status">Complete</span>
+              <h3>Conclave 1492</h3>
+              <p>The original Extra Omnes simulation.</p>
+              <span class="open">Open year</span>
+            </a>
+          </div>
+        </section>
+
+        <section class="status-group" aria-labelledby="beta-heading">
+          <div class="group-heading">
+            <h2 id="beta-heading">Beta</h2>
+            <span class="group-count">1 game</span>
+          </div>
+          <div class="grid">
+            <a class="card beta" href="./1903.html">
+              <span class="year">1903</span>
+              <span class="status">Beta</span>
+              <h3>The Last Veto</h3>
+              <p>Rome, 1903: Rampolla, Sarto and the final imperial veto.</p>
+              <span class="open">Open beta</span>
+            </a>
+          </div>
+        </section>
+
+        <section class="status-group" aria-labelledby="alpha-heading">
+          <div class="group-heading">
+            <h2 id="alpha-heading">Alpha</h2>
+            <span class="group-count">5 games</span>
+          </div>
+          <div class="grid">
+            <a class="card alpha" href="./viterbo-1268.html">
+              <span class="year">1268</span>
+              <span class="status">Alpha</span>
+              <h3>Viterbo</h3>
+              <p>Viterbo, 1268–71: deadlock, illness, enclosure and a city running out of patience.</p>
+              <span class="open">Open alpha</span>
+            </a>
+            <a class="card alpha" href="./constance-1417.html">
+              <span class="year">1417</span>
+              <span class="status">Alpha</span>
+              <h3>Constance</h3>
+              <p>Constance, 1417: fifty-three electors, six locks, and the end of the Great Schism.</p>
+              <span class="open">Open alpha</span>
+            </a>
+            <a class="card alpha" href="./carafa-winter-1559.html">
+              <span class="year">1559</span>
+              <span class="status">Alpha</span>
+              <h3>The Carafa Winter</h3>
+              <p>Rome, 1559: forty electors, factional winter and the collapse of the Carafa regime.</p>
+              <span class="open">Open alpha</span>
+            </a>
+            <a class="card alpha" href="./venice-1800.html">
+              <span class="year">1800</span>
+              <span class="status">Alpha</span>
+              <h3>Venice</h3>
+              <p>Venice, 1799–1800: an exiled college negotiates between Vienna and compromise.</p>
+              <span class="open">Open alpha</span>
+            </a>
+            <a class="card alpha" href="./october-1978.html">
+              <span class="year">1978</span>
+              <span class="status">Alpha</span>
+              <h3>October 1978</h3>
+              <p>Rome, October 1978: the second conclave of a volatile year and a divided college.</p>
+              <span class="open">Open alpha</span>
+            </a>
+          </div>
+        </section>
+      </div>
     </main>
     <footer>Roster facts and documented events are distinguished in each game from inferred relationships and modelled ballots.</footer>
   </div>
