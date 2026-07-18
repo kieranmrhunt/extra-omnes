@@ -10,6 +10,7 @@ Single-file browser simulations of historical papal conclaves. Each variant is p
 - `venice-1800.html` — alpha.
 - `1903.html` — beta.
 - `october-1978.html` — alpha.
+- `constance-1417.html` — alpha.
 
 ## Local Use
 
@@ -79,6 +80,7 @@ These games mix historical reconstruction with counterfactual play. Each variant
 - **1799–1800:** J. P. Adams, *Sede Vacante 1799–1800*; Ercole Consalvi's *Mémoires*; R. Obechea on Lorenzana and the Venice conclave. Game rounds represent documented shifts rather than claiming to reproduce every lost ballot.
 - **1903:** J. P. Adams, *Sede Vacante 1903*; François-Désiré Mathieu's contemporary account; detailed 1903 conclave rosters and scholarship on the Austro-Hungarian veto. Historical aggregate tallies anchor the pressure model while individual rolls remain simulated.
 - **October 1978:** Paul VI's *Romano Pontifici Eligendo*; official Vatican biographies; contemporary and retrospective conclave accounts. Historical ballot papers remain secret: every displayed vote is exact model output, not a claimed reconstruction.
+- **1417:** J. P. Adams, *Sede Vacante 1417*, built on Cardinal Fillastre's conclave daybook (ap. Heinrich Finke, *Acta Concilii Constanciensis* ii); Ulrich Richental's chronicle for the city; Walsingham (used with caution) for the English deputation; Zurita for Aragon and Peñíscola; Eubel, *Hierarchia Catholica* i, and catholic-hierarchy.org for the College. The six-college rule, the roster of fifty-three, the second scrutiny's per-college counts and the "accedimus nos duo" accession are documented; the first scrutiny's exact distribution is modelled within Fillastre's stated constraints, and Beaufort of Winchester appears only as the rumour he historically was. The variant's election test is composite — two-thirds of the cardinals *and* of each of the five nations in the same scrutiny — so its ballot records carry per-college tallies rather than a single integer threshold, and the harness checks the six locks directly.
 
 Each game should continue to distinguish roster facts, documented chronology, inferred relationships, procedural rules, gameplay abstractions and deliberately scripted historical pressure in its rules/source note.
 

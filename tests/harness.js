@@ -38,6 +38,7 @@ const VARIANTS = [
 	{ file: "venice-1800.html", label: "venice-1800", players: ["bellisomi", "mattei", "chiaramonti"], quickPlayer: "chiaramonti", maxPicks: () => 1, threshold: (n) => Math.ceil(n * 2 / 3) },
 	{ file: "1903.html", label: "1903", players: ["rampolla", "sarto", "gibbons"], quickPlayer: "sarto", maxPicks: () => 1, threshold: (n) => Math.ceil(n * 2 / 3) },
 	{ file: "october-1978.html", label: "october-1978", players: ["siri", "benelli", "wojtyla"], quickPlayer: "wojtyla", maxPicks: () => 1, threshold: (n) => Math.floor(n * 2 / 3) + 1 },
+	{ file: "constance-1417.html", label: "constance-1417", players: ["colonna", "dailly", "polton"], quickPlayer: "colonna", maxPicks: () => 3, threshold: (n) => Math.ceil(n * 2 / 3) },
 ];
 
 function fail(message) {
@@ -389,6 +390,65 @@ function runTargetedChecks(variant, api) {
 		assert(/conciliar/.test(api.axisPosition("vatican2", 1.8)) && !/high|middle/.test(api.axisPosition("vatican2", 1.8)), "October 1978: dossier axes still use ambiguous magnitude labels");
 		return ["portrait-lookup", "uncertain-soundings", "network-membership", "network-determinism", "player-ballot-preserved", "terminal-guard", "papal-name", "end-score", "directional-profile"];
 	}
+	if (variant.label === "constance-1417") {
+		assert(typeof api.initState === "function" && typeof api.beginScrutiny === "function" && typeof api.playerAccede === "function" && typeof api.makeSounding === "function" && typeof api.thresholds === "function" && typeof api.electedNow === "function" && typeof api.validateData === "function" && typeof api.scoreGame === "function" && typeof api.papalNameForState === "function", "Constance: targeted-test API is not exported");
+		const audit = api.validateData();
+		assert(audit && audit.ok, `Constance: data audit failed: ${audit && (audit.problems || []).join("; ")}`);
+		const roster = cardList(api);
+		assert(roster.length === 53, "Constance: electorate is not fifty-three");
+		const bySize = {};
+		roster.forEach((card) => { bySize[card.college] = (bySize[card.college] || 0) + 1; });
+		assert(bySize.cardinals === 23 && ["italia", "gallia", "germania", "anglia", "hispania"].every((key) => bySize[key] === 6), "Constance: college sizes are wrong");
+		let state = api.initState("dailly", "constance-thresholds", "open");
+		const needs = api.thresholds(state);
+		assert(needs.cardinals === 16 && ["italia", "gallia", "germania", "anglia", "hispania"].every((key) => needs[key] === 4), "Constance: six-lock thresholds are wrong");
+		const settle = (st) => { while (st.pending) api.resolveDecision(st, api.autoChoiceFor(st)); return st; };
+		const composite = { cardinals: { colonna: 23 }, italia: { colonna: 6 }, gallia: { colonna: 3 }, germania: { colonna: 6 }, anglia: { colonna: 6 }, hispania: { colonna: 6 } };
+		assert(api.electedNow(state, composite) === null, "Constance: a candidate below two-thirds of one nation was elected despite an overall supermajority");
+		composite.gallia.colonna = 4;
+		assert(api.electedNow(state, composite) === "colonna", "Constance: all six locks turned but no election was recognised");
+		state = settle(api.initState("dailly", "constance-blank", "open"));
+		const blank = api.beginScrutiny(state, []);
+		const blankRow = blank.votes.find((entry) => entry.voter === "dailly");
+		assert(blankRow && blankRow.candidate.length === 0, "Constance: an explicit blank cedula became an AI ballot");
+		state = settle(api.initState("dailly", "constance-dedupe", "open"));
+		const deduped = api.beginScrutiny(state, ["colonna", "colonna"]);
+		assert(JSON.stringify(deduped.votes.find((entry) => entry.voter === "dailly").candidate) === JSON.stringify(["colonna"]), "Constance: duplicate names on the cedula were not deduplicated");
+		state = settle(api.initState("dailly", "constance-invalid", "open"));
+		expectRejected("Constance: a self-vote was accepted", () => api.beginScrutiny(state, ["dailly"]));
+		expectRejected("Constance: a non-elector was accepted on a cedula", () => api.beginScrutiny(state, ["beaufort"]));
+		expectRejected("Constance: four names were accepted", () => api.beginScrutiny(state, ["colonna", "brogny", "saluzzo", "correr"]));
+		expectRejected("Constance: an accession was accepted with no scrutiny open", () => api.playerAccede(state, "colonna"));
+		state = settle(api.initState("dailly", "constance-player-ballot", "open"));
+		const first = api.beginScrutiny(state, ["colonna", "brogny"]);
+		const mine = first.votes.find((entry) => entry.voter === "dailly");
+		assert(JSON.stringify(mine.candidate) === JSON.stringify(["colonna", "brogny"]), "Constance: the submitted cedula was overwritten");
+		assert((first.accessions || []).length === 0 && !state.pendingBallot, "Constance: an accession was permitted at the first scrutiny");
+		state = api.initState("polton", "constance-sound", "open");
+		const snapshot = JSON.stringify(state);
+		const soundingA = api.makeSounding(state);
+		const soundingB = api.makeSounding(state);
+		assert(JSON.stringify(soundingA) === JSON.stringify(soundingB) && JSON.stringify(state) === snapshot, "Constance: soundings are non-deterministic or mutate simulation state");
+		assert(soundingA.rows.length > 0 && soundingA.rows.every((row) => Number.isInteger(row.low) && Number.isInteger(row.high) && row.low < row.high && !("count" in row) && !("total" in row)), "Constance: soundings expose exact counts or invalid ranges");
+		assert(soundingA.rows.every((row) => ["cardinals", "italia", "gallia", "germania", "anglia", "hispania"].every((key) => row.colleges[key] && row.colleges[key].low <= row.colleges[key].high && Number.isInteger(row.colleges[key].need))), "Constance: per-college soundings are malformed");
+		const anchored = api.runHeadless("anchor", "polton", "historical");
+		assert(anchored.winner === "colonna" && anchored.ballots <= 3, "Constance: the historical anchor did not elect Colonna by St Martin's morning");
+		const finalRecord = anchored.history[anchored.history.length - 1];
+		assert(Array.isArray(finalRecord.locks && finalRecord.locks.colonna) && finalRecord.locks.colonna.length === 6, "Constance: the anchor election did not turn all six locks");
+		const anchorNeeds = api.thresholds(anchored);
+		assert(Object.keys(anchorNeeds).every((key) => (finalRecord.colleges[key].colonna || 0) >= anchorNeeds[key]), "Constance: anchor tallies fall below a college threshold");
+		const openA = api.runHeadless("constance-open", "dailly", "open");
+		const openB = api.runHeadless("constance-open", "dailly", "open");
+		assert(JSON.stringify(openA) === JSON.stringify(openB) && openA.winner && openA.ballots <= 12, "Constance: open-mode run is non-deterministic or fails to resolve within twelve scrutinies");
+		for (const ballot of historyOf(openA)) assertBallotIntegrity(variant, api, ballot);
+		const nameA = api.papalNameForState("constance-name", "saluzzo");
+		const nameB = api.papalNameForState("constance-name", "saluzzo");
+		assert(typeof nameA === "string" && nameA === nameB && / [IVXLCDM]+$/.test(nameA), "Constance: papal name is invalid or non-deterministic");
+		assert(api.regnalOptionsFor("condulmer")[0] === "Eugene IV", "Constance: Condulmer's first regnal choice is not Eugene IV");
+		const score = api.scoreGame(openA);
+		assert(Number.isFinite(score.total) && score.parts.reduce((sum, part) => sum + part.points, 0) === score.total && score.verdict && score.verdict.grade, "Constance: end score is invalid");
+		return ["data-audit", "six-college-rule", "blank-ballot", "approval-validation", "accession-validation", "no-first-scrutiny-accession", "player-ballot-preserved", "uncertain-soundings", "historical-anchor", "open-termination", "papal-name", "end-score"];
+	}
 	if (variant.label === "venice-1800") {
 		assert(typeof api.initState === "function" && typeof api.conductBallot === "function" && typeof api.getState === "function" && typeof api.activeElectors === "function", "Venice: targeted-test API is not exported");
 		api.initState("mattei", "venice-player-ballot", { headless: true });
@@ -489,6 +549,7 @@ function checkStaticFiles() {
 		"carafa-winter-1559.html": ["Porto e Santa Rufina", "S. Maria Nuova", "Marcellus III"],
 		"venice-1800.html": ["Gregory XVI", "Leo XII"],
 		"october-1978.html": ["Paul VII", "John XXIV", "Pius XIII"],
+		"constance-1417.html": ["Kaufhaus", "Veni Creator", "Frequens", "accedimus nos duo"],
 	};
 	for (const [file, required] of Object.entries(anchors)) {
 		const html = fs.readFileSync(path.join(ROOT, file), "utf8");
