@@ -39,6 +39,7 @@ const VARIANTS = [
 	{ file: "1903.html", label: "1903", players: ["rampolla", "sarto", "gibbons"], quickPlayer: "sarto", maxPicks: () => 1, threshold: (n) => Math.ceil(n * 2 / 3) },
 	{ file: "october-1978.html", label: "october-1978", players: ["siri", "benelli", "wojtyla"], quickPlayer: "wojtyla", maxPicks: () => 1, threshold: (n) => Math.floor(n * 2 / 3) + 1 },
 	{ file: "constance-1417.html", label: "constance-1417", players: ["colonna", "dailly", "polton"], quickPlayer: "colonna", maxPicks: () => 3, threshold: (n) => Math.ceil(n * 2 / 3) },
+	{ file: "april-1378.html", label: "april-1378", players: ["deluna", "orsini", "geneva"], quickPlayer: "deluna", maxPicks: () => 1, threshold: (n) => Math.ceil(n * 2 / 3) },
 ];
 
 function fail(message) {
@@ -205,6 +206,7 @@ function voteEntries(ballot) {
 
 function assertBallotIntegrity(variant, api, ballot) {
 	const known = electorIds(api);
+	const eligible = knownCandidateIds(api);
 	const entries = voteEntries(ballot);
 	assert(entries.length, `${variant.label}: ballot ${ballot.ballot || ballot.number || "?"} has no vote roll`);
 	const voters = new Set();
@@ -219,14 +221,14 @@ function assertBallotIntegrity(variant, api, ballot) {
 		assert(new Set(picks).size === picks.length, `${variant.label}: duplicate approval name from ${voter}`);
 		directVotes.set(voter, picks);
 		for (const candidate of picks) {
-			assert(known.has(candidate) || BLANK_PICK_IDS.has(candidate), `${variant.label}: unknown candidate ${candidate}`);
+			assert(eligible.has(candidate) || BLANK_PICK_IDS.has(candidate), `${variant.label}: unknown candidate ${candidate}`);
 			assert(candidate !== voter || BLANK_PICK_IDS.has(candidate), `${variant.label}: self-vote by ${voter}`);
 			calculated[candidate] = (calculated[candidate] || 0) + 1;
 		}
 	}
 	const accessionSenders = new Set();
 	for (const accession of ballot.accessions || []) {
-		assert(known.has(accession.from) && known.has(accession.to), `${variant.label}: invalid accession target`);
+		assert(known.has(accession.from) && eligible.has(accession.to), `${variant.label}: invalid accession target`);
 		assert(voters.has(accession.from), `${variant.label}: accession by an elector absent from the scrutiny roll`);
 		assert(!accessionSenders.has(accession.from), `${variant.label}: multiple accessions by ${accession.from}`);
 		assert(accession.from !== accession.to, `${variant.label}: self-accession by ${accession.from}`);
@@ -243,7 +245,7 @@ function assertBallotIntegrity(variant, api, ballot) {
 	const recorded = ballot.counts || ballot.final || ballot.running;
 	assert(recorded && typeof recorded === "object" && !Array.isArray(recorded), `${variant.label}: ballot has no recorded tally`);
 	for (const [id, count] of Object.entries(recorded)) {
-		assert((known.has(id) || BLANK_PICK_IDS.has(id)) && Number.isInteger(count) && count >= 0, `${variant.label}: invalid recorded tally for ${id}`);
+		assert((eligible.has(id) || BLANK_PICK_IDS.has(id)) && Number.isInteger(count) && count >= 0, `${variant.label}: invalid recorded tally for ${id}`);
 	}
 	for (const id of new Set([...Object.keys(recorded), ...Object.keys(calculated)])) {
 		assert(Number(recorded[id] || 0) === Number(calculated[id] || 0), `${variant.label}: tally mismatch for ${id}`);
@@ -458,6 +460,114 @@ function runTargetedChecks(variant, api) {
 		assert(Number.isFinite(score.total) && score.parts.reduce((sum, part) => sum + part.points, 0) === score.total && score.verdict && score.verdict.grade, "Constance: end score is invalid");
 		return ["data-audit", "six-college-rule", "blank-ballot", "approval-validation", "accession-validation", "no-first-scrutiny-accession", "player-ballot-preserved", "uncertain-soundings", "historical-anchor", "open-termination", "papal-name", "end-score"];
 	}
+	if (variant.label === "april-1378") {
+		assert(typeof api.initState === "function" && typeof api.beginScrutiny === "function" && typeof api.makeSounding === "function" && typeof api.runHeadless === "function" && typeof api.validateData === "function" && typeof api.scoreGame === "function" && typeof api.papalNameForState === "function" && typeof api.regnalOptionsFor === "function" && typeof api.regnalSignalFor === "function" && typeof api.choosePlayerRegnalName === "function" && typeof api.axisPosition === "function" && typeof api.resolveDecision === "function" && typeof api.autoChoiceFor === "function", "April 1378: targeted-test API is not exported");
+		// data audit
+		const audit = api.validateData();
+		assert(audit.ok, "April 1378: data audit failed — " + (audit.notes || []).join("; "));
+		const roster = cardList(api);
+		assert(roster.length === 16, "April 1378: the College is not sixteen electors");
+		const sizes = { limousin: 0, gallican: 0, italian: 0, curial: 0 };
+		roster.forEach((c) => { sizes[c.faction] = (sizes[c.faction] || 0) + 1; });
+		assert(sizes.limousin === 5 && sizes.gallican === 5 && sizes.italian === 4 && sizes.curial === 2, "April 1378: faction arithmetic is not 5/5/4/2");
+		assert(api.THRESHOLD === 11 && api.threshold(16) === 11, "April 1378: two-thirds of sixteen is not eleven");
+		assert(api.OUTSIDERS && api.OUTSIDERS.prignano && Object.keys(api.OUTSIDERS).length === 1, "April 1378: the single non-cardinal candidate is not the Archbishop of Bari");
+		// historical anchor: the documented scrutiny of 8 April
+		const anchor = api.runHeadless("anchor", "deluna", "historical");
+		assert(anchor.winner === "prignano" && anchor.ballots === 1, "April 1378: the documented morning did not elect the Archbishop of Bari on the first scrutiny");
+		const anchorBallot = anchor.history[0];
+		assert(anchorBallot.counts.prignano === 14 && anchorBallot.counts.tebaldeschi === 1, "April 1378: the documented tally is not 14 for Bari and 1 for St Peter's");
+		assert(anchorBallot.date.includes("Thursday 8 April") && anchorBallot.session.includes("Thursday 8 April"), "April 1378: the documented morning is dated 7 April");
+		const orsiniEntry = anchorBallot.votes.find((v) => v.voter === "orsini");
+		assert(orsiniEntry && Array.isArray(orsiniEntry.candidate) && orsiniEntry.candidate.length === 0, "April 1378: Orsini's withheld voice was not preserved in the documented scrutiny");
+		assert(anchor.finale && anchor.finale.key === "schism", "April 1378: the documented election did not open the Great Schism");
+		// blank ballot preserved (open mode)
+		let s = api.initState("montelais", "april-blank", "open");
+		while (s.pending) api.resolveDecision(s, api.autoChoiceFor(s));
+		const blank = api.beginScrutiny(s, []);
+		const blankRow = blank.votes.find((v) => v.voter === "montelais");
+		assert(blankRow && Array.isArray(blankRow.candidate) && blankRow.candidate.length === 0, "April 1378: an explicit withheld voice became an AI ballot");
+		// player ballot preserved
+		s = api.initState("montelais", "april-preserve", "open");
+		while (s.pending) api.resolveDecision(s, api.autoChoiceFor(s));
+		const submitted = api.beginScrutiny(s, ["geneva"]);
+		const mine = submitted.votes.find((v) => v.voter === "montelais");
+		assert(mine && JSON.stringify(mine.candidate) === JSON.stringify(["geneva"]), "April 1378: the submitted oral vote was overwritten");
+		// rejections
+		s = api.initState("montelais", "april-reject", "open");
+		while (s.pending) api.resolveDecision(s, api.autoChoiceFor(s));
+		expectRejected("April 1378: a self-vote was accepted", () => api.beginScrutiny(s, ["montelais"]));
+		expectRejected("April 1378: an unknown candidate was accepted", () => api.beginScrutiny(s, ["nobody"]));
+		expectRejected("April 1378: two names were accepted in an oral scrutiny", () => api.beginScrutiny(s, ["geneva", "malsec"]));
+		expectRejected("April 1378: a non-array ballot was accepted", () => api.beginScrutiny(s, "geneva"));
+		// soundings: deterministic, no mutation, honest ranges
+		s = api.initState("deluna", "april-sound", "open");
+		const snapshot = JSON.stringify(s);
+		const soundingA = api.makeSounding(s);
+		const soundingB = api.makeSounding(s);
+		assert(JSON.stringify(soundingA) === JSON.stringify(soundingB) && JSON.stringify(s) === snapshot, "April 1378: soundings are non-deterministic or mutate simulation state");
+		assert(soundingA.rows.length > 0 && soundingA.rows.every((row) => Number.isInteger(row.low) && Number.isInteger(row.high) && row.low < row.high && !("count" in row) && !("total" in row)), "April 1378: soundings expose exact counts or invalid ranges");
+		// open-mode determinism, termination, per-ballot integrity
+		const openA = api.runHeadless("april-open", "geneva", "open");
+		const openB = api.runHeadless("april-open", "geneva", "open");
+		assert(JSON.stringify(openA) === JSON.stringify(openB) && openA.winner && openA.ballots <= 12, "April 1378: open-mode run is non-deterministic or fails to resolve within twelve scrutinies");
+		for (const ballot of historyOf(openA)) assertBallotIntegrity(variant, api, ballot);
+		// the player holds the outcome: bad handling opens the Schism, good handling averts it
+		function playChoices(seed, first, second, actions) {
+			const g = api.initState("montelais", seed, "open");
+			api.resolveDecision(g, first);
+			api.resolveDecision(g, second);
+			let guard = 0;
+			while (!g.over && guard < 80) {
+				guard++;
+				if (g.pending) { api.resolveDecision(g, api.autoChoiceFor(g)); continue; }
+				if (g.ballotNo >= 12) break;
+				(actions || []).forEach((a) => { if (api.actionAvailable(g, a)) api.performAction(g, a); });
+				api.beginScrutiny(g, api.bestLegalPlayerVote(g, api.forecastCounts(g)));
+			}
+			while (!g.over && guard < 120) { guard++; if (g.pending) api.resolveDecision(g, api.autoChoiceFor(g)); else break; }
+			return g;
+		}
+		const badGame = playChoices("april-bad", "admit", "promise", []);
+		assert(badGame.finale && badGame.finale.key === "schism", "April 1378: promising the mob and voting under maximum terror did not open the Schism");
+		const goodGame = playChoices("april-good", "refuse", "defy", ["parley", "protest"]);
+		assert(goodGame.finale && goodGame.finale.key === "one-pope", "April 1378: a defended, protested election still fractured the Church");
+		// an Italian cardinal can be elected himself
+		let selfElected = false;
+		for (let i = 0; i < 6 && !selfElected; i++) {
+			const g = api.initState("corsini", "april-self-" + i, "open");
+			let guard = 0;
+			while (!g.over && guard < 80) {
+				guard++;
+				if (g.pending) { api.resolveDecision(g, api.autoChoiceFor(g)); continue; }
+				if (g.ballotNo >= 12) break;
+				if (api.actionAvailable(g, "rally")) api.performAction(g, "rally");
+				if (api.actionAvailable(g, "colloquy")) api.performAction(g, "colloquy");
+				api.beginScrutiny(g, ["borsano"]);
+			}
+			while (!g.over && guard < 120) { guard++; if (g.pending) api.resolveDecision(g, api.autoChoiceFor(g)); else break; }
+			if (g.electedId === "corsini") selfElected = true;
+		}
+		assert(selfElected, "April 1378: an Italian cardinal who rallies the room cannot be elected himself");
+		// papal names: deterministic, numbered, historically fixed
+		const nameA = api.papalNameForState("april-name", "prignano");
+		const nameB = api.papalNameForState("april-name", "prignano");
+		assert(typeof nameA === "string" && nameA === nameB && / [IVXLCDM]+$/.test(nameA), "April 1378: papal name is invalid or non-deterministic");
+		assert(api.regnalOptionsFor("prignano")[0] === "Urban VI", "April 1378: Prignano's regnal name is not Urban VI");
+		assert(api.regnalOptionsFor("geneva")[0] === "Clement VII", "April 1378: Robert of Geneva's regnal name is not Clement VII");
+		assert(roster.every((card) => api.regnalOptionsFor(card.id).length >= 2 && api.regnalOptionsFor(card.id).every((name) => api.regnalSignalFor(name).length > 12)), "April 1378: a playable cardinal lacks a meaningful regnal-name choice");
+		const nameState = { playerId: "geneva", electedId: "geneva", electedName: "Clement VII", playerRegnalName: "Clement VII", flags: {}, finale: { electedName: "Clement VII", playerRegnalName: "Clement VII" } };
+		assert(api.choosePlayerRegnalName(nameState, "Alexander V") === "Alexander V" && nameState.electedName === "Alexander V" && nameState.finale.electedName === "Alexander V", "April 1378: the player's regnal-name choice did not update the result");
+		expectRejected("April 1378: an unavailable regnal name was accepted", () => api.choosePlayerRegnalName(nameState, "Hadrian IX"));
+		const rivalNameState = { playerId: "geneva", electedId: "prignano", playerRegnalName: "Clement VII", flags: { playerAntipope: true }, finale: { line: "Urban in Rome, Clement VII at Avignon.", playerRegnalName: "Clement VII" }, log: [{ kind: "finale", html: "Urban in Rome, Clement VII at Avignon." }] };
+		api.choosePlayerRegnalName(rivalNameState, "Alexander V");
+		assert(rivalNameState.finale.line.includes("Alexander V at Avignon") && rivalNameState.log[0].html.includes("Alexander V at Avignon"), "April 1378: a rival regnal-name choice left Clement in the finale record");
+		assert(/legalist/.test(api.axisPosition("Law", 2)) && /resistant/.test(api.axisPosition("With the crowd", -2)) && api.axisPosition("Nerve", 0) === "balanced", "April 1378: dossier axes do not use directional language");
+		// end score integrity
+		const score = api.scoreGame(openA);
+		assert(Number.isFinite(score.total) && score.parts.reduce((sum, part) => sum + part.points, 0) === score.total && score.verdict && score.verdict.grade, "April 1378: end score is invalid");
+		return ["data-audit", "faction-arithmetic", "single-outsider", "historical-anchor", "documented-tally", "scrutiny-date", "orsini-withheld", "schism-onset", "blank-ballot", "player-ballot-preserved", "oral-validation", "uncertain-soundings", "open-termination", "player-drives-schism", "player-drives-unity", "italian-self-election", "papal-name", "regnal-choice", "directional-profile", "end-score"];
+	}
 	if (variant.label === "venice-1800") {
 		assert(typeof api.initState === "function" && typeof api.conductBallot === "function" && typeof api.getState === "function" && typeof api.activeElectors === "function" && typeof api.makeSounding === "function" && typeof api.resolveNetworkAction === "function" && typeof api.alignmentWithPlayer === "function" && typeof api.supportBriefCandidates === "function", "Venice: targeted-test API is not exported");
 		api.initState("mattei", "venice-player-ballot", { headless: true });
@@ -588,6 +698,7 @@ function checkStaticFiles() {
 		"venice-1800.html": ["Gregory XVI", "Leo XII"],
 		"october-1978.html": ["Paul VII", "John XXIV", "Pius XIII"],
 		"constance-1417.html": ["Kaufhaus", "Veni Creator", "Frequens", "accedimus nos duo"],
+		"april-1378.html": ["Romano lo volemo", "Sermo fugit a me", "ad martellum", "Ego non sum papa"],
 	};
 	for (const [file, required] of Object.entries(anchors)) {
 		const html = fs.readFileSync(path.join(ROOT, file), "utf8");
