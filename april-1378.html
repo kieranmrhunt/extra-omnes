@@ -6,7 +6,7 @@
 <title>Extra Omnes — 1378: The Broken Conclave</title>
 <meta name="description" content="A historically grounded simulation of the disputed conclave of April 1378: sixteen cardinals, a Roman crowd at the doors, the election of Urban VI, and the crisis that opened the Great Schism.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
 	/* Roman night: charcoal stone, travertine, torch amber, cardinal scarlet and Tiber steel. */
@@ -20,7 +20,7 @@
 	--green:#7a9a63;--green-bright:#b3d39c;--amber:#b0762f;
 	--mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Consolas,monospace;
 	--serif:"EB Garamond","Iowan Old Style",Georgia,"Times New Roman",serif;
-	--display:"Cinzel","EB Garamond",Georgia,serif;
+	--display:"Cormorant SC","EB Garamond",Georgia,serif;
 }
 *{box-sizing:border-box}
 html{background:var(--void)}
@@ -87,7 +87,8 @@ input,select{font-family:var(--serif);font-size:.95rem;color:var(--paper);backgr
 .chip.curial{color:var(--paper-dim)}
 .chip.roman{color:var(--ox-bright);border-color:rgba(217,80,96,.55)}
 .stars{font-family:var(--mono);font-size:.72rem;color:var(--torch);letter-spacing:.12em}
-.startrow{display:flex;gap:12px;justify-content:center;align-items:center;margin-top:18px;flex-wrap:wrap}
+.startrow{display:flex;gap:12px;justify-content:center;align-items:center;max-width:760px;margin:14px auto 18px;flex-wrap:wrap}
+.startrow button{min-height:44px}
 .footnote{margin-top:26px;text-align:center;color:var(--smoke);font-size:.85rem}
 
 /* ---------- game screen ---------- */
@@ -193,6 +194,11 @@ input,select{font-family:var(--serif);font-size:.95rem;color:var(--paper);backgr
 #modal .src{font-size:.88rem;color:var(--paper-dim)}
 #modal .src p{margin:.5rem 0}
 #modal .closebar{display:flex;justify-content:flex-end;margin-top:.8rem}
+.colloquylist{margin:.85rem 0;border-top:1px solid var(--line2)}
+.colloquyrow{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:.55rem .1rem;border-bottom:1px solid var(--line)}
+.colloquyrow b{display:block;color:var(--paper);font-family:var(--display);font-size:1.03rem;letter-spacing:.02em}
+.colloquyrow small{display:block;margin-top:.08rem;color:var(--smoke)}
+.colloquyshift{flex:0 0 auto;color:var(--tiber-bright);font-family:var(--mono);font-size:.72rem}
 
 /* end screen */
 #screen-end{max-width:880px;margin:0 auto;padding:34px 18px 70px}
@@ -300,6 +306,14 @@ input,select{font-family:var(--serif);font-size:.95rem;color:var(--paper);backgr
 	#piazza .dials{border-left:0;border-top:1px solid var(--line)}
 	#colR{grid-column:auto;display:grid;grid-template-columns:1fr}
 	#chronicle{max-height:none}
+	#screen-select{padding-bottom:130px}
+	.startrow{
+		position:fixed;left:50%;bottom:max(10px,env(safe-area-inset-bottom));z-index:20;
+		width:min(calc(100% - 24px),520px);margin:0;padding:8px;transform:translateX(-50%);
+		border:1px solid var(--line2);border-radius:8px;background:rgba(17,23,25,.96);
+		box-shadow:0 12px 30px rgba(0,0,0,.48);backdrop-filter:blur(8px);
+	}
+	.startrow button{flex:1 1 140px}
 }
 @media(max-width:480px){
 	#screen-select,#screen-game,#screen-end{padding-left:12px;padding-right:12px}
@@ -363,11 +377,11 @@ input,select{font-family:var(--serif);font-size:.95rem;color:var(--paper);backgr
 		<button type="button" id="rulesBtn" class="ghost">Rules &amp; mechanics</button>
 		<button type="button" id="sourcesBtn" class="ghost">Sources &amp; liberties</button>
 	</div>
-	<div id="selgrid" role="listbox" aria-label="Choose your cardinal"></div>
 	<div class="startrow">
 		<button type="button" id="continueBtn" class="gold hidden">Continue saved conclave</button>
 		<button type="button" id="startBtn" class="primary" disabled>Enter the conclave</button>
 	</div>
+	<div id="selgrid" role="listbox" aria-label="Choose your cardinal"></div>
 	<p class="footnote">Roster facts and documented events are distinguished from inferred relationships and modelled ballots — see Sources &amp; liberties. The one documented tally is the morning scrutiny of 8 April; everything a counterfactual conclave does here is model, not record.</p>
 </section>
 
@@ -376,7 +390,6 @@ input,select{font-family:var(--serif);font-size:.95rem;color:var(--paper);backgr
 	<div class="gametop">
 		<a id="quitLink" href="./index.html">&larr; all years</a>
 		<span class="sess" id="sessLabel">Wednesday 7 April &middot; the enclosure</span>
-		<span id="seedLabel" class="mono"></span>
 	</div>
 
 	<div id="piazza" aria-label="The Piazza San Pietro">
@@ -758,6 +771,7 @@ function initState(playerId,seed,mode){
 		momentum:{},
 		lastCounts:{},
 		lastSounding:null,
+		lastColloquy:null,
 		history:[],
 		log:[],
 		pending:null,
@@ -1077,12 +1091,15 @@ function makeSounding(S){
 	});
 	rows.forEach(function(r){if(r.high<=r.low)r.high=r.low+1});
 	return {ballot:S.ballotNo+1,need:THRESHOLD,rows:rows,
-		note:"Whispers at the cells, before scrutiny "+roman(S.ballotNo+1)+". Ranges, not counts: no man here says his mind plainly, and some say it falsely."};
+		note:"Whispers at the cells, before "+scrutinyLabel(S.ballotNo+1,true)+". Ranges, not counts: no man here says his mind plainly, and some say it falsely."};
 }
 function roman(n){
 	const R=[[10,"X"],[9,"IX"],[5,"V"],[4,"IV"],[1,"I"]];let out="",x=n;
 	R.forEach(function(p){while(x>=p[0]){out+=p[1];x-=p[0]}});
 	return out||"I";
+}
+function scrutinyLabel(n,lower){
+	return (lower?"scrutiny ":"Scrutiny ")+roman(n);
 }
 /* ===== 03-scrutiny.js ===== */
 var MAX_SCRUTINIES=12;
@@ -1177,7 +1194,7 @@ function narrateScriptedScrutiny(S,record,mine){
 function narrateScrutiny(S,record){
 	const lead=record.leaderId?("<b>"+displayName(record.leaderId)+"</b> leads with "+record.leaderCount+" of the needed "+THRESHOLD+".")
 		:"No name finds any purchase.";
-	addLog(S,"Scrutiny "+roman(record.ballot)+", spoken in order of precedence while the square gives its own opinion through the windows. "+lead,"scrutiny",record.date);
+	addLog(S,scrutinyLabel(record.ballot)+", spoken in order of precedence while the square gives its own opinion through the windows. "+lead,"scrutiny",record.date);
 }
 function displayName(id){
 	if(ID[id])return ID[id].short||ID[id].name;
@@ -1215,7 +1232,7 @@ function applyPostBallot(S,record){
 /* ---------- election, aftermath, epilogue ---------- */
 function finalizeElection(S,record){
 	S.electedId=record.leaderId;
-	S.electedVia=(S.mode==="historical"&&record.ballot===1)?"the documented scrutiny":"scrutiny "+roman(record.ballot);
+	S.electedVia=(S.mode==="historical"&&record.ballot===1)?"the documented scrutiny":scrutinyLabel(record.ballot,true);
 	S.flags.electIntegrity=computeElectionIntegrity(S,record);
 	S.flags.electFury=S.metrics.fury;
 	S.flags.electDread=S.metrics.dread;
@@ -1648,15 +1665,19 @@ function performAction(S,id){
 		const line=factionLine(S,S.playerId);
 		const mine=ID[S.playerId].faction;
 		let moved=0;
+		const heard=[];
 		IDS.forEach(function(oid){
 			if(oid===S.playerId)return;
 			const c=ID[oid];
 			if(c.faction===mine||S.trust[oid]>=55){
-				S.trust[oid]=clamp(S.trust[oid]+4+Math.round(nextRand(S)*4),0,100);
+				const before=S.trust[oid];
+				S.trust[oid]=clamp(before+4+Math.round(nextRand(S)*4),0,100);
 				S.lean[oid][line]=(S.lean[oid][line]||0)+0.7;
+				heard.push({id:oid,before:before,after:S.trust[oid]});
 				moved++;
 			}
 		});
+		S.lastColloquy={line:line,heard:heard};
 		addLog(S,"You go cell to cell with the candle-stub diplomacy this palace was built for. "+moved+" of your brethren hear you out; most even mean their nods.","action");
 	}else if(id==="rally"){
 		S.playerStats.rallied++;
@@ -1705,6 +1726,19 @@ function performAction(S,id){
 		addLog(S,"You walk the palace as if at prayer, and note the side window, the stair, the privy gate, the gap in the Banderesi's watch at the turn of the night. Insurance.","action");
 	}
 	return S;
+}
+
+function colloquyHtml(S){
+	const talk=S.lastColloquy;
+	if(!talk)return "<p>No one received you tonight.</p>";
+	let html="<p>You turn the whispered argument towards <b>"+esc(displayName(talk.line))+"</b>. These are the cardinals who hear you out; the figure at right is their warmth towards you.</p>";
+	if(!talk.heard.length)return html+"<p>The doors stay closed. No one is ready to be moved.</p>";
+	html+="<div class='colloquylist'>";
+	talk.heard.forEach(function(item){
+		const c=ID[item.id];
+		html+="<div class='colloquyrow'><span><b>"+esc(displayName(item.id))+"</b><small>"+esc(factionLabel(c.faction))+"</small></span><span class='colloquyshift'>"+item.before+" &rarr; "+item.after+"</span></div>";
+	});
+	return html+"</div><p>The warmth is useful; the nods are not promises.</p>";
 }
 
 /* ---------- decision router ---------- */
@@ -1898,7 +1932,7 @@ function renderLastScrutiny(){
 	const host=$("lastscrut");if(!host)return;
 	if(!S.history.length){host.innerHTML="<p class='objcard'>No scrutiny has yet been held.</p>";return}
 	const rec=S.history[S.history.length-1];
-	let html="<div class='scruthead mono'>Scrutiny "+roman(rec.ballot)+" · "+esc(rec.date)+"</div><table class='rolltable'>";
+	let html="<div class='scruthead mono'>"+scrutinyLabel(rec.ballot)+" · "+esc(rec.date)+"</div><table class='rolltable'>";
 	rec.votes.forEach(function(v){
 		const who=displayName(v.voter);
 		const what=v.candidate.length?displayName(v.candidate[0]):"<i>voice withheld</i>";
@@ -1951,6 +1985,7 @@ function renderActions(){
 			if(!ok)return;
 			try{performAction(S,a.id)}catch(e){toast(e.message);return}
 			saveState();renderAll();
+			if(a.id==="colloquy")openModal("A colloquy in the cells",colloquyHtml(S));
 		}});
 		btn.disabled=!ok;
 		btn.appendChild(el("span",{"class":"alabel",text:a.label+(a.once&&S.playerStats[a.once]?" ✓":"")}));
@@ -1971,7 +2006,7 @@ function renderActions(){
 	const bb=$("ballotBtn");
 	if(bb){
 		bb.disabled=!!S.pending||S.over;
-		bb.textContent=S.pending?"A matter is pending before the College":"Proceed to scrutiny "+roman(S.ballotNo+1);
+		bb.textContent=S.pending?"A matter is pending before the College":"Proceed to "+scrutinyLabel(S.ballotNo+1,true);
 	}
 }
 function axisPosition(label,val){
@@ -2012,7 +2047,7 @@ function renderSoundings(){
 	const host=$("soundout");if(!host)return;
 	if(!S.lastSounding){host.innerHTML="<p class='objcard'>No soundings taken this interval. (Sound the college, one action.)</p>";return}
 	const snd=S.lastSounding;
-	let html="<div class='scruthead mono'>Before scrutiny "+roman(snd.ballot)+" · need "+snd.need+"</div>";
+	let html="<div class='scruthead mono'>Before "+scrutinyLabel(snd.ballot,true)+" · need "+snd.need+"</div>";
 	snd.rows.forEach(function(r){
 		html+="<div class='srow'><span class='sname'>"+esc(displayName(r.id))+"</span><span class='sbar'><i style='left:"+Math.round(r.low/THRESHOLD_N*100)+"%;width:"+Math.round((r.high-r.low)/THRESHOLD_N*100)+"%'></i></span><span class='srange mono'>"+r.low+"–"+r.high+"</span></div>";
 	});
@@ -2027,7 +2062,6 @@ function renderObjective(){
 function renderHeaderLabels(){
 	const sess=$("sessLabel");
 	if(sess)sess.textContent=S.over?"The reckoning":(S.pending?"The College is interrupted":SESSIONS[Math.min(S.ballotNo+1,SESSIONS.length-1)]);
-	const seed=$("seedLabel");if(seed)seed.textContent="seed · "+S.seed;
 }
 function renderAll(){
 	if(!S)return;
@@ -2098,7 +2132,7 @@ function exportChronicle(){
 		text+="["+e.when+"]\n"+e.html.replace(/<[^>]+>/g,"")+"\n\n";
 	});
 	S.history.forEach(function(r){
-		text+="Scrutiny "+roman(r.ballot)+" ("+r.date+"): ";
+		text+=scrutinyLabel(r.ballot)+" ("+r.date+"): ";
 		text+=Object.keys(r.counts).sort(function(a,b){return r.counts[b]-r.counts[a]}).map(function(id){return displayName(id)+" "+r.counts[id]}).join(", ")+"\n";
 	});
 	if(S.finale)text+="\n"+S.finale.title+" — "+S.finale.line+"\n";
@@ -2119,6 +2153,7 @@ function openModal(title,html){
 	host.className="";
 	const t=$("modalTitle");if(t)t.textContent=title;
 	const b=$("modalBody");if(b)b.innerHTML=html;
+	const close=$("modalClose");if(close)close.focus();
 }
 function closeModal(){const host=$("modalhost");if(host)host.className="hidden"}
 function rulesHtml(){
@@ -2179,7 +2214,7 @@ function wire(){
 	const cont=$("continueBtn");
 	if(cont){
 		cont.className=saved?"ghost":"ghost hidden";
-		if(saved)cont.textContent="Continue · "+displayName(saved.playerId)+" · "+saved.seed;
+		if(saved)cont.textContent="Continue as "+displayName(saved.playerId);
 		cont.addEventListener("click",continueGame);
 	}
 	const sb=$("startBtn");if(sb)sb.addEventListener("click",startGame);
@@ -2193,7 +2228,7 @@ function wire(){
 	const mhost=$("modalhost");if(mhost)mhost.addEventListener("click",function(ev){if(ev&&ev.target===mhost)closeModal()});
 	if(typeof window!=="undefined"&&typeof window.addEventListener==="function")window.addEventListener("keydown",function(ev){if(ev.key==="Escape")closeModal()});
 	const bb=$("ballotBtn");if(bb)bb.addEventListener("click",doScrutiny);
-	const quit=$("quitLink");if(quit)quit.addEventListener("click",function(){saveState();showScreen("screen-select");moveToTop();const c=$("continueBtn");if(c){c.className="ghost";c.textContent="Continue · "+displayName(S.playerId)+" · "+S.seed}});
+	const quit=$("quitLink");if(quit)quit.addEventListener("click",function(){saveState();showScreen("screen-select");moveToTop();const c=$("continueBtn");if(c){c.className="ghost";c.textContent="Continue as "+displayName(S.playerId)}});
 	const ex=$("exportLog");if(ex)ex.addEventListener("click",exportChronicle);
 	const replay=$("replay");if(replay)replay.addEventListener("click",function(){
 		if(!S)return;
@@ -2225,6 +2260,8 @@ var APRIL_1378_ENGINE={
 	THRESHOLD:THRESHOLD,
 	THRESHOLD_N:THRESHOLD_N,
 	MAX_SCRUTINIES:MAX_SCRUTINIES,
+	roman:roman,
+	scrutinyLabel:scrutinyLabel,
 	HIST_ROLL:HIST_ROLL,
 	threshold:threshold,
 	initState:initState,

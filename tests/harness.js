@@ -461,7 +461,7 @@ function runTargetedChecks(variant, api) {
 		return ["data-audit", "six-college-rule", "blank-ballot", "approval-validation", "accession-validation", "no-first-scrutiny-accession", "player-ballot-preserved", "uncertain-soundings", "historical-anchor", "open-termination", "papal-name", "end-score"];
 	}
 	if (variant.label === "april-1378") {
-		assert(typeof api.initState === "function" && typeof api.beginScrutiny === "function" && typeof api.makeSounding === "function" && typeof api.runHeadless === "function" && typeof api.validateData === "function" && typeof api.scoreGame === "function" && typeof api.papalNameForState === "function" && typeof api.regnalOptionsFor === "function" && typeof api.regnalSignalFor === "function" && typeof api.choosePlayerRegnalName === "function" && typeof api.axisPosition === "function" && typeof api.resolveDecision === "function" && typeof api.autoChoiceFor === "function", "April 1378: targeted-test API is not exported");
+		assert(typeof api.initState === "function" && typeof api.beginScrutiny === "function" && typeof api.makeSounding === "function" && typeof api.runHeadless === "function" && typeof api.validateData === "function" && typeof api.scoreGame === "function" && typeof api.papalNameForState === "function" && typeof api.regnalOptionsFor === "function" && typeof api.regnalSignalFor === "function" && typeof api.choosePlayerRegnalName === "function" && typeof api.axisPosition === "function" && typeof api.roman === "function" && typeof api.scrutinyLabel === "function" && typeof api.resolveDecision === "function" && typeof api.autoChoiceFor === "function", "April 1378: targeted-test API is not exported");
 		// data audit
 		const audit = api.validateData();
 		assert(audit.ok, "April 1378: data audit failed — " + (audit.notes || []).join("; "));
@@ -478,6 +478,7 @@ function runTargetedChecks(variant, api) {
 		const anchorBallot = anchor.history[0];
 		assert(anchorBallot.counts.prignano === 14 && anchorBallot.counts.tebaldeschi === 1, "April 1378: the documented tally is not 14 for Bari and 1 for St Peter's");
 		assert(anchorBallot.date.includes("Thursday 8 April") && anchorBallot.session.includes("Thursday 8 April"), "April 1378: the documented morning is dated 7 April");
+		assert(Array.from({ length: 12 }, (_, i) => api.scrutinyLabel(i + 1)).join("|") === "Scrutiny I|Scrutiny II|Scrutiny III|Scrutiny IV|Scrutiny V|Scrutiny VI|Scrutiny VII|Scrutiny VIII|Scrutiny IX|Scrutiny X|Scrutiny XI|Scrutiny XII", "April 1378: scrutiny labels are not consistently Roman-numbered");
 		const orsiniEntry = anchorBallot.votes.find((v) => v.voter === "orsini");
 		assert(orsiniEntry && Array.isArray(orsiniEntry.candidate) && orsiniEntry.candidate.length === 0, "April 1378: Orsini's withheld voice was not preserved in the documented scrutiny");
 		assert(anchor.finale && anchor.finale.key === "schism", "April 1378: the documented election did not open the Great Schism");
@@ -532,6 +533,13 @@ function runTargetedChecks(variant, api) {
 		assert(badGame.finale && badGame.finale.key === "schism", "April 1378: promising the mob and voting under maximum terror did not open the Schism");
 		const goodGame = playChoices("april-good", "refuse", "defy", ["parley", "protest"]);
 		assert(goodGame.finale && goodGame.finale.key === "one-pope", "April 1378: a defended, protested election still fractured the Church");
+		const talk = api.initState("corsini", "april-colloquy", "open");
+		api.resolveDecision(talk, api.autoChoiceFor(talk));
+		api.resolveDecision(talk, api.autoChoiceFor(talk));
+		assert(api.actionAvailable(talk, "colloquy"), "April 1378: colloquy is not available after the opening decisions");
+		api.performAction(talk, "colloquy");
+		assert(talk.lastColloquy && typeof talk.lastColloquy.line === "string" && Array.isArray(talk.lastColloquy.heard) && talk.lastColloquy.heard.length > 0, "April 1378: colloquy did not retain a result for its dialog");
+		assert(talk.lastColloquy.heard.every((item) => item.after > item.before), "April 1378: colloquy dialog reports a cardinal who did not warm to the player");
 		// an Italian cardinal can be elected himself
 		let selfElected = false;
 		for (let i = 0; i < 6 && !selfElected; i++) {
@@ -566,7 +574,7 @@ function runTargetedChecks(variant, api) {
 		// end score integrity
 		const score = api.scoreGame(openA);
 		assert(Number.isFinite(score.total) && score.parts.reduce((sum, part) => sum + part.points, 0) === score.total && score.verdict && score.verdict.grade, "April 1378: end score is invalid");
-		return ["data-audit", "faction-arithmetic", "single-outsider", "historical-anchor", "documented-tally", "scrutiny-date", "orsini-withheld", "schism-onset", "blank-ballot", "player-ballot-preserved", "oral-validation", "uncertain-soundings", "open-termination", "player-drives-schism", "player-drives-unity", "italian-self-election", "papal-name", "regnal-choice", "directional-profile", "end-score"];
+		return ["data-audit", "faction-arithmetic", "single-outsider", "historical-anchor", "documented-tally", "scrutiny-date", "roman-scrutinies", "orsini-withheld", "schism-onset", "blank-ballot", "player-ballot-preserved", "oral-validation", "uncertain-soundings", "open-termination", "player-drives-schism", "player-drives-unity", "colloquy-dialog", "italian-self-election", "papal-name", "regnal-choice", "directional-profile", "end-score"];
 	}
 	if (variant.label === "venice-1800") {
 		assert(typeof api.initState === "function" && typeof api.conductBallot === "function" && typeof api.getState === "function" && typeof api.activeElectors === "function" && typeof api.makeSounding === "function" && typeof api.resolveNetworkAction === "function" && typeof api.alignmentWithPlayer === "function" && typeof api.supportBriefCandidates === "function", "Venice: targeted-test API is not exported");
