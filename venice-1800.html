@@ -171,6 +171,13 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 .meter .lb{display:flex;justify-content:space-between;gap:.4rem;font-family:var(--mono);font-size:.64rem;text-transform:uppercase;letter-spacing:.06em;color:var(--paper-dim);margin-bottom:.18rem}
 .meter .lb span:last-child{color:var(--paper)}
 .meter .help{font-family:var(--serif);font-size:.78rem;color:var(--paper-faint);line-height:1.2;margin-top:.18rem}
+button.position-meter{display:block;width:100%;min-width:0;padding:.48rem .55rem;text-align:left;color:inherit;background:rgba(239,229,207,.025);border-color:var(--line);border-radius:8px}
+button.position-meter:hover{background:rgba(202,165,90,.08);border-color:rgba(202,165,90,.48);transform:none}
+button.position-meter:active{transform:none}
+.position-meter .meter-title{display:inline-flex;align-items:center;gap:.3rem;min-width:0;color:var(--paper-dim)}
+.position-meter .meter-info{display:inline-grid;place-items:center;width:1.05rem;height:1.05rem;flex:none;border:1px solid var(--line2);border-radius:50%;color:var(--gold2);font-size:.62rem;line-height:1}
+.metric-reading{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.35rem .8rem;align-items:baseline}
+.metric-reading span{font-family:var(--mono);font-size:.76rem;color:var(--gold2)}
 .bar{height:6px;border-radius:999px;background:#0d141c;overflow:hidden}
 .fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--green),var(--gold));transition:width .45s cubic-bezier(.2,.7,.2,1)}
 .fill.bad{background:linear-gradient(90deg,var(--amber),var(--scarlet2))}
@@ -425,6 +432,44 @@ const METRIC_HELP = {
 	compromise:"Readiness to abandon Bellisomi and Mattei for a third way.",
 	deadlock:"How plainly the College has trapped itself between two failed candidacies."
 };
+const POSITION_EXPLANATIONS = {
+	stature:{
+		scope:"Personal influence",
+		direction:"Higher is better.",
+		effect:"Stature makes other electors more willing to consider you for the papacy. In the model, twelve points of stature are worth roughly one preference point for your own candidacy.",
+		moves:"Taking soundings is the principal way to raise stature: the conversations make your judgement more visible, but also increase exposure and reduce secrecy."
+	},
+	trust:{
+		scope:"Personal influence",
+		direction:"Higher is better.",
+		effect:"Trust improves your access inside your own networks and also strengthens your candidacy. It contributes to the final score together with secrecy and restraint.",
+		moves:"Successful network work, consulting Consalvi, improving supplies and sometimes prayer raise trust. A failed network approach or pressing Herzan for forbearance can reduce it."
+	},
+	secrecy:{
+		scope:"Conduct of the conclave",
+		direction:"Higher is better.",
+		effect:"Secrecy does not directly add votes. It protects the College's independence, contributes to the final score and is required by several private objectives, especially broker, Austrian, curial and general-College objectives.",
+		moves:"Consulting Consalvi and withdrawing to prayer raise secrecy. Taking soundings costs a little; publicly exposing imperial meddling costs much more."
+	},
+	exposure:{
+		scope:"Personal political exposure",
+		direction:"Lower is better.",
+		effect:"Exposure makes you look like an operator. It reduces network access and the chance that network promotion succeeds; once it rises above 45 it also weakens your own candidacy. Low exposure improves the final restraint score.",
+		moves:"Soundings, campaigning, compromise brokering and public dealings with Herzan raise exposure. It falls slightly after an inconclusive scrutiny and more sharply through prayer and silence."
+	},
+	temporal:{
+		scope:"College-wide programme",
+		direction:"Higher means a stronger restoration mandate, not a better personal score.",
+		effect:"Temporal restoration measures pressure to recover papal territory and old public rights. It strengthens Mattei and Gerdil in the ballot model and is compared with Accommodation when the character of the final mandate is described.",
+		moves:"Working Austrian, Mattei, Restoration or Crown networks raises it. Accepting the Austrian host's conditions also pushes the College toward restoration."
+	},
+	adaptation:{
+		scope:"College-wide programme",
+		direction:"Higher means a stronger accommodation mandate, not a better personal score.",
+		effect:"Accommodation measures willingness to govern amid the political facts created by the Revolution. It strengthens Bellisomi and Chiaramonti, weakens Mattei, and is compared with Temporal restoration in the ending.",
+		moves:"Working Bellisomi, Accommodation, Cisalpine or Pastoral networks raises it. It otherwise changes mainly through the political direction of the conclave."
+	}
+};
 const PRESSURE_KEYS = ["austrianGrip","frenchAlarm","fatigue","deadlock","compromise"];
 const POSITION_KEYS = ["stature","trust","secrecy","exposure","temporal","adaptation"];
 const AXIS_DIRECTIONS = {
@@ -481,6 +526,12 @@ function threshold(){return Math.ceil(activeElectors().length*2/3)}
 function legalCandidateFor(voter,candidate){return !!(ID[voter]&&ID[candidate]&&voter!==candidate)}
 function signed(n){return (n>0?"+":"") + Math.round(n)}
 function metricLevel(k,v){const bad=["exposure","fatigue","austrianGrip","frenchAlarm","deadlock"].includes(k);if(v>=78)return bad?"dangerous":"high";if(v>=58)return bad?"rising":"strong";if(v>=36)return "mixed";if(v>=18)return bad?"low":"fragile";return bad?"quiet":"very weak"}
+function positionMetricDetail(key,state=S){
+	const explanation=POSITION_EXPLANATIONS[key];
+	const value=state?.metrics?.[key];
+	if(!explanation||!Number.isFinite(value))return null;
+	return {key,label:METRIC_LABELS[key],definition:METRIC_HELP[key],value:Math.round(value),level:metricLevel(key,value),...explanation};
+}
 function axisPosition(key,value){
 	const labels=AXIS_DIRECTIONS[key]||["low","high"];
 	if(value>=1.2)return `strongly ${labels[1]}`;
@@ -1051,12 +1102,25 @@ function renderMeters(){
 	POSITION_KEYS.forEach(k=>{
 		const v=S.metrics[k];
 		const bad=["exposure","fatigue","austrianGrip","frenchAlarm","deadlock"].includes(k);
-		box.appendChild(el("div",{class:"meter"},
-			el("div",{class:"lb"},el("span",null,METRIC_LABELS[k]),el("span",null,metricLevel(k,v))),
+		const level=metricLevel(k,v);
+		box.appendChild(el("button",{type:"button",class:"meter position-meter","aria-haspopup":"dialog","aria-label":`Explain ${METRIC_LABELS[k]}: ${level}`,title:`Explain ${METRIC_LABELS[k]}`,onclick:()=>showPositionExplanation(k)},
+			el("div",{class:"lb"},el("span",{class:"meter-title"},el("span",null,METRIC_LABELS[k]),el("span",{class:"meter-info","aria-hidden":"true"},"?")),el("span",null,level)),
 			el("div",{class:"bar"},el("div",{class:"fill "+(bad?"bad":(k==="adaptation"||k==="compromise"?"blue":"")),style:`width:${clamp(v,0,100)}%`})),
 			el("div",{class:"help"},METRIC_HELP[k])
 		));
 	});
+}
+function showPositionExplanation(key){
+	const detail=positionMetricDetail(key);
+	if(!detail)return;
+	showModal(detail.label,`<div class="manual">
+		<div class="callout metric-reading"><b>${esc(detail.scope)}</b><span>${detail.value}/100 · ${esc(detail.level)}</span></div>
+		<p>${esc(detail.definition)} <b>${esc(detail.direction)}</b></p>
+		<h4>What it changes</h4>
+		<p>${esc(detail.effect)}</p>
+		<h4>How it moves</h4>
+		<p>${esc(detail.moves)}</p>
+	</div>`,[]);
 }
 function appendSoundingRace(host,sounding){
 	const active=activeElectors().length;
@@ -1330,7 +1394,7 @@ function choosePapalName(w){
 }
 function endBody1800(winner,player,papalName){
 	let body = `<p>The doors open onto the lagoon. <b>${esc(winner.name)}</b> accepts the burden of a papacy born in exile and takes the name <b>${esc(papalName)}</b>.</p>`;
-	if(winner.id==="chiaramonti")body += `<p>The result rhymes with history: not the loudest faction, but the compromise that could survive both Vienna and Paris.</p>`;
+	if(winner.id==="chiaramonti")body += `<p>This is the historical outcome: Chiaramonti emerged as the compromise able to survive both Austrian pressure and French opposition.</p>`;
 	else body += `<p>This is an alternate Venice. The historical Chiaramonti settlement has been displaced by a College willing to gamble on ${esc(winner.short)}.</p>`;
 	if(S.metrics.austrianGrip>=68)body+=`<p>Vienna's protection has become part of the new pontificate's debt. Every promise of restored territory will be heard against the conditions of the conclave's Austrian refuge.</p>`;
 	else if(S.metrics.austrianGrip<38)body+=`<p>The College leaves San Giorgio with unusual independence from its host. That freedom may cost territory, but it gives the election a legitimacy no court can easily claim as its own.</p>`;
@@ -1450,7 +1514,7 @@ function runHeadless(seed,playerId,maxBallots=20){
 	}
 	return {seed:S.seed,playerId:S.playerId,winner:S.electedId,papalName:S.papalName,ballots:S.ballotNo,history:S.history.map(h=>({ballot:h.ballot,date:h.date,threshold:h.threshold,electors:h.electors,counts:{...h.counts},roll:h.roll.map(v=>({...v}))})),over:S.over,score:S.over?scoreGame().total:0};
 }
-const VENICE_1800_ENGINE={ELECTORS,ID,initState,conductBallot,runHeadless,activeElectors,threshold,legalCandidateFor,validateBallotRoll,validateVeniceSave,forecastCounts,makeSounding,phaseForState,playerNetworks,networkAccess,networkFit,resolveNetworkAction,alignmentWithPlayer,supportBriefCandidates,portraitFor,axisPosition,choosePapalName,evaluateObjective,scoreGame,getState:()=>S};
+const VENICE_1800_ENGINE={ELECTORS,ID,initState,conductBallot,runHeadless,activeElectors,threshold,legalCandidateFor,validateBallotRoll,validateVeniceSave,forecastCounts,makeSounding,phaseForState,playerNetworks,networkAccess,networkFit,resolveNetworkAction,alignmentWithPlayer,supportBriefCandidates,positionMetricDetail,portraitFor,axisPosition,choosePapalName,evaluateObjective,scoreGame,getState:()=>S};
 if(typeof module!=="undefined")module.exports=VENICE_1800_ENGINE;
 if(typeof window!=="undefined")window.__om=VENICE_1800_ENGINE;
 if(typeof document!=="undefined")wire();

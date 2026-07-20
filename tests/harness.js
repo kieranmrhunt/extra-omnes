@@ -167,7 +167,7 @@ function loadVariant(file) {
 	for (const callback of readyCallbacks) callback();
 	const selectionGrid = elements.get("#selgrid");
 	if (!selectionGrid || !selectionGrid.children.length) throw new Error(`${file}: UI bootstrap rendered no selection cards`);
-	return Object.assign({ __uiBooted: true, __uiCardsRendered: selectionGrid.children.length }, context.__EO_TEST_EXPORTS__, moduleObject.exports || {}, context.window.__om || {});
+	return Object.assign({ __uiBooted: true, __uiCardsRendered: selectionGrid.children.length }, context.__EO_TEST_EXPORTS__, moduleObject.exports || {}, context.__om1903 || {}, context.window.__om || {});
 }
 
 function cardList(api) {
@@ -330,10 +330,20 @@ function runTargetedChecks(variant, api) {
 		return ["attendance-40-to-44", "approval-validation", "accessus-validation", "illness-eligibility", "metric-bounds"];
 	}
 	if (variant.label === "1903") {
-		assert(typeof api.initState === "function" && typeof api.makeSounding === "function" && typeof api.playerNetworks === "function" && typeof api.networkAccess === "function" && typeof api.resolveNetworkAction === "function" && typeof api.actionRouteCopy === "function" && typeof api.portraitFor === "function" && typeof api.scoreGame === "function", "1903: revised information/network/portrait/score API is not exported");
+		assert(typeof api.initState === "function" && typeof api.makeSounding === "function" && typeof api.playerNetworks === "function" && typeof api.networkAccess === "function" && typeof api.resolveNetworkAction === "function" && typeof api.actionRouteCopy === "function" && typeof api.portraitFor === "function" && typeof api.alignmentWithPlayer === "function" && typeof api.pressureMetricDetail === "function" && typeof api.scoreGame === "function", "1903: revised information/network/portrait/pressure/score API is not exported");
 		const portrait = api.portraitFor("gibbons");
 		assert(portrait && /assets\/portraits\/1903\/gibbons\.webp$/.test(portrait.src) && /en\.wikipedia\.org/.test(portrait.wikipedia) && !("source" in portrait) && api.portraitFor("sanminiatelli") === null, "1903: portrait link or fallback is invalid");
 		let state = api.initState("gibbons", "1903-soundings", "historical");
+		const alignment = api.alignmentWithPlayer(state, "sarto");
+		assert(alignment && Number.isInteger(alignment.score) && alignment.score >= 0 && alignment.score <= 100 && alignment.label && Array.isArray(alignment.shared), "1903: cardinal alignment detail is invalid");
+		const pressureKeys = ["freedom", "courtPressure", "pastoralAppetite", "continuity", "curialConfidence"];
+		assert(pressureKeys.every((key) => {
+			const detail = api.pressureMetricDetail(key, state);
+			return detail && detail.label && Number.isInteger(detail.value) && detail.level && detail.definition && detail.direction && detail.opening && detail.effect && Array.isArray(detail.changes);
+		}), "1903: pressure explanations are incomplete");
+		const pressureState = api.initState("gibbons", "1903-pressure-ledger", "historical");
+		api.resolveVeto(pressureState, "deliver");
+		assert(api.pressureMetricDetail("freedom", pressureState).changes.some((change) => /Puzyna/.test(change.reason)), "1903: pressure ledger does not explain the current value");
 		const before = JSON.stringify(state);
 		const soundingA = api.makeSounding(state);
 		const soundingB = api.makeSounding(state);
@@ -360,7 +370,18 @@ function runTargetedChecks(variant, api) {
 		const completed = api.runHeadless("1903-score", "gibbons", "historical");
 		const score = api.scoreGame(completed);
 		assert(Number.isFinite(score.total) && score.parts.reduce((sum, part) => sum + part.points, 0) === score.total && score.verdict && score.verdict.grade, "1903: end score is invalid");
-		return ["portrait-lookup", "uncertain-soundings", "action-route-copy", "network-membership", "network-determinism", "player-ballot-preserved", "end-score"];
+		const viablePlayers = api.ELECTORS.filter((cardinal) => {
+			const candidacy = api.initState(cardinal.id, `1903-viability-${cardinal.id}`, "historical");
+			candidacy.ballotNo = 7;
+			candidacy.momentum[cardinal.id] = 65;
+			candidacy.metrics.stature = 82;
+			candidacy.metrics.trust = 78;
+			candidacy.metrics.exposure = 18;
+			candidacy.metrics.fatigue = 28;
+			return (api.forecastCounts(candidacy)[cardinal.id] || 0) >= api.THRESHOLD;
+		});
+		assert(viablePlayers.length === api.ELECTORS.length, `1903: only ${viablePlayers.length}/${api.ELECTORS.length} active player candidacies can theoretically reach the threshold`);
+		return ["portrait-lookup", "cardinal-alignment", "pressure-explanations", "pressure-ledger", "uncertain-soundings", "action-route-copy", "network-membership", "network-determinism", "player-ballot-preserved", "player-candidacy-viability", "end-score"];
 	}
 	if (variant.label === "october-1978") {
 		assert(typeof api.initState === "function" && typeof api.runBallot === "function" && typeof api.getState === "function" && typeof api.makeSounding === "function" && typeof api.networkAccess === "function" && typeof api.workNetwork === "function" && typeof api.portraitFor === "function" && typeof api.scoreGame === "function", "October 1978: targeted-test API is not exported");
@@ -577,9 +598,11 @@ function runTargetedChecks(variant, api) {
 		return ["data-audit", "faction-arithmetic", "single-outsider", "historical-anchor", "documented-tally", "scrutiny-date", "roman-scrutinies", "orsini-withheld", "schism-onset", "blank-ballot", "player-ballot-preserved", "oral-validation", "uncertain-soundings", "open-termination", "player-drives-schism", "player-drives-unity", "colloquy-dialog", "italian-self-election", "papal-name", "regnal-choice", "directional-profile", "end-score"];
 	}
 	if (variant.label === "venice-1800") {
-		assert(typeof api.initState === "function" && typeof api.conductBallot === "function" && typeof api.getState === "function" && typeof api.activeElectors === "function" && typeof api.makeSounding === "function" && typeof api.resolveNetworkAction === "function" && typeof api.alignmentWithPlayer === "function" && typeof api.supportBriefCandidates === "function", "Venice: targeted-test API is not exported");
+		assert(typeof api.initState === "function" && typeof api.conductBallot === "function" && typeof api.getState === "function" && typeof api.activeElectors === "function" && typeof api.makeSounding === "function" && typeof api.resolveNetworkAction === "function" && typeof api.alignmentWithPlayer === "function" && typeof api.supportBriefCandidates === "function" && typeof api.positionMetricDetail === "function", "Venice: targeted-test API is not exported");
 		api.initState("mattei", "venice-player-ballot", { headless: true });
 		const state = api.getState();
+		const positionDetails = ["stature", "trust", "secrecy", "exposure", "temporal", "adaptation"].map((key) => api.positionMetricDetail(key));
+		assert(positionDetails.every((detail) => detail && Number.isInteger(detail.value) && detail.label && detail.level && detail.scope && detail.direction && detail.definition && detail.effect && detail.moves), "Venice: Your position explanations are incomplete");
 		state.support.bellisomi = 100;
 		state.metrics.austrianGrip = 100;
 		api.conductBallot("bellisomi");
@@ -629,7 +652,7 @@ function runTargetedChecks(variant, api) {
 		const score = api.scoreGame();
 		assert(Number.isFinite(score.total) && score.parts.reduce((sum, part) => sum + part.points, 0) === score.total && score.verdict && score.verdict.grade, "Venice: end score is invalid");
 		assert(/Austrian-aligned/.test(api.axisPosition("austria", 1.1)) && !/very high|middle/.test(api.axisPosition("austria", 1.1)), "Venice: dossiers still use abstract rather than directional labels");
-		return ["player-ballot-preserved", "self-vote", "herzan-arrival", "alignment-guidance", "opening-support", "historical-opening", "uncertain-soundings", "portrait-lookup", "network-membership", "network-determinism", "alternate-winner", "end-score", "directional-profile"];
+		return ["position-explanations", "player-ballot-preserved", "self-vote", "herzan-arrival", "alignment-guidance", "opening-support", "historical-opening", "uncertain-soundings", "portrait-lookup", "network-membership", "network-determinism", "alternate-winner", "end-score", "directional-profile"];
 	}
 	return [];
 }
