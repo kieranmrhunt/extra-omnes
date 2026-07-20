@@ -193,7 +193,7 @@ header .date{margin-left:auto;text-align:right;font-family:var(--mono);font-size
 .scard{background:rgba(236,226,207,.045);border:1px solid var(--line);border-radius:10px;padding:.65rem .75rem}
 .scard b{display:block;font-family:var(--display);font-size:1.45rem;color:var(--gold-bright);line-height:1.05}
 .scard span{font-family:var(--mono);font-size:.62rem;text-transform:uppercase;letter-spacing:.09em;color:var(--paper-dim)}
-.scrutiny-list{display:flex;flex-direction:column;gap:.38rem}
+.scrutiny-list{display:flex;flex-direction:column;gap:.38rem;max-height:48vh;overflow:auto;padding-right:.25rem}
 .srow{display:grid;grid-template-columns:112px 1fr 44px 42px;gap:.5rem;align-items:center;padding:.28rem 0;border-bottom:1px solid var(--line)}
 .srow .sname{font-family:var(--mono);font-size:.78rem;color:var(--paper);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .srow.leader .sname{color:var(--gold-bright)}
@@ -236,12 +236,15 @@ header .date{margin-left:auto;text-align:right;font-family:var(--mono);font-size
 .choices{display:flex;flex-direction:column;gap:.5rem;margin-top:.85rem}
 .choices button{text-align:left;font-family:var(--serif);font-size:1.04rem;padding:.65rem .8rem}
 .choices button small{display:block;font-family:var(--sans);font-size:.78rem;color:var(--paper-dim);margin-top:.15rem}
+.picker-tools{display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,.72fr);gap:.5rem;margin-bottom:.5rem}
+.picker-tools input,.picker-tools select{width:100%;min-width:0;background:#11131a;color:#fff;border:1px solid rgba(255,255,255,.16);border-radius:7px;padding:.5rem}
 .pickgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(216px,1fr));gap:.5rem;max-height:54vh;overflow:auto;padding:.1rem}
 .pickgrid button{min-height:50px;text-align:left;font-family:var(--serif);font-size:1.02rem}
 .pickgrid button small{display:block;font-family:var(--mono);font-size:.68rem;color:var(--paper-dim);margin-top:.15rem}
 .pickgrid button.self-cause{border-color:var(--gold);background:var(--gold-soft);box-shadow:inset 3px 0 0 var(--gold)}
 .pickgrid button.self-cause small{color:var(--gold-bright)}
 .picker-context{border-left:3px solid var(--blue-bright);background:rgba(82,119,160,.13);padding:.55rem .7rem;margin:0 0 .6rem;font-family:var(--serif);font-size:.95rem;color:var(--paper-dim);line-height:1.35}
+@media(max-width:620px){.picker-tools{grid-template-columns:1fr}}
 
 /* Dossier */
 .dossier-head{display:flex;gap:.9rem;align-items:flex-start;margin-bottom:.3rem}
@@ -382,8 +385,7 @@ header .date{margin-left:auto;text-align:right;font-family:var(--mono);font-size
 		<div id="log"></div>
 		<div class="actions">
 			<button id="actSound" title="Ask one elector for a fallible, dated indication of his present lean">Sound out an elector</button>
-			<button id="actNetwork" title="Use one of your own relationships, or try to gain access to another network">Work a network</button>
-			<button id="actAssure" title="Change what the College thinks a candidate stands for, with modest exposure">Shape a candidacy</button>
+			<button id="actNetwork" title="Choose a cause, approach a faction or network, and make a tailored case">Work a network</button>
 			<button id="actFloat" title="Raise a candidate's visibility and momentum, at a greater exposure cost">Promote a name</button>
 			<button id="actDiscourage">Discourage rival</button>
 			<button id="actRest">Pray / rest</button>
@@ -824,35 +826,42 @@ function openModal(title,body,choices=[]){
 }
 function pickCardinal(title, cb, opts={}){
 	const wrap=el("div");
-	const inp=el("input",{placeholder:"Search…","aria-label":"Search cardinals",style:"width:100%;margin-bottom:.5rem;background:#11131a;color:#fff;border:1px solid rgba(255,255,255,.16);border-radius:7px;padding:.5rem"});
+	const tools=el("div",{class:"picker-tools"});
+	const inp=el("input",{type:"search",placeholder:"Search…","aria-label":"Search cardinals"});
+	const faction=el("select",{"aria-label":"Filter cardinals by faction or network"});
+	faction.appendChild(el("option",{value:"All"},"All factions / networks"));
+	const own=new Set(playerNetworks());
+	NETWORKS.filter(n=>n!=="All").sort((a,b)=>(own.has(a)?-1:0)-(own.has(b)?-1:0)||displayLabel(a).localeCompare(displayLabel(b))).forEach(n=>faction.appendChild(el("option",{value:n},`${displayLabel(n)}${own.has(n)?" · yours":""}`)));
+	tools.append(inp,faction);
 	const grid=el("div",{class:"pickgrid"});
 	if(opts.cause)wrap.appendChild(el("div",{class:"picker-context"},`Your objective: ${S.player.objective.title} — ${S.player.objective.text} Your own cause is listed first. The percentages compare modelled positions; they are neither vote probabilities nor rankings of importance.`));
-	wrap.append(inp,grid);
+	wrap.append(tools,grid);
 	const ov=openModal(title,wrap,[]);
 	function draw(){
-		grid.innerHTML="";const q=inp.value.toLowerCase();
-		const choices=ELECTORS.filter(e=>!opts.exclude||!opts.exclude(e)).filter(e=>(e.name+" "+e.short+" "+e.country+" "+e.tags.join(" ")).toLowerCase().includes(q));
+		grid.innerHTML="";const q=inp.value.toLowerCase(),network=faction.value;
+		const choices=ELECTORS.filter(e=>!opts.exclude||!opts.exclude(e)).filter(e=>network==="All"||e.tags.includes(network)).filter(e=>(e.name+" "+e.short+" "+e.country+" "+e.tags.join(" ")).toLowerCase().includes(q));
 		if(opts.cause)choices.sort((a,b)=>(a.id===S.playerId?-1:0)-(b.id===S.playerId?-1:0)||a.rank-b.rank);
 		choices.forEach(e=>{
 			grid.appendChild(el("button",{class:opts.cause&&e.id===S.playerId?"self-cause":"",onclick:()=>{dismissModal(ov);cb(e.id)}},e.short,el("small",null,opts.cause?causeContext(e.id):`${e.country} · ${e.role}`)))
 		})
 	}
-	inp.addEventListener("input",draw);draw();
+	inp.addEventListener("input",draw);faction.addEventListener("change",draw);draw();
 }
-function pickNetwork(cb){
+function pickNetwork(cb,candidateId){
 	const wrap=el("div");
 	const own=new Set(playerNetworks());
-	wrap.appendChild(el("div",{class:"picker-context"},`Your established networks: ${playerNetworks().map(displayLabel).join(", ")||"none recorded"}. Membership, trust and discretion improve access; exposure makes an approach harder. The menu shows baseline odds before the assurance is chosen.`));
+	const cause=candidateId&&ID[candidateId]?` You are working for ${ID[candidateId].short}.`:"";
+	wrap.appendChild(el("div",{class:"picker-context"},`Your established networks: ${playerNetworks().map(displayLabel).join(", ")||"none recorded"}.${cause} Membership, trust and discretion improve access; exposure makes an approach harder. The menu shows baseline odds before the assurance is chosen.`));
 	const grid=el("div",{class:"pickgrid"});wrap.appendChild(grid);
 	let ov;
 	NETWORKS.filter(n=>n!=="All").sort((a,b)=>(own.has(a)?-1:0)-(own.has(b)?-1:0)||displayLabel(a).localeCompare(displayLabel(b))).forEach(n=>grid.appendChild(el("button",{class:own.has(n)?"self-cause":"",onclick:()=>{dismissModal(ov);cb(n)}},displayLabel(n),el("small",null,`${own.has(n)?"Your network · ":"Outside your network · "}${Math.round(networkAccess(n)*100)}% baseline full-access chance · ${networkDescription(n)}`))));
 	ov=openModal("Choose a network",wrap,[]);
 }
-function pickAssurance(cb){
+function pickAssurance(cb,title="Choose an assurance"){
 	const wrap=el("div",{class:"pickgrid"});
 	let ov;
 	Object.entries(ASSURANCES).forEach(([k,a])=>wrap.appendChild(el("button",{onclick:()=>{dismissModal(ov);cb(k)}},a.label,el("small",null,a.note))));
-	ov=openModal("Choose an assurance",wrap,[]);
+	ov=openModal(title,wrap,[]);
 }
 function networkDescription(n){const desc={Italian:"Italian bishops and the old expectation of an Italian pope",Curia:"Roman administrators and dicastery heads",Montinian:"Continuity with Paul VI and John Paul I",Doctrine:"Doctrinal and disciplinary clarity",Conciliar:"Vatican II and collegial implementation",SufferingChurch:"Churches under Communist or authoritarian pressure",AntiCommunist:"Electors alert to Communist pressure and persecution",Ostpolitik:"Prudence and diplomacy with Communist regimes",Germanic:"German-speaking and Central European relationships",America:"US and North American organising weight",LatinAmerica:"Latin American episcopal and CELAM concerns",Africa:"African and mission-Church voices",Asia:"Asian and minority-Church voices",Oceania:"Oceania and English-speaking mission links",GlobalSouth:"Latin America, Africa, Asia and Oceania",Bridge:"Men who can make one bloc trust another",Pastor:"Diocesan bishops who trust pastoral credibility",Young:"Younger electors conscious of a long reign",Elder:"Older electors and caretaker possibilities"};return desc[n]||"Shared concern or relationship"}
 function makeSounding(id,depth=Math.min(3,(S.intel[id]||0)+1)){
@@ -868,8 +877,7 @@ function soundingSummary(report){
 	return `Apparent lean towards ${names[0]}, with ${names[1]} still plausible. ${report.confidence} confidence, not a known ballot.${stale}`;
 }
 function doSound(){if(!actionEnabled())return;pickCardinal("Sound out an elector",id=>{if(!spendAP())return;S.intel[id]=Math.min(3,S.intel[id]+1);S.relationships[id][S.playerId]+=.45;S.relationships[S.playerId][id]+=.2;const report=makeSounding(id,S.intel[id]);S.soundings[id]=report;log(`You speak privately with <b>${esc(ID[id].short)}</b>. ${esc(soundingSummary(report))}`,"deal");renderAll()},{exclude:e=>e.id===S.playerId})}
-function doNetwork(){if(!actionEnabled())return;pickNetwork(n=>pickAssurance(a=>{if(!spendAP())return;workNetwork(n,a,(S.player.withdrawn&&S.player.transferTo)?S.player.transferTo:S.playerId);renderAll()}))}
-function doAssure(){if(!actionEnabled())return;pickAssurance(a=>pickCardinal("Shape whose candidacy?",id=>{if(!spendAP())return;const ass=ASSURANCES[a];S.visibility[id]+=1.3;S.momentum[id]+=.6;modifyCandidateFromAssurance(id,ass,.9);adjustMetric("exposure", id===S.playerId?2:1);log(`You shape the public case for <b>${esc(ID[id].short)}</b>: ${esc(ass.label)}. The assurance changes what his candidacy means more than how loudly his name is heard.`,"deal");renderAll()},{cause:true,exclude:e=>S.player.withdrawn&&e.id===S.playerId}))}
+function doNetwork(){if(!actionEnabled())return;pickCardinal("Work for whose cause?",candidateId=>pickNetwork(network=>pickAssurance(assurance=>{if(!spendAP())return;workNetwork(network,assurance,candidateId);renderAll()},`What case will you make for ${ID[candidateId].short}?`),candidateId),{cause:true,exclude:e=>S.player.withdrawn&&e.id===S.playerId})}
 function doFloat(){if(!actionEnabled())return;pickCardinal("Promote whose name?",id=>{if(!spendAP())return;S.visibility[id]+=2.4;S.momentum[id]+=1.2;adjustMetric("exposure",id===S.playerId?5:2);if(id!==S.playerId)S.relationships[id][S.playerId]+=.35;log(`You promote <b>${esc(ID[id].short)}</b> as a possible settlement. His name gains visibility and momentum, but the operation is easier to trace than a private assurance.`,"event");renderAll()},{cause:true,exclude:e=>S.player.withdrawn&&e.id===S.playerId})}
 function doDiscourage(){if(!actionEnabled())return;pickCardinal("Discourage which rival?",id=>{if(!spendAP())return;const caught=rnd()<(.25 + S.metrics.exposure/220 - S.metrics.discretion/300);S.visibility[id]-=caught?.5:1.5;S.momentum[id]-=caught?.2:1.3;adjustMetric("exposure",caught?9:4);if(caught)S.relationships[id][S.playerId]-=1.0;log(caught?`Your doubts about <b>${esc(ID[id].short)}</b> are traced back to you. The rival is bruised, but so are you.`:`A careful objection lands against <b>${esc(ID[id].short)}</b>. Nobody knows it began with you; everyone repeats it by dinner.`,caught?"event":"deal");renderAll()},{exclude:e=>e.id===S.playerId})}
 function doRest(){if(!actionEnabled())return;if(!spendAP())return;adjustMetric("fatigue",-9);adjustMetric("exposure",-6);adjustMetric("trust",3);const e=ID[S.playerId];if(e.tags.includes("Religious")||e.tags.includes("Pastor"))adjustMetric("stature",1.5);log(`You withdraw to prayer and rest. In this conclave a man who stops talking sometimes becomes more credible.`,"holy");renderAll()}
@@ -881,12 +889,12 @@ function runBallotModal(){
 }
 function showExactRoll(hist, after=false){
 	if(!S.over){toast("Individual simulated ballots remain sealed until the election ends.");return}
-	const rows=Object.entries(hist.counts).sort((a,b)=>b[1]-a[1]).map(([id,n])=>`<tr><td>${esc(ID[id].short)}</td><td class="n">${n}</td></tr>`).join("");
+	const rows=sortedCountEntries(hist.counts).map(([id,n])=>`<tr><td>${esc(ID[id].short)}</td><td class="n">${n}</td></tr>`).join("");
 	const rollRows=Object.entries(hist.roll).sort((a,b)=>ID[a[0]].rank-ID[b[0]].rank).map(([v,c])=>`<tr><td>${esc(ID[v].short)}</td><td>→ ${esc(ID[c].short)}</td></tr>`).join("");
 	openModal(`Scrutiny ${roman(hist.ballot)} — exact roll`, `<div class="callout ${after?'':'warning'}">These are exact simulated ballots, not a claim to know the secret historical ballot papers.</div><h4>Exact count</h4><table>${rows}</table><h4>Exact simulated roll</h4><table>${rollRows}</table>`, [{label:"Return to the chapel"}]);
 }
 function scrutinyInterpretation(hist, previous){
-	const entries=Object.entries(hist.counts).sort((a,b)=>b[1]-a[1]);
+	const entries=sortedCountEntries(hist.counts);
 	const leader=entries[0];
 	if(!previous)return `The first scrutiny gives the room a map: ${ID[leader[0]].short} leads, but every camp is still testing names.`;
 	const oldLeader=Object.entries(previous.counts).sort((a,b)=>b[1]-a[1])[0];
@@ -898,29 +906,30 @@ function scrutinyInterpretation(hist, previous){
 	if(oldLeader&&oldLeader[0]!==leader[0])return `The lead has changed hands from ${ID[oldLeader[0]].short} to ${ID[leader[0]].short}. That matters as much psychologically as arithmetically.`;
 	return `The count has not broken yet. The next actions should reassure a bloc, lower a fear, or move transferable voters rather than simply raise visibility.`;
 }
+function sortedCountEntries(counts){return Object.entries(counts||{}).filter(([id,n])=>ID[id]&&Number(n)>0).sort((a,b)=>b[1]-a[1]||ID[a[0]].rank-ID[b[0]].rank)}
 function smokeMarkup1978(hist){
 	const leader=Math.max(0,...Object.values(hist.counts)),elected=leader>=THRESHOLD,colour=elected?"white":"black",label=elected?"White smoke: an election has been reached":"Black smoke: no election";
 	return `<div class="smoke-signal ${colour}" role="img" aria-label="${label}"><span class="smoke-puff p1"></span><span class="smoke-puff p2"></span><span class="smoke-puff p3"></span><span class="smoke-puff p4"></span><span class="chimney"></span></div><div class="smoke-caption">${label}</div>`;
 }
 function showScrutinyScreen(hist, advance){
 	const previous=S.history.length>1?S.history[S.history.length-2]:null;
-	const entries=Object.entries(hist.counts).sort((a,b)=>b[1]-a[1]);
+	const entries=sortedCountEntries(hist.counts);
 	const leader=entries[0];
 	const yourVotes=hist.counts[S.playerId]||0;
 	const gap=Math.max(0,THRESHOLD-leader[1]);
-	const list=entries.slice(0,14).map(([id,n],i)=>{
+	const list=entries.map(([id,n],i)=>{
 		const old=previous?(previous.counts[id]||0):0;
 		const d=previous?n-old:0;
 		const dc=d>0?"up":(d<0?"down":"");
 		const pct=Math.min(100,n/THRESHOLD*100);
 		return `<div class="srow${i===0?' leader':''}"><span class="sname">${esc(ID[id].short)}${id===S.playerId?' · you':''}</span><span class="rtrack"><span class="rfill${n>=THRESHOLD?' win':''}" style="width:${pct}%"></span></span><span class="rnum">${n}</span><span class="delta ${dc}">${previous?deltaText(d):'—'}</span></div>`;
 	}).join("");
-	const body=`<div class="callout">The aggregate scrutiny count is exact model output. Historical 1978 ballot papers remain secret.</div><div class="scrutiny-hero"><div class="scard"><b>${esc(ID[leader[0]].short)}</b><span>leader</span></div><div class="scard"><b>${leader[1]}/${THRESHOLD}</b><span>${gap?gap+' short':'elected'}</span></div><div class="scard"><b>${yourVotes}</b><span>votes for you</span></div></div><div class="scrutiny-grid"><div><h4>Aggregate count</h4><div class="smini">The bar ends at the ${THRESHOLD}-vote threshold. The final column shows change since the previous scrutiny.</div><div class="scrutiny-list">${list}</div></div><div>${smokeMarkup1978(hist)}<h4>What it means</h4><p class="smini">${esc(scrutinyInterpretation(hist,previous))}</p><div class="statusbox"><b>Next pressure point</b><br>${esc(nextPressurePoint(hist))}</div><p class="smini">Every individual simulated ballot remains under seal until the conclave ends.</p></div></div>`;
+	const body=`<div class="callout">The aggregate scrutiny count is exact model output. Historical 1978 ballot papers remain secret.</div><div class="scrutiny-hero"><div class="scard"><b>${esc(ID[leader[0]].short)}</b><span>leader</span></div><div class="scard"><b>${leader[1]}/${THRESHOLD}</b><span>${gap?gap+' short':'elected'}</span></div><div class="scard"><b>${yourVotes}</b><span>votes for you</span></div></div><div class="scrutiny-grid"><div><h4>Complete aggregate count</h4><div class="smini">Every cardinal receiving at least one vote is shown. The bar ends at the ${THRESHOLD}-vote threshold; the final column shows change since the previous scrutiny.</div><div class="scrutiny-list">${list}</div></div><div>${smokeMarkup1978(hist)}<h4>What it means</h4><p class="smini">${esc(scrutinyInterpretation(hist,previous))}</p><div class="statusbox"><b>Next pressure point</b><br>${esc(nextPressurePoint(hist))}</div><p class="smini">Every individual simulated ballot remains under seal until the conclave ends.</p></div></div>`;
 	const ov=openModal(`Scrutiny ${roman(hist.ballot)} — count`, body, [{label:S.over?"Continue to the balcony":"Return to the chapel",fn:()=>{if(advance)advance()}}]);
 	ov.querySelector(".modal").classList.add("scrutinybook");
 }
 function nextPressurePoint(hist){
-	const entries=Object.entries(hist.counts).sort((a,b)=>b[1]-a[1]);
+	const entries=sortedCountEntries(hist.counts);
 	const leader=entries[0];
 	if(leader[1]>=THRESHOLD)return "Election secured. The politics now become memory, legitimacy and the balcony.";
 	if(S.metrics.exposure>60)return "Your exposure is high. Rest, transfer, or work through another network rather than pushing your own name openly.";
@@ -932,7 +941,7 @@ function nextPressurePoint(hist){
 }
 function showWorld(){
 	const m=S.metrics;
-	openModal("The world outside", `<div class="callout">No king sends a veto. The law excludes civil interference. But the outside world shapes fear.</div>
+	openModal("The world outside", `<div class="callout">The outside world does not enter the scrutiny, but it shapes the fears carried into the chapel.</div>
 	<div class="statusbox"><b>Italy and the Curia</b><br>Italian lock ${Math.round(m.italianLock)} · Curial confidence ${Math.round(m.curiaConfidence)}. A foreign pope still feels like losing Rome unless reassured.</div>
 	<div class="statusbox"><b>Communist bloc</b><br>Cold War risk ${Math.round(m.coldWarRisk)}. A Polish or suffering-Church pope can inspire courage and diplomatic alarm at the same time.</div>
 	<div class="statusbox"><b>Vatican II and doctrine</b><br>Conciliar confidence ${Math.round(m.conciliarConfidence)} · Doctrinal confidence ${Math.round(m.doctrinalConfidence)}. The settlement must promise renewal without chaos.</div>
@@ -993,7 +1002,7 @@ function renderBoard(){
 	}
 	const h=S.history[S.history.length-1];
 	const previous=S.history.length>1?S.history[S.history.length-2]:null;
-	const entries=Object.entries(h.counts).sort((a,b)=>b[1]-a[1]);
+	const entries=sortedCountEntries(h.counts);
 	const leader=entries[0];
 	const gap=THRESHOLD-leader[1];
 	const race=entries.slice(0,5).map(([id,n],i)=>{
@@ -1019,9 +1028,9 @@ function renderPlayerBox(){
 	const voteLine=S.history.length?`<br><span class="dim">Latest scrutiny support: <b>${votes}</b> of ${THRESHOLD} needed.</span>`:"";
 	$("#playerBox").innerHTML=`<div class="identity-row">${portraitMarkup(e.id)}<div><b>${esc(e.name)}</b><br><span class="dim">${esc(e.office)}</span><br><span class="goldtx">Your networks</span><br>${playerNetworks().map(displayLabel).map(esc).join(" · ")||"No strong network recorded"}<br><span class="goldtx">${esc(S.player.objective.title)}</span><br>${esc(S.player.objective.text)}${voteLine}${S.player.withdrawn?`<br><b class="greentx">Transferred to ${esc(ID[S.player.transferTo].short)}</b>`:""}</div></div>`
 }
-function renderAll(){if(!S)return;$("#dateLabel").textContent=phaseName()+` · scrutiny ${S.ballotNo+1} pending`;$("#apwrap").innerHTML=`Conversation windows ${S.ap} `+"<span class='pip'></span>".repeat(S.ap)+"<span class='pip spent'></span>".repeat(Math.max(0,3-S.ap));renderRoster();renderLog();renderMeters();renderBoard();renderNetworkSummary();renderPlayerBox();$("#ballotBtn").disabled=S.over;["actSound","actNetwork","actAssure","actFloat","actDiscourage","actRest"].forEach(id=>{const b=$("#"+id);if(b)b.disabled=!actionEnabled()});const transfer=$("#actTransfer");transfer.disabled=!actionEnabled()||S.player.withdrawn;transfer.textContent=S.player.withdrawn?`Support transferred to ${ID[S.player.transferTo].short}`:"Transfer support";}
+function renderAll(){if(!S)return;$("#dateLabel").textContent=phaseName()+` · scrutiny ${S.ballotNo+1} pending`;$("#apwrap").innerHTML=`Conversation windows ${S.ap} `+"<span class='pip'></span>".repeat(S.ap)+"<span class='pip spent'></span>".repeat(Math.max(0,3-S.ap));renderRoster();renderLog();renderMeters();renderBoard();renderNetworkSummary();renderPlayerBox();$("#ballotBtn").disabled=S.over;["actSound","actNetwork","actFloat","actDiscourage","actRest"].forEach(id=>{const b=$("#"+id);if(b)b.disabled=!actionEnabled()});const transfer=$("#actTransfer");transfer.disabled=!actionEnabled()||S.player.withdrawn;transfer.textContent=S.player.withdrawn?`Support transferred to ${ID[S.player.transferTo].short}`:"Transfer support";}
 function openManual(){
-	openModal("How this 1978 build works", `<div class="manual"><p><b>Ballots and secrecy:</b> every scrutiny is a full one-name ballot by all 111 electors. Aggregate model counts are visible after each scrutiny; the generated identity-level roll stays sealed until the election ends. Historical individual ballots remain unknown.</p><p><b>No simony economy:</b> your currency is stature, trust, discretion, assurances, fatigue and the ability to reassure networks.</p><p><b>All 111 are playable:</b> the model does not hard-ban any elector from election. Obscure or implausible figures require a favourable seed, high trust, low exposure, and sustained network work.</p><h4>Reading the room</h4><p><b>Soundings</b> are fallible snapshots, not access to an elector's code. A second conversation narrows uncertainty, but the report can still be wrong and becomes stale after a scrutiny.</p><p><b>Networks</b> are relationships and shared ecclesial concerns. Your own networks are marked. Membership, trust and discretion raise the displayed chance of full access; high exposure lowers it.</p><p><b>Votes</b> are literal model counts. <b>Meters</b> describe the climate of the College rather than combining into a hidden score. A high Italian lock does not elect anyone by itself, but it makes non-Italian candidates harder to sell.</p><p><b>Opening papabile profile</b> is a qualitative starting read: long shot, possible, papabile, or front-runner. It is not a fixed ceiling.</p><p><b>Dossier positions</b> describe direction: for example, "conciliar" is a modelled position on Vatican II. It does not mean the topic is weighted very highly, nor that the cardinal ranks highly among his peers.</p><p><b>The historical pull:</b> Siri and Benelli begin strong, the Italian lock fractures, and Wojtyła becomes increasingly thinkable. The player can derail this, but must provide a more credible settlement.</p><h4>Actions</h4><p><b>Shape a candidacy</b> changes what a name is understood to stand for, with modest momentum and exposure. <b>Promote a name</b> raises visibility and momentum more directly, but is easier to trace. Network work moves blocs; discouraging rivals is risky; transfer lets a blocked candidate become kingmaker.</p></div>`,[{label:"Extra omnes."}])
+	openModal("How this 1978 build works", `<div class="manual"><p><b>Ballots and secrecy:</b> every scrutiny is a full one-name ballot by all 111 electors. Aggregate model counts are visible after each scrutiny; the generated identity-level roll stays sealed until the election ends. Historical individual ballots remain unknown.</p><p><b>No simony economy:</b> your currency is stature, trust, discretion, assurances, fatigue and the ability to reassure networks.</p><p><b>All 111 are playable:</b> the model does not hard-ban any elector from election. Obscure or implausible figures require a favourable seed, high trust, low exposure, and sustained network work.</p><h4>Reading the room</h4><p><b>Soundings</b> are fallible snapshots, not access to an elector's code. A second conversation narrows uncertainty, but the report can still be wrong and becomes stale after a scrutiny.</p><p><b>Networks</b> are relationships and shared ecclesial concerns. Your own networks are marked. Membership, trust and discretion raise the displayed chance of full access; high exposure lowers it.</p><p><b>Votes</b> are literal model counts. <b>Meters</b> describe the climate of the College rather than combining into a hidden score. A high Italian lock does not elect anyone by itself, but it makes non-Italian candidates harder to sell.</p><p><b>Opening papabile profile</b> is a qualitative starting read: long shot, possible, papabile, or front-runner. It is not a fixed ceiling.</p><p><b>Dossier positions</b> describe direction: for example, "conciliar" is a modelled position on Vatican II. It does not mean the topic is weighted very highly, nor that the cardinal ranks highly among his peers.</p><p><b>The historical pull:</b> Siri and Benelli begin strong, the Italian lock fractures, and Wojtyła becomes increasingly thinkable. The player can derail this, but must provide a more credible settlement.</p><h4>Actions</h4><p><b>Work a network</b> lets you choose any active cause, approach a faction or network, and tailor the assurance made for that candidate. <b>Promote a name</b> raises visibility and momentum more directly, but is easier to trace. Discouraging rivals is risky; transfer lets a blocked candidate become kingmaker.</p></div>`,[{label:"Extra omnes."}])
 }
 function endBody1978(w,me,name){
 	const isMe=w.id===me.id;
@@ -1200,8 +1209,8 @@ function runHeadless(seed,playerId,maxBallots=20){
 	return {seed:S.seed,playerId:S.playerId,winner:S.electedId,papalName:S.papalName,ballots:S.ballotNo,history:S.history.map(h=>({ballot:h.ballot,roll:{...h.roll},counts:{...h.counts}})),over:S.over};
 }
 function startGame(){if(!pickedId)return;initState(pickedId,$("#seedin").value.trim()||Math.floor(Math.random()*1e9));$("#screen-select").classList.add("hidden");$("#screen-game").classList.remove("hidden");renderAll();if(typeof window!=="undefined"&&window.scrollTo)window.scrollTo({top:0,left:0})}
-function boot(){renderSelect();$("#startbtn").onclick=startGame;$("#resumeBtn").onclick=resumeGame;if(hasSave())$("#resumeBtn").classList.remove("hidden");$("#helpSelect").onclick=openManual;$("#manualBtn").onclick=openManual;$("#saveBtn").onclick=saveGame;$("#actSound").onclick=doSound;$("#actNetwork").onclick=doNetwork;$("#actAssure").onclick=doAssure;$("#actFloat").onclick=doFloat;$("#actDiscourage").onclick=doDiscourage;$("#actRest").onclick=doRest;$("#actTransfer").onclick=doTransfer;$("#worldBtn").onclick=showWorld;$("#ballotBtn").onclick=runBallotModal;$("#rosterSearch").addEventListener("input",renderRoster);$("#again").onclick=()=>location.reload();$("#exportLog").onclick=exportChronicle;}
-const OCTOBER_1978_ENGINE={ELECTORS,ID,THRESHOLD,initState,runBallot,runHeadless,topPreference,voterUtility,baseUtility,ballotScore,legalCandidateFor,papalNameForState,validateSavedState,makeSounding,playerNetworks,sharedNetworks,profileAlignment,networkAccess,workNetwork,portraitFor,scoreGame,axisPosition,getState:()=>S};
+function boot(){renderSelect();$("#startbtn").onclick=startGame;$("#resumeBtn").onclick=resumeGame;if(hasSave())$("#resumeBtn").classList.remove("hidden");$("#helpSelect").onclick=openManual;$("#manualBtn").onclick=openManual;$("#saveBtn").onclick=saveGame;$("#actSound").onclick=doSound;$("#actNetwork").onclick=doNetwork;$("#actFloat").onclick=doFloat;$("#actDiscourage").onclick=doDiscourage;$("#actRest").onclick=doRest;$("#actTransfer").onclick=doTransfer;$("#worldBtn").onclick=showWorld;$("#ballotBtn").onclick=runBallotModal;$("#rosterSearch").addEventListener("input",renderRoster);$("#again").onclick=()=>location.reload();$("#exportLog").onclick=exportChronicle;}
+const OCTOBER_1978_ENGINE={ELECTORS,ID,THRESHOLD,initState,runBallot,runHeadless,topPreference,voterUtility,baseUtility,ballotScore,legalCandidateFor,papalNameForState,validateSavedState,makeSounding,playerNetworks,sharedNetworks,profileAlignment,networkAccess,workNetwork,sortedCountEntries,portraitFor,scoreGame,axisPosition,getState:()=>S};
 if(typeof module!=="undefined")module.exports=OCTOBER_1978_ENGINE;
 if(typeof window!=="undefined")window.__om=OCTOBER_1978_ENGINE;
 if(typeof document!=="undefined"){if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();}

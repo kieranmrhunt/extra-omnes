@@ -384,7 +384,7 @@ function runTargetedChecks(variant, api) {
 		return ["portrait-lookup", "cardinal-alignment", "pressure-explanations", "pressure-ledger", "uncertain-soundings", "action-route-copy", "network-membership", "network-determinism", "player-ballot-preserved", "player-candidacy-viability", "end-score"];
 	}
 	if (variant.label === "october-1978") {
-		assert(typeof api.initState === "function" && typeof api.runBallot === "function" && typeof api.getState === "function" && typeof api.makeSounding === "function" && typeof api.networkAccess === "function" && typeof api.workNetwork === "function" && typeof api.portraitFor === "function" && typeof api.scoreGame === "function", "October 1978: targeted-test API is not exported");
+		assert(typeof api.initState === "function" && typeof api.runBallot === "function" && typeof api.getState === "function" && typeof api.makeSounding === "function" && typeof api.networkAccess === "function" && typeof api.workNetwork === "function" && typeof api.sortedCountEntries === "function" && typeof api.portraitFor === "function" && typeof api.scoreGame === "function", "October 1978: targeted-test API is not exported");
 		assert(cardList(api).length === 111 && api.THRESHOLD === 75, "October 1978: electorate or two-thirds-plus-one threshold is wrong");
 		const portraits = api.ELECTORS.map((cardinal) => ({ cardinal, portrait: api.portraitFor(cardinal.id) }));
 		const missingPortraits = portraits.filter(({ cardinal, portrait }) => !portrait || portrait.src !== `assets/portraits/1978/${cardinal.id}.webp` || !/en\.wikipedia\.org/.test(portrait.wikipedia || "") || !fs.existsSync(path.join(ROOT, portrait.src)));
@@ -393,6 +393,11 @@ function runTargetedChecks(variant, api) {
 		const octoberSource = fs.readFileSync(path.join(ROOT, variant.file), "utf8");
 		const startbarRule = octoberSource.match(/\.startbar\{([^}]*)\}/);
 		assert(startbarRule && /position:sticky/.test(startbarRule[1]) && /z-index:35/.test(startbarRule[1]) && /isolation:isolate/.test(startbarRule[1]), "October 1978: portrait cards can overlap the sticky chooser");
+		assert(!/id="actAssure"/.test(octoberSource) && /Work for whose cause\?/.test(octoberSource), "October 1978: network work and candidacy shaping have not been merged");
+		assert(/Filter cardinals by faction or network/.test(octoberSource), "October 1978: cardinal pickers have no faction/network filter");
+		assert(!/No king sends a veto/.test(octoberSource), "October 1978: obsolete veto copy remains in the world-outside panel");
+		const completeTally = api.sortedCountEntries({ siri: 20, benelli: 12, ciappi: 1 });
+		assert(completeTally.length === 3 && completeTally.at(-1)[0] === "ciappi" && completeTally.at(-1)[1] === 1 && !/entries\.slice\(0,14\)/.test(octoberSource), "October 1978: one-vote candidates can disappear from the scrutiny tally");
 		api.initState("villot", "october-soundings", { headless: true });
 		const soundingState = JSON.stringify(api.getState());
 		const soundingA = api.makeSounding("siri", 1);
@@ -402,10 +407,13 @@ function runTargetedChecks(variant, api) {
 		assert(api.playerNetworks().includes("Curia") && api.playerNetworks().includes("Montinian"), "October 1978: Villot's modelled networks are not exposed");
 		assert(api.networkAccess("Curia") > api.networkAccess("Africa"), "October 1978: membership does not improve network access");
 		api.initState("villot", "october-network", { headless: true });
-		const networkA = api.workNetwork("Curia", "curia", "villot");
+		const targetBefore = api.getState().visibility.benelli;
+		const playerBefore = api.getState().visibility.villot;
+		const networkA = api.workNetwork("Curia", "curia", "benelli");
+		assert(networkA.candidateId === "benelli" && api.getState().visibility.benelli > targetBefore && api.getState().visibility.villot === playerBefore, "October 1978: network work cannot promote another cardinal without promoting the player");
 		const networkStateA = JSON.stringify(api.getState());
 		api.initState("villot", "october-network", { headless: true });
-		const networkB = api.workNetwork("Curia", "curia", "villot");
+		const networkB = api.workNetwork("Curia", "curia", "benelli");
 		assert(JSON.stringify(networkA) === JSON.stringify(networkB) && networkStateA === JSON.stringify(api.getState()), "October 1978: network action is not seed-deterministic");
 		api.initState("villot", "october-player-ballot", { headless: true });
 		let submitted = null;
@@ -425,7 +433,7 @@ function runTargetedChecks(variant, api) {
 		const score = api.scoreGame(api.getState());
 		assert(Number.isFinite(score.total) && score.parts.reduce((sum, part) => sum + part.points, 0) === score.total && score.verdict && score.verdict.grade, "October 1978: end score is invalid");
 		assert(/conciliar/.test(api.axisPosition("vatican2", 1.8)) && !/high|middle/.test(api.axisPosition("vatican2", 1.8)), "October 1978: dossier axes still use ambiguous magnitude labels");
-		return ["full-portrait-coverage", "portrait-links", "chooser-stacking", "uncertain-soundings", "network-membership", "network-determinism", "player-ballot-preserved", "terminal-guard", "papal-name", "end-score", "directional-profile"];
+		return ["full-portrait-coverage", "portrait-links", "chooser-stacking", "merged-network-action", "faction-picker-filter", "world-copy", "complete-tally", "uncertain-soundings", "network-membership", "third-party-network-cause", "network-determinism", "player-ballot-preserved", "terminal-guard", "papal-name", "end-score", "directional-profile"];
 	}
 	if (variant.label === "constance-1417") {
 		assert(typeof api.initState === "function" && typeof api.beginScrutiny === "function" && typeof api.playerAccede === "function" && typeof api.makeSounding === "function" && typeof api.thresholds === "function" && typeof api.electedNow === "function" && typeof api.validateData === "function" && typeof api.scoreGame === "function" && typeof api.papalNameForState === "function", "Constance: targeted-test API is not exported");
