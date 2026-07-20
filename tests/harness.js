@@ -386,8 +386,10 @@ function runTargetedChecks(variant, api) {
 	if (variant.label === "october-1978") {
 		assert(typeof api.initState === "function" && typeof api.runBallot === "function" && typeof api.getState === "function" && typeof api.makeSounding === "function" && typeof api.networkAccess === "function" && typeof api.workNetwork === "function" && typeof api.portraitFor === "function" && typeof api.scoreGame === "function", "October 1978: targeted-test API is not exported");
 		assert(cardList(api).length === 111 && api.THRESHOLD === 75, "October 1978: electorate or two-thirds-plus-one threshold is wrong");
-		const portrait = api.portraitFor("villot");
-		assert(portrait && /assets\/portraits\/1978\/villot\.webp$/.test(portrait.src) && /en\.wikipedia\.org/.test(portrait.wikipedia) && !("source" in portrait) && api.portraitFor("sidarouss") === null, "October 1978: portrait link or fallback is invalid");
+		const portraits = api.ELECTORS.map((cardinal) => ({ cardinal, portrait: api.portraitFor(cardinal.id) }));
+		const missingPortraits = portraits.filter(({ cardinal, portrait }) => !portrait || portrait.src !== `assets/portraits/1978/${cardinal.id}.webp` || !/en\.wikipedia\.org/.test(portrait.wikipedia || "") || !fs.existsSync(path.join(ROOT, portrait.src)));
+		assert(missingPortraits.length === 0, `October 1978: missing or invalid portraits for ${missingPortraits.map(({ cardinal }) => cardinal.id).join(", ")}`);
+		assert(portraits.every(({ portrait }) => !("source" in portrait)), "October 1978: visible portrait source labels have returned");
 		api.initState("villot", "october-soundings", { headless: true });
 		const soundingState = JSON.stringify(api.getState());
 		const soundingA = api.makeSounding("siri", 1);
@@ -420,7 +422,7 @@ function runTargetedChecks(variant, api) {
 		const score = api.scoreGame(api.getState());
 		assert(Number.isFinite(score.total) && score.parts.reduce((sum, part) => sum + part.points, 0) === score.total && score.verdict && score.verdict.grade, "October 1978: end score is invalid");
 		assert(/conciliar/.test(api.axisPosition("vatican2", 1.8)) && !/high|middle/.test(api.axisPosition("vatican2", 1.8)), "October 1978: dossier axes still use ambiguous magnitude labels");
-		return ["portrait-lookup", "uncertain-soundings", "network-membership", "network-determinism", "player-ballot-preserved", "terminal-guard", "papal-name", "end-score", "directional-profile"];
+		return ["full-portrait-coverage", "portrait-links", "uncertain-soundings", "network-membership", "network-determinism", "player-ballot-preserved", "terminal-guard", "papal-name", "end-score", "directional-profile"];
 	}
 	if (variant.label === "constance-1417") {
 		assert(typeof api.initState === "function" && typeof api.beginScrutiny === "function" && typeof api.playerAccede === "function" && typeof api.makeSounding === "function" && typeof api.thresholds === "function" && typeof api.electedNow === "function" && typeof api.validateData === "function" && typeof api.scoreGame === "function" && typeof api.papalNameForState === "function", "Constance: targeted-test API is not exported");
