@@ -76,6 +76,7 @@ These games mix historical reconstruction with counterfactual play. Each variant
 
 ### Provenance spine
 
+- **Directory artwork:** Semeghini Defendi, *Il Conclave del 1878: La sala dello scrutinio nella Cappella Sistina*, first published in *L'Illustrazione Italiana* in March 1878; public domain via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Il_Conclave_del_1878._La_sala_dello_scrutinio_nella_Cappella_Sistina_(xilografia).jpg). The deployed WebP is resized and compressed from the archival scan.
 - **1492:** Francis A. Burkle-Young / *The Cardinals of the Holy Roman Church*; Ludwig von Pastor, *History of the Popes*, vol. V; Kenneth Setton; the standard 1492-conclave literature. Individual relationships, prices and dialogue are modelled where the record is incomplete.
 - **1268–71:** J. P. Adams, *Sede Vacante 1268–1271*; Richard Sternfeld; Cristofori; Burkle-Young. The page itself labels documented events, modelled tallies and later legends separately.
 - **1559:** Salvador Miranda's conclave roster; Ludwig von Pastor; Kenneth Setton, *The Papacy and the Levant*; surviving diplomatic and conclave narratives. The exact ordinary ballot rolls are modelled, while the documented acclamation and confirmatory scrutiny anchor the ending.

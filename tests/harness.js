@@ -794,7 +794,12 @@ function checkStaticFiles() {
 		assert(/aria-live=/.test(html), `${variant.label}: toast/status announcements are not exposed to assistive technology`);
 		assert(/prefers-reduced-motion/.test(html), `${variant.label}: no reduced-motion support`);
 	}
+	const romanDates = {1268:"MCCLXVIII",1378:"MCCCLXXVIII",1417:"MCDXVII",1458:"MCDLVIII",1492:"MCDXCII",1559:"MDLIX",1800:"MDCCC",1903:"MCMIII",1978:"MCMLXXVIII"};
+	for (const [year, roman] of Object.entries(romanDates)) assert(index.includes(`<span class="year">${year}</span><span class="roman">${roman}</span>`), `index: missing Roman date ${roman} for ${year}`);
+	assert(index.includes("The Keys of Heaven"), "index: 1492 still lacks its distinctive title");
+	assert(index.includes("assets/art/conclave-1878.webp") && fs.existsSync(path.join(ROOT, "assets", "art", "conclave-1878.webp")), "index: historical header engraving is missing");
 	const anchors = {
+		"1492.html": ["The Keys of Heaven"],
 		"carafa-winter-1559.html": ["Porto e Santa Rufina", "S. Maria Nuova", "Marcellus III"],
 		"venice-1800.html": ["Gregory XVI", "Leo XII"],
 		"october-1978.html": ["Paul VII", "John XXIV", "Pius XIII"],

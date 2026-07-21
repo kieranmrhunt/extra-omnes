@@ -3,22 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Extra Omnes: playable browser simulations of eight historical papal conclaves.">
+<meta name="description" content="Extra Omnes: playable browser simulations of nine historical papal conclaves.">
 <title>Extra Omnes — Conclave Directory</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=EB+Garamond:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#131019;
-    --panel:#1b1722;
-    --panel2:#241e2e;
-    --line:#3a3147;
-    --parch:#efe3c4;
-    --muted:#cdbd97;
-    --faint:#9c8f72;
-    --scarlet:#971722;
-    --gold:#c9a14f;
-    --green:#7fae6f;
+    --ink:#120e0b;
+    --panel:#201814;
+    --panel2:#2a2019;
+    --line:#554331;
+    --parch:#f2e7ca;
+    --muted:#d3c29f;
+    --faint:#a49270;
+    --scarlet:#a32732;
+    --scarlet-dark:#65161d;
+    --gold:#d1aa52;
+    --green:#5f806e;
     --serif:"EB Garamond",Georgia,"Times New Roman",serif;
     --disp:"Fraunces","EB Garamond",Georgia,serif;
     --mono:"IBM Plex Mono","Courier New",monospace;
@@ -27,10 +28,10 @@
   body{
     margin:0;
     min-height:100vh;
+    overflow-x:hidden;
     color:var(--parch);
     background:
-      linear-gradient(90deg, rgba(239,227,196,.035) 1px, transparent 1px) 0 0/54px 54px,
-      radial-gradient(ellipse 90% 58% at 50% -12%, #2a2138 0%, transparent 62%),
+      repeating-linear-gradient(0deg,rgba(242,231,202,.018) 0,rgba(242,231,202,.018) 1px,transparent 1px,transparent 5px),
       var(--ink);
     font-family:var(--serif);
     font-size:18px;
@@ -40,17 +41,21 @@
   a:focus-visible{outline:3px solid var(--gold);outline-offset:4px}
   .skip-link{position:fixed;left:16px;top:12px;z-index:20;padding:8px 12px;background:var(--parch);color:var(--ink);font-family:var(--mono);font-size:12px;transform:translateY(-180%)}
   .skip-link:focus{transform:translateY(0)}
-  .wrap{width:min(1120px, calc(100% - 32px));margin:0 auto;padding:24px 0 54px}
+  .wrap{width:min(1120px, calc(100% - 32px));margin:0 auto;padding:0 0 54px}
   header{
     display:flex;
     justify-content:space-between;
     align-items:center;
     gap:20px;
-    padding:0 0 22px;
+    min-height:76px;
+    padding:14px 0;
     border-bottom:1px solid var(--line);
   }
   .header-nav{width:100%;display:flex;justify-content:space-between;align-items:center;gap:20px}
   .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
     text-decoration:none;
     font-family:var(--mono);
     font-size:12px;
@@ -58,32 +63,61 @@
     text-transform:uppercase;
     color:var(--gold);
   }
+  .brand-mark{
+    display:grid;
+    place-items:center;
+    width:30px;
+    height:30px;
+    border:1px solid var(--scarlet);
+    color:var(--parch);
+    font-family:var(--serif);
+    font-size:19px;
+    line-height:1;
+  }
+  .brand-copy{display:flex;flex-direction:column;gap:2px}
+  .brand-copy small{font-size:8.5px;letter-spacing:.18em;color:var(--faint)}
   .home{
     text-decoration:none;
     font-family:var(--mono);
     font-size:12px;
     color:var(--muted);
   }
-  .hero{padding:62px 0 36px;max-width:820px}
+  .hero{
+    position:relative;
+    isolation:isolate;
+    width:100vw;
+    min-height:430px;
+    margin-left:calc(50% - 50vw);
+    display:flex;
+    align-items:flex-end;
+    background:
+      linear-gradient(90deg,rgba(18,14,11,.96) 0%,rgba(18,14,11,.83) 46%,rgba(18,14,11,.34) 100%),
+      linear-gradient(0deg,rgba(18,14,11,.72) 0%,transparent 55%),
+      url("./assets/art/conclave-1878.webp") center 48%/cover no-repeat;
+    border-bottom:1px solid var(--line);
+  }
+  .hero-inner{width:min(1120px,calc(100% - 32px));margin:0 auto;padding:66px 0 58px}
+  .hero-copy{max-width:680px;border-left:3px solid var(--scarlet);padding-left:24px}
   .eyebrow{
     font-family:var(--mono);
     font-size:12px;
     letter-spacing:.26em;
     text-transform:uppercase;
     color:var(--gold);
-    margin-bottom:14px;
+    margin-bottom:16px;
   }
   h1{
     font-family:var(--disp);
     font-weight:700;
-    font-size:72px;
+    font-size:76px;
     line-height:.96;
     margin:0;
     color:var(--parch);
   }
+  h1 em{font-style:normal;color:var(--gold)}
   .lede{margin:20px 0 0;max-width:60ch;color:var(--muted);font-size:20px}
-  .status-groups{margin-top:34px}
-  .status-group + .status-group{margin-top:34px}
+  .status-groups{margin-top:30px}
+  .status-group + .status-group{margin-top:38px}
   .group-heading{
     display:flex;
     align-items:baseline;
@@ -98,6 +132,7 @@
     line-height:1;
     color:var(--parch);
   }
+  .group-heading h2::before{content:"✠";margin-right:9px;color:var(--scarlet);font-size:.72em;vertical-align:.08em}
   .group-count{
     font-family:var(--mono);
     font-size:10.5px;
@@ -112,43 +147,61 @@
     margin-top:14px;
   }
   .card{
+    --accent:var(--gold);
+    position:relative;
     min-height:238px;
     display:flex;
     flex-direction:column;
     text-decoration:none;
     background:linear-gradient(160deg,var(--panel),var(--panel2));
     border:1px solid var(--line);
-    border-top:4px solid var(--gold);
-    border-radius:6px;
-    padding:16px;
+    border-top:3px solid var(--accent);
+    border-radius:4px;
+    padding:17px 18px 16px;
+    box-shadow:inset 0 0 0 1px rgba(242,231,202,.025);
+    overflow:hidden;
+    transition:transform .16s ease,border-color .16s ease,background .16s ease;
   }
-  .card:hover,.card:focus-visible{border-color:var(--gold);background:linear-gradient(160deg,#211b2a,#2c2438)}
-  .card.beta,.card.alpha{border-top-color:var(--scarlet)}
+  .card::after{content:"✠";position:absolute;right:13px;bottom:3px;color:rgba(209,170,82,.07);font-family:var(--serif);font-size:74px;line-height:1;pointer-events:none}
+  .card:hover,.card:focus-visible{transform:translateY(-2px);border-color:var(--accent);background:linear-gradient(160deg,#281e18,#31241c)}
+  .card.beta{--accent:var(--green)}
+  .card.alpha{--accent:var(--scarlet)}
+  .card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .date-mark{display:flex;flex-direction:column;align-items:flex-start}
   .year{
     font-family:var(--disp);
     font-size:42px;
     font-weight:700;
     line-height:1;
   }
+  .roman{
+    margin-top:5px;
+    font-family:var(--mono);
+    font-size:10px;
+    font-weight:500;
+    line-height:1;
+    letter-spacing:.19em;
+    color:var(--gold);
+  }
   .status{
-    margin-top:10px;
+    margin-top:2px;
     width:max-content;
     font-family:var(--mono);
     font-size:10.5px;
     letter-spacing:.14em;
     text-transform:uppercase;
     color:var(--ink);
-    background:var(--gold);
-    border-radius:3px;
+    background:var(--accent);
+    border-radius:2px;
     padding:3px 7px;
   }
-  .beta .status,.alpha .status{background:var(--scarlet);color:var(--parch)}
+  .beta .status,.alpha .status{color:var(--parch)}
   .card h3{
     font-family:var(--disp);
     font-weight:700;
     font-size:25px;
     line-height:1.05;
-    margin:18px 0 8px;
+    margin:21px 0 8px;
   }
   p{margin:0;color:var(--muted);font-size:15.5px}
   .open{
@@ -166,8 +219,10 @@
     font-family:var(--mono);
     font-size:12px;
   }
-  @media(max-width:880px){.grid{grid-template-columns:1fr 1fr}h1{font-size:54px}}
-  @media(max-width:560px){.header-nav{display:block}.home{display:inline-block;margin-top:10px}.grid{grid-template-columns:1fr}h1{font-size:42px}.hero{padding-top:42px}}
+  footer a{color:var(--muted)}
+  .art-credit{display:block;margin-top:6px;font-size:10px}
+  @media(max-width:880px){.grid{grid-template-columns:1fr 1fr}h1{font-size:60px}.hero{min-height:400px;background-position:58% 48%}}
+  @media(max-width:560px){.grid{grid-template-columns:1fr}h1{font-size:48px}.hero{min-height:385px;background-position:63% 48%}.hero-inner{padding:52px 0 46px}.hero-copy{padding-left:17px}.lede{font-size:18px}.card{min-height:224px}}
   @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 </style>
 </head>
@@ -176,15 +231,19 @@
   <div class="wrap">
     <header>
       <nav class="header-nav" aria-label="Project navigation">
-        <a class="brand" href="./index.html">Extra Omnes</a>
+        <a class="brand" href="./index.html"><span class="brand-mark" aria-hidden="true">✠</span><span class="brand-copy"><span>Extra Omnes</span><small>Conclave archive</small></span></a>
         <a class="home" href="https://kieranmrhunt.github.io/">All projects</a>
       </nav>
     </header>
     <main>
-      <section class="hero">
-        <div class="eyebrow">Conclave simulations</div>
-        <h1>Choose a year</h1>
-        <p class="lede">Nine playable political simulations built around historical papal elections. The 1492 game is the stable baseline; the other eight are actively developed editions with automated ballot-integrity checks.</p>
+      <section class="hero" aria-labelledby="directory-title">
+        <div class="hero-inner">
+          <div class="hero-copy">
+            <div class="eyebrow">Papal elections · MCCLXVIII–MCMLXXVIII</div>
+            <h1 id="directory-title">Extra <em>Omnes</em></h1>
+            <p class="lede">Nine playable political simulations of the College of Cardinals in conclave. The 1492 game is the stable baseline; the other eight are actively developed editions with automated ballot-integrity checks.</p>
+          </div>
+        </div>
       </section>
       <div class="status-groups" id="years" aria-label="Available Extra Omnes years">
         <section class="status-group" aria-labelledby="complete-heading">
@@ -194,10 +253,9 @@
           </div>
           <div class="grid">
             <a class="card" href="./1492.html">
-              <span class="year">1492</span>
-              <span class="status">Complete</span>
-              <h3>Conclave 1492</h3>
-              <p>The original Extra Omnes simulation.</p>
+              <span class="card-head"><span class="date-mark"><span class="year">1492</span><span class="roman">MCDXCII</span></span><span class="status">Complete</span></span>
+              <h3>The Keys of Heaven</h3>
+              <p>Rome, 1492: twenty-three princes, one throne and five days of bargaining for the keys of St Peter.</p>
               <span class="open">Open year</span>
             </a>
           </div>
@@ -210,8 +268,7 @@
           </div>
           <div class="grid">
             <a class="card beta" href="./1903.html">
-              <span class="year">1903</span>
-              <span class="status">Beta</span>
+              <span class="card-head"><span class="date-mark"><span class="year">1903</span><span class="roman">MCMIII</span></span><span class="status">Beta</span></span>
               <h3>The Last Veto</h3>
               <p>Rome, 1903: Rampolla, Sarto and the final imperial veto.</p>
               <span class="open">Open beta</span>
@@ -226,50 +283,43 @@
           </div>
           <div class="grid">
             <a class="card alpha" href="./viterbo-1268.html">
-              <span class="year">1268</span>
-              <span class="status">Alpha</span>
+              <span class="card-head"><span class="date-mark"><span class="year">1268</span><span class="roman">MCCLXVIII</span></span><span class="status">Alpha</span></span>
               <h3>Viterbo</h3>
               <p>Viterbo, 1268–71: deadlock, illness, enclosure and a city running out of patience.</p>
               <span class="open">Open alpha</span>
             </a>
             <a class="card alpha" href="./april-1378.html">
-              <span class="year">1378</span>
-              <span class="status">Alpha</span>
+              <span class="card-head"><span class="date-mark"><span class="year">1378</span><span class="roman">MCCCLXXVIII</span></span><span class="status">Alpha</span></span>
               <h3>The Broken Conclave</h3>
               <p>Rome, April 1378: sixteen electors, an armed piazza at the doors, one documented scrutiny — and the disputed election that led to the Great Schism.</p>
               <span class="open">Open alpha</span>
             </a>
             <a class="card alpha" href="./constance-1417.html">
-              <span class="year">1417</span>
-              <span class="status">Alpha</span>
+              <span class="card-head"><span class="date-mark"><span class="year">1417</span><span class="roman">MCDXVII</span></span><span class="status">Alpha</span></span>
               <h3>Constance</h3>
               <p>Constance, 1417: fifty-three electors, six locks, and the end of the Great Schism.</p>
               <span class="open">Open alpha</span>
             </a>
             <a class="card alpha" href="./accession-1458.html">
-              <span class="year">1458</span>
-              <span class="status">Alpha</span>
+              <span class="card-head"><span class="date-mark"><span class="year">1458</span><span class="roman">MCDLVIII</span></span><span class="status">Alpha</span></span>
               <h3>The Accession</h3>
               <p>Rome, 1458: eighteen cardinals, a latrine pact and the public arithmetic of the <i>accessio</i>.</p>
               <span class="open">Open alpha</span>
             </a>
             <a class="card alpha" href="./carafa-winter-1559.html">
-              <span class="year">1559</span>
-              <span class="status">Alpha</span>
+              <span class="card-head"><span class="date-mark"><span class="year">1559</span><span class="roman">MDLIX</span></span><span class="status">Alpha</span></span>
               <h3>The Carafa Winter</h3>
               <p>Rome, 1559: forty electors, factional winter and the collapse of the Carafa regime.</p>
               <span class="open">Open alpha</span>
             </a>
             <a class="card alpha" href="./venice-1800.html">
-              <span class="year">1800</span>
-              <span class="status">Alpha</span>
+              <span class="card-head"><span class="date-mark"><span class="year">1800</span><span class="roman">MDCCC</span></span><span class="status">Alpha</span></span>
               <h3>Venice</h3>
               <p>Venice, 1799–1800: an exiled college negotiates between Vienna and compromise.</p>
               <span class="open">Open alpha</span>
             </a>
             <a class="card alpha" href="./october-1978.html">
-              <span class="year">1978</span>
-              <span class="status">Alpha</span>
+              <span class="card-head"><span class="date-mark"><span class="year">1978</span><span class="roman">MCMLXXVIII</span></span><span class="status">Alpha</span></span>
               <h3>October 1978</h3>
               <p>Rome, October 1978: the second conclave of a volatile year and a divided college.</p>
               <span class="open">Open alpha</span>
@@ -278,7 +328,7 @@
         </section>
       </div>
     </main>
-    <footer>Roster facts and documented events are distinguished in each game from inferred relationships and modelled ballots.</footer>
+    <footer>Roster facts and documented events are distinguished in each game from inferred relationships and modelled ballots.<span class="art-credit">Header engraving: Semeghini Defendi, <a href="https://commons.wikimedia.org/wiki/File:Il_Conclave_del_1878._La_sala_dello_scrutinio_nella_Cappella_Sistina_(xilografia).jpg">the scrutiny room in the Sistine Chapel, 1878</a> · public domain.</span></footer>
   </div>
 </body>
 </html>
