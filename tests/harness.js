@@ -38,6 +38,7 @@ const VARIANTS = [
 	{ file: "venice-1800.html", label: "venice-1800", modeLabel: "historical-pressure simulation", players: ["bellisomi", "mattei", "chiaramonti"], quickPlayer: "chiaramonti", maxPicks: () => 1, threshold: (n) => Math.ceil(n * 2 / 3) },
 	{ file: "1903.html", label: "1903", modeLabel: "historical", players: ["rampolla", "sarto", "gibbons"], quickPlayer: "sarto", maxPicks: () => 1, threshold: (n) => Math.ceil(n * 2 / 3) },
 	{ file: "october-1978.html", label: "october-1978", modeLabel: "historical pressure with active player", players: ["siri", "benelli", "wojtyla"], quickPlayer: "wojtyla", maxPicks: () => 1, threshold: (n) => Math.floor(n * 2 / 3) + 1 },
+	{ file: "may-2025.html", label: "may-2025", modeLabel: "historical reconstruction with open counterfactual play", players: ["parolin", "prevost", "tagle"], quickPlayer: "prevost", maxPicks: () => 1, threshold: (n) => Math.ceil(n * 2 / 3) },
 	{ file: "constance-1417.html", label: "constance-1417", modeLabel: "historical", players: ["colonna", "dailly", "polton"], quickPlayer: "colonna", maxPicks: () => 3, threshold: (n) => Math.ceil(n * 2 / 3) },
 	{ file: "accession-1458.html", label: "accession-1458", modeLabel: "open simulation", players: ["piccolomini", "estouteville", "borgia"], quickPlayer: "piccolomini", maxPicks: () => 1, threshold: (n) => Math.ceil(n * 2 / 3) },
 	{ file: "april-1378.html", label: "april-1378", modeLabel: "open simulation", players: ["deluna", "orsini", "geneva"], quickPlayer: "deluna", maxPicks: () => 1, threshold: (n) => Math.ceil(n * 2 / 3) },
@@ -132,6 +133,10 @@ function loadVariant(file) {
 		URL,
 		URLSearchParams,
 		Blob: function Blob() {},
+		btoa(value) { return Buffer.from(String(value), "binary").toString("base64"); },
+		atob(value) { return Buffer.from(String(value), "base64").toString("binary"); },
+		escape,
+		unescape,
 	};
 	vm.createContext(context);
 	const exportProbe = `
@@ -166,9 +171,10 @@ function loadVariant(file) {
 	};`;
 	vm.runInContext(script + exportProbe, context, { filename: file, timeout: 10000 });
 	for (const callback of readyCallbacks) callback();
-	const selectionGrid = elements.get("#selgrid");
-	if (!selectionGrid || !selectionGrid.children.length) throw new Error(`${file}: UI bootstrap rendered no selection cards`);
-	return Object.assign({ __uiBooted: true, __uiCardsRendered: selectionGrid.children.length }, context.__EO_TEST_EXPORTS__, moduleObject.exports || {}, context.__om1903 || {}, context.window.__om || {});
+	const selectionGrid = elements.get("#selgrid") || elements.get("#pickgrid");
+	const renderedCards = selectionGrid ? Math.max(selectionGrid.children.length, (selectionGrid.innerHTML.match(/<(?:button|article|div)\b/gi) || []).length) : 0;
+	if (!renderedCards) throw new Error(`${file}: UI bootstrap rendered no selection cards`);
+	return Object.assign({ __uiBooted: true, __uiCardsRendered: renderedCards }, context.__EO_TEST_EXPORTS__, moduleObject.exports || {}, context.__om1903 || {}, context.window.__om || {});
 }
 
 function loadEngineWithoutDom(file) {
@@ -819,6 +825,108 @@ function runTargetedChecks(variant, api) {
 		assert(!source.includes("by exhausted acclamation"), "1458: fabricated exhausted-acclamation fallback remains");
 		return ["data-audit", "faction-arithmetic", "historical-replay", "documented-tally", "accession-order", "blank-ballot", "approval-validation", "self-accession", "uncertain-soundings", "versioned-save", "player-candidacy-viability", "end-score", "lawful-ending"];
 	}
+	if (variant.label === "may-2025") {
+		assert(typeof api.newGame === "function" && typeof api.runScrutiny === "function" && typeof api.runHeadless === "function" && typeof api.validateSavedState === "function", "May 2025: targeted-test API is not exported");
+		assert(api.validateData().length === 0 && api.ELECTORS.length === 133 && api.THRESHOLD === 89, "May 2025: roster, threshold, or data audit is invalid");
+		assert(api.DAYS.length === 15 && api.DAYS[9].n === "VIII" && api.DAYS[10].n === "IX" && api.DAYS[14].date === "Wednesday 7 May", "May 2025: general-congregation chronology is wrong");
+		assert(JSON.stringify(api.PAUSE_BALLOTS) === JSON.stringify([13, 20, 27, 34]), "May 2025: constitutional pause boundaries are wrong");
+
+		api.newGame("prevost", "2025-player-ballot");
+		api.startConclave();
+		let state = api.getState();
+		expectRejected("May 2025: a player self-vote was accepted", () => api.runScrutiny(state.player));
+		const parolin = state.byKey.parolin.ix;
+		const firstBallot = api.runScrutiny(parolin);
+		const playerEntry = firstBallot.roll.find((vote) => vote.voter === "prevost");
+		assert(playerEntry && playerEntry.candidate === "parolin", "May 2025: the submitted player ballot was rewritten");
+		state.over = true;
+		expectRejected("May 2025: a post-election scrutiny was accepted", () => api.runScrutiny(parolin));
+		api.newGame("prevost", "2025-acceptance-smoke");
+		api.startConclave();
+		state = api.getState();
+		for (let voter = 0; voter < state.electors.length; voter++) if (voter !== state.player) state.C[voter * state.electors.length + state.player] += 24;
+		api.runScrutiny(state.byKey.parolin.ix);
+		api.endSession();
+		assert(state.awaitAccept && state.smoke.state !== "white", "May 2025: white smoke appeared before the elected player accepted");
+		api.acceptElection(true, "Leo XIV");
+		assert(state.over && state.smoke.state === "white" && state.popeName === "Leo XIV", "May 2025: acceptance did not complete the election and publish white smoke");
+
+		api.newGame("prevost", "2025-soundings");
+		const soundingBefore = JSON.stringify(api.serializeGame());
+		const soundingA = api.makeSounding();
+		const soundingB = api.makeSounding();
+		assert(JSON.stringify(soundingA) === JSON.stringify(soundingB) && JSON.stringify(api.serializeGame()) === soundingBefore, "May 2025: soundings mutate state or consume simulation randomness");
+		assert(soundingA.rows.length === 5 && soundingA.rows.every((row) => Number.isInteger(row.low) && Number.isInteger(row.high) && row.low <= row.high && !("count" in row)), "May 2025: soundings expose exact or invalid forecasts");
+
+		api.newGame("prevost", "2025-save-replay");
+		api.startConclave();
+		state = api.getState();
+		api.runScrutiny(state.byKey.parolin.ix);
+		api.endSession();
+		api.advanceConclaveDay();
+		const save = api.saveCode();
+		api.runScrutiny(api.getState().byKey.parolin.ix);
+		const uninterrupted = JSON.stringify(api.serializeGame());
+		api.loadCode(save);
+		api.runScrutiny(api.getState().byKey.parolin.ix);
+		assert(JSON.stringify(api.serializeGame()) === uninterrupted, "May 2025: save/reload changed the next scrutiny or subsequent state");
+		const validSave = api.serializeGame();
+		assert(api.validateSavedState(JSON.parse(JSON.stringify(validSave))), "May 2025: a valid versioned save cannot be restored");
+		const invalidSave = JSON.parse(JSON.stringify(validSave));
+		invalidSave.CSize--;
+		assert(!api.validateSavedState(invalidSave), "May 2025: a corrupt matrix was accepted from a save");
+
+		api.newGame("tagle", "2025-unread-void");
+		api.startConclave();
+		state = api.getState();
+		const anchors = [state.byKey.parolin.ix, state.byKey.prevost.ix, state.byKey.tagle.ix, state.byKey.erdo.ix];
+		for (let voter = 0; voter < state.electors.length; voter++) {
+			let target = anchors[voter % anchors.length];
+			if (target === voter) target = anchors[(voter + 1) % anchors.length];
+			state.C[voter * state.electors.length + target] += 30;
+		}
+		api.runScrutiny(state.byKey.parolin.ix);
+		api.endSession();
+		api.advanceConclaveDay();
+		api.runScrutiny(state.byKey.parolin.ix);
+		api.runScrutiny(state.byKey.parolin.ix);
+		api.endSession();
+		state.session = "pm";
+		for (let voter = 0; voter < state.electors.length; voter++) if (voter !== state.byKey.prevost.ix) state.C[voter * state.electors.length + state.byKey.prevost.ix] += 70;
+		const decisive = api.runScrutiny(state.byKey.parolin.ix);
+		const unread = state.ballots.find((ballot) => ballot.void);
+		assert(decisive.n === 4 && unread && unread.n === 4 && unread.paperCount === 134 && unread.roll.length === 0 && Array.from(unread.counts).every((value) => value === 0), "May 2025: the void scrutiny exposes an invented unread tally");
+		assert(decisive.roll.find((vote) => vote.voter === "tagle").candidate === "parolin", "May 2025: the repeated decisive scrutiny rewrote the player's vote");
+
+		api.newGame("tagle", "2025-runoff-law");
+		api.startConclave();
+		state = api.getState();
+		const deadlockAnchors = [state.byKey.parolin.ix, state.byKey.prevost.ix, state.byKey.tagle.ix, state.byKey.erdo.ix];
+		for (let voter = 0; voter < state.electors.length; voter++) {
+			let target = deadlockAnchors[voter % deadlockAnchors.length];
+			if (target === voter) target = deadlockAnchors[(voter + 1) % deadlockAnchors.length];
+			state.C[voter * state.electors.length + target] += 35;
+		}
+		const pauses = [];
+		let scheduleGuard = 0;
+		while (api.totalValidBallots() < 34 && scheduleGuard++ < 80) {
+			if (state.session === "pause") { pauses.push(api.totalValidBallots()); api.resumeAfterPause(); continue; }
+			if (state.session === "lunch") { state.session = "pm"; state.slots = 1; state.slot = 0; continue; }
+			if (state.session === "dinner") { api.advanceConclaveDay(); continue; }
+			api.runScrutiny(state.byKey.parolin.ix);
+			if (state.pauseDue != null || api.sessionBallotsLeft() <= 0) api.endSession();
+		}
+		if (state.session === "pause") { pauses.push(api.totalValidBallots()); api.resumeAfterPause(); }
+		assert(JSON.stringify(pauses) === JSON.stringify([13, 20, 27, 34]), `May 2025: pause sequence was ${pauses.join(", ")}`);
+		assert(state.runoff && api.threshNow() === 88 && state.session === "am", "May 2025: runoff did not begin after the fourth pause with an 88-vote threshold");
+
+		const impossible = api.ELECTORS.filter((cardinal) => !api.theoreticalPlayerWin(cardinal.id));
+		assert(impossible.length === 0, `May 2025: ${impossible.length} selectable cardinals cannot theoretically win`);
+		const calibration = Array.from({ length: 24 }, (_, index) => api.runHeadless(`2025-calibration-${index}`, "prevost"));
+		assert(calibration.filter((result) => result.winner === "prevost").length >= 12 && calibration.every((result) => result.ballots >= 1 && result.ballots <= 12), "May 2025: passive historical calibration has lost the documented shape");
+		assert(calibration.every((result) => Number.isFinite(result.score.total) && result.score.grade), "May 2025: end score is invalid");
+		return ["data-audit", "chronology", "pause-law", "player-ballot-preserved", "terminal-guard", "acceptance-before-smoke", "uncertain-soundings", "exact-save-replay", "strict-save", "unread-void", "runoff-threshold", "all-player-viability", "historical-calibration", "end-score"];
+	}
 	if (variant.label === "venice-1800") {
 		assert(typeof api.initState === "function" && typeof api.conductBallot === "function" && typeof api.getState === "function" && typeof api.activeElectors === "function" && typeof api.makeSounding === "function" && typeof api.resolveNetworkAction === "function" && typeof api.alignmentWithPlayer === "function" && typeof api.supportBriefCandidates === "function" && typeof api.positionMetricDetail === "function", "Venice: targeted-test API is not exported");
 		api.initState("mattei", "venice-player-ballot", { headless: true });
@@ -963,11 +1071,11 @@ function checkStaticFiles() {
 		assert(/aria-live=/.test(html), `${variant.label}: toast/status announcements are not exposed to assistive technology`);
 		assert(/prefers-reduced-motion/.test(html), `${variant.label}: no reduced-motion support`);
 	}
-	const romanDates = {1268:"MCCLXVIII",1378:"MCCCLXXVIII",1417:"MCDXVII",1458:"MCDLVIII",1492:"MCDXCII",1559:"MDLIX",1800:"MDCCC",1903:"MCMIII",1978:"MCMLXXVIII"};
+	const romanDates = {1268:"MCCLXVIII",1378:"MCCCLXXVIII",1417:"MCDXVII",1458:"MCDLVIII",1492:"MCDXCII",1559:"MDLIX",1800:"MDCCC",1903:"MCMIII",1978:"MCMLXXVIII",2025:"MMXXV"};
 	for (const [year, roman] of Object.entries(romanDates)) assert(index.includes(`<span class="year">${year}</span><span class="roman">${roman}</span>`), `index: missing Roman date ${roman} for ${year}`);
 	assert(index.includes("The Keys of Heaven"), "index: 1492 still lacks its distinctive title");
 	assert(/class="card beta" href="\.\/constance-1417\.html"[\s\S]*?<span class="status">Beta<\/span>/.test(index), "index: Constance 1417 is not promoted to beta");
-	for (const [status, expected] of Object.entries({ complete: 1, beta: 2, alpha: 6 })) {
+	for (const [status, expected] of Object.entries({ complete: 1, beta: 2, alpha: 7 })) {
 		const section = index.match(new RegExp(`<section class="status-group" aria-labelledby="${status}-heading">([\\s\\S]*?)<\\/section>`));
 		assert(section, `index: ${status} status section is missing`);
 		const cards = (section[1].match(/<a class="card(?: [^"]*)?"/g) || []).length;
@@ -982,6 +1090,7 @@ function checkStaticFiles() {
 		"carafa-winter-1559.html": ["Porto e Santa Rufina", "S. Maria Nuova", "Marcellus III"],
 		"venice-1800.html": ["Gregory XVI", "Leo XII"],
 		"october-1978.html": ["Paul VII", "John XXIV", "Pius XIII"],
+		"may-2025.html": ["General Congregation VIII", "One paper too many", "Leo XIV"],
 		"constance-1417.html": ["Kaufhaus", "Veni Creator", "Frequens", "accedimus nos duo"],
 		"accession-1458.html": ["Et ego Senensi Cardinali accedo", "Mihi te vermiculo commendas", "Pius II"],
 		"april-1378.html": ["Romano lo volemo", "Sermo fugit a me", "ad martellum", "Ego non sum papa"],

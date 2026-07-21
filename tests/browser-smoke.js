@@ -27,6 +27,7 @@ const VARIANTS = [
 	"venice-1800.html",
 	"1903.html",
 	"october-1978.html",
+	"may-2025.html",
 ];
 
 function assert(condition, message) {
@@ -97,10 +98,13 @@ async function smokeSelection(browser, baseUrl, file) {
 		const cardCount = await page.locator("#selgrid > *").count();
 		assert(cardCount > 0, `${file}: selection screen rendered no electors`);
 		assert(await page.locator('a[href*="index.html"]').count(), `${file}: no directory link is available`);
-		const unlabelledControls = await page.evaluate(() => [...document.querySelectorAll("#screen-select input, #screen-select select, #screen-select textarea")].filter((control) => {
+		const unlabelledControls = await page.evaluate(() => {
+			const root = document.querySelector("#screen-select") || document.querySelector("#cover");
+			return [...(root ? root.querySelectorAll("input, select, textarea") : [])].filter((control) => {
 			if (control.type === "hidden") return false;
 			return !(control.labels && control.labels.length) && !control.getAttribute("aria-label") && !control.getAttribute("aria-labelledby") && !control.getAttribute("title");
-		}).map((control) => control.id || control.name || control.outerHTML.slice(0, 80)));
+			}).map((control) => control.id || control.name || control.outerHTML.slice(0, 80));
+		});
 		assert(unlabelledControls.length === 0, `${file}: unlabelled selection controls: ${unlabelledControls.join(", ")}`);
 		const geometry = await pageGeometry(page);
 		assert(geometry.scrollWidth <= geometry.innerWidth + 2 && geometry.bodyWidth <= geometry.innerWidth + 2, `${file}: mobile selection overflows horizontally (${geometry.scrollWidth}px in ${geometry.innerWidth}px)`);
@@ -221,6 +225,34 @@ async function checkStickyChooser(browser, baseUrl, file) {
 	}
 }
 
+async function checkMay2025Start(browser, baseUrl) {
+	const file = "may-2025.html";
+	const { context, page, pageErrors } = await preparePage(browser, { width: 390, height: 844 });
+	try {
+		await page.goto(`${baseUrl}/${file}`, { waitUntil: "domcontentloaded" });
+		await page.locator("#selgrid .pick").first().waitFor();
+		await page.evaluate(() => { window.scrollTo(0, document.body.scrollHeight); document.querySelector("#selgrid .pick").click(); });
+		await page.locator("#app").waitFor();
+		await page.waitForTimeout(80);
+		const geometry = await pageGeometry(page);
+		assert(geometry.scrollY <= 2, `${file}: a new mobile game opens ${geometry.scrollY}px down the page`);
+		assert(geometry.scrollWidth <= geometry.innerWidth + 2, `${file}: mobile game overflows horizontally`);
+		await page.locator("#tab-college").click();
+		const dossierButton = page.locator("#colCards .cc").first();
+		assert(await dossierButton.evaluate((element) => element.tagName === "BUTTON"), `${file}: College dossiers are not native controls`);
+		await dossierButton.click();
+		await page.locator('#modal[aria-hidden="false"]').waitFor();
+		await page.keyboard.press("Escape");
+		await page.waitForFunction(() => document.getElementById("modal").getAttribute("aria-hidden") === "true");
+		assert(await dossierButton.evaluate((element) => document.activeElement === element), `${file}: dossier focus was not restored`);
+		const duplicateIds = await page.evaluate(() => [...document.querySelectorAll("[id]")].map((element) => element.id).filter((id, index, ids) => ids.indexOf(id) !== index));
+		assert(duplicateIds.length === 0, `${file}: duplicate DOM IDs: ${[...new Set(duplicateIds)].join(", ")}`);
+		assert(pageErrors.length === 0, `${file}: browser error after starting: ${pageErrors.join("; ")}`);
+	} finally {
+		await context.close();
+	}
+}
+
 async function checkIndexGeometry(browser, baseUrl, viewport) {
 	const { context, page, pageErrors } = await preparePage(browser, viewport);
 	try {
@@ -253,7 +285,8 @@ async function main() {
 		await checkConstanceChooserReturn(browser, baseUrl);
 		await checkStickyChooser(browser, baseUrl, "1903.html");
 		await checkStickyChooser(browser, baseUrl, "october-1978.html");
-		console.log(JSON.stringify({ variants: selections, checks: ["mobile-and-desktop-geometry", "dialog-focus", "chooser-return", "sticky-portrait-stacking", "carafa-start-position", "1458-filter-strip"] }, null, 2));
+		await checkMay2025Start(browser, baseUrl);
+		console.log(JSON.stringify({ variants: selections, checks: ["mobile-and-desktop-geometry", "dialog-focus", "chooser-return", "sticky-portrait-stacking", "carafa-start-position", "1458-filter-strip", "2025-mobile-start-and-dossier"] }, null, 2));
 	} finally {
 		if (browser) await browser.close();
 		await new Promise((resolve) => server.close(resolve));

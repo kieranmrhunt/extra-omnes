@@ -1,0 +1,2098 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Extra Omnes — May 2025</title>
+<meta name="description" content="Extra Omnes — May 2025. A playable political simulation of the conclave that elected Leo XIV: 133 electors, twelve general congregations, four ballots.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=EB+Garamond:ital,wght@0,400..700;1,400..700&family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#15110e;         /* warm near-black */
+  --panel:#1e1915;
+  --panel2:#252019;
+  --line:#3a332a;
+  --parchment:#e9dfc9;
+  --faded:#a3947c;
+  --dim:#8f826f;
+  --scarlet:#a8262c;
+  --scarlet-bright:#df5d5b;
+  --gold:#c9a24b;
+  --gold-dim:#9b824a;
+  --smokeb:#4b463f;
+  --smokew:#efe9dd;
+  --ok:#7f9a6f;
+  --warn:#c07a3a;
+  --doc:#c9a24b;
+  --mod:#8a94a6;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+*{scrollbar-width:thin;scrollbar-color:var(--gold-dim) var(--panel)}
+*::-webkit-scrollbar{width:8px;height:8px}
+*::-webkit-scrollbar-track{background:var(--panel)}
+*::-webkit-scrollbar-thumb{background:var(--gold-dim);border:2px solid var(--panel)}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--ink);color:var(--parchment);
+  font-family:"EB Garamond",Georgia,serif;font-size:17.5px;line-height:1.5;
+  min-height:100svh;display:flex;flex-direction:column;
+}
+h1,h2,h3,h4{font-family:Fraunces,Georgia,serif;font-weight:600;line-height:1.12;letter-spacing:.005em}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+a{color:var(--gold);text-decoration:none}
+a:hover{text-decoration:underline}
+button:focus-visible,[tabindex]:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:2px}
+::selection{background:var(--scarlet);color:var(--smokew)}
+
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold)}
+.directory-link{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
+.small{font-size:14px;color:var(--faded)}
+.visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+.rule{border:none;border-top:1px solid var(--line);margin:14px 0}
+
+/* ---------- cover ---------- */
+#cover{max-width:1060px;margin:0 auto;padding:34px 20px 70px;width:100%}
+#cover .directory-link{display:inline-block;margin-bottom:12px}
+#cover .mast{margin:26px 0 10px}
+#cover h1{font-size:clamp(52px,11vw,120px);font-weight:640;color:var(--smokew)}
+#cover h1 em{font-style:italic;font-weight:340;color:var(--scarlet-bright)}
+#cover .lede{max-width:62ch;font-size:19px;color:var(--parchment);margin:14px 0 6px}
+#cover .lede b{color:var(--gold);font-weight:600}
+.coverbar{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin:20px 0 8px}
+.btn{border:1px solid var(--line);background:var(--panel);padding:10px 16px;border-radius:3px;font-family:"IBM Plex Mono",monospace;font-size:13px;letter-spacing:.06em;color:var(--parchment);transition:border-color .15s,background .15s}
+.btn:hover{border-color:var(--gold-dim);background:var(--panel2)}
+.btn.primary{background:var(--scarlet);border-color:var(--scarlet);color:var(--smokew)}
+.btn.primary:hover{background:var(--scarlet-bright);border-color:var(--scarlet-bright)}
+.btn:disabled{opacity:.38;cursor:not-allowed}
+.btn.sm{padding:6px 10px;font-size:12px}
+input[type=text],select{background:var(--panel);border:1px solid var(--line);color:var(--parchment);padding:9px 11px;border-radius:3px;font-family:"IBM Plex Mono",monospace;font-size:13px}
+input::placeholder{color:var(--dim)}
+
+.pickgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:9px;margin-top:14px}
+.pick{border:1px solid var(--line);background:var(--panel);border-radius:3px;padding:10px 12px;text-align:left;display:flex;flex-direction:column;gap:3px;transition:border-color .12s}
+.pick:hover{border-color:var(--gold-dim)}
+.pick .nm{font-family:Fraunces,serif;font-size:16.5px;color:var(--smokew)}
+.pick .meta{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--faded);letter-spacing:.03em}
+.pick .tagline{font-size:13.5px;color:var(--faded);font-style:italic}
+.pick.star{border-left:3px solid var(--gold)}
+
+/* ---------- app frame ---------- */
+#app{display:none;flex-direction:column;min-height:100svh}
+body.playing #app{display:flex}
+body.playing #cover{display:none}
+#topbar{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px 10px;border-bottom:1px solid var(--line);background:var(--panel)}
+#topbar .t{font-family:Fraunces,serif;font-size:19px;color:var(--smokew)}
+#topbar .t em{font-style:italic;color:var(--scarlet-bright)}
+#daychip{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--gold);letter-spacing:.1em;text-transform:uppercase}
+#topbar .sp{flex:1}
+#topbar .btn{padding:6px 10px;font-size:12px}
+#topbar .all-years{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);white-space:nowrap}
+
+#tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);background:var(--panel);padding:0 10px;overflow-x:auto}
+#tabs button{font-family:"IBM Plex Mono",monospace;font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faded);padding:10px 13px;border-bottom:2px solid transparent;white-space:nowrap}
+#tabs button[aria-selected=true]{color:var(--smokew);border-bottom-color:var(--scarlet)}
+#tabs button .n{color:var(--gold)}
+
+#main{flex:1;max-width:1120px;width:100%;margin:0 auto;padding:16px 16px 96px}
+.view{display:none}
+.view.on{display:block}
+
+/* stage */
+.scenehead{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:6px}
+.scenehead h2{font-size:clamp(24px,4.5vw,34px);color:var(--smokew)}
+.slotchip{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--faded)}
+.slotchip b{color:var(--gold)}
+.scenedesc{max-width:70ch;color:var(--parchment);margin-bottom:12px}
+.actions{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:10px;margin:10px 0 18px}
+.act{border:1px solid var(--line);background:var(--panel);border-radius:3px;padding:12px 13px;text-align:left;display:flex;flex-direction:column;gap:4px;transition:border-color .12s,background .12s}
+.act:hover:not(:disabled){border-color:var(--gold-dim);background:var(--panel2)}
+.act .an{font-family:Fraunces,serif;font-size:17px;color:var(--smokew)}
+.act .ad{font-size:14px;color:var(--faded)}
+.act .ac{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--gold-dim);letter-spacing:.05em}
+
+.feed{display:flex;flex-direction:column;gap:10px}
+.card{border:1px solid var(--line);border-left:3px solid var(--line);background:var(--panel);border-radius:3px;padding:12px 14px;animation:rise .25s ease}
+.card.docu{border-left-color:var(--doc)}
+.card.model{border-left-color:var(--mod)}
+.card.player{border-left-color:var(--scarlet)}
+.card .k{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:3px}
+.card .k .tag{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase}
+.card.docu .k .tag{color:var(--doc)}
+.card.model .k .tag{color:var(--mod)}
+.card.player .k .tag{color:var(--scarlet-bright)}
+.card .k .when{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--dim)}
+.card h3{font-size:18.5px;margin-bottom:3px;color:var(--smokew)}
+.card p{font-size:15.5px;color:var(--parchment)}
+.card p+p{margin-top:6px}
+.card .choices{display:flex;flex-wrap:wrap;gap:8px;margin-top:9px}
+@keyframes rise{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.card{animation:none}}
+
+/* college */
+#colfilters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:9px}
+.cc{border:1px solid var(--line);background:var(--panel);border-radius:3px;padding:11px 13px;text-align:left;width:100%;display:block}
+.cc:hover{border-color:var(--gold-dim);background:var(--panel2)}
+.cc .r1{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.cc .nm{font-family:Fraunces,serif;font-size:16.5px;color:var(--smokew)}
+.cc .age{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--dim)}
+.cc .off{font-size:13.5px;color:var(--faded);margin:2px 0 5px;font-style:italic}
+.cc .chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.06em;border:1px solid var(--line);border-radius:2px;padding:2px 6px;color:var(--faded)}
+.chip.gold{color:var(--gold);border-color:var(--gold-dim)}
+.chip.red{color:var(--scarlet-bright);border-color:var(--scarlet)}
+.chip.unknown{color:var(--dim);border-style:dashed}
+.cc.you{border-color:var(--scarlet)}
+.cc .lean{height:4px;background:var(--line);border-radius:2px;margin-top:7px;position:relative}
+.cc .lean i{position:absolute;top:-3px;width:9px;height:9px;border-radius:50%;background:var(--gold);transform:translateX(-50%)}
+.cc .lean.unk i{background:var(--dim)}
+.cc.dead{opacity:.55}
+
+/* board */
+#boardwrap{overflow-x:auto}
+#board,.rolltable{border-collapse:collapse;font-family:"IBM Plex Mono",monospace;font-size:12.5px;min-width:520px}
+#board th,#board td,.rolltable th,.rolltable td{border-bottom:1px solid var(--line);padding:7px 10px;text-align:right;white-space:nowrap}
+#board th,.rolltable th{color:var(--gold);font-weight:500;letter-spacing:.06em;font-size:11px;text-transform:uppercase}
+#board td.nm{text-align:left;font-family:"EB Garamond",serif;font-size:15.5px;color:var(--smokew)}
+#board td.win{color:var(--gold);font-weight:600}
+#board tr.leader td.nm{color:var(--gold)}
+#board td .d{color:var(--dim);font-size:10.5px;margin-left:4px}
+.thresholdnote{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--faded);margin:8px 0 14px}
+.thresholdnote b{color:var(--gold)}
+#smokecam{display:flex;align-items:flex-end;gap:14px;border:1px solid var(--line);background:linear-gradient(#0e0c0a,#1a1712);border-radius:3px;padding:14px 16px;margin-bottom:14px;min-height:96px}
+#chimney{width:26px;height:52px;background:#33302a;border:1px solid #443f36;border-radius:2px 2px 0 0;position:relative}
+.puff{position:absolute;left:50%;bottom:100%;width:16px;height:16px;border-radius:50%;opacity:0;transform:translateX(-50%)}
+.smoking .puff{animation:puff 2.6s ease-out infinite}
+.smoking .puff:nth-child(2){animation-delay:.85s}
+.smoking .puff:nth-child(3){animation-delay:1.7s}
+.smoke-black .puff{background:#211f1c}
+.smoke-white .puff{background:var(--smokew)}
+@keyframes puff{0%{opacity:0;transform:translate(-50%,4px) scale(.5)}12%{opacity:.85}100%{opacity:0;transform:translate(-50%,-62px) scale(2.1)}}
+@media (prefers-reduced-motion:reduce){.smoking .puff{animation:none;opacity:.7;transform:translate(-50%,-24px) scale(1.5)}}
+#smoketext{flex:1}
+#smoketext .st1{font-family:Fraunces,serif;font-size:20px;color:var(--smokew)}
+#smoketext .st2{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--faded);margin-top:3px}
+#crowd{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--dim);text-align:right}
+#crowd b{color:var(--gold);display:block;font-size:15px}
+
+/* standing */
+.you2col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:760px){.you2col{grid-template-columns:1fr}}
+.panelbox{border:1px solid var(--line);background:var(--panel);border-radius:3px;padding:13px 15px}
+.panelbox h3{font-size:18px;color:var(--smokew);margin-bottom:8px}
+.stat{display:flex;justify-content:space-between;gap:10px;font-size:15px;padding:3px 0;border-bottom:1px dashed var(--line)}
+.stat:last-child{border-bottom:none}
+.stat .v{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--gold)}
+.meter{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-top:4px}
+.meter i{display:block;height:100%;background:var(--gold)}
+.meter.red i{background:var(--scarlet-bright)}
+ul.plainlist{list-style:none}
+ul.plainlist li{padding:4px 0;border-bottom:1px dashed var(--line);font-size:15px}
+ul.plainlist li:last-child{border-bottom:none}
+ul.plainlist .mono{font-size:12px;color:var(--faded)}
+
+/* ticker */
+#tickerbar{position:fixed;left:0;right:0;bottom:0;background:#0d0b09;border-top:1px solid var(--line);height:38px;display:flex;align-items:center;overflow:hidden;z-index:40}
+#tickerlabel{flex:none;font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.2em;color:var(--smokew);background:var(--scarlet);padding:4px 10px;margin:0 12px 0 10px;border-radius:2px}
+#tickerbar.sealed #tickerlabel{background:var(--smokeb);color:var(--faded)}
+#tickerwrap{flex:1;overflow:hidden;position:relative;height:100%}
+#ticker{position:absolute;white-space:nowrap;font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--faded);line-height:38px;will-change:transform;animation:tick linear infinite}
+#ticker b{color:var(--parchment);font-weight:500}
+#ticker .sep{color:var(--scarlet-bright);margin:0 18px}
+@keyframes tick{from{transform:translateX(100vw)}to{transform:translateX(-100%)}}
+#tickerbar.sealed #ticker{animation:none;left:0;color:var(--dim)}
+@media (prefers-reduced-motion:reduce){#ticker{animation:none;left:0}}
+
+/* modal */
+#modal{position:fixed;inset:0;background:rgba(10,8,6,.82);display:none;align-items:flex-start;justify-content:center;z-index:60;padding:30px 14px;overflow-y:auto}
+#modal.on{display:flex}
+#modalbox{background:var(--panel);border:1px solid var(--line);border-radius:4px;max-width:760px;width:100%;padding:42px 24px 22px;position:relative}
+#modalbox h2{font-size:26px;color:var(--smokew);margin-bottom:10px}
+#modalbox h3{font-size:18px;color:var(--gold);margin:16px 0 6px}
+#modalbox p,#modalbox li{font-size:15.5px;color:var(--parchment)}
+#modalbox ul{padding-left:20px}
+#modalclose{position:absolute;top:10px;right:12px;font-family:"IBM Plex Mono",monospace;color:var(--faded);font-size:13px}
+.pickerlist{display:flex;flex-direction:column;gap:6px;max-height:52vh;overflow-y:auto;margin-top:8px}
+.pickerlist button{border:1px solid var(--line);background:var(--panel2);border-radius:3px;padding:8px 11px;text-align:left;display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.pickerlist button:hover{border-color:var(--gold-dim)}
+.pickerlist .nm{font-family:Fraunces,serif;font-size:15.5px;color:var(--smokew)}
+.pickerlist .mt{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--faded)}
+
+/* finale */
+#finale{max-width:820px;margin:0 auto;padding:40px 18px 110px;display:none}
+body.finished #finale{display:block}
+body.finished #main,body.finished #tabs{display:none}
+#finale .habemus{font-family:Fraunces,serif;font-size:clamp(34px,7vw,64px);color:var(--smokew);line-height:1.06}
+#finale .habemus em{font-style:italic;color:var(--scarlet-bright)}
+#finale .latin{font-family:"EB Garamond",serif;font-style:italic;font-size:19px;color:var(--gold);margin:14px 0}
+.scoreline{display:flex;justify-content:space-between;border-bottom:1px dashed var(--line);padding:7px 0;font-size:16px}
+.scoreline .v{font-family:"IBM Plex Mono",monospace;color:var(--gold)}
+.grade{font-family:Fraunces,serif;font-size:56px;color:var(--scarlet-bright);line-height:1}
+.footer{border-top:1px solid var(--line);margin-top:36px;padding:20px 16px 60px;color:var(--dim);font-size:13.5px;max-width:1120px;margin-left:auto;margin-right:auto}
+@media(max-width:640px){
+  body{font-size:16.5px}
+  #main{padding:12px 12px 90px}
+  .actions{grid-template-columns:1fr}
+  .cards{grid-template-columns:1fr}
+  .pickgrid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:430px){.pickgrid{grid-template-columns:1fr}}
+
+</style>
+</head>
+<body>
+<div id="cover">
+  <a class="directory-link" href="index.html">All years</a>
+  <div class="eyebrow">Rome · May MMXXV · Sede Vacante</div>
+  <div class="mast"><h1>EXTRA <em>OMNES</em></h1></div>
+  <p class="lede">The largest conclave ever held. <b>133 electors from 70 countries</b>, most of them strangers to one another, gather to choose a successor to Francis — while betting markets, viral videos and a president posting pictures of himself in a mitre press against the walls. Twelve general congregations to make yourself understood. Then the doors close, the jammers hum, and only the room is left.</p>
+  <p class="small" style="max-width:66ch">Play any of the 133 cardinal electors of May 2025. Shape the pre-conclave in the Synod Hall and over dinner; then survive the scrutinies beneath the <i>Last Judgement</i>. Documented events are marked <span class="mono" style="color:var(--doc)">DOCUMENTED</span>; everything the model invents is marked <span class="mono" style="color:var(--mod)">MODELLED</span>.</p>
+  <div class="coverbar">
+    <button class="btn" id="btnRules0">Rules &amp; sources</button>
+    <label class="mono small" for="seed">seed</label>
+    <input type="text" id="seed" size="10" value="" placeholder="habemus">
+    <button class="btn" id="btnResume0">Resume from code</button>
+  </div>
+  <hr class="rule">
+  <div class="coverbar" style="margin-top:2px">
+    <label class="visually-hidden" for="pickSearch">Search cardinals</label>
+    <input type="text" id="pickSearch" placeholder="Search 133 cardinals…" style="flex:1;min-width:180px">
+    <label class="visually-hidden" for="pickRegion">Filter cardinals by region</label>
+    <select id="pickRegion">
+      <option value="">All regions</option>
+      <option value="IT">Italy</option><option value="EU">Rest of Europe</option>
+      <option value="NA">US &amp; Canada</option><option value="LA">Latin America</option>
+      <option value="AF">Africa</option><option value="AS">Asia &amp; Middle East</option>
+      <option value="OC">Oceania</option>
+    </select>
+    <label class="visually-hidden" for="pickSort">Sort cardinals</label>
+    <select id="pickSort">
+      <option value="papabile">Sort: papabile first</option>
+      <option value="prec">Sort: precedence</option>
+      <option value="age">Sort: youngest</option>
+      <option value="name">Sort: name</option>
+    </select>
+  </div>
+  <div class="pickgrid" id="selgrid"></div>
+</div>
+
+<div id="app">
+  <div id="topbar">
+    <a class="all-years" href="index.html">All years</a>
+    <span class="t">EXTRA <em>OMNES</em> — 2025</span>
+    <span id="daychip" class="mono"></span>
+    <span class="sp"></span>
+    <button class="btn" id="btnRules">Rules</button>
+    <button class="btn" id="btnCode">Save code</button>
+  </div>
+  <div id="tabs" role="tablist">
+    <button id="tab-stage" role="tab" aria-selected="true" aria-controls="v-stage" tabindex="0" data-v="stage">The Day</button>
+    <button id="tab-college" role="tab" aria-selected="false" aria-controls="v-college" tabindex="-1" data-v="college">College <span class="n" id="metCount"></span></button>
+    <button id="tab-board" role="tab" aria-selected="false" aria-controls="v-board" tabindex="-1" data-v="board">Scrutiny board</button>
+    <button id="tab-you" role="tab" aria-selected="false" aria-controls="v-you" tabindex="-1" data-v="you">Your standing</button>
+    <button id="tab-chronicle" role="tab" aria-selected="false" aria-controls="v-chronicle" tabindex="-1" data-v="chronicle">Chronicle</button>
+  </div>
+  <div id="main">
+    <div class="view on" id="v-stage" role="tabpanel" aria-labelledby="tab-stage">
+      <div class="scenehead"><h2 id="sceneTitle"></h2><span class="slotchip" id="slotchip"></span></div>
+      <p class="scenedesc" id="sceneDesc"></p>
+      <div class="actions" id="actionsBox"></div>
+      <div class="feed" id="feed"></div>
+    </div>
+    <div class="view" id="v-college" role="tabpanel" aria-labelledby="tab-college" hidden>
+      <div id="colfilters">
+        <label class="visually-hidden" for="colSearch">Search the College</label>
+        <input type="text" id="colSearch" placeholder="Search…" style="flex:1;min-width:150px">
+        <label class="visually-hidden" for="colRegion">Filter the College by region</label>
+        <select id="colRegion">
+          <option value="">All regions</option>
+          <option value="IT">Italy</option><option value="EU">Rest of Europe</option>
+          <option value="NA">US &amp; Canada</option><option value="LA">Latin America</option>
+          <option value="AF">Africa</option><option value="AS">Asia &amp; Middle East</option>
+          <option value="OC">Oceania</option>
+        </select>
+        <label class="visually-hidden" for="colKnown">Filter the College by acquaintance</label>
+        <select id="colKnown">
+          <option value="">Everyone</option>
+          <option value="met">Met</option>
+          <option value="unmet">Not yet met</option>
+        </select>
+      </div>
+      <p class="small" style="margin-bottom:10px">Leanings and intentions are only legible for cardinals you have actually spoken with. The rest wear name badges, like everyone else this fortnight.</p>
+      <div class="cards" id="colCards"></div>
+    </div>
+    <div class="view" id="v-board" role="tabpanel" aria-labelledby="tab-board" hidden>
+      <div id="smokecam">
+        <div id="chimney"><span class="puff"></span><span class="puff"></span><span class="puff"></span></div>
+        <div id="smoketext"><div class="st1" id="smoke1">The chimney is cold.</div><div class="st2" id="smoke2">Installed by the Vatican fire brigade, 2 May.</div></div>
+        <div id="crowd"><b id="crowdN">—</b>in the Square</div>
+      </div>
+      <div class="thresholdnote" id="threshnote"></div>
+      <div id="boardwrap"><table id="board"></table></div>
+    </div>
+    <div class="view" id="v-you" role="tabpanel" aria-labelledby="tab-you" hidden><div class="you2col" id="youBox"></div></div>
+    <div class="view" id="v-chronicle" role="tabpanel" aria-labelledby="tab-chronicle" hidden>
+      <div class="coverbar"><button class="btn" id="btnExport">Export chronicle</button><span class="small">A plain-text record of your run: every event, every count.</span></div>
+      <div class="feed" id="chronFeed"></div>
+    </div>
+  </div>
+  <div id="finale"></div>
+  <div id="tickerbar"><span id="tickerlabel">LIVE</span><div id="tickerwrap"><div id="ticker"></div></div></div>
+  <div class="visually-hidden" id="liveStatus" role="status" aria-live="polite" aria-atomic="true"></div>
+</div>
+
+<div id="modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="modal-title"><div id="modalbox" tabindex="-1">
+  <button id="modalclose" aria-label="Close">✕ close</button>
+  <div id="modalcontent"></div>
+</div></div>
+
+<div class="footer" id="pagefoot">
+  This is a historically researched simulation, not a claim to know the sealed ballots of May 2025. Roster facts, dates and documented events are distinguished in-game from inferred leanings and modelled counts. Principal sources: G. O'Connell &amp; E. Piqué, <i>The Election of Pope Leo XIV</i> (2026); contemporary reporting by Vatican News, AP, NYT, WSJ, ANSA, Il Messaggero and others. Part of the <a href="index.html">Extra Omnes</a> series.
+</div>
+
+<script>
+"use strict";
+/* ============================================================
+   EXTRA OMNES — MAY 2025 · ELECTOR ROSTER
+   Documented fields (precedence, name, country, age at vacancy,
+   order, creating pope, office) follow the Holy See Press Office
+   list as compiled at en.wikipedia.org/wiki/Cardinal_electors_in_the_2025_conclave.
+   Gameplay fields (lean, papabile, gravitas, sociability, tags,
+   taglines) are INFERRED from public reporting and are marked as
+   such in-game. lean: -2 restorationist … +2 reforming.
+   Row: [prec,key,name,country,cc,offR,bloc,age,ord,by,role,rel,flags,lean,pap,grav,soc,tags,office,tagline]
+   ord: B|P|D · by: J|B|F · role: C(urial)|S(ee, pastoral)|R(etired)
+   flags: i=italianate e=hispanophone s=synod-network
+   offR: IT|EUx|NAo|SAo|AS|OC|AF (official press-office regions)
+   bloc: IT|EU|NA|LA|AF|AS|OC (gameplay blocs; NA = US & Canada)
+   ============================================================ */
+const ELECTOR_ROWS = [
+[1,"parolin","Pietro Parolin","Italy","IT","IT","IT",70,"B","F","C","", "ies",0.4,92,8,6,["dip","gov"],"Secretary of State of His Holiness","The Secretary of State. Everyone's frontrunner — which is the problem."],
+[2,"filoni","Fernando Filoni","Italy","IT","IT","IT",79,"B","B","C","","i",0.0,30,7,5,["dip","eva"],"Grand Master, Order of the Holy Sepulchre","Old diplomatic school; the Italians' quiet plan B."],
+[3,"tagle","Luis Antonio Tagle","Philippines","PH","AS","AS",67,"B","B","C","","is",1.3,85,7,9,["eva","soc","mig"],"Pro-Prefect, Dicastery for Evangelization","The 'Asian Francis' — beloved, telegenic, and under a harsh spotlight."],
+[4,"prevost","Robert Francis Prevost","United States / Peru","US","NAo","NA",69,"B","F","C","OSA","ies",0.9,38,8,6,["gov","eva","soc"],"Prefect, Dicastery for Bishops","An Augustinian from Chicago via Chiclayo. Runs a very good meeting."],
+[5,"sako","Louis Raphaël I Sako","Iraq","IQ","AS","AS",76,"B","F","S","","s",0.4,12,7,6,["dip","int"],"Patriarch of Baghdad (Chaldean)","First Chaldean patriarch ever to vote in a conclave."],
+[6,"puljic","Vinko Puljić","Bosnia and Herzegovina","BA","EUx","EU",79,"P","J","R","","",-0.2,3,6,5,["dip"],"Archbishop emeritus of Vrhbosna","Survivor of the siege of Sarajevo; cleared by his doctors to attend."],
+[7,"turkson","Peter Turkson","Ghana","GH","AF","AF",76,"P","J","C","","is",0.5,55,7,7,["soc","cli","dip"],"Chancellor, Pontifical Academies of Sciences","Ghana's perennial papabile, twice around this track."],
+[8,"bozanic","Josip Bozanić","Croatia","HR","EUx","EU",76,"P","J","R","","",0.0,2,5,4,["fam"],"Archbishop emeritus of Zagreb",""],
+[9,"barbarin","Philippe Barbarin","France","FR","EUx","EU",74,"P","J","R","","",0.2,2,5,4,["abu"],"Archbishop emeritus of Lyon",""],
+[10,"erdo","Péter Erdő","Hungary","HU","EUx","EU",72,"P","J","S","","i",-1.2,66,8,4,["lit","fam","gov"],"Archbishop of Esztergom–Budapest","The conservatives' canonist. Their plan is ready before the doors close."],
+[11,"rylko","Stanisław Ryłko","Poland","PL","EUx","EU",79,"P","B","C","","i",-0.9,2,5,4,["lit"],"Archpriest, St Mary Major",""],
+[12,"robles","Francisco Robles Ortega","Mexico","MX","NAo","LA",76,"P","B","S","","e",0.3,3,5,5,["fam"],"Archbishop of Guadalajara",""],
+[13,"dinardo","Daniel DiNardo","United States","US","NAo","NA",75,"P","B","R","","",-0.8,2,5,4,["gov"],"Archbishop emeritus of Galveston–Houston",""],
+[14,"scherer","Odilo Scherer","Brazil","BR","SAo","LA",75,"P","B","S","","e",0.2,8,6,5,["gov"],"Archbishop of São Paulo","Runner-up energy from 2013; São Paulo's steady hand."],
+[15,"sarah","Robert Sarah","Guinea","GN","AF","AF",79,"P","B","R","","i",-1.8,50,8,3,["lit","fam"],"Prefect emeritus of Divine Worship","The traditionalists' icon. The silence of the liturgy, weaponised online."],
+[16,"burke","Raymond Leo Burke","United States","US","NAo","NA",76,"P","B","R","","i",-2.0,15,6,3,["lit","fam"],"Patron emeritus, Order of Malta","The dubia cardinal. Not expecting to be pleased by any of this."],
+[17,"koch","Kurt Koch","Switzerland","CH","EUx","EU",75,"P","B","C","","is",-0.3,6,6,4,["int"],"Prefect, Promoting Christian Unity",""],
+[18,"nycz","Kazimierz Nycz","Poland","PL","EUx","EU",75,"P","B","R","","",-0.6,2,5,4,["fam"],"Archbishop emeritus of Warsaw",""],
+[19,"ranjith","Malcolm Ranjith","Sri Lanka","LK","AS","AS",77,"P","B","S","","i",-1.4,22,6,4,["lit","eva"],"Archbishop of Colombo","Colombo's liturgist; Easter-bombing pastor; Benedict's man in Asia."],
+[20,"marx","Reinhard Marx","Germany","DE","EUx","EU",71,"P","B","S","","s",1.5,10,7,6,["gov","fin","syn"],"Archbishop of Munich; Council for the Economy","The Synodal Way's heavyweight — more useful as elector than electable."],
+[21,"brazdeaviz","João Braz de Aviz","Brazil","BR","SAo","LA",77,"P","B","R","","e",0.9,2,5,5,["soc"],"Prefect emeritus, Consecrated Life",""],
+[22,"collins","Thomas Collins","Canada","CA","NAo","NA",78,"P","B","R","","",-0.9,2,5,4,["fam"],"Archbishop emeritus of Toronto",""],
+[23,"eijk","Wim Eijk","Netherlands","NL","EUx","EU",71,"P","B","S","","",-1.5,30,6,3,["fam","lit"],"Archbishop of Utrecht","Physician-ethicist of the doctrinal right; Europe's shrinking pews behind him."],
+[24,"betori","Giuseppe Betori","Italy","IT","IT","IT",78,"P","B","R","","i",-0.2,2,5,4,["eva"],"Archbishop emeritus of Florence",""],
+[25,"dolan","Timothy Dolan","United States","US","NAo","NA",75,"P","B","S","","",-0.45,20,7,9,["eva","fam"],"Archbishop of New York","New York's laugh fills the Synod Hall. This year he is making a pope, not being one."],
+[26,"woelki","Rainer Woelki","Germany","DE","EUx","EU",68,"P","B","S","","",-1.3,4,4,3,["fam","lit"],"Archbishop of Cologne",""],
+[27,"harvey","James Michael Harvey","United States","US","NAo","NA",75,"P","B","C","","i",-0.6,2,5,4,["gov"],"Archpriest, St Paul Outside the Walls",""],
+[28,"cleemis","Baselios Cleemis","India","IN","AS","AS",65,"P","B","S","","",0.2,4,6,6,["eva","int"],"Major Archbishop of Trivandrum (Syro-Malankara)",""],
+[29,"muller","Gerhard Ludwig Müller","Germany","DE","EUx","EU",77,"P","F","R","","i",-1.7,12,6,4,["fam","lit"],"Prefect emeritus, Doctrine of the Faith","Dismissed by Francis, loud ever since; warns of schism if they choose badly."],
+[30,"nichols","Vincent Nichols","United Kingdom","GB","EUx","EU",79,"P","F","S","","s",0.7,8,6,6,["abu","mig"],"Archbishop of Westminster","Westminster's careful shepherd, at his first and last conclave."],
+[31,"brenes","Leopoldo Brenes","Nicaragua","NI","NAo","LA",76,"P","F","S","","e",0.6,2,5,6,["dip","soc"],"Archbishop of Managua","Shepherd under Ortega's police state."],
+[32,"lacroix","Gérald Lacroix","Canada","CA","NAo","NA",67,"P","F","S","ISPX","",0.9,4,6,6,["eva","syn"],"Archbishop of Quebec",""],
+[33,"kutwa","Jean-Pierre Kutwa","Ivory Coast","CI","AF","AF",79,"P","F","R","","",0.4,2,5,5,["soc"],"Archbishop emeritus of Abidjan",""],
+[34,"tempesta","Orani João Tempesta","Brazil","BR","SAo","LA",74,"P","F","S","OCist","e",0.5,2,5,5,["eva"],"Archbishop of Rio de Janeiro",""],
+[35,"poli","Mario Aurelio Poli","Argentina","AR","SAo","LA",77,"P","F","R","","e",0.5,2,5,5,["soc"],"Archbishop emeritus of Buenos Aires","Bergoglio's successor in Buenos Aires."],
+[36,"ouedraogo","Philippe Ouédraogo","Burkina Faso","BF","AF","AF",79,"P","F","R","","",0.3,2,5,5,["eva"],"Archbishop emeritus of Ouagadougou","Eligible thanks to a corrected birthday in the Annuario."],
+[37,"langlois","Chibly Langlois","Haiti","HT","NAo","LA",66,"P","F","S","","e",0.9,3,6,6,["soc"],"Bishop of Les Cayes","Haiti's first cardinal, from a country in freefall."],
+[38,"clemente","Manuel Clemente","Portugal","PT","EUx","EU",76,"P","F","R","","",0.6,2,5,5,["eva"],"Patriarch emeritus of Lisbon",""],
+[39,"souraphiel","Berhaneyesus Souraphiel","Ethiopia","ET","AF","AF",76,"P","F","S","CM","",0.6,3,6,5,["soc","dip"],"Archbishop of Addis Ababa (Ethiopian)","First Ethiopian-rite cardinal ever to enter a conclave."],
+[40,"dew","John Dew","New Zealand","NZ","OC","OC",76,"P","F","R","","",1.1,2,5,5,["syn"],"Archbishop emeritus of Wellington",""],
+[41,"bo","Charles Maung Bo","Myanmar","MM","AS","AS",76,"P","F","S","SDB","s",0.8,30,7,7,["dip","soc"],"Archbishop of Yangon","Voice of a church under the generals; Asia's elder statesman."],
+[42,"kovitvanit","Kriengsak Kovitvanit","Thailand","TH","AS","AS",75,"P","F","R","","",0.4,2,5,5,["eva"],"Archbishop emeritus of Bangkok",""],
+[43,"montenegro","Francesco Montenegro","Italy","IT","IT","IT",78,"P","F","R","","i",1.1,2,5,5,["mig","soc"],"Archbishop emeritus of Agrigento","Lampedusa's cardinal — Francis's first journey, his diocese."],
+[44,"sturla","Daniel Sturla","Uruguay","UY","SAo","LA",65,"P","F","S","SDB","e",0.4,2,5,6,["eva"],"Archbishop of Montevideo",""],
+[45,"furtado","Arlindo Gomes Furtado","Cape Verde","CV","AF","AF",75,"P","F","S","","",0.6,2,5,5,["eva"],"Bishop of Santiago de Cabo Verde",""],
+[46,"mafi","Soane Patita Paini Mafi","Tonga","TO","OC","OC",63,"P","F","S","","",1.0,2,5,6,["cli","soc"],"Bishop of Tonga","A rising ocean is not an abstraction in his diocese."],
+[47,"nzapalainga","Dieudonné Nzapalainga","Central African Republic","CF","AF","AF",58,"P","F","S","CSSp","",1.2,4,7,7,["dip","soc","int"],"Archbishop of Bangui","Crossed militia lines with the imam of Bangui; peacemaker by trade."],
+[48,"osoro","Carlos Osoro Sierra","Spain","ES","EUx","EU",79,"P","F","R","","e",0.7,2,5,5,["eva"],"Archbishop emeritus of Madrid","The oldest man in the room — by three weeks."],
+[49,"darocha","Sérgio da Rocha","Brazil","BR","SAo","LA",65,"P","F","S","","es",0.8,4,6,6,["syn","eva"],"Archbishop of Salvador da Bahia",""],
+[50,"cupich","Blase Cupich","United States","US","NAo","NA",76,"P","F","S","","s",1.7,8,6,6,["syn","abu","soc"],"Archbishop of Chicago","Francis's American lieutenant. Knows exactly which Chicagoan he'd rather elect."],
+[51,"dekesel","Jozef De Kesel","Belgium","BE","EUx","EU",77,"P","F","R","","",1.4,2,5,5,["syn","soc"],"Archbishop emeritus of Mechelen–Brussels",""],
+[52,"aguiarretes","Carlos Aguiar Retes","Mexico","MX","NAo","LA",75,"P","F","S","","e",0.8,3,5,5,["soc"],"Archbishop of Mexico",""],
+[53,"ribat","John Ribat","Papua New Guinea","PG","OC","OC",68,"P","F","S","MSC","",1.2,2,5,6,["cli","soc"],"Archbishop of Port Moresby",""],
+[54,"tobin","Joseph W. Tobin","United States","US","NAo","NA",72,"P","F","S","CSsR","es",1.4,10,7,7,["mig","syn","soc"],"Archbishop of Newark","Weightlifter, polyglot, Redemptorist; watches his friend Bob very closely."],
+[55,"omella","Juan José Omella","Spain","ES","EUx","EU",79,"P","F","S","","e",0.8,4,5,6,["soc"],"Archbishop of Barcelona",""],
+[56,"arborelius","Anders Arborelius","Sweden","SE","EUx","EU",75,"P","F","S","OCD","",0.3,35,7,5,["eva","int"],"Bishop of Stockholm","Carmelite convert in a secular land; the quiet northern option."],
+[57,"dedonatis","Angelo De Donatis","Italy","IT","IT","IT",71,"P","F","C","","i",0.5,4,5,5,["gov"],"Major Penitentiary","Rome's former vicar, moved sideways; keeps his own counsel."],
+[58,"coutts","Joseph Coutts","Pakistan","PK","AS","AS",79,"P","F","R","","",0.7,2,5,5,["int","dip"],"Archbishop emeritus of Karachi",""],
+[59,"marto","António Marto","Portugal","PT","EUx","EU",77,"P","F","R","","",1.0,2,5,5,["eva"],"Bishop emeritus of Leiria–Fátima",""],
+[60,"tsarahazana","Désiré Tsarahazana","Madagascar","MG","AF","AF",70,"P","F","S","","",0.5,2,5,5,["soc","eva"],"Archbishop of Toamasina",""],
+[61,"petrocchi","Giuseppe Petrocchi","Italy","IT","IT","IT",76,"P","F","R","","i",0.6,2,5,4,["eva"],"Archbishop emeritus of L'Aquila",""],
+[62,"maeda","Thomas Aquino Manyo Maeda","Japan","JP","AS","AS",76,"P","F","S","","",0.8,2,5,5,["dip"],"Archbishop of Osaka–Takamatsu","Writes haiku; grandson of hidden Christians of Nagasaki."],
+[63,"suharyo","Ignatius Suharyo","Indonesia","ID","AS","AS",74,"P","F","S","","s",0.9,3,6,6,["int","soc"],"Archbishop of Jakarta","Shepherd of a minority church in the largest Muslim nation."],
+[64,"garcia","Juan García Rodríguez","Cuba","CU","NAo","LA",76,"P","F","S","","e",0.6,2,5,5,["dip"],"Archbishop of Havana",""],
+[65,"ambongo","Fridolin Ambongo Besungu","DR Congo","CD","AF","AF",65,"P","F","S","OFMCap","s",-0.3,48,8,7,["soc","fam","eva"],"Archbishop of Kinshasa","President of Africa's bishops; carried the continent's 'no' to Fiducia to Rome — and stayed in the family."],
+[66,"hollerich","Jean-Claude Hollerich","Luxembourg","LU","EUx","EU",66,"P","F","S","SJ","is",1.7,20,7,7,["syn","eva"],"Archbishop of Luxembourg","Relator of the Synod; Europe's most synodal Jesuit."],
+[67,"ramazzini","Álvaro Ramazzini","Guatemala","GT","NAo","LA",77,"P","F","S","","e",1.5,2,6,6,["soc","mig"],"Bishop of Huehuetenango","Death threats from landowners; a miner's-rights bishop."],
+[68,"zuppi","Matteo Zuppi","Italy","IT","IT","IT",69,"P","F","S","","is",1.4,72,7,8,["dip","soc","mig"],"Archbishop of Bologna","Sant'Egidio's peace broker, Francis's Ukraine envoy — Italy's warmest hope."],
+[69,"lopezromero","Cristóbal López Romero","Morocco","MA","AF","AF",72,"P","F","S","SDB","es",1.4,25,6,7,["int","mig","eva"],"Archbishop of Rabat","A Spaniard shepherding a tiny church in the Maghreb; dialogue is the whole job."],
+[70,"kambanda","Antoine Kambanda","Rwanda","RW","AF","AF",66,"P","F","S","","",0.6,3,6,5,["soc","dip"],"Archbishop of Kigali","Lost most of his family in the genocide; Rwanda's first cardinal."],
+[71,"gregory","Wilton Gregory","United States","US","NAo","NA",77,"P","F","R","","",1.2,3,6,6,["abu","soc"],"Archbishop emeritus of Washington","Wrote the American abuse charter; measured to the last syllable."],
+[72,"advincula","Jose Advincula","Philippines","PH","AS","AS",73,"P","F","S","OP","s",1.0,4,5,5,["eva","soc"],"Archbishop of Manila",""],
+[73,"lojudice","Augusto Paolo Lojudice","Italy","IT","IT","IT",60,"P","F","S","","i",1.3,4,5,6,["mig","soc"],"Archbishop of Siena","Rome street priest sent to Siena; Roma camps before rings and thrones."],
+[74,"aveline","Jean-Marc Aveline","France","FR","EUx","EU",66,"P","F","S","","is",1.3,52,8,7,["mig","int","eva"],"Archbishop of Marseille","Francis's favourite Frenchman; the Mediterranean is his theology."],
+[75,"okpaleke","Peter Okpaleke","Nigeria","NG","AF","AF",62,"P","F","S","","",0.4,2,6,5,["eva"],"Bishop of Ekwulobia","Rejected by one diocese, raised to the College from another."],
+[76,"steiner","Leonardo Ulrich Steiner","Brazil","BR","SAo","LA",74,"P","F","S","OFM","es",1.5,3,5,5,["cli","soc","syn"],"Archbishop of Manaus","The Amazon's cardinal."],
+[77,"ferrao","Filipe Neri Ferrão","India","IN","AS","AS",72,"P","F","S","","s",0.9,4,5,5,["syn","eva"],"Archbishop of Goa; president of Asia's bishops",""],
+[78,"mcelroy","Robert McElroy","United States","US","NAo","NA",71,"P","F","S","","s",1.9,15,7,5,["syn","soc","mig"],"Archbishop of Washington","The American college's sharpest progressive pen."],
+[79,"dasilva","Virgílio do Carmo da Silva","Timor-Leste","TL","AS","AS",57,"P","F","S","SDB","",1.0,2,5,5,["eva"],"Archbishop of Díli","Timor-Leste's first cardinal ever to vote."],
+[80,"cantoni","Oscar Cantoni","Italy","IT","IT","IT",74,"P","F","S","","i",0.8,2,5,5,["eva"],"Bishop of Como",""],
+[81,"poola","Anthony Poola","India","IN","AS","AS",63,"P","F","S","","",0.7,2,5,5,["soc"],"Archbishop of Hyderabad","First Dalit cardinal."],
+[82,"costa","Paulo Cezar Costa","Brazil","BR","SAo","LA",57,"P","F","S","","es",1.1,3,5,5,["soc","syn"],"Archbishop of Brasília",""],
+[83,"goh","William Goh","Singapore","SG","AS","AS",67,"P","F","S","","",-0.9,18,6,5,["fam","eva"],"Archbishop of Singapore","Singapore's first cardinal; doctrinally careful, administratively crisp."],
+[84,"martinez","Adalberto Martínez Flores","Paraguay","PY","SAo","LA",73,"P","F","S","","e",0.8,2,5,5,["soc"],"Archbishop of Asunción",""],
+[85,"marengo","Giorgio Marengo","Mongolia","MN","AS","AS",50,"P","F","S","IMC","i",0.7,6,6,5,["eva","int"],"Apostolic Prefect of Ulaanbaatar","Missionary to a flock of 1,500 on the steppe; the College's frontier."],
+[86,"pizzaballa","Pierbattista Pizzaballa","Jerusalem","JE","AS","AS",60,"P","F","S","OFM","i",0.3,68,8,6,["dip","int"],"Latin Patriarch of Jerusalem","Offered himself for hostages in Gaza; too young, too admired, too obvious."],
+[87,"brislin","Stephen Brislin","South Africa","ZA","AF","AF",68,"P","F","S","","",1.0,3,5,5,["soc","abu"],"Archbishop of Johannesburg",""],
+[88,"rossi","Ángel Sixto Rossi","Argentina","AR","SAo","LA",66,"P","F","S","SJ","e",1.3,2,5,6,["soc","eva"],"Archbishop of Córdoba","Bergoglio's Jesuit friend from the old days."],
+[89,"rueda","Luis José Rueda Aparicio","Colombia","CO","SAo","LA",63,"P","F","S","","es",0.8,3,5,5,["soc","dip"],"Archbishop of Bogotá",""],
+[90,"rys","Grzegorz Ryś","Poland","PL","EUx","EU",61,"P","F","S","","s",1.2,6,6,6,["eva","int"],"Archbishop of Łódź","The un-Polish Polish cardinal: ecumenist, historian, Francis's ally."],
+[91,"ameyu","Stephen Ameyu Martin Mulla","South Sudan","SS","AF","AF",61,"P","F","S","","",0.8,2,5,5,["dip","soc"],"Archbishop of Juba","South Sudan's first elector."],
+[92,"cobo","José Cobo Cano","Spain","ES","EUx","EU",59,"P","F","S","","es",1.4,5,5,6,["mig","syn"],"Archbishop of Madrid",""],
+[93,"rugambwa","Protase Rugambwa","Tanzania","TZ","AF","AF",64,"P","F","S","","",0.6,2,5,5,["eva"],"Archbishop of Tabora",""],
+[94,"sfrancis","Sebastian Francis","Malaysia","MY","AS","AS",73,"P","F","S","","",0.8,2,5,5,["int","eva"],"Bishop of Penang","Malaysia's first elector."],
+[95,"chow","Stephen Chow Sau-yan","China (Hong Kong)","HK","AS","AS",65,"P","F","S","SJ","s",0.9,8,7,6,["dip","int"],"Bishop of Hong Kong","Walks the narrowest bridge in the Church — Rome to Beijing, daily."],
+[96,"bustillo","François-Xavier Bustillo","France","FR","EUx","EU",56,"P","F","S","OFMConv","ie",0.9,10,6,7,["eva"],"Bishop of Ajaccio","Corsica's Franciscan star, Spanish-born; 400,000 came out for Francis's visit."],
+[97,"aaguiar","Américo Aguiar","Portugal","PT","EUx","EU",51,"P","F","S","","",1.1,4,5,7,["eva"],"Bishop of Setúbal","Impresario of Lisbon's World Youth Day."],
+[98,"castillo","Carlos Castillo Mattasoglio","Peru","PE","SAo","LA",75,"P","F","S","","e",1.2,2,5,5,["soc"],"Archbishop of Lima","Knows exactly who Prevost was in Peru — and says so at dinner."],
+[99,"bokalic","Vicente Bokalic Iglic","Argentina","AR","SAo","LA",72,"P","F","S","CM","e",0.7,2,5,5,["soc"],"Archbishop of Santiago del Estero",""],
+[100,"cabrera","Luis Cabrera Herrera","Ecuador","EC","SAo","LA",69,"P","F","S","OFM","e",0.8,2,5,5,["eva"],"Archbishop of Guayaquil",""],
+[101,"chomali","Fernando Chomalí","Chile","CL","SAo","LA",68,"P","F","S","","e",0.7,3,5,5,["abu","soc"],"Archbishop of Santiago de Chile",""],
+[102,"kikuchi","Tarcisio Isao Kikuchi","Japan","JP","AS","AS",66,"P","F","S","SVD","s",1.0,5,6,6,["soc","cli"],"Archbishop of Tokyo; president of Caritas",""],
+[103,"david","Pablo Virgilio David","Philippines","PH","AS","AS",66,"P","F","S","","s",1.4,22,7,6,["soc","syn"],"Bishop of Kalookan","Stood up to Duterte's drug war; his intervention lands like a bombshell."],
+[104,"nemet","Ladislav Nemet","Serbia","RS","EUx","EU",68,"P","F","S","SVD","",0.6,2,5,5,["int"],"Archbishop of Belgrade","Serbia's first elector."],
+[105,"spengler","Jaime Spengler","Brazil","BR","SAo","LA",64,"P","F","S","OFM","es",1.2,4,5,5,["cli","syn","soc"],"Archbishop of Porto Alegre; president of Brazil's bishops",""],
+[106,"bessidogbo","Ignace Bessi Dogbo","Ivory Coast","CI","AF","AF",63,"P","F","S","","",0.5,2,5,5,["eva"],"Archbishop of Abidjan",""],
+[107,"vesco","Jean-Paul Vesco","Algeria","DZ","AF","AF",63,"P","F","S","OP","",1.4,5,6,6,["int","mig"],"Archbishop of Algiers","French Dominican, Algerian citizen; Christian-Muslim friendship is his life's work."],
+[108,"mathieu","Dominique Mathieu","Iran","IR","AS","AS",61,"P","F","S","OFMConv","",1.0,3,5,5,["int","dip"],"Archbishop of Tehran–Isfahan","Belgian Franciscan in the Islamic Republic; Iran's first elector."],
+[109,"repole","Roberto Repole","Italy","IT","IT","IT",58,"P","F","S","","i",1.1,4,6,5,["syn","eva"],"Archbishop of Turin","Theologian of synodality."],
+[110,"reina","Baldassare Reina","Italy","IT","IT","IT",54,"P","F","C","","i",0.7,3,5,5,["gov"],"Vicar General for Rome; Archpriest of the Lateran",""],
+[111,"frankleo","Frank Leo","Canada","CA","NAo","NA",53,"P","F","S","","",0.5,3,5,5,["eva"],"Archbishop of Toronto","A Leo already, and only 53."],
+[112,"bychok","Mykola Bychok","Australia","AU","OC","OC",45,"P","F","S","CSsR","",0.2,3,5,4,["dip"],"Eparch of Melbourne (Ukrainian Greek)","The youngest elector by five years, from a church at war."],
+[113,"battaglia","Domenico Battaglia","Italy","IT","IT","IT",62,"P","F","S","","i",1.5,6,5,6,["soc","mig"],"Archbishop of Naples","'Don Mimmo', street priest of the poor."],
+[114,"mamberti","Dominique Mamberti","France","FR","EUx","EU",73,"D","F","C","","i",0.1,4,6,4,["dip","gov"],"Prefect, Apostolic Signatura","The protodeacon. If anyone is elected, his is the voice that says the name."],
+[115,"zenari","Mario Zenari","Italy","IT","IT","IT",79,"D","F","C","","i",0.7,3,6,5,["dip"],"Apostolic Nuncio to Syria","Stayed in Damascus through the whole war."],
+[116,"farrell","Kevin Farrell","United States","US","NAo","NA",77,"D","F","C","","ie",1.0,5,6,6,["gov"],"Camerlengo; Prefect for Laity, Family and Life","Irish-born, Dallas-formed; the man who sealed the papal apartments."],
+[117,"krajewski","Konrad Krajewski","Poland","PL","EUx","EU",61,"D","F","C","","i",1.4,4,6,7,["soc","mig"],"Papal Almoner","Climbed a pole to restore power to squatters; Francis's charity made flesh."],
+[118,"tolentino","José Tolentino de Mendonça","Portugal","PT","EUx","EU",59,"D","F","C","","is",1.3,30,7,5,["eva","syn"],"Prefect, Culture and Education","Poet-prefect; the intellectuals' candidate."],
+[119,"czerny","Michael Czerny","Canada","CA","NAo","NA",78,"D","F","C","SJ","is",1.8,8,6,5,["mig","soc","cli"],"Prefect, Integral Human Development","Czech-born Jesuit; migrants and the wounded world are his portfolio."],
+[120,"grech","Mario Grech","Malta","MT","EUx","EU",68,"D","F","C","","is",1.5,45,7,6,["syn","eva"],"Secretary-General of the Synod","Keeper of the synodal flame — the continuity vote made explicit."],
+[121,"semeraro","Marcello Semeraro","Italy","IT","IT","IT",77,"D","F","C","","i",1.0,25,6,5,["gov"],"Prefect, Causes of Saints",""],
+[122,"gambetti","Mauro Gambetti","Italy","IT","IT","IT",59,"D","F","C","OFMConv","i",0.8,4,5,5,["eva"],"Archpriest of St Peter's",""],
+[123,"roche","Arthur Roche","United Kingdom","GB","EUx","EU",75,"D","F","C","","i",0.8,4,5,4,["lit"],"Prefect, Divine Worship","Yorkshireman who enforced Traditionis custodes; the old rite's bête noire."],
+[124,"you","Lazarus You Heung-sik","South Korea","KR","AS","AS",73,"D","F","C","","is",0.9,28,6,6,["eva"],"Prefect, Clergy","Korea's curial prefect; a bridge to Asia's growing church."],
+[125,"gugerotti","Claudio Gugerotti","Italy","IT","IT","IT",69,"D","F","C","","i",0.3,22,6,4,["dip"],"Prefect, Eastern Churches","Veteran of Caucasus and Kyiv nunciatures; knows every eastern wound."],
+[126,"vfernandez","Víctor Manuel Fernández","Argentina","AR","SAo","LA",62,"D","F","C","","ies",1.8,10,6,5,["fam","syn"],"Prefect, Doctrine of the Faith","'Tucho', author of Fiducia supplicans — lightning rod of the whole pontificate."],
+[127,"tscherrig","Emil Paul Tscherrig","Switzerland","CH","EUx","EU",78,"D","F","C","","ie",0.6,2,5,4,["dip"],"Apostolic Nuncio emeritus to Italy",""],
+[128,"pierre","Christophe Pierre","France","FR","EUx","EU",79,"D","F","C","","ie",1.1,3,6,5,["dip"],"Apostolic Nuncio to the United States","Knows the American bench better than the Americans do."],
+[129,"fartime","Ángel Fernández Artime","Spain","ES","EUx","EU",64,"D","F","C","SDB","ie",0.9,6,5,6,["eva"],"Pro-Prefect, Consecrated Life","Until last year, Rector Major of the world's Salesians."],
+[130,"makrickas","Rolandas Makrickas","Lithuania","LT","EUx","EU",53,"D","F","C","","i",0.5,2,5,5,["gov","fin"],"Coadjutor Archpriest, St Mary Major","Restored the basilica's books; will bury Francis beneath its floor."],
+[131,"radcliffe","Timothy Radcliffe","United Kingdom","GB","EUx","EU",79,"D","F","C","OP","s",1.8,6,8,7,["syn","eva"],"Master emeritus of the Dominicans","The synod's preacher; the only elector who is not a bishop."],
+[132,"baggio","Fabio Baggio","Italy","IT","IT","IT",60,"D","F","C","CS","ie",1.2,2,5,5,["mig"],"Under-Secretary, Migrants and Refugees",""],
+[133,"koovakad","George Koovakad","India","IN","AS","AS",51,"D","F","C","","i",0.8,3,5,5,["int","dip"],"Prefect, Interreligious Dialogue (Syro-Malabar)","Organised every papal journey since 2021; junior cardinal deacon."]
+];
+
+/* Absent eligible electors — shown in the dossier, never vote. */
+const ABSENT = [
+  {name:"Antonio Cañizares Llovera", country:"Spain", age:79, why:"health"},
+  {name:"John Njue", country:"Kenya", age:79, why:"health"}
+];
+
+/* Non-elector figures who appear in events */
+const OFFSTAGE = {
+  re:"Giovanni Battista Re (Dean, 91)",
+  sandri:"Leonardo Sandri (Vice-Dean, 81)",
+  becciu:"Giovanni Angelo Becciu (77, rights renounced 2020)",
+  cantalamessa:"Raniero Cantalamessa (Preacher emeritus, 90)",
+  ogliari:"Donato Ogliari (Abbot of St Paul's)",
+  ravelli:"Diego Ravelli (Master of Pontifical Ceremonies)",
+  stella:"Beniamino Stella (83, former Prefect for Clergy)",
+  arinze:"Francis Arinze (92)",
+  brambilla:"Sr Simona Brambilla (Prefect, Consecrated Life)"
+};
+
+const REGION_NAMES = {IT:"Italy",EU:"Europe",NA:"US & Canada",LA:"Latin America",AF:"Africa",AS:"Asia & Middle East",OC:"Oceania"};
+const TAG_NAMES = {mig:"migrants",soc:"social justice",lit:"liturgy & tradition",gov:"governance",fin:"finances",abu:"abuse response",syn:"synodality",eva:"evangelisation",dip:"peace & diplomacy",int:"interreligious",cli:"creation & climate",fam:"doctrine & family"};
+
+function buildElectors(){
+  return ELECTOR_ROWS.map((r,ix)=>{
+    const [prec,key,name,country,cc,offR,bloc,age,ord,by,role,rel,flags,lean,pap,grav,soc,tags,office,tagline]=r;
+    return {
+      id:key, ix, prec, key, name, country, cc, offR, bloc, age, ord, by, role,
+      rel: rel||null,
+      it: flags.includes("i"), es: flags.includes("e"), syn: flags.includes("s"),
+      lean, pap, grav, soc, tags: tags.slice(), office,
+      tagline: tagline || (office ? office : country),
+      surname: name.split(" ").slice(-1)[0]
+    };
+  });
+}
+const ELECTORS = buildElectors();
+
+</script>
+<script>
+"use strict";
+/* ============================================================
+   TIMELINE & EVENTS
+   tag: "doc" = documented (dated, sourced happening)
+        "mod" = modelled / inferred by the simulation
+   Effects are descriptors interpreted by the engine:
+     sal:{tag:+x}          shift college issue-salience
+     cons:{key:{amt,scope}} shift consideration of candidate `key`
+                            scope: ALL | bloc code | "cons" | "prog" | "latam+es"
+     grav:{key:+x}  pap:{key:+x}  mark:{key:"ambition"|...}
+   ============================================================ */
+
+const DAYS = [
+ {d:1, date:"Tuesday 22 April", scene:"gc", n:"I",
+  title:"General Congregation I",
+  desc:"The Synod Hall, half-empty: perhaps sixty cardinals so far, jet-lagged and grave. Cardinal Farrell, the Camerlengo, reads the will of Francis aloud. Everyone swears the oath of secrecy. The talk is of funeral logistics — and of how few of these faces you can put a name to."},
+ {d:2, date:"Wednesday 23 April", scene:"gc", n:"II",
+  title:"General Congregation II",
+  desc:"Francis's body is carried from Santa Marta to St Peter's; the queue outside will run all night. Inside the New Synod Hall the second congregation approves the nine days of mourning. Cardinals arrive by the hour, name badges pinned to their cassocks."},
+ {d:3, date:"Thursday 24 April", scene:"gc", n:"III",
+  title:"General Congregation III",
+  desc:"A hundred and thirteen cardinals now. The congregation appoints the two conclave preachers — Abbot Ogliari and Cardinal Cantalamessa. In the corridor, Cardinal Becciu is telling anyone who will listen that he intends to vote."},
+ {d:4, date:"Friday 25 April", scene:"gc", n:"IV",
+  title:"General Congregation IV",
+  desc:"A hundred and forty-nine cardinals, electors and elders together. Nearly seventy interventions have been delivered already — five minutes each, translation lagging. The funeral rite is rehearsed. Rome fills with presidents and kings."},
+ {d:5, date:"Saturday 26 April", scene:"funeral", n:"—",
+  title:"The Funeral of Francis",
+  desc:"A quarter of a million people. Wind snaps at the pages of the Gospel-book on the plain cypress coffin. You concelebrate with your hundred and thirty-two future companions in the enclosure, then the coffin crosses Rome to St Mary Major, past crowds ten deep. There is no politics today. There is only the size of what has ended."},
+ {d:6, date:"Monday 28 April", scene:"gc", n:"V",
+  title:"General Congregation V",
+  desc:"Back to work. The congregation fixes the date: the conclave will begin on Wednesday 7 May. Twenty interventions follow — the abuse crisis, evangelisation, ecumenism. The conservative elders are notably well-prepared; a coordinated tone is emerging on that side of the aula."},
+ {d:7, date:"Tuesday 29 April", scene:"gc", n:"VI",
+  title:"General Congregation VI",
+  desc:"The start time is set — 16:30, Pauline Chapel — and Cardinal Re will celebrate the opening Mass. Abbot Ogliari offers the first meditation: synodality, communion, a Church that walks together. One hundred and eighty-three cardinals listen; one hundred and twenty-four of them will vote."},
+ {d:8, date:"Wednesday 30 April", scene:"gc", n:"VII",
+  title:"General Congregation VII",
+  desc:"The morning belongs to money: the Holy See's deficits, the pension hole, the shadow of the London affair. It is dry until — abruptly — it is not."},
+ {d:9, date:"Thursday 1 May", scene:"free", n:"—",
+  title:"St Joseph the Worker — no congregation",
+  desc:"A rest day by calendar, the busiest day of the fortnight in practice. Cardinals jog the Janiculum, visit the sea at Ostia, and disappear into trattorie in twos and threes. The pratiche — the real conversations — happen over lunch tables with the tablecloths pulled close."},
+ {d:10, date:"Friday 2 May", scene:"gc", n:"VIII",
+  title:"General Congregation VIII",
+  desc:"Twenty-five interventions: synodality, the Curia, ecumenism and the Church's response to abuse. The agenda is broad, but the room is beginning to ask a narrower question: which man can make a College of strangers govern together?"},
+ {d:11, date:"Saturday 3 May", scene:"gc", n:"IX",
+  title:"General Congregation IX",
+  desc:"A hundred and seventy-seven cardinals, including 127 electors; twenty-six interventions. Communion, the Jubilee, the hope for a 'prophetic' pope. One intervention — from a soft-spoken Filipino bishop — lands, in the words of one elector, like a bombshell."},
+ {d:12, date:"Sunday 4 May", scene:"free", n:"—",
+  title:"The last Sunday outside",
+  desc:"No congregation today. The papabili dossier circulates in three languages; several cardinals admit to having watched the film everyone else watched last autumn. Online, clips and old videos do their work on reputations. The pratiche run late."},
+ {d:13, date:"Monday 5 May", scene:"gc", n:"X–XI",
+  title:"General Congregations X & XI",
+  desc:"Two sessions in one day: migration, synodality, unity, war. All one hundred and thirty-three electors are now in Rome. In the Sistine Chapel the false floor is down over the marble, the stoves are joined to the flue, and the support staff swear their oath of secrecy under pain of excommunication."},
+ {d:14, date:"Tuesday 6 May", scene:"gc", n:"XII",
+  title:"General Congregation XII",
+  desc:"The last congregation. The fisherman's ring and the lead seal of Francis are ceremonially defaced before the whole College. In the afternoon you carry your case into Santa Marta — or next door into the older annex, if your lot came late. The perimeter closes around you."},
+ {d:15, date:"Wednesday 7 May", scene:"seal", n:"—",
+  title:"Pro eligendo Romano Pontifice",
+  desc:"Ten o'clock, St Peter's: Cardinal Re, ninety-one, preaches on unity to a full basilica — Paul VI and John Paul II invoked; Francis, some note, rather less. At the kiss of peace he grips the Secretary of State by both arms. The microphones catch it. At half past four, the doors of the Pauline Chapel open and the procession begins."}
+];
+
+/* ---------------- Act I scripted events ---------------- */
+const EVENTS_ACT1 = [
+ {id:"will", d:1, tag:"doc", t:"The will of Francis",
+  b:"Farrell reads it slowly: a tomb in St Mary Major, near the icon of Salus Populi Romani; the cost met by a benefactor; 'the suffering that marked the final part of my life, offered to the Lord for peace.' The hall is very quiet. Whatever this fortnight becomes, it begins as grief.",
+  fx:{sal:{dip:0.06}}},
+ {id:"brambilla", d:1, tag:"doc", t:"An invitation mis-sent",
+  b:"A standard email summoning members to the congregation reaches Sister Simona Brambilla — prefect of a dicastery, and not a cardinal. It is quietly withdrawn. The anecdote makes every group chat that still functions: the machinery itself cannot yet tell who belongs in the room.",
+  fx:{}},
+ {id:"becciu1", d:3, tag:"doc", t:"The Becciu question",
+  b:"Becciu, convicted in the finance trial and stripped of his cardinalatial rights in 2020, insists his exclusion was never formalised: he will enter the conclave. The canonists frown; the congregation postpones. Nobody wants the first act of the new pontificate to be a lawsuit.",
+  choice:{q:"A journalist you trust asks, off the record, where you stand.",
+   opts:[
+    {t:"'The wishes of Pope Francis were clear.'", fx:{mark:"firm"}, note:"Word gets around: you back the letters. The reformers note it approvingly; Becciu's few friends do not."},
+    {t:"'He deserves due process like anyone.'", fx:{mark:"lenient"}, note:"A careful answer. Some hear fairness; others hear softness on the London affair."},
+    {t:"Say nothing at all.", fx:{}, note:"Silence is also an answer, and the safest one."}]}},
+ {id:"interv70", d:4, tag:"doc", t:"Seventy interventions",
+  b:"By the fourth congregation nearly seventy formal speeches have been made. Five minutes each; the simultaneous translation struggles; the Italians, fluent and at home, are heard twice as clearly as anyone else. A list-keeper could already tell you which themes are winning.",
+  fx:{}},
+ {id:"funeralday", d:5, tag:"doc", t:"Two hundred and fifty thousand",
+  b:"The funeral Mass in the square, then the slow drive across Rome to St Mary Major behind crowds the police stop counting at 150,000 along the route. In the front rows: Trump beside Macron, Zelensky applauded, Milei, Lula, royalty. In a basilica side room beforehand, Trump and Zelensky sit knee to knee under a fresco — their first meeting since the Oval Office. The Church buries a pope and hosts the world's arguments in the same hour.",
+  fx:{sal:{dip:0.1,mig:0.04}}},
+ {id:"consprep", d:6, tag:"doc", t:"A coordinated tone",
+  b:"Müller is vocal; Arinze, ninety-two and needle-sharp, more so. The restorationist elders arrive with their themes agreed: clarity of doctrine, the liturgy, the confusion of the last decade. The progressive majority, by contrast, is a hundred separate conversations. Coordination, you note, is itself a candidate quality.",
+  fx:{sal:{lit:0.1,fam:0.08}}},
+ {id:"becciu2", d:7, tag:"doc", t:"Becciu withdraws",
+  b:"After days of pressure — and after the Secretary of State produces two letters in which Francis, unmistakably, wished him out — Becciu announces he will obey 'for the good of the Church' and stay outside. Relief in the aula; and a mark, fairly or not, against the man who had to produce the letters.",
+  fx:{cons:{parolin:{amt:-0.35,scope:"ALL"}}}},
+ {id:"stella", d:8, tag:"doc", t:"Stella breaks ranks",
+  b:"Beniamino Stella — eighty-three, no vote, and for a decade one of Francis's most trusted men — rises and delivers a blunt, prepared attack on the late pope's decision to give lay men and women real power of governance. Gasps, literally. The assault comes from inside the house, and everyone hears the subtext: the old Curia is bidding to run the restoration — and Stella is counted a friend of the Secretary of State.",
+  fx:{sal:{gov:0.16}, cons:{parolin:{amt:-0.5,scope:"prog"}}},
+  choice:{q:"Hands go up around the aula. Do you intervene in reply?",
+   opts:[
+    {t:"Defend Francis's reforms from the floor.", req:"energy", fx:{sal:{syn:0.1},grav:0.5,mark:"francisman"}, note:"Applause from the majority; a cooler nod from the right of the hall. You have planted a flag."},
+    {t:"Privately reassure the lay officials' defenders afterwards.", fx:{trustBloc:{scope:"prog",amt:0.35}}, note:"Quieter, and remembered by the people who matter to you."},
+    {t:"Let it pass.", fx:{}, note:"The moment belongs to others."}]}},
+ {id:"maytraffic", d:9, tag:"doc", t:"The quiet campaign",
+  b:"No congregation today, and so: everything. The National Catholic Reporter's Rome bureau writes that Prevost of the Dicastery for Bishops is 'emerging as a serious frontrunner'. At tables across Trastevere and the Borgo, Latin Americans compare notes about the gringo who is not really a gringo; he baptised their catechists in Chiclayo.",
+  fx:{cons:{prevost:{amt:0.45,scope:"latam+es"}}, pap:{prevost:8}}},
+ {id:"davidbomb", d:11, tag:"doc", t:"David's bombshell",
+  b:"Pablo Virgilio David of Kalookan — who buried the victims of Duterte's drug war and refused to stop naming them — speaks on what the Church owes the poor and the frightened. One cardinal calls the intervention 'a bombshell'. Asia's bench sits taller; the peripheries have found their voice in the aula.",
+  fx:{sal:{soc:0.12,syn:0.06}, cons:{david:{amt:0.4,scope:"AS"}}, pap:{david:8}}},
+ {id:"trumpai", d:10, tag:"doc", t:"An image from Washington",
+  b:"The President of the United States posts an AI-generated picture of himself in white cassock and mitre, enthroned. 'I'd like to be pope,' he had joked days earlier. Italian newspapers use words like 'indecoroso'. Dolan, asked on camera, winces: 'it wasn't good.' Every American candidacy just acquired a headwind — and one American, the College quietly notes, has spent half his life being Peruvian.",
+  fx:{cons:{prevost:{amt:-0.12,scope:"ALL"}, dolan:{amt:-0.3,scope:"ALL"}}, sal:{dip:0.05}},
+  mark:"usheadwind"},
+ {id:"karaoke", d:11, tag:"doc", t:"The karaoke clip",
+  b:"An old video of Cardinal Tagle cheerfully singing John Lennon's 'Imagine' — imagine there's no heaven — is everywhere, pushed hard by accounts that want it everywhere. It is entirely innocent and it does not matter that it is innocent. Would-be supporters, one insider will later write, 'reconsider and abandon him'.",
+  fx:{cons:{tagle:{amt:-0.55,scope:"ALL"}}, pap:{tagle:-15}}},
+ {id:"pique", d:11, tag:"doc", t:"What Francis actually wanted",
+  b:"A veteran Argentine correspondent publishes what Vatican insiders call an open secret: Francis had lost confidence in his Secretary of State and did not wish him to be his successor. The article circulates in Spanish among the Latin American cardinals who had assumed Parolin was the continuity choice. They begin, audibly, to look for another.",
+  fx:{cons:{parolin:{amt:-0.6,scope:"latam+es"}, prevost:{amt:0.35,scope:"latam+es"}}}},
+ {id:"dossier", d:11, tag:"doc", t:"The dossier",
+  b:"A slick, privately produced 'College of Cardinals Report' lands in pigeonholes: candidate profiles scored for orthodoxy, with a subtext a child could read. Some electors mine it for biographies of strangers; others drop it in the bin on principle. Everyone reads it first.",
+  fx:{sal:{fam:0.05}}},
+ {id:"conclavefilm", d:11, tag:"doc", t:"Life imitates cinema",
+  b:"Half the College, it turns out, has seen the film 'Conclave'. 'Surprisingly accurate on the ritual,' one cardinal offers; 'let us hope not on the plot,' says another. In the square, tourists explain the two-thirds rule to each other with total confidence.",
+  fx:{}},
+ {id:"badges", d:13, tag:"doc", t:"Name badges",
+  b:"It has become the image of this interregnum: princes of the Church wearing conference name-tags, because Francis created cardinals from Tonga to Mongolia and never once gathered them in a room. Twenty electors have never attended a consistory discussion in their lives. Whoever can read this College — actually read it — holds an advantage worth thirty votes.",
+  fx:{}},
+ {id:"lots", d:11, tag:"doc", t:"Lots for the rooms",
+  b:"Santa Marta has 129 rooms and there are 133 of you, besides staff: lots are drawn after the congregation, and the overflow is assigned to the older annexe next door. The number in your hand is the first piece of the sealed world to come.",
+  fx:{}},
+ {id:"phones", d:14, tag:"doc", t:"The perimeter closes",
+  b:"Cases go into Santa Marta; windows are filmed over and the chapel is arranged for confession. At the desk each elector surrenders his telephone. Several realise, too late, that the telephone was also the alarm clock.",
+  fx:{}},
+ {id:"auguri", d:15, tag:"doc", t:"'Auguri doppi'",
+  b:"At the kiss of peace in the pro eligendo Mass, the ancient Dean takes Parolin by both arms, beams, and says: 'Auguri — auguri doppi.' Double good wishes. Innocent, perhaps — he presides in the conclave and might be elected out of it — but the cameras catch it, the clip is out before the recessional ends, and half the world now believes the fix is in. The other half wonders why the Dean's homily praised Paul VI and John Paul II and barely mentioned Francis.",
+  fx:{cons:{parolin:{amt:-0.15,scope:"ALL"}}}}
+];
+
+/* ---------------- Conclave scripted beats ---------------- */
+const EVENTS_CONCLAVE = {
+ procession:{tag:"doc", t:"Extra omnes",
+  b:"Four-thirty. From the Pauline Chapel, the Litany of the Saints; into the Sistine, the Veni Creator. One by one, in order of precedence, each of the 133 lays a hand on the Gospels: 'et me iudicaturum, me maximo cum studio…' — the oath, name by name, takes the better part of an hour. Then Archbishop Ravelli's voice, level and final: 'Extra omnes.' The doors close at 5:46 p.m. Outside, your last signal dies."},
+ simcard:{tag:"doc", t:"An alarm before the first vote",
+  b:"As ballots are being distributed, a security detector finds an active SIM somewhere in the chapel. An elderly cardinal, mortified, produces the telephone he forgot in the depths of a cassock pocket. It is surrendered; the sweep is repeated; the Sistine settles again under the Last Judgement. Nobody will say who it was. Several are grateful for that."},
+ meditation:{tag:"doc", t:"The meditation runs long",
+  b:"Cardinal Cantalamessa, ninety, preaches to the locked chapel on what the Church asks of the man they will choose. It is beautiful. It is also more than an hour long, and the light in the high windows is going. Parolin, presiding, puts the question: vote tonight, or sleep first?"},
+ erdoreads:{tag:"doc", t:"The scrutineer's voice",
+  b:"Erdő is among the three drawn by lot to count. He reads each of the 133 names aloud — including, again and again, his own — and his voice thins audibly as the pile shrinks. 'He looked very old,' one elector murmurs at dinner. An hour of leading the first ballot, undone by an hour of reading it."},
+ blacksmoke1:{tag:"doc", t:"Black smoke, 9 p.m.",
+  b:"One ballot only, and late. The stove is lit, the chemical cartridge fires, and the floodlit smoke over the chapel is unmistakably black. In the square — forty-five thousand faces, phone-lights, a groan, then applause anyway. First nights are always black."},
+ oversleep:{tag:"doc", t:"Morning without telephones",
+  b:"Half past six at Santa Marta and several places at breakfast stay empty: the telephones in the safe were also the alarm clocks, and more than one prince of the Church has slept straight through. The house will hand out alarm clocks tonight. The Swiss buses to the Sistine wait for no one twice."},
+ prevostreads:{tag:"doc", t:"A steadier voice",
+  b:"New lots for the morning: Prevost of the Dicastery for Bishops is drawn scrutineer. Twice in succession he stands at the altar and reads all 133 names in a level, unhurried voice — reading out his own name more often each time. The chapel notices what it is meant to notice: this one does not shake."},
+ blacksmoke2:{tag:"doc", t:"Black smoke, 11:51 a.m.",
+  b:"Two morning ballots burned together: black again, to fifteen thousand in the square and the world's slow-news cameras. But inside, the arithmetic has moved, and everyone who can count knows it."},
+ lunch:{tag:"doc", t:"Lunch at Santa Marta",
+  b:"Rigatoni, thin soup, water — the kitchen is deliberately penitential — and the most consequential meal of the year. Tables re-sort themselves. Voices drop. This is the hour when a two-thirds majority is actually assembled: not in the chapel, but over the bread."},
+ candy:{tag:"doc", t:"A sweet from a neighbour",
+  b:"In the afternoon session, as the count begins and his own name comes again and again, the man beside the rising candidate — Tagle, seated by fate's good humour at his elbow — silently passes him a boiled sweet. He takes it. The chapel pretends not to smile."},
+ headinhands:{tag:"doc", t:"Head in his hands",
+  b:"Across the chapel, Tobin glances at his friend as the tally climbs past the possible into the certain, and sees him with his head in his hands. 'I couldn't imagine,' he will say later, 'what happens to a human being when you're facing something like that.'"},
+ voidballot:{tag:"doc", t:"One paper too many",
+  b:"The count stops. One hundred and thirty-four papers from one hundred and thirty-three electors: somewhere, two sheets went into the urn folded together. The law of John Paul II is exact — the whole scrutiny is void, unread, and must be repeated at once. Fresh papers. The man who was about to be elected sits through the whole liturgy of his own election a second time."},
+ whitesmoke:{tag:"doc", t:"White smoke, 6:07 p.m.",
+  b:"The stove roars; the smoke over the Sistine is white beyond argument, and the bells of the basilica begin to swing. Forty thousand become a hundred and fifty thousand in under an hour, running down the Via della Conciliazione toward the light."}
+};
+
+/* ---------------- Ticker (outside world) ---------------- */
+const TICKER = {
+ 1:["Vatican: Pope Francis has died aged 88 · Camerlengo Farrell seals the papal apartments","World leaders to attend Saturday funeral","Betting markets open: Parolin and Tagle early favourites","Sistine Chapel to close to visitors from 28 April","Canonisation of Carlo Acutis postponed sine die"],
+ 2:["Body of Francis translated to St Peter's · queue stretches past Castel Sant'Angelo","250 cardinals expected in Rome · 135 are under eighty","EXPLAINER: what is a general congregation?","Airlines add Rome capacity ahead of funeral weekend"],
+ 3:["Convicted cardinal Becciu insists he will vote in conclave · canonists divided","Conclave preachers named: Ogliari and Cantalamessa","US Vice-President Vance among funeral delegations","Polymarket volume on next pope passes $10m"],
+ 4:["149 cardinals at fourth congregation · nearly 70 speeches so far","Rome deploys 4,000 extra officers for funeral","Fantapapa: 75,000 Italians drafting fantasy conclave teams","Hotels near Borgo Pio fully booked through mid-May"],
+ 5:["FUNERAL DAY: 250,000 in and around St Peter's Square","Trump and Zelensky meet privately inside the basilica","Coffin crosses Rome to St Mary Major · burial beside Salus Populi Romani","Applause as the popemobile passes a final time"],
+ 6:["Conclave to begin 7 May, Vatican confirms","Conservative cardinals press themes of doctrine and liturgy","Woelki expects a longer conclave; Rosa Chávez says 'maximum three days'","Chimney to be installed on Sistine roof Friday"],
+ 7:["Becciu renounces conclave participation 'for the good of the Church'","Report: letters from Francis settled the Becciu question","Congregation sets 16:30 start · Re to celebrate opening Mass","Vatican gift shops report record sales of white-smoke merchandise"],
+ 8:["Congregation hears grim briefing on Vatican finances","Insider attack on Francis's lay-governance reforms stuns aula","All 133 arriving electors confirmed eligible to vote","WIRED: how jammers and sweeps protect the Sistine"],
+ 9:["No congregation today: cardinals at the sea, on the Janiculum, in trattorie","NCR Rome bureau: Prevost 'emerging as a serious frontrunner'","Papabile of the day: Cardinal Robert Francis Prevost (Crux)","Polymarket: Parolin 37% · Tagle 26% · Pizzaballa 10%"],
+ 10:["Trump posts AI image of himself as pope · Italian press: 'indecoroso'","Dolan on the image: 'it wasn't good'","25 interventions at eighth congregation","Cardinals discuss synodality, abuse and the Roman Curia"],
+ 11:["177 cardinals at ninth congregation · 127 are electors","Kalookan's David impresses in the aula, say attendees","Electors draw lots for Santa Marta rooms","Anonymous papabile dossier circulates among electors"],
+ 12:["No congregation today · private meetings continue across Rome","Old Tagle karaoke clip weaponised online","La Nación: Francis 'did not want' Parolin as successor, insiders say","Cardinals admit to watching the film 'Conclave' for revision"],
+ 13:["All 133 electors now in Rome","Support staff swear oath of secrecy under pain of excommunication","False floor laid in Sistine · stoves connected to flue","Seagull inspects new chimney, delights broadcasters"],
+ 14:["Fisherman's ring and seal of Francis defaced before the College","Electors move into Santa Marta and the old annexe","Phones surrendered; signal jammers tested","St Peter's Square screens tested for smoke-watch"],
+ 15:["Pro eligendo Mass: Re, 91, preaches unity to a packed basilica","HOT MIC: Dean tells Parolin 'auguri doppi' at the kiss of peace","4,000 accredited journalists; 45,000 expected for first smoke","This is the largest conclave in the history of the Church"]
+};
+const TICKER_SEALED = "SIGNAL LOST — the College is sealed · 133 telephones in a safe · jammers active beneath the false floor · outside, the Square waits";
+
+</script>
+<script>
+"use strict";
+/* ============================================================
+   ENGINE
+   ============================================================ */
+const N = 133;
+const THRESHOLD = 89; // two-thirds of 133
+const SAVE_VERSION = 1;
+const PAUSE_BALLOTS = [13,20,27,34];
+
+/* ---------- seeded RNG ---------- */
+function hashSeed(str){let h=1779033703^str.length;for(let i=0;i<str.length;i++){h=Math.imul(h^str.charCodeAt(i),3432918353);h=(h<<13)|(h>>>19);}return h>>>0;}
+function mulberry32(a){return function(){a|=0;a=(a+0x6D2B79F5)|0;let t=Math.imul(a^(a>>>15),1|a);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296;};}
+function gumbel(rng,scale){return -scale*Math.log(-Math.log(Math.max(1e-9,rng())));}
+function clamp(value,min,max){return Math.max(min,Math.min(max,value));}
+function keyedUnit(seed,label){return hashSeed(String(seed)+"|"+String(label))/4294967296;}
+
+/* ---------- state ---------- */
+let G = null;
+
+function newGame(playerKey, seedStr){
+  const electors = buildElectors();
+  const byKey = {}; electors.forEach(e=>byKey[e.key]=e);
+  if(!byKey[playerKey]) throw new Error("Unknown elector: "+playerKey);
+  const rng0 = mulberry32(hashSeed(seedStr||"habemus"));
+  let rngN = 0;
+  const rng = ()=>{ rngN++; return rng0(); };
+  rng.count = ()=>rngN;
+  rng.burn = (n)=>{ while(rngN<n) rng(); };
+  const st = {
+    seed: seedStr||"habemus",
+    rng,
+    electors, byKey,
+    player: byKey[playerKey].ix,
+    phase:"act1",            // act1 | conclave | done
+    day:1, slot:0, slots:3,
+    // conclave sub-state
+    cDay:0, session:null, sessionQueue:[],
+    ballots:[],              // {n, counts:[..], top:[{ix,v}], void:false, session, smoke}
+    votedFor:[],             // player's votes by ballot n
+    pactActive:true, voidUsed:false, avelineDone:false, lunchDone:false,
+    runoff:null,             // {a,b} when in runoff
+    exhortations:0,
+    pauseHandled:[], pauseDue:null, pendingRunoff:false,
+    // matrices
+    C: new Float32Array(N*N),   // C[i*N+j]: elector i's extra consideration of j
+    lastVote: new Int16Array(N).fill(-1),
+    met: new Uint8Array(N),     // player's acquaintance
+    trust: new Float32Array(N), // player's trust edges
+    read: new Uint8Array(N),    // player has read leanings
+    sal: {mig:.30,soc:.34,lit:.22,gov:.40,fin:.30,abu:.30,syn:.34,eva:.40,dip:.36,int:.24,cli:.20,fam:.26},
+    energy:8, ambition:0, communion:70, impact:0, gravBonus:0, papBonus:0,
+    marks:{}, log:[], ticker:[], chron:[], knownVotes:{},
+    smoke:{state:"cold", label:"The chimney is cold.", sub:"Installed by the Vatican fire brigade, 2 May.", crowd:"—"},
+    pope:null, popeName:null, electedIx:null, electedBallot:null, awaitAccept:false, over:false, ended:null,
+    consBloc:null, prevoIdent:null,
+    dolanPush:0, playerVotesHeld:0,
+    grace:0
+  };
+  // documented prior: "more than twenty cardinals had quietly identified Prevost"
+  const seedGroup=(targetKey,pool,count,amt)=>{
+    const t=byKey[targetKey].ix; const p=pool.filter(e=>e.ix!==t&&e.ix!==undefined);
+    shuffle(p,rng); const got=p.slice(0,count).map(e=>e.ix);
+    got.forEach(i=>{st.C[i*N+t]+=amt;}); return got;
+  };
+  st.prevoIdent = seedGroup("prevost", electors.filter(e=>e.bloc==="NA"||e.bloc==="LA"||e.role==="C"||e.es), 16+Math.floor(rng()*13), 0.82+0.32*rng());
+  seedGroup("parolin", electors.filter(e=>(e.role==="C"||e.bloc==="IT"||e.bloc==="EU")&&e.lean>=-0.2&&e.lean<=0.95), 20+Math.floor(rng()*16), 0.9+0.4*rng());
+  seedGroup("tagle", electors.filter(e=>e.bloc==="AS"||e.es), 10+Math.floor(rng()*7), 0.85);
+  seedGroup("zuppi", electors.filter(e=>e.bloc==="IT"||(e.lean>0.9&&e.bloc==="EU")), 8+Math.floor(rng()*5), 0.7);
+  seedGroup("aveline", electors.filter(e=>e.cc==="FR"||(e.bloc==="EU"&&e.lean>0.8)), 6+Math.floor(rng()*4), 0.65);
+  seedGroup("grech", electors.filter(e=>e.syn), 6+Math.floor(rng()*4), 0.5);
+  st.kSev = 0.35+0.5*rng();   // how badly the karaoke clip lands, this run
+  // Dolan & Farrell as early Prevost movers (documented reporting)
+  st.C[byKey.dolan.ix*N+byKey.prevost.ix]+=2.0;
+  st.C[byKey.farrell.ix*N+byKey.prevost.ix]+=1.6;
+  st.C[byKey.tobin.ix*N+byKey.prevost.ix]+=1.2;
+  st.C[byKey.cupich.ix*N+byKey.prevost.ix]+=1.0;
+  // player's starting acquaintances: countrymen, own order, curial colleagues, consistory class
+  const me = electors[st.player];
+  electors.forEach(e=>{
+    if(e.ix===me.ix){st.met[e.ix]=1;st.read[e.ix]=1;return;}
+    let k=0;
+    if(e.country===me.country)k=1;
+    if(me.rel&&e.rel===me.rel)k=1;
+    if(me.role==="C"&&e.role==="C")k=1;
+    if(e.by===me.by&&e.ord===me.ord&&Math.abs(e.prec-me.prec)<=6)k=Math.max(k, rng()<0.5?1:0);
+    if(me.syn&&e.syn&&rng()<0.4)k=1;
+    if(k){st.met[e.ix]=1; if(rng()<0.7)st.read[e.ix]=1; st.trust[e.ix]=0.6+rng()*0.6;}
+  });
+  G = st;
+  return st;
+}
+function shuffle(a,rng){for(let i=a.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[a[i],a[j]]=[a[j],a[i]];}}
+
+/* ---------- utility model ---------- */
+function ageFit(age){ const d=Math.abs(age-71)/14; return 1-Math.min(1,Math.pow(d,1.3)); }
+function usPenalty(e){ if(e.cc!=="US") return 0; return e.key==="prevost" ? 0.18 : 0.62; }
+function tagScore(st,e){
+  let s=0; e.tags.forEach(t=>{s+=st.sal[t]||0;}); return s/Math.max(1,e.tags.length);
+}
+function baseUtility(st,i,j){
+  const A=st.electors[i], B=st.electors[j];
+  let u = 0;
+  u += 1.6*B.pap/100;
+  u += 0.06*B.grav;
+  u += 0.9*ageFit(B.age);
+  u -= 0.62*Math.abs(A.lean-B.lean);
+  if(A.bloc===B.bloc) u+=0.22;
+  if(A.es&&B.es) u+=0.12;
+  if(A.rel&&A.rel===B.rel) u+=0.18;
+  if(A.role==="C"&&B.role==="C") u+=0.08;
+  if(A.syn&&B.syn) u+=0.06;
+  u += 0.85*tagScore(st,B);
+  u -= usPenalty(B);
+  if(B.role==="R") u-=0.35;           // retired men are rarely elected
+  u += st.C[i*N+j];
+  return u;
+}
+function alignmentWithPlayer(candidateIx,st=G){
+  const me=st.electors[st.player],other=st.electors[candidateIx];
+  const shared=me.tags.filter(t=>other.tags.includes(t));
+  let score=100-25*Math.abs(me.lean-other.lean)+shared.length*6;
+  if(me.bloc===other.bloc)score+=5;
+  if(me.rel&&me.rel===other.rel)score+=5;
+  score=clamp(Math.round(score),0,100);
+  const label=score>=82?"very closely aligned":score>=66?"closely aligned":score>=48?"mixed alignment":score>=30?"distant":"strongly opposed";
+  return {score,label,shared};
+}
+
+/* ---------- scrutiny ---------- */
+function computeBallot(opts){
+  const st=G, o=opts||{};
+  const bn = st.ballots.filter(b=>!b.void).length+1;
+  const prev = [...st.ballots].reverse().find(b=>!b.void);
+  const prevCounts = prev?prev.counts:null;
+  const counts = new Int16Array(N);
+  const roll = [];
+  const erdo = st.byKey.erdo.ix;
+  const eligible = st.runoff ? [st.runoff.a,st.runoff.b] : null;
+  const hasPlayerVote = Object.prototype.hasOwnProperty.call(o,"playerVote") && o.playerVote!==undefined;
+  validatePlayerVote(st,o.playerVote,hasPlayerVote);
+  for(let i=0;i<N;i++){
+    if(st.runoff && (i===st.runoff.a||i===st.runoff.b)) continue; // no active voice in runoff
+    let pick=-1;
+    if(i===st.player && hasPlayerVote) pick=o.playerVote;
+    // the documented pact: the hard-conservative core enters pre-committed to Erdő for the first scrutiny
+    if(pick<0 && st.pactActive && bn===1 && !st.runoff && i!==erdo && st.electors[i].lean<=-0.5) pick=erdo;
+    if(pick<0){
+      let best=-1e9;
+      const cands = eligible || null;
+      const consider=(j)=>{
+        if(j===i) return;
+        let u = baseUtility(st,i,j);
+        if(st.pactActive && bn===1 && j===erdo){
+          const L=st.electors[i].lean;
+          if(L>-0.5 && L<=-0.1 && st.electors[i].key!=="dolan") u += 3.2;   // soft conservatives fall in behind the canonist
+          else if(L<=0.4) u += (st.electors[i].key==="dolan"?1.2:2.0);      // institutional homage to the right's standard-bearer
+        }
+        if(bn===1 && j===st.byKey.parolin.ix && st.electors[i].it) u += 0.45; // the Italianate insiders' opening nod
+        if(prevCounts){
+          u += (1.0+0.25*bn)*(prevCounts[j]/N);                      // bandwagon
+          if(st.lastVote[i]===j) u += Math.max(0.15, 0.85-0.1*bn);   // stickiness
+          if(prevCounts[j]<6 && st.C[i*N+j]<0.9) u -= 0.95;          // viability
+        }
+        u += gumbel(st.rng,0.42);
+        if(u>best){best=u;pick=j;}
+      };
+      if(cands){cands.forEach(consider);}else{for(let j=0;j<N;j++)consider(j);}
+    }
+    if(!Number.isInteger(pick)||pick<0||pick>=N||pick===i) throw new Error("Ballot engine produced an illegal vote");
+    counts[pick]++;
+    st.lastVote[i]=pick;
+    roll.push({voter:st.electors[i].key,candidate:st.electors[pick].key});
+  }
+  const ballot={n:bn, number:bn, counts, roll, void:false, electors:roll.length, threshold:threshNow()};
+  assertBallotRecord(st,ballot);
+  return ballot;
+}
+function validatePlayerVote(st,vote,explicit){
+  if(!explicit)return true;
+  const barred=st.runoff&&(st.player===st.runoff.a||st.player===st.runoff.b);
+  if(barred){if(vote!==null)throw new Error("A runoff candidate has no active voice");return true;}
+  if(!Number.isInteger(vote)||vote<0||vote>=N)throw new Error("Player vote is not a known elector");
+  if(vote===st.player)throw new Error("No cardinal may vote for himself");
+  if(st.runoff&&vote!==st.runoff.a&&vote!==st.runoff.b)throw new Error("Vote is outside the runoff");
+  return true;
+}
+function assertBallotRecord(st,b){
+  const expected=st.runoff?N-2:N;
+  if(b.roll.length!==expected||b.electors!==expected)throw new Error("Incomplete electorate roll");
+  const voters=new Set(),recount=new Int16Array(N);
+  b.roll.forEach(v=>{
+    const voter=st.byKey[v.voter],candidate=st.byKey[v.candidate];
+    if(!voter||!candidate||voter.key===candidate.key||voters.has(voter.key))throw new Error("Illegal ballot roll");
+    if(st.runoff&&(candidate.ix!==st.runoff.a&&candidate.ix!==st.runoff.b))throw new Error("Illegal runoff candidate");
+    if(st.runoff&&(voter.ix===st.runoff.a||voter.ix===st.runoff.b))throw new Error("Runoff candidate cast a vote");
+    voters.add(voter.key);recount[candidate.ix]++;
+  });
+  let total=0;for(let i=0;i<N;i++){total+=b.counts[i];if(b.counts[i]!==recount[i])throw new Error("Ballot tally does not match its roll");}
+  if(total!==expected)throw new Error("Ballot paper count does not match the electorate");
+  if(b.threshold!==Math.ceil(expected*2/3))throw new Error("Incorrect election threshold");
+  return true;
+}
+function tally(counts){
+  const arr=[];for(let j=0;j<N;j++)if(counts[j]>0)arr.push({ix:j,v:counts[j]});
+  arr.sort((a,b)=>b.v-a.v||a.ix-b.ix);return arr;
+}
+function threshNow(){ return G.runoff ? Math.ceil((N-2)*2/3) : THRESHOLD; }
+
+function runScrutiny(playerVote){
+  const st=G;
+  if(!st||st.over||st.phase==="done")throw new Error("The election is over");
+  if(st.awaitAccept||st.electedIx!=null)throw new Error("An election awaits acceptance");
+  if(!["eve1","am","pm"].includes(st.session))throw new Error("A scrutiny is not currently legal");
+  if(sessionBallotsLeft()<=0)throw new Error("This scrutiny session is complete");
+  const explicit=playerVote!==undefined;
+  const b=computeBallot(explicit?{playerVote}:{});
+  b.top=tally(b.counts);
+  b.session=st.session; b.day=st.cDay;
+  const thr=b.threshold;
+  const winner = b.top.length&&b.top[0].v>=thr ? b.top[0].ix : null;
+  const playerEntry=b.roll.find(v=>v.voter===st.electors[st.player].key);
+  // The documented fourth-scrutiny mishap was detected before any paper was opened.
+  if(winner!=null && b.n===4 && !st.voidUsed){
+    st.voidUsed=true;
+    const unread={n:b.n,number:b.n,counts:new Int16Array(N),top:[],roll:[],void:true,
+      voidNote:"134 papers from 133 electors — scrutiny void, unread and repeated at once",
+      paperCount:134,electors:N,threshold:THRESHOLD,session:st.session,day:st.cDay};
+    st.ballots.push(unread);
+    logCard("doc","One paper too many",EVENTS_CONCLAVE.voidballot.b);
+    st.votedFor.push({n:b.n,who:playerEntry?st.byKey[playerEntry.candidate].ix:null,void:true});
+    return runScrutiny(playerVote); // immediate redo
+  }
+  b.elected=winner!=null;
+  b.winnerId=winner==null?null:st.electors[winner].key;
+  st.ballots.push(b);
+  st.votedFor.push({n:b.n,who:playerEntry?st.byKey[playerEntry.candidate].ix:null});
+  if(winner!=null)st.electedIx=winner;
+  else{
+    afterBallotEffects(b);
+    if(PAUSE_BALLOTS.includes(b.n)&&!st.pauseHandled.includes(b.n))st.pauseDue=b.n;
+  }
+  return b;
+}
+
+function afterBallotEffects(b){
+  const st=G, bn=b.n;
+  const leader=b.top[0], erdo=st.byKey.erdo.ix, prev=st.byKey.prevost.ix;
+  // momentum into consideration
+  for(let j=0;j<N;j++){ if(b.counts[j]>0){ const add=0.35*(b.counts[j]/N); for(let i=0;i<N;i++) st.C[i*N+j]+=add; } }
+  // Ballot 1: the scrutineer's voice
+  if(bn===1){
+    if(leader&&leader.ix===erdo){
+      logCard("doc","The scrutineer's voice",EVENTS_CONCLAVE.erdoreads.b);
+      st.electors[erdo].grav=Math.max(3,st.electors[erdo].grav-1.5);
+      for(let i=0;i<N;i++)st.C[i*N+erdo]-=0.4;
+      st.pactFray=true;
+    } else if(leader){
+      const L=st.electors[leader.ix];
+      const good=(L.grav>=7&&L.age<=72);
+      logCard("mod","The scrutineer's voice","By lot, "+cardName(L)+" is among the three who count, reading all 133 names aloud — his own again and again. "+(good?"The chapel notices the steadiness.":"The chapel notices the strain."));
+      for(let i=0;i<N;i++)st.C[i*N+leader.ix]+=(good?0.25:-0.3);
+    }
+  }
+  // pact breaks when Erdő stalls
+  if(st.pactActive && bn>=2){
+    const b1=st.ballots.find(x=>!x.void&&x.n===1);
+    if(b1 && b.counts[erdo] <= b1.counts[erdo]+2){
+      st.pactActive=false;
+      logCard("mod","The pact releases","The conservative bloc's arithmetic is undeniable: their standard-bearer cannot reach ninety. Word passes down the benches at the next pause — vote your conscience, salvage what can be salvaged. Their votes go looking for the least-alarming door.");
+      const toParolin = st.rng()<0.32; // in most runs the bloc breaks toward the least-alarming reformer, as reconstructed; sometimes toward the secretariat
+      const gPrev = toParolin?0.28:0.55, gParo = toParolin?0.6:0.25;
+      for(let i=0;i<N;i++){ if(st.electors[i].lean<=-0.5){ st.C[i*N+prev]+=gPrev; st.C[i*N+st.byKey.parolin.ix]+=gParo; st.C[i*N+st.byKey.pizzaballa.ix]+=0.2; } }
+    }
+  }
+  // morning day 2: Prevost reads (documented, when he is rising)
+  if(st.cDay===2 && st.session==="am" && !st.prevRead){
+    st.prevRead=true;
+    if(b.counts[prev]>=15){
+      logCard("doc","A steadier voice",EVENTS_CONCLAVE.prevostreads.b);
+      for(let i=0;i<N;i++)st.C[i*N+prev]+=0.42;
+      st.electors[prev].grav=Math.min(10,st.electors[prev].grav+0.5);
+    }
+  }
+  // Aveline flicker (documented): progressive scatter looks for a consensus face
+  if(!st.avelineDone && st.cDay===2 && st.session==="am" && bn>=3){
+    const av=st.byKey.aveline.ix;
+    if(b.counts[av]>=5 && (!leader||b.counts[leader.ix]<55)){
+      st.avelineDone=true;
+      logCard("doc","A French moment","Between the morning ballots the name of Aveline of Marseille passes down the tables of Francis's closest men — could the Mediterranean archbishop be the consensus? The moment is real, and brief.");
+      for(let i=0;i<N;i++) if(st.electors[i].lean>0.8&&st.electors[i].bloc==="EU") st.C[i*N+av]+=0.5;
+    }
+  }
+}
+
+/* ---------- conclave schedule ---------- */
+function startConclave(){
+  const st=G;
+  st.phase="conclave"; st.cDay=1; st.session="eve1";
+  st.tickerSealed=true;
+  logCard("doc","Extra omnes",EVENTS_CONCLAVE.procession.b);
+  logCard("doc","An alarm before the first vote",EVENTS_CONCLAVE.simcard.b);
+  logCard("doc","The meditation runs long",EVENTS_CONCLAVE.meditation.b);
+}
+function sessionBallotsLeft(){
+  const st=G;
+  if(st.session==="eve1") return 1-sessionCount();
+  if(st.session==="am"||st.session==="pm") return 2-sessionCount();
+  return 0;
+}
+function sessionCount(){ const st=G; return st.ballots.filter(b=>!b.void&&b.day===st.cDay&&b.session===st.session).length; }
+function totalValidBallots(){ return G.ballots.filter(b=>!b.void).length; }
+function smokeTime(white){
+  const st=G;
+  if(white&&st.electedIx===st.byKey.prevost.ix&&totalValidBallots()===4&&st.cDay===2)return "6:07 p.m.";
+  if(!white&&st.cDay===1)return "9:00 p.m.";
+  if(!white&&st.session==="am"&&st.cDay===2)return "11:51 a.m.";
+  const u=keyedUnit(st.seed,"smoke:"+st.cDay+":"+st.session+":"+totalValidBallots()+":"+(white?"w":"b"));
+  if(st.session==="am")return "12:"+String(Math.floor(u*10)).padStart(2,"0")+" p.m.";
+  return (5+Math.floor(u*2))+":"+String(10+Math.floor(u*49)).padStart(2,"0")+" p.m.";
+}
+function crowdFor(white){
+  const st=G;
+  if(white)return "150,000";
+  if(st.cDay===1)return "45,000";
+  if(st.session==="am")return "15,000";
+  return (30+Math.floor(keyedUnit(st.seed,"crowd:"+st.cDay+":"+st.session)*20))+",000";
+}
+function publishWhiteSmoke(){
+  const st=G,time=smokeTime(true);
+  st.smoke={state:"white",label:"White smoke — "+time,sub:"The bells of the basilica begin to swing.",crowd:crowdFor(true)};
+  const historical=st.electedIx===st.byKey.prevost.ix&&totalValidBallots()===4&&st.cDay===2;
+  logCard(historical?"doc":"mod","White smoke, "+time,historical?EVENTS_CONCLAVE.whitesmoke.b:"The stove roars; the smoke over the Sistine turns white and the bells answer it. The Square begins to run toward St Peter's.");
+}
+function endSession(){
+  const st=G;
+  if(st.electedIx!=null)return handleElection();
+  const time=smokeTime(false);
+  st.smoke={state:"black",label:"Black smoke — "+time,sub:totalValidBallots()+" scrutinies so far. The College returns to Santa Marta.",crowd:crowdFor(false)};
+  if(st.cDay===1) logCard("doc","Black smoke, 9 p.m.",EVENTS_CONCLAVE.blacksmoke1.b);
+  else if(st.cDay===2&&st.session==="am") logCard("doc","Black smoke, 11:51 a.m.",EVENTS_CONCLAVE.blacksmoke2.b);
+  else logCard("mod","Black smoke","The scrutiny papers are burned; the smoke over the chapel is black. The Square thins a little, and refills.");
+  if(st.pauseDue!=null){enterPause(st.pauseDue);return;}
+  // advance
+  if(st.session==="eve1"){ st.session="dinner"; st.slots=2; st.slot=0; conclaveMealIntro("dinner"); }
+  else if(st.session==="am"){ st.session="lunch"; st.slots=2; st.slot=0; conclaveMealIntro("lunch"); }
+  else if(st.session==="pm"){ st.session="dinner"; st.slots=2; st.slot=0; conclaveMealIntro("dinner"); }
+}
+function conclaveMealIntro(kind){
+  const st=G;
+  if(kind==="lunch"&&st.cDay===2&&!st.lunchDone){
+    st.lunchDone=true;
+    logCard("doc","Lunch at Santa Marta",EVENTS_CONCLAVE.lunch.b);
+    // the documented consolidation: blocs converge on the acceptable leader
+    const lb=[...st.ballots].reverse().find(b=>!b.void);
+    if(lb){
+      const L=lb.top[0];
+      if(L && lb.counts[L.ix]>=40){
+        const cand=st.electors[L.ix];
+        if(cand.lean>=-0.4&&cand.lean<=1.5){
+          logCard(cand.key==="prevost"?"doc":"mod","The tables re-sort","Latin America moves first, then the Africans and the Asians follow their own soundings; the Europeans read the room. By the coffee it is no longer a question of whether, only of how large the number should be — large enough, the elders say, that no one can ever say the Church was divided.");
+          const boost=1.0+0.35*st.rng(); for(let i=0;i<N;i++){ if(st.electors[i].lean>=-0.6) st.C[i*N+L.ix]+=boost; }
+          const tg=st.byKey.tagle.ix;
+          if(L.ix!==tg){ for(let i=0;i<N;i++){ if(st.lastVote[i]===tg) st.C[i*N+L.ix]+=1.2; } }
+        } else {
+          logCard("mod","Unease over the soup","The leader of the morning is not a man the middle of the College can accept. Over lunch the search resumes for a name that frightens no one.");
+          for(let i=0;i<N;i++){ if(Math.abs(st.electors[i].lean-cand.lean)>1.2) st.C[i*N+L.ix]-=0.6; }
+        }
+      }
+    }
+  } else if(kind==="dinner"&&st.cDay===1){
+    logCard("doc","Dinner on the first night","Thin soup and hard arithmetic. The first count is passed from table to table in murmurs — no notes, nothing written — and every camp learns the same lesson at the same moment: nobody is close, and somebody unexpected is real.");
+  } else {
+    logCard("mod",kind==="lunch"?"Lunch at Santa Marta":"Dinner at Santa Marta","The dining room does its quiet work: intentions sounded, doubts planted, comfort given. The kitchen's asceticism is by now a shared joke.");
+  }
+  if(st.cDay===1&&kind==="dinner") maybeOversleepSetup();
+}
+function maybeOversleepSetup(){ /* flag for morning */ G.oversleepPending=true; }
+
+function advanceConclaveDay(){
+  const st=G;
+  if(st.over||st.awaitAccept)return;
+  st.cDay++;
+  st.session="am"; st.slots=1; st.slot=0;
+  if(st.oversleepPending){ st.oversleepPending=false;
+    logCard("doc","Morning without telephones",EVENTS_CONCLAVE.oversleep.b);
+    if(st.energy<=3){ st.slot=1; logCard("player","You oversleep","No telephone, no alarm, sixteen days of this behind you. You wake to the second bell and board the bus unbreakfasted. The morning's conversations happen without you."); }
+  }
+}
+function enterPause(boundary){
+  const st=G;
+  st.pauseDue=null;
+  if(!st.pauseHandled.includes(boundary))st.pauseHandled.push(boundary);
+  st.exhortations=st.pauseHandled.length;
+  st.pendingRunoff=boundary===34;
+  st.cDay++;
+  st.session="pause";
+  const speakers={13:"the senior cardinal deacon, Mamberti",20:"the senior cardinal priest, Puljić",27:"the senior cardinal bishop presiding, Parolin",34:"the senior cardinal bishop presiding, Parolin"};
+  pauseCard(speakers[boundary]||"the senior elector in precedence");
+}
+function pauseCard(who){
+  logCard("doc","A day of prayer and exhortation","The Constitution requires it: voting is suspended for a day of prayer, free discussion among the voters, and a brief spiritual exhortation given by "+who+". The College breathes; the Square, uncomprehending, watches a cold chimney.");
+  G.slots=3; G.slot=0;
+}
+function resumeAfterPause(){
+  const st=G;
+  st.cDay++;
+  if(st.pendingRunoff){st.pendingRunoff=false;startRunoffNext();}
+  st.session="am";st.slots=1;st.slot=0;
+}
+function startRunoffNext(){
+  const st=G;
+  const lb=[...st.ballots].reverse().find(b=>!b.void);
+  const t=lb.top;
+  st.runoff={a:t[0].ix,b:t[1].ix};
+  logCard("doc","The runoff rule","Thirty-four valid scrutinies and the required pauses later: from now the ballot lies only between "+cardName(st.electors[t[0].ix])+" and "+cardName(st.electors[t[1].ix])+". Neither may vote. Two-thirds of the 131 active voters is still required. There is no further rule after this one.");
+}
+
+/* ---------- election & finale ---------- */
+function handleElection(){
+  const st=G;
+  const w=st.electedIx;
+  st.electedBallot=totalValidBallots();
+  if(w===st.player){ st.awaitAccept=true; return; }
+  const E=st.electors[w];
+  // acceptance is presumed for AI; Prevost's documented beats
+  if(E.key==="prevost"){
+    logCard("doc","Head in his hands",EVENTS_CONCLAVE.headinhands.b);
+    logCard("doc","A sweet from a neighbour",EVENTS_CONCLAVE.candy.b);
+  }
+  const asker = (w===st.byKey.parolin.ix)? "Filoni, next in precedence," : "Parolin, presiding,";
+  const nm = popeNameFor(E);
+  st.pope=w; st.popeName=nm;
+  logCard(E.key==="prevost"?"doc":"mod","Acceptasne?",asker+" puts the double question prescribed by the Constitution: does he accept his canonical election as Supreme Pontiff — and by what name will he be called? A pause that outlasts several lifetimes. Then, quietly: 'Accepto.' He will be called "+nm+".");
+  publishWhiteSmoke();
+  finishGame();
+}
+function popeNameFor(E){
+  const st=G;
+  if(E.key==="prevost") return "Leo XIV";
+  const r=st.rng();
+  if(E.lean<=-1) return r<0.5?"Pius XIII":"Benedict XVII";
+  if(E.lean<0.2) return r<0.5?"Benedict XVII":"John Paul III";
+  if(E.lean<1.0) return r<0.4?"Leo XIV":(r<0.7?"Paul VII":"John XXIV");
+  return r<0.45?"Francis II":(r<0.8?"John XXIV":"Leo XIV");
+}
+function acceptElection(accepted, chosenName){
+  const st=G;
+  st.awaitAccept=false;
+  if(!accepted){
+    logCard("player","'Non accepto.'","A silence like a dropped chalice. It is your right; it has been done; it is remembered for centuries when it is done. The scrutinies must begin again, and every eye in the chapel now weighs you differently — some with awe, a few with fury.");
+    for(let i=0;i<N;i++)st.C[i*N+st.player]-=3.0;
+    const last=[...st.ballots].reverse().find(b=>!b.void);
+    if(last){last.declined=true;last.accepted=false;}
+    st.electedIx=null; st.electedBallot=null; st.marks.refused=true; st.communion=clamp(st.communion-6,0,100);
+    if(sessionBallotsLeft()<=0)endSession();
+    return;
+  }
+  st.pope=st.player; st.popeName=chosenName||"Leo XIV";
+  logCard("player","'Accepto.'","You hear your own voice say it. Parolin bows. The Room of Tears is nine steps away and you do not remember walking them; there are three sizes of cassock and none of them is exactly yours. Beyond the wall, a hundred and fifty thousand people are about to learn your new name.");
+  const last=[...st.ballots].reverse().find(b=>!b.void);if(last)last.accepted=true;
+  publishWhiteSmoke();
+  finishGame();
+}
+function finishGame(){
+  const st=G;
+  st.phase="done"; st.over=true;
+  if(st.smoke.state!=="white")st.smoke={state:"white",label:"White smoke",sub:"Habemus Papam.",crowd:"150,000"};
+  computeScore();
+}
+function computeScore(){
+  const st=G;
+  const me=st.electors[st.player];
+  const P=st.electors[st.pope];
+  const myVotesPeak = Math.max(0,...st.ballots.filter(b=>!b.void).map(b=>b.counts[st.player]||0));
+  const affinity = Math.max(0,Math.round(100-26*Math.abs(me.lean-P.lean)));
+  const infl = Math.min(100,Math.round(st.impact*10 + (st.pope===st.player?40:0)));
+  const comm = Math.max(0,Math.min(100,Math.round(st.communion - Math.max(0,st.electedBallot-6)*2)));
+  const ambPen = st.ambition>=6&&st.pope!==st.player ? 12 : 0;
+  const total = Math.round(0.4*affinity+0.3*infl+0.3*comm) - ambPen + (st.marks.refused?4:0);
+  let grade="C"; if(total>=85)grade="S"; else if(total>=72)grade="A"; else if(total>=58)grade="B"; else if(total>=42)grade="C"; else grade="D";
+  let epithet;
+  if(st.pope===st.player) epithet = st.ambition>=6 ? "He entered the conclave as pope — and, for once, left it as one." : "The College went looking for a bridge, and found you.";
+  else if(st.marks.refused) epithet="The one who said no beneath the Last Judgement.";
+  else if(myVotesPeak>=15&&st.ambition>=6) epithet="He entered the conclave as pope; he left it as a cardinal.";
+  else if(infl>=60) epithet="The grand elector. Every pope owes somebody.";
+  else if(comm>=85) epithet="A maker of communion in a College of strangers.";
+  else if(myVotesPeak>=5) epithet="A name that was written on real ballots, in real ink.";
+  else epithet="A faithful elector among the hundred and thirty-three.";
+  st.score={affinity,infl,comm,ambPen,total,grade,epithet,myVotesPeak};
+}
+
+/* ---------- Act I actions ---------- */
+function spendSlot(){ G.slot++; }
+function meetElector(ix,depth){
+  const st=G;
+  if(!st.met[ix]){ st.met[ix]=1; st.trust[ix]=0.4+st.rng()*0.4; }
+  if(depth||st.rng()<0.8) st.read[ix]=1;
+  st.trust[ix]=Math.min(3,st.trust[ix]+(depth?0.5:0.2));
+}
+function actIntervene(topic){
+  const st=G;
+  const me=st.electors[st.player];
+  const reach = me.it?1:0.6;
+  st.sal[topic]=Math.min(1,(st.sal[topic]||0)+0.14*reach);
+  st.gravBonus+=0.3; st.electors[st.player].grav=Math.min(10,me.grav+0.3);
+  st.energy=Math.max(0,st.energy-1);
+  if(me.tags.includes(topic)) st.ambition=Math.min(10,st.ambition+1);
+  st.impact += winnerTagAlignmentPreview(topic);
+  logCard("player","You speak in the aula","Five minutes at the microphone on "+TAG_NAMES[topic]+". "+(me.it?"Fluent Roman Italian; the hall follows every clause.":"You speak through the translation lag and lose the second row — the tax every non-Italian pays here.")+" The theme rises a little in the College's common mind.");
+  spendSlot();
+}
+function winnerTagAlignmentPreview(topic){ return 0.4; }
+function actCoffee(){
+  const st=G; const unmet=[];
+  for(let i=0;i<N;i++) if(!st.met[i]&&i!==st.player) unmet.push(i);
+  shuffle(unmet,st.rng);
+  const got=unmet.slice(0,3);
+  got.forEach(i=>meetElector(i,false));
+  st.energy=Math.max(0,st.energy-0.5);
+  const names=got.map(i=>cardName(st.electors[i])).join(", ");
+  logCard("player","The coffee bar",got.length?("Espresso in plastic cups outside the aula. You put faces to badges: "+names+". Small talk, home dioceses, the weather in Rome — and, underneath it, the only question anyone is really asking."):"Everyone left in the corridor is already a friend.");
+  spendSlot();
+}
+function actSeek(ix){
+  const st=G; const E=st.electors[ix];
+  const wasMet=!!st.met[ix];
+  meetElector(ix,true);
+  st.energy=Math.max(0,st.energy-0.5);
+  logCard("player",(wasMet?"A long walk with ":"You seek out ")+cardName(E),(wasMet?"You take a slow circuit of the Vatican gardens together. ":"Introductions, then substance. ")+"You leave with a clearer reading of where "+E.surname+" stands — and he of you. Trust grows in both directions.");
+  spendSlot();
+}
+function actDinner(bloc){
+  const st=G;
+  const members=st.electors.filter(e=>e.bloc===bloc&&e.ix!==st.player);
+  shuffle(members,st.rng);
+  members.slice(0,2).forEach(e=>meetElector(e.ix,false));
+  members.slice(0,4).forEach(e=>{st.trust[e.ix]=Math.min(3,(st.trust[e.ix]||0.3)+0.35);});
+  st.energy=Math.max(0,st.energy-1);
+  logCard("player","Dinner with the "+REGION_NAMES[bloc]+" table","A trattoria with the shutters half-down. The pratiche in their natural habitat: soundings, histories, who is really behind whom. You leave known, and knowing more.");
+  spendSlot();
+}
+function actAdvance(candIx){
+  const st=G;
+  let moved=0;
+  for(let i=0;i<N;i++){
+    if(i===st.player||!st.met[i])continue;
+    const t=st.trust[i]||0;
+    if(t>0.5){ st.C[i*N+candIx]+=0.22*t; moved++; }
+  }
+  st.trust.forEach((v,i)=>{if(v>0)st.trust[i]=Math.max(0.2,v-0.08);});
+  st.ambition=Math.min(10, st.ambition+(candIx===st.player?3:0.5));
+  st.energy=Math.max(0,st.energy-1);
+  st.impact+=1.2; st.lastAdvocated=candIx;
+  logCard("player","You advance a name","Never a campaign — canvassing is anathema — merely 'sharing a discernment' about "+cardName(st.electors[candIx])+" with "+moved+" electors who trust your judgement. The word 'cordata' is for other people's efforts.");
+  spendSlot();
+}
+function actDiscourage(candIx){
+  const st=G;
+  for(let i=0;i<N;i++){ if(st.met[i]&&(st.trust[i]||0)>0.4) st.C[i*N+candIx]-=0.28*(st.trust[i]); }
+  st.communion=clamp(st.communion-3,0,100); st.energy=Math.max(0,st.energy-1);
+  if(st.rng()<0.25){ st.ambition=Math.min(10,st.ambition+1); logCard("player","A doubt, planted — and traced","You murmur your reservations about "+cardName(st.electors[candIx])+". Most of it lands. Some of it is repeated with your name attached.");}
+  else logCard("player","A doubt, planted","Nothing so vulgar as an attack: a raised eyebrow, an 'of course you know him better than I…'. Reservations about "+cardName(st.electors[candIx])+" begin to circulate without fingerprints.");
+  spendSlot();
+}
+function actInterview(){
+  const st=G; const me=st.electors[st.player];
+  me.pap=Math.min(100,me.pap+9); st.ambition=Math.min(10,st.ambition+2);
+  logCard("player","You give an interview","Carefully unquotable, faithfully quoted. Your profile rises in the papers that the other electors all pretend not to read. So does the whisper that you would not exactly refuse.");
+  spendSlot();
+}
+function actPray(){
+  const st=G;
+  st.energy=Math.min(10,st.energy+2); st.ambition=Math.max(0,st.ambition-1); st.communion=Math.min(100,st.communion+1);
+  logCard("player","Silence at the tomb","You slip across the city to St Mary Major and kneel a while by the plain stone that says only FRANCISCUS. No one recognises you. It is the best hour of the week.");
+  spendSlot();
+}
+/* conclave meal actions */
+function actSound(ix){
+  const st=G; meetElector(ix,true); st.knownVotes[ix]=true;
+  const lv=st.lastVote[ix];
+  const E=st.electors[ix];
+  let msg;
+  if(lv>=0) msg=E.surname+" holds your eye a moment, then names his man: he has been writing "+cardName(st.electors[lv])+".";
+  else msg=E.surname+" speaks of discernment and says nothing at all, charmingly.";
+  logCard("player","Sounding out "+cardName(E),msg+" You bank the knowledge.");
+  spendSlot();
+}
+function actPersuade(ix,candIx){
+  const st=G; const t=st.trust[ix]||0.3;
+  st.C[ix*N+candIx]+=0.85*t; st.trust[ix]=Math.max(0.2,t-0.15);
+  st.impact+=0.5;
+  logCard("player","Across the table","Quietly, over the water jug, you make the case for "+cardName(st.electors[candIx])+" to "+cardName(st.electors[ix])+". He listens the way men listen when the thing is nearly decided and they want permission.");
+  spendSlot();
+}
+function actRelease(candIx){
+  const st=G;
+  let moved=0;
+  for(let i=0;i<N;i++){ if(st.lastVote[i]===st.player){ st.C[i*N+candIx]+=1.6; st.C[i*N+st.player]-=1.0; moved++; } }
+  st.impact+=moved*0.4; st.communion=clamp(st.communion+2,0,100); st.ambition=Math.max(0,st.ambition-2);
+  logCard("player","You release your votes","To each man who has been writing your name: gratitude, and a direction. 'Go to "+cardName(st.electors[candIx])+".' "+moved+" ballots are yours to give away, which is the only way to keep them.");
+  spendSlot();
+}
+function makeSounding(st=G){
+  const agg=new Float32Array(N);
+  for(let i=0;i<N;i++){let best=-1e9,pick=-1;for(let j=0;j<N;j++){if(j===i)continue;const u=baseUtility(st,i,j);if(u>best){best=u;pick=j;}}agg[pick]++;}
+  const known=Array.from(st.met).filter(Boolean).length;
+  const width=Math.max(2,Math.round(9*(1-known/N)));
+  return {known,width,rows:tally(agg).slice(0,5).map(x=>({id:st.electors[x.ix].key,low:Math.max(0,x.v-width),high:Math.min(N,x.v+width)}))};
+}
+function actReadRoom(){
+  const st=G,sounding=makeSounding(st);
+  const t=sounding.rows.map(x=>cardName(st.byKey[x.id])+" "+x.low+"–"+x.high).join(" · ");
+  logCard("player","Reading the room","You listen more than you speak and compare the soundings available to you. Plausible support now: "+t+". These are ranges, not opened papers; wider intervals mean more of the College remains unknown to you.");
+  spendSlot();
+}
+
+/* ---------- events ---------- */
+function applyFx(fx){
+  const st=G; if(!fx)return;
+  if(fx.sal) for(const k in fx.sal) st.sal[k]=Math.min(1,(st.sal[k]||0)+fx.sal[k]);
+  if(fx.grav){ st.electors[st.player].grav=Math.min(10,st.electors[st.player].grav+fx.grav); }
+  if(fx.pap) for(const k in fx.pap){ const e=st.byKey[k]; if(e) e.pap=Math.max(1,Math.min(100,e.pap+fx.pap[k])); }
+  if(fx.mark) st.marks[fx.mark]=true;
+  if(fx.trustBloc){ st.electors.forEach(e=>{ if((fx.trustBloc.scope==="prog"&&e.lean>0.6)||(e.bloc===fx.trustBloc.scope)){ if(st.met[e.ix]) st.trust[e.ix]=Math.min(3,(st.trust[e.ix]||0.3)+fx.trustBloc.amt);} }); }
+  if(fx.cons) for(const key in fx.cons){
+    const tgt=st.byKey[key]; if(!tgt)continue;
+    const {amt,scope}=fx.cons[key];
+    st.electors.forEach(e=>{
+      let inScope=false;
+      if(scope==="ALL")inScope=true;
+      else if(scope==="prog")inScope=e.lean>0.6;
+      else if(scope==="cons")inScope=e.lean<-0.5;
+      else if(scope==="latam+es")inScope=(e.bloc==="LA"||e.es);
+      else inScope=(e.bloc===scope);
+      if(inScope) st.C[e.ix*N+tgt.ix]+=amt;
+    });
+  }
+}
+function fireDayEvents(){
+  const st=G;
+  EVENTS_ACT1.filter(ev=>ev.d===st.day).forEach(ev=>{
+    logCard(ev.tag,ev.t,ev.b,ev.choice?ev:null);
+    let fx=ev.fx;
+    if(ev.id==="karaoke"&&fx){ fx=JSON.parse(JSON.stringify(fx)); fx.cons.tagle.amt=-st.kSev; }
+    applyFx(fx);
+  });
+}
+function chooseEventOption(evId,optIx){
+  const ev=EVENTS_ACT1.find(e=>e.id===evId);
+  const o=ev.choice.opts[optIx];
+  applyFx(o.fx);
+  if(o.fx&&o.fx.mark==="francisman"){ G.energy=Math.max(0,G.energy-1); }
+  logCard("player",ev.t+" — your part",o.note);
+}
+
+/* ---------- log ---------- */
+function cardName(e){ return e.name; }
+function logCard(tag,t,b,choiceEv){
+  const st=G;
+  const when = st.phase==="act1" ? DAYS[st.day-1].date : (st.phase==="conclave"?("Conclave, day "+st.cDay):"");
+  const c={tag,t,b,when,choiceEv:choiceEv?{id:choiceEv.id,q:choiceEv.choice.q,opts:choiceEv.choice.opts.map(o=>o.t)}:null,ts:st.log.length};
+  st.log.push(c); st.chron.push(c);
+  if(typeof document!=="undefined"){const live=document.getElementById("liveStatus");if(live)live.textContent=t+". "+b;}
+  if(typeof UI!=="undefined"&&UI.onCard)UI.onCard(c);
+}
+
+/* ---------- day flow ---------- */
+function startDay(){
+  const st=G;
+  const D=DAYS[st.day-1];
+  st.slots = D.scene==="funeral"?2 : D.scene==="free"?4 : D.scene==="seal"?0 : 3;
+  st.slot=0;
+  fireDayEvents();
+}
+function endDay(){
+  const st=G;
+  st.energy=Math.min(10,st.energy+1.2);
+  if(st.day>=DAYS.length){ startConclave(); return; }
+  st.day++; startDay();
+}
+
+/* ---------- save codes ---------- */
+function saveCode(){
+  const o=serializeGame(G);
+  return btoa(unescape(encodeURIComponent(JSON.stringify(o))));
+}
+function cloneData(value){return value==null?value:JSON.parse(JSON.stringify(value));}
+function sparseFloat32(values){const out=[];for(let i=0;i<values.length;i++)if(values[i]!==0)out.push([i,values[i]]);return out;}
+function serializeGame(st=G){
+  return {
+    version:SAVE_VERSION,seed:st.seed,player:st.electors[st.player].key,rngCount:st.rng.count(),
+    phase:st.phase,day:st.day,slot:st.slot,slots:st.slots,cDay:st.cDay,session:st.session,sessionQueue:cloneData(st.sessionQueue),
+    energy:st.energy,ambition:st.ambition,communion:st.communion,impact:st.impact,gravBonus:st.gravBonus,papBonus:st.papBonus,
+    pactActive:st.pactActive,voidUsed:st.voidUsed,avelineDone:st.avelineDone,lunchDone:st.lunchDone,runoff:cloneData(st.runoff),
+    exhortations:st.exhortations,pauseHandled:cloneData(st.pauseHandled),pauseDue:st.pauseDue,pendingRunoff:st.pendingRunoff,
+    marks:cloneData(st.marks),sal:cloneData(st.sal),C:sparseFloat32(st.C),CSize:N*N,lastVote:Array.from(st.lastVote),
+    met:Array.from(st.met),trust:Array.from(st.trust),read:Array.from(st.read),
+    ballots:st.ballots.map(b=>({n:b.n,number:b.number,counts:Array.from(b.counts),roll:cloneData(b.roll||[]),void:!!b.void,
+      voidNote:b.voidNote||null,paperCount:b.paperCount||null,electors:b.electors,threshold:b.threshold,session:b.session,day:b.day,
+      elected:!!b.elected,winnerId:b.winnerId||null,declined:!!b.declined,accepted:b.accepted==null?null:!!b.accepted})),
+    votedFor:cloneData(st.votedFor),pope:st.pope,popeName:st.popeName,electedIx:st.electedIx,electedBallot:st.electedBallot,
+    awaitAccept:!!st.awaitAccept,over:!!st.over,ended:st.ended||null,score:cloneData(st.score||null),
+    log:cloneData(st.log),chron:cloneData(st.chron),knownVotes:cloneData(st.knownVotes),smoke:cloneData(st.smoke),
+    consBloc:cloneData(st.consBloc),prevoIdent:cloneData(st.prevoIdent),dolanPush:st.dolanPush,playerVotesHeld:st.playerVotesHeld,grace:st.grace,
+    kSev:st.kSev,pactFray:!!st.pactFray,prevRead:!!st.prevRead,oversleepPending:!!st.oversleepPending,
+    eve1Asked:!!st.eve1Asked,eve1Skipped:!!st.eve1Skipped,tickerSealed:!!st.tickerSealed,lastAdvocated:st.lastAdvocated==null?null:st.lastAdvocated,
+    paps:st.electors.map(e=>e.pap),gravs:st.electors.map(e=>e.grav)
+  };
+}
+function validateSavedState(o){
+  try{
+    if(!o||o.version!==SAVE_VERSION||typeof o.seed!=="string"||!ELECTORS.some(e=>e.key===o.player))return false;
+    if(!Number.isInteger(o.rngCount)||o.rngCount<0||!["act1","conclave","done"].includes(o.phase))return false;
+    if(!Number.isInteger(o.day)||o.day<1||o.day>DAYS.length||!Number.isInteger(o.cDay)||o.cDay<0)return false;
+    if(!Number.isInteger(o.slot)||!Number.isInteger(o.slots)||o.slot<0||o.slots<0||o.slot>o.slots||![null,"eve1","am","pm","lunch","dinner","pause"].includes(o.session))return false;
+    if(![o.energy,o.ambition,o.communion,o.impact].every(Number.isFinite)||o.energy<0||o.energy>10||o.ambition<0||o.ambition>10||o.communion<0||o.communion>100)return false;
+    const vectors=[[o.lastVote,N],[o.met,N],[o.trust,N],[o.read,N],[o.paps,N],[o.gravs,N]];
+    if(vectors.some(([v,n])=>!Array.isArray(v)||v.length!==n||v.some(x=>!Number.isFinite(x))))return false;
+    if(o.CSize!==N*N||!Array.isArray(o.C)||o.C.some(pair=>!Array.isArray(pair)||pair.length!==2||!Number.isInteger(pair[0])||pair[0]<0||pair[0]>=N*N||!Number.isFinite(pair[1]))||new Set(o.C.map(pair=>pair[0])).size!==o.C.length)return false;
+    if(o.lastVote.some(x=>!Number.isInteger(x)||x< -1||x>=N)||o.met.some(x=>x!==0&&x!==1)||o.read.some(x=>x!==0&&x!==1))return false;
+    if(o.trust.some(x=>x<0||x>3)||o.paps.some(x=>x<0||x>100)||o.gravs.some(x=>x<0||x>10))return false;
+    if(!o.sal||Object.keys(TAG_NAMES).some(key=>!Number.isFinite(o.sal[key])||o.sal[key]<0||o.sal[key]>1))return false;
+    if(!Array.isArray(o.ballots)||!Array.isArray(o.votedFor)||!Array.isArray(o.log)||!Array.isArray(o.chron)||!Array.isArray(o.pauseHandled))return false;
+    if(o.runoff&&(!Number.isInteger(o.runoff.a)||!Number.isInteger(o.runoff.b)||o.runoff.a===o.runoff.b||o.runoff.a<0||o.runoff.b<0||o.runoff.a>=N||o.runoff.b>=N))return false;
+    const byId=new Map(ELECTORS.map(e=>[e.key,e]));
+    for(const b of o.ballots){
+      if(!b||!Number.isInteger(b.n)||!Array.isArray(b.counts)||b.counts.length!==N||b.counts.some(x=>!Number.isInteger(x)||x<0))return false;
+      if(!Array.isArray(b.roll)||![131,133].includes(b.electors)||b.threshold!==Math.ceil(b.electors*2/3))return false;
+      const total=b.counts.reduce((a,v)=>a+v,0);
+      if(b.void){if(b.roll.length||total!==0||b.paperCount!==134)return false;continue;}
+      if(b.roll.length!==b.electors||total!==b.electors)return false;
+      const voters=new Set(),recount=new Array(N).fill(0);
+      for(const vote of b.roll){
+        const voter=byId.get(vote.voter),candidate=byId.get(vote.candidate);
+        if(!voter||!candidate||voter.key===candidate.key||voters.has(voter.key))return false;
+        if(b.electors===131&&(!o.runoff||(candidate.ix!==o.runoff.a&&candidate.ix!==o.runoff.b)||voter.ix===o.runoff.a||voter.ix===o.runoff.b))return false;
+        voters.add(voter.key);recount[candidate.ix]++;
+      }
+      if(recount.some((v,i)=>v!==b.counts[i]))return false;
+      if(b.elected&&(!byId.has(b.winnerId)||b.counts[byId.get(b.winnerId).ix]<b.threshold))return false;
+    }
+    if(o.pope!=null&&(!Number.isInteger(o.pope)||o.pope<0||o.pope>=N))return false;
+    if(o.electedIx!=null&&(!Number.isInteger(o.electedIx)||o.electedIx<0||o.electedIx>=N))return false;
+    if(o.phase==="done"&&(!o.over||o.pope==null||!o.score))return false;
+    if(o.over&&o.phase!=="done")return false;
+    if(o.awaitAccept&&(o.phase!=="conclave"||o.electedIx==null))return false;
+    return true;
+  }catch(_){return false;}
+}
+function loadCode(code){
+  const o=JSON.parse(decodeURIComponent(escape(atob(code.trim()))));
+  if(!validateSavedState(o))throw new Error("Saved conclave is invalid or from another version");
+  const st=newGame(o.player,o.seed);
+  const fields=["phase","day","slot","slots","cDay","session","sessionQueue","energy","ambition","communion","impact","gravBonus","papBonus",
+    "pactActive","voidUsed","avelineDone","lunchDone","runoff","exhortations","pauseHandled","pauseDue","pendingRunoff","marks","sal","votedFor",
+    "pope","popeName","electedIx","electedBallot","awaitAccept","over","ended","score","log","chron","knownVotes","smoke","consBloc","prevoIdent",
+    "dolanPush","playerVotesHeld","grace","kSev","pactFray","prevRead","oversleepPending","eve1Asked","eve1Skipped","tickerSealed","lastAdvocated"];
+  fields.forEach(k=>{st[k]=cloneData(o[k]);});
+  st.C.fill(0);o.C.forEach(([i,v])=>{st.C[i]=v;}); st.lastVote.set(o.lastVote); st.met.set(o.met); st.trust.set(o.trust); st.read.set(o.read);
+  st.ballots=o.ballots.map(b=>{const counts=Int16Array.from(b.counts);return Object.assign({},b,{counts,top:b.void?[]:tally(counts),roll:cloneData(b.roll)});});
+  o.paps.forEach((p,i)=>st.electors[i].pap=p); o.gravs.forEach((g,i)=>st.electors[i].grav=g);
+  st.rng.burn(o.rngCount);
+  if(st.phase==="conclave"||st.phase==="done")st.tickerSealed=true;
+  return st;
+}
+
+/* ---------- chronicle export ---------- */
+function chronicleText(){
+  const st=G;
+  const lines=["EXTRA OMNES — MAY 2025","Seed: "+st.seed+" · Playing: "+cardName(st.electors[st.player]),"".padEnd(60,"—")];
+  st.chron.forEach(c=>{lines.push("["+c.when+"] ("+c.tag.toUpperCase()+") "+c.t);lines.push(c.b);lines.push("");});
+  st.ballots.forEach(b=>{
+    lines.push("SCRUTINY "+b.n+(b.void?" — VOID (134 papers)":"")+" · day "+b.day+" "+(b.session||""));
+    b.top.forEach(x=>lines.push("  "+String(x.v).padStart(3)+"  "+cardName(st.electors[x.ix])));
+    if(st.over&&!b.void&&b.roll&&b.roll.length){
+      lines.push("  SIMULATED ROLL — disclosed after the election");
+      b.roll.forEach(v=>lines.push("    "+cardName(st.byKey[v.voter])+" → "+cardName(st.byKey[v.candidate])));
+    }
+    lines.push("");
+  });
+  if(st.pope!=null)lines.push("HABEMUS PAPAM: "+cardName(st.electors[st.pope])+" — "+st.popeName+" (scrutiny "+st.electedBallot+")");
+  return lines.join("\n");
+}
+
+function validateData(){
+  const issues=[];
+  if(ELECTOR_ROWS.length!==133)issues.push("Expected 133 electors");
+  if(ELECTOR_ROWS.some(r=>r.length!==20))issues.push("Malformed elector row");
+  const keys=ELECTORS.map(e=>e.key),precs=ELECTORS.map(e=>e.prec);
+  if(new Set(keys).size!==keys.length)issues.push("Duplicate elector key");
+  if(new Set(precs).size!==precs.length)issues.push("Duplicate precedence number");
+  const count=(field,value)=>ELECTORS.filter(e=>e[field]===value).length;
+  if(count("ord","B")!==5||count("ord","P")!==108||count("ord","D")!==20)issues.push("Cardinal-order totals are wrong");
+  if(count("by","F")!==108||count("by","B")!==20||count("by","J")!==5)issues.push("Creator totals are wrong");
+  if(ELECTORS.some(e=>e.age<45||e.age>79||!Array.isArray(e.tags)))issues.push("Invalid age or profile data");
+  return issues;
+}
+function publicBallotRecord(st,b){
+  const counts={};b.top.forEach(x=>{counts[st.electors[x.ix].key]=x.v;});
+  return {ballot:b.n,number:b.n,electors:b.electors,threshold:b.threshold,counts,
+    roll:(b.roll||[]).map(v=>({voter:v.voter,candidate:v.candidate})),elected:!!b.elected,winnerId:b.winnerId||null,
+    day:b.day,session:b.session,declined:!!b.declined};
+}
+function runHeadless(seed="habemus",playerKey="prevost"){
+  const st=newGame(playerKey,seed);
+  startDay();
+  while(st.phase==="act1")endDay();
+  st.eve1Asked=true;st.eve1Skipped=false;
+  let guard=0;
+  while(!st.over&&guard++<240){
+    if(st.awaitAccept){acceptElection(true,popeNameFor(st.electors[st.player]));continue;}
+    if(st.session==="pause"){resumeAfterPause();continue;}
+    if(st.session==="lunch"){st.session="pm";st.slots=1;st.slot=0;continue;}
+    if(st.session==="dinner"){advanceConclaveDay();continue;}
+    if(st.session==="eve1"||st.session==="am"||st.session==="pm"){
+      runScrutiny(undefined);
+      if(st.electedIx!=null||st.pauseDue!=null||sessionBallotsLeft()<=0)endSession();
+      continue;
+    }
+    throw new Error("Headless simulation reached an illegal session: "+st.session);
+  }
+  if(!st.over)throw new Error("Headless simulation did not resolve within 240 steps");
+  const history=st.ballots.filter(b=>!b.void).map(b=>publicBallotRecord(st,b));
+  return {winner:st.electors[st.pope].key,electedId:st.electors[st.pope].key,electedName:st.popeName,
+    ballots:history.length,history,score:cloneData(st.score),voidAttempts:st.ballots.filter(b=>b.void).length,over:true};
+}
+function theoreticalPlayerWin(playerKey){
+  const previous=G;
+  try{
+    const st=newGame(playerKey,"2025-viability-"+playerKey),target=st.player;
+    st.phase="conclave";st.cDay=1;st.session="eve1";
+    for(let i=0;i<N;i++)if(i!==target)st.C[i*N+target]+=24;
+    const other=target===0?1:0;
+    const b=runScrutiny(other);
+    return b.counts[target]>=THRESHOLD;
+  }finally{G=previous;}
+}
+
+/* ---------- test API ---------- */
+window.__EO2025 = {
+  newGame, get state(){return G;}, getState:()=>G, runScrutiny, startConclave, endSession, advanceConclaveDay,
+  tally, threshNow, saveCode, loadCode, serializeGame, validateSavedState, applyFx, fireDayEvents, startDay, endDay, buildElectors,
+  baseUtility, alignmentWithPlayer, totalValidBallots, sessionBallotsLeft, handleElection, acceptElection, chronicleText, makeSounding, resumeAfterPause,
+  runHeadless, validateData, theoreticalPlayerWin, assertBallotRecord,
+  ELECTORS, ELECTOR_ROWS, DAYS, EVENTS_ACT1, EVENTS_CONCLAVE, THRESHOLD, SAVE_VERSION, PAUSE_BALLOTS
+};
+window.__om=window.__EO2025;
+
+</script>
+<script>
+"use strict";
+/* ============================================================ UI */
+const $=(s)=>document.querySelector(s);
+const UI={};
+let pickSortMode="papabile";
+let modalReturnFocus=null;
+
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+
+/* ---------- cover ---------- */
+function renderCover(){
+  const els=buildElectors();
+  const q=($("#pickSearch").value||"").toLowerCase();
+  const reg=$("#pickRegion").value;
+  let list=els.filter(e=>(!reg||e.bloc===reg)&&(!q||e.name.toLowerCase().includes(q)||e.country.toLowerCase().includes(q)||e.office.toLowerCase().includes(q)));
+  if(pickSortMode==="papabile")list.sort((a,b)=>b.pap-a.pap||a.prec-b.prec);
+  else if(pickSortMode==="age")list.sort((a,b)=>a.age-b.age);
+  else if(pickSortMode==="name")list.sort((a,b)=>a.surname.localeCompare(b.surname));
+  else list.sort((a,b)=>a.prec-b.prec);
+  $("#selgrid").innerHTML=list.map(e=>`
+    <button class="pick ${e.pap>=35?"star":""}" data-k="${e.key}">
+      <span class="nm">${esc(e.name)}</span>
+      <span class="meta">${esc(e.country)} · ${e.age} · ${e.ord==="B"?"CB":e.ord==="P"?"CP":"CD"} · ${e.by==="F"?"Francis":e.by==="B"?"Benedict XVI":"John Paul II"}</span>
+      <span class="tagline">${esc(e.tagline)}</span>
+    </button>`).join("");
+  $("#selgrid").querySelectorAll(".pick").forEach(b=>b.addEventListener("click",()=>beginGame(b.dataset.k)));
+}
+function beginGame(key){
+  const seed=($("#seed").value||"").trim()||("hp-"+Math.floor(Math.random()*1e6));
+  $("#seed").value=seed;
+  newGame(key,seed);
+  document.body.classList.add("playing");
+  window.scrollTo(0,0);
+  startDay();
+  renderAll();
+}
+
+/* ---------- tabs ---------- */
+function showView(v){
+  document.querySelectorAll("#tabs button").forEach(b=>{const on=b.dataset.v===v;b.setAttribute("aria-selected",on?"true":"false");b.tabIndex=on?0:-1;});
+  document.querySelectorAll(".view").forEach(x=>{const on=x.id==="v-"+v;x.classList.toggle("on",on);x.hidden=!on;});
+  if(v==="board")renderBoard();
+  if(v==="college")renderCollege();
+  if(v==="you")renderYou();
+  if(v==="chronicle")renderChronicle();
+}
+
+/* ---------- stage ---------- */
+function renderStage(){
+  const st=G;
+  if(st.phase==="act1"){
+    const D=DAYS[st.day-1];
+    $("#daychip").textContent=D.date+" · Sede Vacante";
+    $("#sceneTitle").textContent=D.title;
+    $("#sceneDesc").textContent=D.desc;
+    $("#slotchip").innerHTML=D.scene==="seal"?"":`Actions left today: <b>${Math.max(0,st.slots-st.slot)}</b> · Energy ${st.energy.toFixed(0)}/10`;
+    renderAct1Actions(D);
+  } else if(st.phase==="conclave"){
+    $("#daychip").textContent="Conclave · Day "+st.cDay+" · Sealed";
+    renderConclaveStage();
+  } else if(st.phase==="done"){
+    renderFinale();
+  }
+  renderTicker();
+}
+function actBtn(id,name,desc,cost){return `<button class="act" data-a="${id}"><span class="an">${name}</span><span class="ad">${desc}</span>${cost?`<span class="ac">${cost}</span>`:""}</button>`;}
+function renderAct1Actions(D){
+  const st=G; const out=[];
+  const left=st.slots-st.slot;
+  if(D.scene==="seal"){
+    out.push(actBtn("enter","Enter the conclave","Procession from the Pauline Chapel. Litany of the Saints. The doors will close behind you.","the point of no return"));
+  } else if(left<=0){
+    out.push(actBtn("endday","End the day","Compline, and whatever sleep the mattresses of Rome allow.",""));
+  } else {
+    if(D.scene==="gc") out.push(actBtn("intervene","Speak in the aula","Five minutes at the microphone. Choose the theme you raise before the whole College.","1 action · −energy"));
+    out.push(actBtn("coffee","Work the coffee bar","Meet electors you cannot yet put a name to.","1 action"));
+    out.push(actBtn("seek","Seek out a cardinal","A deliberate conversation with one man — new or known.","1 action"));
+    if(D.scene!=="funeral") out.push(actBtn("dinnerb","Dine with a bloc","Join a regional table for the evening's pratiche.","1 action · −energy"));
+    if(D.scene!=="funeral") out.push(actBtn("advance","Advance a name","Share your 'discernment' about a candidate with those who trust you.","1 action · spends trust"));
+    if(D.scene==="free") out.push(actBtn("discourage","Plant a doubt","Quiet reservations about a rival name. Costs communion; can be traced.","1 action · risk"));
+    if(D.scene==="free") out.push(actBtn("interview","Give an interview","Raise your profile in tomorrow's papers. The College notices ambition.","1 action · +profile"));
+    out.push(actBtn("pray","Keep silence","Pray at the tomb of Francis. Recover; let ambition cool.","1 action · +energy"));
+    out.push(actBtn("endday","End the day","Let the rest of the day pass.",""));
+  }
+  $("#actionsBox").innerHTML=out.join("");
+  wireActions();
+}
+function renderConclaveStage(){
+  const st=G;
+  const s=st.session;
+  let title,desc,acts=[];
+  if(st.awaitAccept){
+    title="Acceptasne electionem?";
+    desc="Parolin stands before your seat with the Secretary of the College. The chapel is absolutely still. The question is the one the Constitution prescribes, and it is being asked of you.";
+    acts.push(actBtn("accept","'Accepto.'","Accept canonical election as Supreme Pontiff.","everything changes"));
+    acts.push(actBtn("refuse","'Non accepto.'","Refuse. The scrutinies begin again without you as a live name.","a legend, either way"));
+  } else if(s==="eve1"){
+    title="The Sistine Chapel — first evening";
+    desc="The meditation has run long and the light is going. Parolin puts the question to the College: proceed to a first scrutiny tonight, or rise at dawn?";
+    if(!st.eve1Asked){
+      acts.push(actBtn("votenow","Urge a vote tonight","The world is waiting and so is the arithmetic. (The College decides by show of hands.)",""));
+      acts.push(actBtn("votemorn","Urge adjournment","Sleep first; write names with clear heads.",""));
+    } else if(st.eve1Skipped){
+      acts.push(actBtn("todinner","To Santa Marta","The first evening ends without a ballot. Dinner, and a night of arithmetic.",""));
+    } else {
+      acts.push(actBtn("scrutiny","Proceed to the scrutiny","'Eligo in Summum Pontificem…' — write one name, fold the paper twice, carry it to the urn beneath the Last Judgement.","ballot "+(totalValidBallots()+1)));
+    }
+  } else if(s==="am"||s==="pm"){
+    title="The Sistine Chapel — "+(s==="am"?"morning":"afternoon")+" session";
+    const bl=sessionBallotsLeft();
+    desc=(st.runoff?("Runoff between "+G.electors[st.runoff.a].surname+" and "+G.electors[st.runoff.b].surname+". "):"")+"Choir dress, jammed air, the smell of last night's smoke in the flue. "+(bl===2?"Two scrutinies this session, burned together if neither elects.":"One more scrutiny before the stove is lit.");
+    acts.push(actBtn("scrutiny","Proceed to the scrutiny","Write a name. The scrutineers will read all 133 aloud.","ballot "+(totalValidBallots()+1)));
+  } else if(s==="lunch"||s==="dinner"){
+    title="Santa Marta — "+(s==="lunch"?"lunch":"dinner");
+    desc="No telephones, no notes, no witnesses but each other. The dining room is where two-thirds majorities are actually made. Actions left: "+(st.slots-st.slot)+".";
+    if(st.slot<st.slots){
+      acts.push(actBtn("sound","Sound out an elector","Ask a table-mate, directly, where his pen has been going."," 1 action"));
+      acts.push(actBtn("persuade","Make the case","Argue one candidate to one elector, spending trust.","1 action"));
+      const myVotes=lastCounts()[st.player]||0;
+      if(myVotes>=3)acts.push(actBtn("release","Release your votes","Direct the "+myVotes+" men writing your name toward another.","1 action"));
+      acts.push(actBtn("readroom","Read the room","Listen, count, say little. See where the College's mind now sits.","1 action"));
+      acts.push(actBtn("praym","Chapel of Santa Marta","Half an hour before the tabernacle. Recover yourself.","1 action · +energy"));
+    }
+    acts.push(actBtn(s==="lunch"?"toafternoon":"tonight","Return"+(s==="lunch"?" to the chapel":" to your room"),s==="lunch"?"The buses wait in the courtyard.":"Tomorrow the buses leave at eight.",""));
+  } else if(s==="pause"){
+    title="A day of pause";
+    desc="Voting is suspended, as the Constitution requires. Free discussion among the electors; an exhortation from the senior of an order. Actions left: "+(st.slots-st.slot)+".";
+    if(st.slot<st.slots){
+      acts.push(actBtn("sound","Sound out an elector","Where has his pen been going, all these days?","1 action"));
+      acts.push(actBtn("persuade","Make the case","One candidate, one elector, no hurry left to hide behind.","1 action"));
+      acts.push(actBtn("readroom","Read the room","Count the exhausted College.","1 action"));
+      acts.push(actBtn("praym","Pray","The only inexhaustible resource in the building.","1 action · +energy"));
+    }
+    acts.push(actBtn("pauseend","To the chapel at dawn","Resume the scrutinies.",""));
+  }
+  $("#daychip").textContent="Conclave · Day "+st.cDay+" · Sealed";
+  $("#sceneTitle").textContent=title;
+  $("#sceneDesc").textContent=desc;
+  $("#slotchip").innerHTML=`Scrutinies held: <b>${totalValidBallots()}</b> · Threshold <b>${threshNow()}</b>`;
+  $("#actionsBox").innerHTML=acts.join("");
+  wireActions();
+}
+function lastCounts(){const b=[...G.ballots].reverse().find(x=>!x.void);return b?b.counts:new Int16Array(N);}
+
+/* ---------- action wiring ---------- */
+function wireActions(){
+  document.querySelectorAll("#actionsBox .act").forEach(b=>b.addEventListener("click",()=>doAction(b.dataset.a)));
+}
+function doAction(a){
+  const st=G;
+  switch(a){
+    case "endday": endDay(); break;
+    case "enter": startConclave(); break;
+    case "intervene": pickTopic(t=>{actIntervene(t);renderAll();}); return;
+    case "coffee": actCoffee(); break;
+    case "seek": pickElector({title:"Seek out whom?",all:true},ix=>{actSeek(ix);renderAll();}); return;
+    case "dinnerb": pickBloc(bl=>{actDinner(bl);renderAll();}); return;
+    case "advance": pickElector({title:"Advance which name?",cands:true},ix=>{actAdvance(ix);renderAll();}); return;
+    case "discourage": pickElector({title:"Plant a doubt about whom?",cands:true},ix=>{actDiscourage(ix);renderAll();}); return;
+    case "interview": actInterview(); break;
+    case "pray": actPray(); break;
+    case "votenow": st.eve1Asked=true; collegeEveVote(true); break;
+    case "votemorn": st.eve1Asked=true; collegeEveVote(false); break;
+    case "todinner": st.session="dinner"; st.slots=2; st.slot=0; conclaveMealIntro("dinner"); break;
+    case "scrutiny": pickVote(ix=>{castAndRun(ix);}); return;
+    case "sound": pickElector({title:"Sound out whom?",met:false,all:true},ix=>{actSound(ix);renderAll();}); return;
+    case "persuade": pickElector({title:"Persuade whom?",metOnly:true},ix=>{pickElector({title:"…for which candidate?",cands:true,excludeIx:ix},c=>{actPersuade(ix,c);renderAll();});}); return;
+    case "release": pickElector({title:"Release your votes toward…",cands:true,noSelf:true},ix=>{actRelease(ix);renderAll();}); return;
+    case "readroom": actReadRoom(); break;
+    case "praym": st.energy=Math.min(10,st.energy+2); st.ambition=Math.max(0,G.ambition-1); logCard("player","Before the tabernacle","Half an hour of silence in the little chapel of Santa Marta. You return lighter."); spendSlot(); break;
+    case "toafternoon": st.session="pm"; st.slots=1; st.slot=0; break;
+    case "tonight": advanceConclaveDay(); break;
+    case "pauseend": resumeAfterPause(); break;
+    case "accept": askPapalName(); return;
+    case "refuse": acceptElection(false,null); break;
+  }
+  renderAll();
+}
+function collegeEveVote(playerYes){
+  const st=G;
+  const pNo = playerYes?0.08:0.16;
+  if(st.rng()<pNo){ st.eve1Skipped=true; logCard("mod","The College adjourns","Hands are counted; wearier heads prevail, narrowly. There will be no scrutiny tonight — an early break with the pattern of 2005 and 2013. The Square will wait until morning for any smoke at all."); }
+  else logCard("doc","The College votes to proceed","Hands are counted; the mind of the body is clear. However long the meditation, they did not come here to sleep first. Ballot papers are distributed.");
+  renderAll();
+}
+function castAndRun(voteIx){
+  const st=G;
+  runScrutiny(voteIx);
+  const b=st.ballots[st.ballots.length-1];
+  const t=b.top.slice(0,6).map(x=>cardName(st.electors[x.ix])+" — "+x.v).join(" · ");
+  logCard("mod","Scrutiny "+b.n+" — the count","(Modelled count.) "+t+". "+(b.top[0]&&b.top[0].v>=b.threshold?"The threshold is passed.":"No one reaches "+b.threshold+"."));
+  if(st.electedIx!=null||st.pauseDue!=null||sessionBallotsLeft()<=0) endSession();
+  renderAll();
+  if(st.phase!=="done") showView(st.awaitAccept?"stage":"board");
+}
+function askPapalName(){
+  const names=["Leo XIV","John XXIV","Francis II","Paul VII","John Paul III","Pius XIII","Benedict XVII","Augustine I","Gregory XVII","Clement XV"];
+  openModal(`<h2>By what name shall you be called?</h2>
+  <p>Tradition asks the name first and explains it later. Leo would honour the social doctrine of Leo XIII, in a new industrial revolution; Francis II is a promise; Pius XIII is a different promise.</p>
+  <div class="pickerlist">${names.map(n=>`<button data-n="${n}"><span class="nm">${n}</span></button>`).join("")}
+  </div>
+  <div class="coverbar" style="margin-top:10px"><label class="visually-hidden" for="customName">Another papal name</label><input type="text" id="customName" placeholder="Or another name…"><button class="btn" id="customGo">Take this name</button></div>`);
+  document.querySelectorAll("#modalcontent .pickerlist button").forEach(b=>b.addEventListener("click",()=>{closeModal();acceptElection(true,b.dataset.n);renderAll();}));
+  $("#customGo").addEventListener("click",()=>{const v=($("#customName").value||"").trim();if(v){closeModal();acceptElection(true,v);renderAll();}});
+}
+
+/* ---------- pickers ---------- */
+function openModal(html){
+  modalReturnFocus=document.activeElement;
+  $("#modalcontent").innerHTML=html;
+  const title=$("#modalcontent h2");if(title)title.id="modal-title";
+  $("#modal").classList.add("on");$("#modal").setAttribute("aria-hidden","false");
+  $("#modalclose").focus();
+}
+function closeModal(){
+  $("#modal").classList.remove("on");$("#modal").setAttribute("aria-hidden","true");
+  if(modalReturnFocus&&typeof modalReturnFocus.focus==="function")modalReturnFocus.focus();
+  modalReturnFocus=null;
+}
+function trapModalKey(event){
+  if(!$("#modal").classList.contains("on"))return;
+  if(event.key==="Escape"){event.preventDefault();closeModal();return;}
+  if(event.key!=="Tab")return;
+  const focusable=[...$("#modalbox").querySelectorAll('button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(x=>x.offsetParent!==null);
+  if(!focusable.length){event.preventDefault();$("#modalbox").focus();return;}
+  const first=focusable[0],last=focusable[focusable.length-1];
+  if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
+  else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
+}
+function pickTopic(cb){
+  openModal(`<h2>Raise which theme?</h2><p class="small">What you make the College talk about shapes whom the College can imagine.</p>
+   <div class="pickerlist">${Object.keys(TAG_NAMES).map(t=>`<button data-t="${t}"><span class="nm">${TAG_NAMES[t]}</span><span class="mt">salience ${(G.sal[t]*100|0)}</span></button>`).join("")}</div>`);
+  document.querySelectorAll("#modalcontent [data-t]").forEach(b=>b.addEventListener("click",()=>{closeModal();cb(b.dataset.t);}));
+}
+function pickBloc(cb){
+  openModal(`<h2>Whose table tonight?</h2><div class="pickerlist">${Object.keys(REGION_NAMES).map(r=>`<button data-r="${r}"><span class="nm">${REGION_NAMES[r]}</span><span class="mt">${G.electors.filter(e=>e.bloc===r).length} electors</span></button>`).join("")}</div>`);
+  document.querySelectorAll("#modalcontent [data-r]").forEach(b=>b.addEventListener("click",()=>{closeModal();cb(b.dataset.r);}));
+}
+function pickElector(opts,cb){
+  const st=G;
+  let list=st.electors.filter(e=>e.ix!==st.player);
+  if(opts.metOnly)list=list.filter(e=>st.met[e.ix]);
+  if(opts.cands)list=[...st.electors].sort((a,b)=> (lastCounts()[b.ix]||0)-(lastCounts()[a.ix]||0) || b.pap-a.pap);
+  if(opts.noSelf)list=list.filter(e=>e.ix!==st.player);
+  if(Number.isInteger(opts.excludeIx))list=list.filter(e=>e.ix!==opts.excludeIx);
+  const render=(q)=>{
+    const ql=(q||"").toLowerCase();
+    const l=list.filter(e=>!ql||e.name.toLowerCase().includes(ql)||e.country.toLowerCase().includes(ql)).slice(0,60);
+    return l.map(e=>`<button data-i="${e.ix}"><span class="nm">${esc(e.name)}${e.ix===st.player?" (you)":""}</span><span class="mt">${esc(e.country)} · ${st.met[e.ix]?"met":"badge only"}${(lastCounts()[e.ix]||0)>0?" · "+lastCounts()[e.ix]+" votes":""}</span></button>`).join("");
+  };
+  openModal(`<h2>${esc(opts.title)}</h2><label class="visually-hidden" for="pkq">Search cardinals</label><input type="text" id="pkq" placeholder="Search…" style="width:100%"><div class="pickerlist" id="pkl">${render("")}</div>`);
+  const wire=()=>document.querySelectorAll("#pkl [data-i]").forEach(b=>b.addEventListener("click",()=>{closeModal();cb(+b.dataset.i);}));
+  wire();
+  $("#pkq").addEventListener("input",e=>{$("#pkl").innerHTML=render(e.target.value);wire();});
+}
+function pickVote(cb){
+  const st=G;
+  let list;
+  if(st.runoff){ list=[st.runoff.a,st.runoff.b].map(i=>st.electors[i]); if(st.player===st.runoff.a||st.player===st.runoff.b){logCard("doc","No active voice","As one of the two names before the College you may not vote in the runoff. You sit with folded hands through the reading of your own fate."); castAndRun(null); return;} }
+  else list=[...st.electors].filter(e=>e.ix!==st.player).sort((a,b)=>(lastCounts()[b.ix]||0)-(lastCounts()[a.ix]||0)||b.pap-a.pap);
+  const render=(q)=>{const ql=(q||"").toLowerCase();return list.filter(e=>!ql||e.name.toLowerCase().includes(ql)).slice(0,60).map(e=>`<button data-i="${e.ix}"><span class="nm">${esc(e.name)}</span><span class="mt">${esc(e.country)}${(lastCounts()[e.ix]||0)>0?" · "+lastCounts()[e.ix]+" last":""}</span></button>`).join("");};
+  openModal(`<h2>Eligo in Summum Pontificem…</h2><p class="small">Write one name in a disguised hand, fold the paper twice. Your vote, this scrutiny:</p>
+    <label class="visually-hidden" for="pkq">Search candidates</label><input type="text" id="pkq" placeholder="Search…" style="width:100%"><div class="pickerlist" id="pkl">${render("")}</div>`);
+  const wire=()=>document.querySelectorAll("#pkl [data-i]").forEach(b=>b.addEventListener("click",()=>{closeModal();cb(+b.dataset.i);}));
+  wire();
+  $("#pkq").addEventListener("input",e=>{$("#pkl").innerHTML=render(e.target.value);wire();});
+}
+
+/* ---------- feed ---------- */
+UI.onCard=function(c){ if(document.body.classList.contains("playing")) prependCard($("#feed"),c); };
+function cardHTML(c){
+  return `<div class="card ${c.tag==="doc"?"docu":c.tag==="mod"?"model":"player"}">
+    <div class="k"><span class="tag">${c.tag==="doc"?"Documented":c.tag==="mod"?"Modelled":"Your move"}</span><span class="when">${esc(c.when||"")}</span></div>
+    <h3>${esc(c.t)}</h3><p>${esc(c.b)}</p>
+    ${c.choiceEv?`<p style="margin-top:6px"><i>${esc(c.choiceEv.q)}</i></p><div class="choices">${c.choiceEv.opts.map((o,i)=>`<button class="btn sm" data-ev="${c.choiceEv.id}" data-o="${i}">${esc(o)}</button>`).join("")}</div>`:""}
+  </div>`;
+}
+function prependCard(el,c){
+  const d=document.createElement("div");d.innerHTML=cardHTML(c);
+  const node=d.firstElementChild;el.prepend(node);
+  node.querySelectorAll("[data-ev]").forEach(b=>b.addEventListener("click",()=>{
+    node.querySelector(".choices").remove();
+    chooseEventOption(b.dataset.ev,+b.dataset.o);renderAll();
+  }));
+}
+function renderFeed(){
+  $("#feed").innerHTML="";
+  [...G.log].slice(-40).forEach(c=>prependCard($("#feed"),c));
+}
+
+/* ---------- college ---------- */
+function renderCollege(){
+  const st=G;
+  const q=($("#colSearch").value||"").toLowerCase(), reg=$("#colRegion").value, kn=$("#colKnown").value;
+  $("#metCount").textContent="· "+Array.from(st.met).filter(Boolean).length;
+  let list=st.electors.filter(e=>(!reg||e.bloc===reg)&&(!q||e.name.toLowerCase().includes(q)||e.country.toLowerCase().includes(q)||e.office.toLowerCase().includes(q)));
+  if(kn==="met")list=list.filter(e=>st.met[e.ix]);
+  if(kn==="unmet")list=list.filter(e=>!st.met[e.ix]);
+  const lc=lastCounts();
+  $("#colCards").innerHTML=list.map(e=>{
+    const met=!!st.met[e.ix], read=!!st.read[e.ix];
+    const chips=[`<span class="chip">${esc(e.country)}</span>`,`<span class="chip">${e.ord==="B"?"card. bishop":e.ord==="P"?"card. priest":"card. deacon"}</span>`,`<span class="chip">${e.by==="F"?"Francis":e.by==="B"?"Benedict":"John Paul II"}</span>`];
+    if(e.rel)chips.push(`<span class="chip">${e.rel}</span>`);
+    if(e.ix===st.player)chips.push(`<span class="chip red">you</span>`);
+    if(met)chips.push(`<span class="chip gold">met · trust ${(st.trust[e.ix]||0).toFixed(1)}</span>`);
+    else chips.push(`<span class="chip unknown">badge only</span>`);
+    if(lc[e.ix]>0)chips.push(`<span class="chip gold">${lc[e.ix]} votes received</span>`);
+    if(st.knownVotes&&st.knownVotes[e.ix]&&st.lastVote[e.ix]>=0)chips.push(`<span class="chip red">wrote ${esc(st.electors[st.lastVote[e.ix]].surname)}</span>`);
+    const leanBar=read?`<div class="lean"><i style="left:${((e.lean+2)/4*100).toFixed(0)}%"></i></div><div class="small mono" style="margin-top:3px">${e.lean<=-1?"restorationist":e.lean<-0.3?"conservative":e.lean<0.35?"institutional":e.lean<1.1?"continuity":"reforming"} · ${e.tags.map(t=>TAG_NAMES[t]).join(", ")}</div>`
+      :`<div class="lean unk"><i style="left:50%"></i></div><div class="small mono" style="margin-top:3px">leaning unknown — you have not spoken</div>`;
+    return `<button class="cc ${e.ix===st.player?"you":""}" data-dossier="${e.ix}" aria-label="Open dossier for ${esc(e.name)}"><span class="r1"><span class="nm">${esc(e.name)}</span><span class="age">${e.age}</span></span>
+      <span class="off">${esc(e.office)}</span><span class="chips">${chips.join("")}</span>${leanBar}</button>`;
+  }).join("");
+  $("#colCards").querySelectorAll("[data-dossier]").forEach(b=>b.addEventListener("click",()=>openDossier(+b.dataset.dossier)));
+}
+function openDossier(ix){
+  const st=G,e=st.electors[ix],met=!!st.met[ix],read=!!st.read[ix],a=alignmentWithPlayer(ix,st);
+  const orientation=e.lean<=-1?"restorationist":e.lean<-.3?"conservative":e.lean<.35?"institutional":e.lean<1.1?"continuity":"reforming";
+  openModal(`<h2>${esc(e.name)}</h2><p class="small">${esc(e.office)} · ${esc(e.country)} · age ${e.age}</p>
+    <p style="margin-top:10px">${esc(e.tagline)}</p>
+    <h3>Your alignment</h3><div class="stat"><span>${esc(a.label)}</span><span class="v">${a.score}/100</span></div>
+    <p class="small" style="margin-top:6px">A model comparison of your public profiles, priorities, region and religious-order ties; it is not a claim about a private friendship.</p>
+    <h3>What you know</h3><p>${met?(read?("You read him as <b>"+orientation+"</b>, with emphasis on "+e.tags.map(t=>TAG_NAMES[t]).join(", ")+"."):"You have met, but not yet read him clearly."):"You know only the public badge and office. Seek him out before treating the model as intelligence."}</p>`);
+}
+
+/* ---------- board ---------- */
+function renderBoard(){
+  const st=G;
+  const sm=st.smoke;
+  const cam=$("#smokecam");
+  cam.className="";
+  $("#chimney").className=(sm.state==="cold")?"":("smoking "+(sm.state==="black"?"smoke-black":"smoke-white"));
+  $("#smoke1").textContent=sm.label;
+  $("#smoke2").textContent=sm.sub;
+  $("#crowdN").textContent=sm.crowd;
+  $("#threshnote").innerHTML=`Two-thirds of ${st.runoff?N-2+" (runoff — the two names have no active voice)":"133"} — the race is to <b>${threshNow()}</b>.`;
+  const ballots=st.ballots;
+  if(!ballots.length){$("#board").innerHTML=`<tr><td class="nm small">No scrutinies yet. The board will fill as the urn does.</td></tr>`;return;}
+  const rowsSet=new Set();
+  ballots.forEach(b=>{if(!b.void)for(let i=0;i<N;i++)if(b.counts[i]>0)rowsSet.add(i);});
+  const rows=[...rowsSet];
+  const last=[...ballots].reverse().find(b=>!b.void);
+  rows.sort((a,b)=>(last.counts[b]||0)-(last.counts[a]||0));
+  let html=`<tr><th style="text-align:left">Name</th>${ballots.map(b=>`<th title="${b.void?"Void and unread":"Scrutiny "+b.n}">${b.void?"S"+b.n+" ✕":"S"+b.n}</th>`).join("")}</tr>`;
+  rows.forEach(ix=>{
+    const lead = last.top[0]&&last.top[0].ix===ix;
+    html+=`<tr class="${lead?"leader":""}"><td class="nm">${esc(cardName(st.electors[ix]))}${ix===st.player?" ·you·":""}</td>${ballots.map(b=>{
+      if(b.void)return `<td><span class="d">unread</span></td>`;
+      const v=b.counts[ix]||0,win=v>=b.threshold;
+      return `<td class="${win?"win":""}">${v||"·"}</td>`;}).join("")}</tr>`;
+  });
+  $("#board").innerHTML=html;
+}
+
+/* ---------- you ---------- */
+function renderYou(){
+  const st=G, me=st.electors[st.player];
+  const lc=lastCounts();
+  const trusted=st.electors.map(e=>({e,t:st.trust[e.ix]||0})).filter(x=>x.t>0.8&&x.e.ix!==st.player).sort((a,b)=>b.t-a.t).slice(0,8);
+  $("#youBox").innerHTML=`
+  <div class="panelbox"><h3>${esc(me.name)}</h3>
+    <p class="small" style="margin-bottom:8px">${esc(me.office)} · ${esc(me.country)} · ${me.age}</p>
+    <div class="stat"><span>Energy</span><span class="v">${st.energy.toFixed(1)}/10</span></div>
+    <div class="meter"><i style="width:${st.energy*10}%"></i></div>
+    <div class="stat"><span>Perceived ambition</span><span class="v">${st.ambition.toFixed(0)}/10</span></div>
+    <div class="meter red"><i style="width:${st.ambition*10}%"></i></div>
+    <p class="small" style="margin-top:5px">He who enters the conclave as pope leaves it as a cardinal. Visible wanting is the one unforgivable platform.</p>
+    <div class="stat"><span>Communion of the College</span><span class="v">${st.communion|0}/100</span></div>
+    <div class="stat"><span>Electors met</span><span class="v">${Array.from(st.met).filter(Boolean).length}/133</span></div>
+    <div class="stat"><span>Your votes, last scrutiny</span><span class="v">${lc[st.player]||0}</span></div>
+  </div>
+  <div class="panelbox"><h3>Those who trust you</h3>
+    <ul class="plainlist">${trusted.length?trusted.map(x=>`<li>${esc(x.e.name)} <span class="mono">trust ${x.t.toFixed(1)}</span></li>`).join(""):`<li class="small">No one yet beyond acquaintance. Work the coffee bar.</li>`}</ul>
+    <h3 style="margin-top:14px">The College's mind (salience)</h3>
+    <ul class="plainlist">${Object.entries(st.sal).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([k,v])=>`<li>${TAG_NAMES[k]} <span class="mono">${(v*100|0)}</span></li>`).join("")}</ul>
+  </div>`;
+}
+
+/* ---------- chronicle ---------- */
+function renderChronicle(){
+  $("#chronFeed").innerHTML="";
+  [...G.chron].forEach(c=>prependCard($("#chronFeed"),c));
+}
+
+/* ---------- ticker ---------- */
+function renderTicker(){
+  const st=G;
+  const bar=$("#tickerbar");
+  if(st.tickerSealed){
+    bar.classList.add("sealed");$("#tickerlabel").textContent="SEALED";
+    $("#ticker").innerHTML=esc(TICKER_SEALED);
+    $("#ticker").style.animationDuration="0s";
+    return;
+  }
+  bar.classList.remove("sealed");$("#tickerlabel").textContent="LIVE";
+  const items=(TICKER[st.day]||[]);
+  const s=items.map(x=>`<b>${esc(x)}</b>`).join('<span class="sep">///</span>');
+  $("#ticker").innerHTML=s+'<span class="sep">///</span>'+s;
+  $("#ticker").style.animationDuration=Math.max(30,items.join("").length/4)+"s";
+}
+
+/* ---------- finale ---------- */
+function renderFinale(){
+  const st=G;
+  document.body.classList.add("finished");
+  const P=st.electors[st.pope];
+  const isYou=st.pope===st.player;
+  const latin=`Annuntio vobis gaudium magnum: habemus Papam! Eminentissimum ac reverendissimum Dominum, Dominum ${esc(P.name.split(" ")[0])} Sanctæ Romanæ Ecclesiæ Cardinalem ${esc(P.surname)}, qui sibi nomen imposuit ${esc(st.popeName)}.`;
+  const sc=st.score;
+  const first = P.key==="prevost" ? "On the loggia he says, first of all: 'Peace be with all of you' — and greets his old diocese of Chiclayo in Spanish. He will explain the name two days later, to the cardinals: a new industrial revolution, artificial intelligence among its engines, asks of the Church what Leo XIII once answered."
+    : isYou ? "The mozzetta or the plain white; a word of peace or a word of truth; a greeting to the place that made you — the loggia is yours now, and history will quote whatever you say first."
+    : "The loggia doors open to a roar you can feel through stone. The pontificate of "+esc(st.popeName)+" begins in the failing light of 8 May.";
+  $("#finale").innerHTML=`
+   <div class="eyebrow">${st.electedBallot?("Scrutiny "+st.electedBallot+" · Day "+st.cDay):""}</div>
+   <h1 class="habemus">HABEMUS <em>PAPAM</em></h1>
+   <p class="latin">${latin}</p>
+   <p style="margin:12px 0 18px">${first}</p>
+   <div class="panelbox" style="margin-bottom:14px">
+     <h3>Your conclave — ${esc(st.electors[st.player].name)}</h3>
+     <div class="scoreline"><span>Affinity with the new pontificate</span><span class="v">${sc.affinity}</span></div>
+     <div class="scoreline"><span>Influence on the outcome</span><span class="v">${sc.infl}</span></div>
+     <div class="scoreline"><span>Communion of the College</span><span class="v">${sc.comm}</span></div>
+     ${sc.ambPen?`<div class="scoreline"><span>“He who enters as pope…” (ambition)</span><span class="v">−${sc.ambPen}</span></div>`:""}
+     <div class="scoreline"><span>Your peak vote</span><span class="v">${sc.myVotesPeak}</span></div>
+     <div class="scoreline" style="border-bottom:none"><span><b>Verdict</b></span><span class="grade">${sc.grade}</span></div>
+     <p style="margin-top:8px;font-style:italic">${esc(sc.epithet)}</p>
+   </div>
+   <div class="coverbar">
+     <button class="btn primary" id="againBtn">Another conclave</button>
+     <button class="btn" id="exportBtn2">Export chronicle</button>
+      <button class="btn" id="boardBtn2">Final board</button>
+      <button class="btn" id="rollsBtn2">Simulated rolls</button>
+   </div>
+   <div id="finalboard" style="margin-top:16px"></div>`;
+  $("#againBtn").addEventListener("click",()=>location.reload());
+  $("#exportBtn2").addEventListener("click",exportChronicle);
+   $("#boardBtn2").addEventListener("click",()=>{renderBoard();openModal(`<h2>Final scrutiny board</h2><div id="boardwrap">${$("#board").outerHTML}</div>`);});
+   $("#rollsBtn2").addEventListener("click",()=>openModal(simulatedRollsHTML()));
+}
+function simulatedRollsHTML(){
+  const st=G;
+  const sections=st.ballots.map(b=>{
+    if(b.void)return `<details><summary>Scrutiny ${b.n} · void and unread</summary><p class="small">The paper count was 134. No paper was opened, so the simulation discloses no invented tally for this attempt.</p></details>`;
+    const rows=b.roll.map(v=>`<tr><td>${esc(cardName(st.byKey[v.voter]))}</td><td>${esc(cardName(st.byKey[v.candidate]))}</td></tr>`).join("");
+    return `<details><summary>Scrutiny ${b.n} · ${b.electors} simulated papers</summary><div id="boardwrap"><table class="rolltable"><thead><tr><th style="text-align:left">Elector</th><th style="text-align:left">Modelled vote</th></tr></thead><tbody>${rows}</tbody></table></div></details>`;
+  }).join("");
+  return `<h2>Simulated rolls</h2><p class="small">Disclosed only after the result. These voter-by-voter papers are deterministic model output, not a reconstruction of sealed historical ballots.</p>${sections}`;
+}
+
+/* ---------- misc ---------- */
+function exportChronicle(){
+  const blob=new Blob([chronicleText()],{type:"text/plain"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="extra-omnes-2025-chronicle.txt";a.click();
+}
+function rulesHTML(){
+  return `<h2>Rules &amp; sources</h2>
+  <p><b>The game.</b> You are one of the 133 cardinal electors of May 2025. Two acts: the <i>sede vacante</i> (22 April – 7 May: twelve general congregations, a funeral, and every dinner table in Rome), then the conclave itself. Before the seal you build acquaintance, trust, and the College's sense of what the job is; after it, only the room decides.</p>
+  <h3>The election</h3>
+  <ul>
+   <li>Two-thirds of 133 — <b>89 votes</b> — elects in the ordinary scrutinies, per <i>Universi Dominici gregis</i> as amended in 2007/2013.</li>
+   <li>One ballot the first evening; then two each morning, two each afternoon. Smoke comes at the end of a session, or after an elected candidate accepts.</li>
+   <li>After roughly three fruitless days, a day of pause and exhortation; after each further seven scrutinies, another. After the thirty-fourth, a runoff between the top two, who lose their active voice — two-thirds still required.</li>
+   <li>No elector may vote for himself. If the papers in the urn do not equal the active electorate, the scrutiny is void, unread, and repeated at once. In a runoff the two candidates do not vote, so 88 of 131 elects.</li>
+  </ul>
+  <h3>What is fact and what is model</h3>
+  <p>Cards marked <span class="mono" style="color:var(--doc)">DOCUMENTED</span> report dated, sourced happenings — the will, Becciu's withdrawal, Stella's attack, the 'auguri doppi', the SIM alarm, the overslept cardinals, the double paper that voided the decisive scrutiny. Cards marked <span class="mono" style="color:var(--mod)">MODELLED</span>, including <b>every vote count</b>, are the simulation's own output: the true ballots of 2025 are secret. The void attempt is shown as unread, not assigned an invented tally; voter-by-voter simulated rolls remain sealed until the ending. Elector leanings are inferences from public records and reporting, not claims of fact. With a passive player, the model is calibrated to reproduce the documented shape of the real conclave — Erdő's coordinated first-ballot lead, Parolin's stall near his opening number, Prevost's climb through the morning and landslide after lunch, more than a hundred votes on the final scrutiny.</p>
+  <h3>Scoring</h3>
+  <p>Affinity (did the pontificate you get resemble the one you wanted), influence (how much of it was your doing), and communion (did the College hold together) — less a penalty if you were seen to want it. <i>He who enters the conclave as pope leaves it as a cardinal.</i></p>
+  <h3>Principal sources</h3>
+  <ul>
+   <li><a href="https://www.vatican.va/content/john-paul-ii/en/apost_constitutions/documents/hf_jp-ii_apc_22021996_universi-dominici-gregis.html"><i>Universi Dominici gregis</i></a>, in its amended form — scrutiny, pause and restricted-ballot procedure.</li>
+   <li>Holy See Press Office bulletins for the <a href="https://press.vatican.va/content/salastampa/en/comunicazioni/2025/05/02/250502a.html">eighth</a>, <a href="https://press.vatican.va/content/salastampa/en/comunicazioni/2025/05/03/250503a.html">ninth</a> and <a href="https://press.vatican.va/content/salastampa/en/comunicazioni/2025/05/05/250505b.html">eleventh</a> general congregations, and the <a href="https://press.vatican.va/content/salastampa/en/bollettino/pubblico/2025/04/29/250429c.html">entry into conclave</a>.</li>
+   <li>G. O'Connell &amp; E. Piqué, <a href="https://www.garrattpublishing.com.au/product/9781626986640/election-of-pope-leo-xiv/"><i>The Election of Pope Leo XIV: The Last Surprise of Pope Francis</i></a> (2026) — reported ballot narrative, used cautiously because the papers remain sealed.</li>
+   <li>The elector list as compiled at Wikipedia, «Cardinal electors in the 2025 conclave» and «2025 conclave».</li>
+   <li>Reconstructions and reporting: NYT (11 May 2025), WSJ (9 May 2025), ANSA, Il Messaggero, Il Giornale, America, NCR, AP (Leo's December 2025 interview), Reuters.</li>
+  </ul>
+  <p class="small">A single-file, no-framework simulation in the Extra Omnes series. Counts are exact within the model; the model is not the archive.</p>`;
+}
+
+/* ---------- global render ---------- */
+function renderAll(){
+  if(!G)return;
+  if(G.phase==="done"){renderFinale();renderTicker();return;}
+  renderStage();
+  renderFeed();
+  if($("#v-college").classList.contains("on"))renderCollege();
+  if($("#v-board").classList.contains("on"))renderBoard();
+  if($("#v-you").classList.contains("on"))renderYou();
+  $("#metCount").textContent="· "+Array.from(G.met).filter(Boolean).length;
+}
+
+/* ---------- boot ---------- */
+document.addEventListener("DOMContentLoaded",()=>{
+  renderCover();
+  $("#pickSearch").addEventListener("input",renderCover);
+  $("#pickRegion").addEventListener("change",renderCover);
+  $("#pickSort").addEventListener("change",e=>{pickSortMode=e.target.value;renderCover();});
+  ["colSearch","colRegion","colKnown"].forEach(id=>$("#"+id).addEventListener(id==="colSearch"?"input":"change",renderCollege));
+  const tabs=[...document.querySelectorAll("#tabs button")];
+  tabs.forEach((b,i)=>{
+    b.addEventListener("click",()=>showView(b.dataset.v));
+    b.addEventListener("keydown",e=>{if(!["ArrowLeft","ArrowRight","Home","End"].includes(e.key))return;e.preventDefault();let n=e.key==="Home"?0:e.key==="End"?tabs.length-1:(i+(e.key==="ArrowRight"?1:-1)+tabs.length)%tabs.length;showView(tabs[n].dataset.v);tabs[n].focus();});
+  });
+  $("#btnRules").addEventListener("click",()=>openModal(rulesHTML()));
+  $("#btnRules0").addEventListener("click",()=>openModal(rulesHTML()));
+  $("#modalclose").addEventListener("click",closeModal);
+  $("#modal").addEventListener("click",e=>{if(e.target.id==="modal")closeModal();});
+  document.addEventListener("keydown",trapModalKey);
+  $("#btnCode").addEventListener("click",()=>{openModal(`<h2>Sealed record</h2><p class="small">Copy this code to resume this exact conclave later (same seed, same state).</p><label class="visually-hidden" for="saveout">Save code</label><textarea id="saveout" style="width:100%;height:120px;background:var(--panel2);color:var(--parchment);border:1px solid var(--line);font-family:'IBM Plex Mono',monospace;font-size:11px;padding:8px">${saveCode()}</textarea>`);});
+  $("#btnResume0").addEventListener("click",()=>{
+    openModal(`<h2>Resume a sealed conclave</h2><label class="visually-hidden" for="codein">Saved conclave code</label><textarea id="codein" style="width:100%;height:120px;background:var(--panel2);color:var(--parchment);border:1px solid var(--line);font-family:'IBM Plex Mono',monospace;font-size:11px;padding:8px" placeholder="Paste your code…"></textarea><div class="coverbar" style="margin-top:10px"><button class="btn primary" id="codego">Resume</button></div>`);
+    $("#codego").addEventListener("click",()=>{try{loadCode($("#codein").value);closeModal();document.body.classList.add("playing");window.scrollTo(0,0);if(G.phase==="done")document.body.classList.add("finished");renderAll();}catch(e){$("#codein").value="— code not recognised —";}});
+  });
+  $("#btnExport").addEventListener("click",exportChronicle);
+});
+
+</script>
+</body>
+</html>
