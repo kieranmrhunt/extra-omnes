@@ -2850,6 +2850,7 @@ function queueModalStep(callback,delay){
 function openModal(title,build,options){
 	const opts=options||{};
 	const host=$("modalhost");
+	const focusableSelector='button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
 	clearModalTimers();
 	host.innerHTML="";
 	UI.modalReturnFocus=(typeof document!=="undefined")?document.activeElement:null;
@@ -2870,15 +2871,24 @@ function openModal(title,build,options){
 	modal.appendChild(closebar);
 	host.appendChild(modal);
 	host.classList.remove("hidden");
+	function focusInside(preferLast){
+		const focusable=[].slice.call(modal.querySelectorAll(focusableSelector));
+		const target=focusable.length ? (preferLast?focusable[focusable.length-1]:focusable[0]) : modal;
+		target.focus();
+	}
 	host.onkeydown=function(event){
 		if(event.key!=="Tab")return;
-		const focusable=[].slice.call(modal.querySelectorAll('button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])'));
+		const focusable=[].slice.call(modal.querySelectorAll(focusableSelector));
+		if(!modal.contains(document.activeElement)){event.preventDefault();focusInside(event.shiftKey);return}
 		if(!focusable.length){event.preventDefault();modal.focus();return}
 		const first=focusable[0],last=focusable[focusable.length-1];
 		if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}
 		else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
 	};
-	requestAnimationFrame(function(){const focusable=modal.querySelector('button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])');(focusable||modal).focus()});
+	focusInside(false);
+	requestAnimationFrame(function(){
+		if(!host.classList.contains("hidden")&&host.contains(modal)&&!modal.contains(document.activeElement))focusInside(false);
+	});
 }
 function closeModal(){
 	const host=$("modalhost");

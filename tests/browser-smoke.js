@@ -117,9 +117,10 @@ async function checkDialogFocus(browser, baseUrl, file, opener) {
 		await page.goto(`${baseUrl}/${file}`, { waitUntil: "domcontentloaded" });
 		await page.locator(opener).click();
 		await page.locator('#modalhost:not(.hidden)[role="dialog"]').waitFor();
+		await page.waitForFunction(() => document.getElementById("modalhost").contains(document.activeElement));
 		for (let step = 0; step < 8; step++) {
 			const inside = await page.evaluate(() => document.getElementById("modalhost").contains(document.activeElement));
-			assert(inside, `${file}: keyboard focus escaped the open dialog`);
+			assert(inside, `${file}: keyboard focus escaped the open dialog at tab step ${step}`);
 			await page.keyboard.press("Tab");
 		}
 		await page.keyboard.press("Escape");
