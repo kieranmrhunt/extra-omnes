@@ -830,6 +830,8 @@ function checkStaticFiles() {
 		const cards = (section[1].match(/<a class="card(?: [^"]*)?"/g) || []).length;
 		const shown = section[1].match(/<span class="group-count">(\d+) games?<\/span>/);
 		assert(cards === expected && shown && Number(shown[1]) === cards, `index: ${status} count says ${shown ? shown[1] : "nothing"}, but contains ${cards} cards`);
+		const years = Array.from(section[1].matchAll(/<span class="year">(\d{4})<\/span>/g), (match) => Number(match[1]));
+		assert(years.every((year, i) => i === 0 || years[i - 1] < year), `index: ${status} cards are not in chronological order`);
 	}
 	assert(index.includes("assets/art/conclave-1878.webp") && fs.existsSync(path.join(ROOT, "assets", "art", "conclave-1878.webp")), "index: historical header engraving is missing");
 	const anchors = {
