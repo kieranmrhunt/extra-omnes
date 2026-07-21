@@ -494,7 +494,9 @@ const PAPAL_NAME_FLAVOR_1978 = {
 	"Gregory XVII":"reform through institutions, liturgy and law; a governing name with old Roman weight.",
 	"Clement XV":"reconciliation: healing Curia, Council and national camps without making the compromise look weak.",
 	"Adrian VII":"the non-Italian austerity signal: reform from outside Rome's habits, with Adrian VI's shadow deliberately accepted.",
-	"Nicholas VI":"humanist repair: learning, diplomacy and patient reconstruction after shock."
+	"Nicholas VI":"humanist repair: learning, diplomacy and patient reconstruction after shock.",
+	"Gerard I":"the saint of 16 October: a rare election-day name invoking pastoral charity and practical holiness.",
+	"Ignatius I":"the saint of 17 October: a rare election-day name invoking unity, witness and the ancient Church."
 };
 const ID = Object.fromEntries(ELECTORS.map(e => [e.id,e]));
 const PORTRAIT_FILES = {"villot":"Jean-Marie_Villot_1978.jpg","samore":"Antonio_Samoré_Argentina_1978.jpg","carpino":"Card.Carpino.jpg","baggio":"Cardinale-sebastiano-baggio.jpg","siri":"Giuseppe_Siri,_arcivescovo_di_Genova.jpg","wyszynski":"Stefan_Wyszyński.jpg","leger":"Paul-Emile_Leger_-_1941.jpg","bueno":"José_María_Bueno_Monreal_(cropped).jpg","konig":"Kardinal_koenig.jpg","alfrink":"Kardinaal_Alfrink.JPG","quintero":"José_Humberto_Cardenal_Quintero.jpg","landazuri":"Juan_Landázuri_Ricketts_(cropped).jpg","silva":"CardenalSilvaHenriquez_cropped.jpg","roy":"Maurice_Roy_en_1956.jpg","seper":"Franjo_Šeper.jpg","zoungrana":"Bundesarchiv_B_145_Bild-F023489-0006,_Bonn,_Lübke_empfängt_Kardinal_Zoungrana.jpg","agnelo_rossi":"Dom_Agnelo_Rossi_(1967).tif","colombo":"658_Card_Giovanni_Colombo.jpg","furstenberg":"Núncio_Apostólico_Maximilien_de_Furstenberg_no_Seminário_Menor_de_Resende_(1964)_-_Arquivo_da_Diocese_de_Lamego.png","maurer":"Kardinal_Maurer_am_31.05.1981_in_Kärlich.jpg","krol":"Ronald_Reagan_and_John_Cardinal_Krol.jpg","ursi":"Corrado_Cardinale_Ursi.jpg","bengsch":"Bundesarchiv_Bild_183-T0924-0004,_Erfurt,_300_Jahre_Wallfahrtskirche_Worbis.jpg","wojtyla":"ADAMELLO_-_PAPA_-_Giovanni_Paolo_II_-_panoramio_(cropped).jpg","pellegrino":"Michele_Pellegrino,_Radio_Vaticana.jpg","scherer":"Vicente_Scherer_e_Eugênio_Salles.tif","rosales":"Julio_Rosales.jpg","parecattil":"Cardinal_Joseph_Parecattil.jpg","marty":"Cardinal_François_Marty.jpg","tarancon":"Vicente_Enrique_y_Tarancón.jpg","munoz_vega":"Pablo_Muñoz_Vega_(cropped).jpg","poma":"Antonio_Poma.jpg","carberry":"John_Joseph_Carberry_(cropped).tif","cooke":"Terence_Cardinal_Cooke,_Archbishop,_Diocese_of_New_York.jpg","kim":"Archbishop_Stephen_Kim_Sou-hwan_1968.jpg","sales":"Cardeal_sales.jpg","willebrands":"Johannes_Willebrands_1982_color.jpg","ribeiro":"Cardeal D. António Ribeiro.jpg","vilela":"Avelar_Brandao.jpg","primatesta":"Cardenal_primatesta.jpg","pappalardo":"Card. Pappalardo (cropped).jpg","gonzalez":"Marcelo_Cardenal_González_Martín_(cropped).jpg","guyot":"Cardinal_Jean-Louis_Guyot.jpg","poletti":"Ugo_Poletti_(cropped).jpg","manning":"Timothy_Manning_1973.jpg","salazar":"Cardenal_José_Salazar_López.jpg","arns":"Paulo_Evaristo_Arns_(1982).jpg","jubany":"Narcís_Jubany.png","volk":"Hermann_Kardinal_Volk.jpg","beras":"Pintura-Cardenal-Beras.jpg","nsubuga":"Visitenkarte_von_Emmanuel_Cardinal_Kiwankuka_Nsubuga_(cropped).png","sin":"Cardinal_Jaime_Sin_in_1988.jpg","lorscheider":"Aloísio_Lorscheider.jpg","lekai":"Laszlolekai.jpg","hume":"Cardinal_Hume_(geograph_3367500).jpg","razafimahatratra":"Victor_Razafimahatratra_(1921-1993).gif","tomasek":"František_Tomášek.jpg","ekandem":"Ekandem.jpg","benelli":"Giovanni_Benelli_1978.jpg","ratzinger":"Benedykt_XVI_(2010-10-17)_2.jpg","nasalli":"Mario_Nasalli_Rocca_di_Corneliano_(cropped).jpg","pignedoli":"Sergio-Pignedoli_(cropped).jpg","bafile":"Konrad_Adenauer_-_Feier_zum_88._Geburtstag_in_der_Redoute-kasf0009.JPG","pironio":"Eduardo_Francisco_Pironio.jpg","gantin":"Gantin_Portrait.jpg","suenens":"Cardinal L. Suenens (3x4 cropped).jpg","garrone":"Le cardinal Gabriel-Marie Garrone à Sainte-Marthe (Rome) le 3 septembre 1968.jpg","renard":"Alexandre Renard 001.jpeg","gray":"Cardinal Gordon Joseph Gray.png","gouyon":"Musée de Bretagne - Paul Gouyon 1964-01.jpg","baum":"William Wakefield Baum (cropped).tif","felici":"Pericle Felici.jpg","paupini":"Giuseppe Cardinale Paupini - Particolare.jpg","munoz_duque":"D. Aníbal Muñoz Duque.JPG","medeiros":"Cardinalhm.jpg"};
@@ -534,10 +536,13 @@ function utilityBallotNo(){return S&&S.utilityBallotNo?S.utilityBallotNo:Math.ma
 function legalCandidateFor(voter,cand){return !!(S&&ID[voter]&&ID[cand]&&cand!==voter&&!(S.player.withdrawn&&cand===S.playerId))}
 function papalNameFlavor1978(name){return PAPAL_NAME_FLAVOR_1978[name]||"a name with a thinner recent precedent; the new pope would have to define it."}
 function validPapalName1978(name){return Object.prototype.hasOwnProperty.call(PAPAL_NAME_FLAVOR_1978,name)}
-function papalNameForState(seed,id){
+function feastName1978(ballotNo){if(ballotNo>=5&&ballotNo<=8)return "Gerard I";if(ballotNo>=9&&ballotNo<=10)return "Ignatius I";return null}
+function papalNameForState(seed,id,ballotNo){
 	if(id==="wojtyla")return "John Paul II";
 	const e=ID[id];
 	if(!e)return PAPAL_NAMES_1978[Math.floor(keyedUnit("papal-name",seed,id)*PAPAL_NAMES_1978.length)];
+	const feast=feastName1978(ballotNo);
+	if(feast&&keyedUnit("feast-regnal",seed,id)<.08)return feast;
 	if(id==="benelli"||hasTag(e,"Montinian"))return "Paul VII";
 	if(id==="siri"||(e.profile.doctrine>1.2&&e.profile.vatican2<0))return "Pius XIII";
 	if(id==="ratzinger")return "Benedict XVI";
@@ -548,8 +553,8 @@ function papalNameForState(seed,id){
 	if(hasTag(e,"Curia"))return "Gregory XVII";
 	return PAPAL_NAMES_1978[1+Math.floor(keyedUnit("papal-name",seed,id)*(PAPAL_NAMES_1978.length-1))];
 }
-function papalNameOptions1978(id){const suggested=papalNameForState(S.seed,id);return [suggested,...PAPAL_NAMES_1978.filter(n=>n!==suggested)]}
-function papalNameFor(id){return papalNameForState(S.seed,id)}
+function papalNameOptions1978(id){const suggested=papalNameForState(S.seed,id,S.ballotNo),names=PAPAL_NAMES_1978.slice(),feast=feastName1978(S.ballotNo);if(feast)names.push(feast);return [suggested,...names.filter(n=>n!==suggested)]}
+function papalNameFor(id){return papalNameForState(S.seed,id,S.ballotNo)}
 function ballotNoise(ballotNo,voter,cand){return (keyedUnit(S.seed,ballotNo,voter,cand)-.5)*(ballotNo<3?3.2:2.1)}
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
 function portraitInitials(e){const parts=e.name.trim().split(/\s+/).filter(Boolean);return (((parts[0]||"")[0]||"")+((parts[parts.length-1]||"")[0]||"")).toUpperCase()}
@@ -1174,7 +1179,7 @@ function validateSavedState(data){
 	if(data.over){
 		if(!ID[data.electedId])return false;
 		if(data.electedId===data.playerId){if(!validPapalName1978(data.papalName))return false}
-		else if(data.papalName!==papalNameForState(data.seed,data.electedId))return false;
+		else if(data.papalName!==papalNameForState(data.seed,data.electedId,data.ballotNo))return false;
 	}
 	else if(data.electedId!==null||data.papalName!==null)return false;
 	return true;

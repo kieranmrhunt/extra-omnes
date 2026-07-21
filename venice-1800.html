@@ -502,7 +502,8 @@ const PAPAL_NAME_FLAVOR_1800 = {
 	"Innocent XIV":"clean government and juridical repair: a promise that the Curia will be put back in order before the court is rebuilt.",
 	"Adrian VII":"austere reform with an outsider's edge: plain living, hard correction and little patience for Roman theatre.",
 	"Urban IX":"Roman confidence and temporal government: a name for rebuilding authority in the city and its states.",
-	"Nicholas VI":"humanist repair: libraries, diplomacy and a Rome rebuilt by learning as much as force."
+	"Nicholas VI":"humanist repair: libraries, diplomacy and a Rome rebuilt by learning as much as force.",
+	"Leobinus I":"the saint of 14 March: a rare election-day name invoking a bishop remembered for learning, endurance and care of his people."
 };
 const ID = Object.fromEntries(ELECTORS.map(e => [e.id,e]));
 let S = null;
@@ -868,7 +869,7 @@ function conductBallot(playerVote){
 	log(`<b>Represented scrutiny ${toRoman(S.ballotNo)}.</b> ${esc(leader.e.short)} leads with <b>${leader.n}</b>; ${esc(second.e.short)} follows on ${second.n}. The threshold is ${scrutinyThreshold}.`,"scrut",scrutinyDate);
 	if(leader.n>=scrutinyThreshold){
 		S.electedId=leader.id;
-		S.over=true;S.papalName=choosePapalName(leader.e);
+		S.over=true;S.papalName=choosePapalName(leader.e,S.seed,scrutinyDate);
 		if(S.headless)return hist;
 		setTimeout(endGame,350);
 		return hist;
@@ -1266,7 +1267,7 @@ function validateVeniceSave(data){
 	if(data.over){
 		if(!ID[data.electedId])return false;
 		if(data.electedId===data.playerId){if(!validPapalName1800(data.papalName))return false}
-		else if(data.papalName!==choosePapalName(ID[data.electedId]))return false;
+		else if(data.papalName!==choosePapalName(ID[data.electedId],data.seed,data.history[data.history.length-1].date))return false;
 	}
 	else if(data.electedId!==null||data.papalName!==null)return false;
 	return true;
@@ -1303,7 +1304,7 @@ function endGame(){
 	$("#screen-select").classList.add("hidden");
 	$("#screen-end").classList.remove("hidden");
 	scrollToTop();
-	const papalName = S.papalName||(S.papalName=choosePapalName(winner));
+	const papalName = S.papalName||(S.papalName=choosePapalName(winner,S.seed,S.history.length?S.history[S.history.length-1].date:""));
 	$("#endTitle").textContent = papalName;
 	$("#endSub").textContent = `${winner.name} is elected after ${S.ballotNo} represented rounds.`;
 	const player=ID[S.playerId];
@@ -1381,9 +1382,11 @@ function evaluateObjective(){
 }
 function papalNameFlavor1800(name){return PAPAL_NAME_FLAVOR_1800[name]||"a name with a thinner recent precedent; the new pope would have to make its meaning plain."}
 function validPapalName1800(name){return Object.prototype.hasOwnProperty.call(PAPAL_NAME_FLAVOR_1800,name)}
-function papalNameOptions1800(w){const suggested=choosePapalName(w);return [suggested,...PAPAL_NAMES_1800.filter(n=>n!==suggested)]}
-function choosePapalName(w){
+function isLeobinusDate1800(date){return /14 March/.test(date||"")}
+function papalNameOptions1800(w){const date=S.history.length?S.history[S.history.length-1].date:"",suggested=choosePapalName(w,S.seed,date),names=PAPAL_NAMES_1800.slice();if(isLeobinusDate1800(date))names.push("Leobinus I");return [suggested,...names.filter(n=>n!==suggested)]}
+function choosePapalName(w,seed,date){
 	if(w.id==="chiaramonti")return "Pius VII";
+	if(isLeobinusDate1800(date)&&hashSeed(String(seed)+":feast-regnal:"+w.id)%1000<80)return "Leobinus I";
 	if(w.id==="bellisomi")return "Clement XV";
 	if(w.id==="mattei"||hasTag(w,"Restoration"))return "Pius VII";
 	if(hasTag(w,"Monastic"))return "Gregory XVI";

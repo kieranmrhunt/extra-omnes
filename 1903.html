@@ -1461,10 +1461,18 @@ const PAPAL_NAME_FLAVOR_1903={
 	"Clement XV":"conciliation after injury: healing the College without conceding a secular right over the conclave.",
 	"Gregory XVII":"monastic reform and institutional discipline: a name for a religious pope who means to govern.",
 	"Innocent XIII":"clean jurisdiction and papal liberty: a legal answer to the wound of the veto.",
-	"Adrian VII":"austere reform from outside the Roman habit: plain speech, correction and suspicion of courtly politics."
+	"Adrian VII":"austere reform from outside the Roman habit: plain speech, correction and suspicion of courtly politics.",
+	"Dominic I":"the saint of 4 August in the contemporary calendar: a rare election-day name invoking preaching, study and reform."
 };
 function papalNameFlavor1903(name){return PAPAL_NAME_FLAVOR_1903[name]||"a name with a thinner recent precedent; the new pope would have to define it."}
-function papalNameOptions1903(id){const suggested=nextPapalName(id);return [suggested].concat(PAPAL_NAMES_1903.filter(function(name){return name!==suggested}))}
+function feastName1903(ballotNo){return /4 August/.test(ballotDate(ballotNo))?"Dominic I":null}
+function papalNameOptions1903(id){const suggested=nextPapalName(id),names=PAPAL_NAMES_1903.slice(),feast=feastName1903(S.ballotNo);if(feast)names.push(feast);return [suggested].concat(names.filter(function(name){return name!==suggested}))}
+function papalNameFor1903(seed,id,ballotNo){
+	if(id==="sarto")return "Pius X";
+	const feast=feastName1903(ballotNo);
+	if(feast&&hash32(String(seed)+"|feast-regnal|"+id)%1000<80)return feast;
+	return nextPapalName(id);
+}
 function nextPapalName(id){
 	if(id==="sarto")return "Pius X";
 	if(id==="rampolla")return "Leo XIV";
@@ -2536,7 +2544,7 @@ function endGame(){
 	if(!S || !S.electedId)return;
 	const winner=ID[S.electedId];
 	const player=ID[S.playerId];
-	const papalName=S.papalName||nextPapalName(winner.id);
+	const papalName=S.papalName||(winner.id===player.id?nextPapalName(winner.id):papalNameFor1903(S.seed,winner.id,S.ballotNo));
 	S.papalName=papalName;
 	$("#screen-game").classList.add("hidden");
 	$("#screen-select").classList.add("hidden");
@@ -2650,6 +2658,7 @@ globalThis.__om1903={
 	reactToVeto:reactToVeto,
 	resolveSartoConsent:resolveSartoConsent,
 	scoreGame:scoreGame,
+	papalNameFor1903:papalNameFor1903,
 	runHeadless:runHeadless,
 	validateData:validateData
 };

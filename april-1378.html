@@ -680,7 +680,8 @@ const REGNAL_SIGNAL={
 	"John XXIII":"curial command / political agility / an assertive pontificate",
 	"Martin V":"unity / recovery / an end to rival obediences",
 	"Celestine VI":"ascetic reform / distance from faction / spiritual authority",
-	"Nicholas V":"independence / pastoral reform / distance from both French blocs"
+	"Nicholas V":"independence / pastoral reform / distance from both French blocs",
+	"Dionysius I":"Saint Dionysius of Corinth, remembered on 8 April: learned episcopal witness and a deliberately unprecedented name"
 };
 
 /* Pre-conclave leanings, per the casus and depositions (inferred weights). */
@@ -1497,13 +1498,18 @@ function runHeadless(seed,playerId,mode,maxBallots){
 /* ===== 04-actions.js ===== */
 function threshold(n){return Math.ceil(n*2/3)}
 function regnalOptionsFor(id){
-	return (REGNAL[id]||["Innocent VII"]).slice();
+	const options=(REGNAL[id]||["Innocent VII"]).slice();
+	if(options.indexOf("Dionysius I")<0)options.push("Dionysius I");
+	return options;
 }
 function regnalSignalFor(name){
 	return REGNAL_SIGNAL[name]||"continuity / reform / a new papal household";
 }
 function papalNameForState(seed,electedId){
-	const options=regnalOptionsFor(electedId);
+	if(electedId==="prignano")return "Urban VI";
+	if(electedId==="geneva")return "Clement VII";
+	if(pureRand(String(seed)+"|feast-name|"+electedId)<.08)return "Dionysius I";
+	const options=(REGNAL[electedId]||["Innocent VII"]).slice();
 	const idx=Math.floor(pureRand(String(seed)+"|name|"+electedId)*options.length)%options.length;
 	return options[idx];
 }

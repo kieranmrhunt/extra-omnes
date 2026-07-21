@@ -72,7 +72,8 @@ const REGNAL_FLAVOR_1559 = {
   'Benedict XIII':'monastic steadiness, learning and peace-making; less theatrical than Pius, less soft than Clement.',
   'Alexander VII':'diplomacy and princely display, but shadowed by the memory that Alexander can sound worldly.',
   'Nicholas VI':'humanist repair: libraries, learning, and Rome rebuilt by administration rather than family vengeance.',
-  'Callistus IV':'crusade, Spanish memory and the old Borgia edge; a name for turning reform outward against the Turk.'
+  'Callistus IV':'crusade, Spanish memory and the old Borgia edge; a name for turning reform outward against the Turk.',
+  'Emmanuel I':'God with us: a rare Christmas name tying the new pontificate directly to the Nativity and the exhausted College\'s day of settlement.'
 };
 const BY_ID = {}; ELECTORS.forEach(c=>BY_ID[c.id]=c);
 const IDS = ELECTORS.map(c=>c.id);
@@ -266,7 +267,14 @@ function objective(){const me=S.playerId,obj=OBJECTIVES[me]||{title:'Survive the
 function endUnresolved(){if(HEADLESS||typeof document==='undefined')return;$('#screen-game').classList.add('hidden');$('#ceremony').classList.add('hidden');$('#screen-end').classList.remove('hidden');$('#endtitle').textContent='SEDE VACANTE';$('#endsub').textContent='No canonical election has been achieved';$('#endbody').innerHTML='<p>The College reaches Christmas without a valid majority or a successful acclamation. Rather than manufacture a winner from hidden scores, this chronicle ends unresolved.</p><p>A new seed or a different coalition may break the deadlock.</p>';$('#endscore').innerHTML='';$('#endach').innerHTML='';$('#endhist').innerHTML='<h3>Historical contrast</h3><p>The real College ultimately acclaimed Giovanni Angelo Medici and confirmed the choice by scrutiny. This simulation did not reproduce that coalition.</p>';$('#endseed').textContent='Seed: '+S.seed+' · played as '+BY_ID[S.playerId].short}
 function endGame(){const w=S.electedId,W=BY_ID[w],me=BY_ID[S.playerId];$('#screen-game').classList.add('hidden');$('#ceremony').classList.add('hidden');$('#screen-end').classList.remove('hidden');let reg=REGNAL[w]||REGNAL_FALLBACK[hashSeed(S.seed+':regnal:'+w)%REGNAL_FALLBACK.length];let kind=w===S.playerId?'pope':(S.cards[S.playerId].promisesFrom[w]?'kingmaker':(S.lastFinal[S.playerId]>=10?'contender':'survivor'));$('#endtitle').textContent=w===S.playerId?'HABEMUS PAPAM':'HABEMUS PAPAM';$('#endsub').textContent=W.name+' reigns as '+reg;let body='';if(w===S.playerId)body=`<p>The white smoke rises over a chapel exhausted by months of suspicion. You have become <b>${reg}</b>. The guarantees made in your cell now become government; the rumours used against you become chronicles.</p>`;else if(kind==='kingmaker')body=`<p><b>${W.name}</b> is announced as <b>${reg}</b>. The tiara is not yours, but your guarantee is in his first ledger. This is how men win a conclave without wearing white.</p>`;else body=`<p><b>${W.name}</b> is announced as <b>${reg}</b>. You survive the Carafa winter with your benefices, your enemies, and perhaps your conscience intact.</p>`;if(w==='medici')body+='<p>History recognises this ending: Giovanni Angelo Medici became <b>Pius IV</b>, reopened Trent, rehabilitated Morone, and later prosecuted the Carafa nephews with lethal effect.</p>';if(w==='morone')body+='<p>This is the alternate vindication: the prisoner of Paul IV becomes the judge of Paul IV’s legacy.</p>';if(w==='pacheco')body+='<p>The Spanish near-acclamation has succeeded. Rome will spend years asking whether Philip’s shadow has entered the Fisherman’s Ring.</p>';$('#endbody').innerHTML=body;const tb=$('#endscore');tb.innerHTML='';let score=0;function add(n,l){score+=n;tb.appendChild(h('tr',null,h('td',null,l),h('td',{class:'n'},String(n))))}if(w===S.playerId)add(220,'Elected Supreme Pontiff');else if(S.cards[S.playerId].promisesFrom[w])add(110,'The winner owes you');else add(30,'Survived the conclave');add(Math.round(S.integrity*.5),'Integrity retained');add(-Math.round(S.heat*.35),'Guarantee / simony heat');add(-Math.round(S.taint*.25),'Doctrinal suspicion');const ob=objective();if(ob.done)add(60,'Private ambition: '+ob.obj.title);tb.appendChild(h('tr',{class:'total'},h('td',null,'INFLUENCE'),h('td',{class:'n'},String(score))));const ach=[];if(w===S.playerId)ach.push('Habemus Papam');if(w==='medici')ach.push('Carafa Winter');if(ob.done)ach.push('Private Ambition');if(S.heat<20)ach.push('Clean Hands');if(S.taint>60)ach.push('Under Suspicion');if(kind==='kingmaker')ach.push('Kingmaker');$('#endach').innerHTML='';ach.forEach(a=>$('#endach').appendChild(h('span',{class:'a'},a)));$('#endhist').innerHTML='<h3>Historical note</h3><p>The real conclave opened in September 1559 and ended on 25 December with the election of Giovanni Angelo Medici as <b>Pius IV</b>. The central pressures modelled here are the Carafa family’s need for guarantees, Spain and France competing through clients and ambassadors, Morone’s Inquisition taint, the failed Gonzaga and Pacheco acclamations, Capodiferro’s death, rationing, leaks through conclavists and walls, and the final Medici/Cesi compromise.</p>';$('#endseed').textContent='Seed: '+S.seed+' · played as '+me.short}
 function regnalFlavor1559(name){return REGNAL_FLAVOR_1559[name]||'a name with a thinner recent precedent; this pontificate would have to teach Rome what it means.'}
-function regnalOptions1559(w){const suggested=REGNAL[w]||REGNAL_FALLBACK[hashSeed(S.seed+':regnal:'+w)%REGNAL_FALLBACK.length];return [suggested,...REGNAL_CHOICES_1559.filter(n=>n!==suggested)]}
+function feastDay1559(){return S.stage>=10}
+function baseRegnal1559(w){return REGNAL[w]||REGNAL_FALLBACK[hashSeed(S.seed+':regnal:'+w)%REGNAL_FALLBACK.length]}
+function chosenRegnal1559(w){
+	if(w==='medici')return 'Pius IV';
+	if(w!==S.playerId&&feastDay1559()&&hashSeed(S.seed+':feast-regnal:'+w)%1000<80)return 'Emmanuel I';
+	return baseRegnal1559(w);
+}
+function regnalOptions1559(w){const suggested=baseRegnal1559(w),choices=REGNAL_CHOICES_1559.slice();if(feastDay1559())choices.push('Emmanuel I');return [suggested,...choices.filter(n=>n!==suggested)]}
 function endBody1559(w,kind,reg){
 	const W=BY_ID[w];
 	let body='';
@@ -314,7 +322,7 @@ function endGame1559Regnal(){
 	$('#screen-game').classList.add('hidden');
 	$('#ceremony').classList.add('hidden');
 	$('#screen-end').classList.remove('hidden');
-	let reg=REGNAL[w]||REGNAL_FALLBACK[hashSeed(S.seed+':regnal:'+w)%REGNAL_FALLBACK.length];
+	let reg=w===S.playerId?baseRegnal1559(w):chosenRegnal1559(w);
 	let kind=w===S.playerId?'pope':(S.cards[S.playerId].promisesFrom[w]?'kingmaker':(S.lastFinal[S.playerId]>=10?'contender':'survivor'));
 	$('#endtitle').textContent='HABEMUS PAPAM';
 	$('#endsub').textContent=W.name+' reigns as '+reg;

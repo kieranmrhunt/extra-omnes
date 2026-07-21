@@ -852,6 +852,7 @@ const REGNAL_NAMES = ["Gregory","Clement","Innocent","Alexander","Urban","Honori
 const REGNAL_HINT = { orsini:"Nicholas", fieschi:"Adrian", savelli:"Honorius", debrie:"Martin", guy:"Eugene", goffredo:"Callistus", riccardo:"Alexander", odo:"Urban", toledo:"Celestine" };
 const REGNAL_FLAVOR = {
   Nicholas:"The name the Orsini pope will truly take, six years hence — Rome will call him the son of the she-bear.",
+  Giles:"For Saint Giles, abbot and hermit, whose feast falls on the day the thousand-day vacancy historically ended.",
   Adrian:"A name of Englishmen and, as it will prove, of very short reigns.",
   Honorius:"His great-uncle's name, kept warm for a Savelli.",
   Martin:"A Tours name for a Tours man; history is patient about these things.",
@@ -3239,7 +3240,9 @@ function resolveCommitteeResult(res, playerPick){
 }
 
 /* ---------- habemus papam & the regnal name ---------- */
-var REGNAL_NUM={Gregory:"X",Clement:"V",Innocent:"V",Alexander:"V",Urban:"V",Honorius:"IV",Nicholas:"III",Adrian:"V",Celestine:"V",Martin:"IV",John:"XXI",Boniface:"VIII",Benedict:"XI",Eugene:"IV",Lucius:"IV",Anastasius:"V",Victor:"V",Callistus:"III",Sylvester:"IV",Leo:"X",Stephen:"X"};
+var REGNAL_NUM={Gregory:"X",Clement:"V",Innocent:"V",Alexander:"V",Urban:"V",Honorius:"IV",Nicholas:"III",Adrian:"V",Celestine:"V",Martin:"IV",John:"XXI",Boniface:"VIII",Benedict:"XI",Eugene:"IV",Lucius:"IV",Anastasius:"V",Victor:"V",Callistus:"III",Sylvester:"IV",Leo:"X",Stephen:"X",Giles:"I"};
+function feastNameViterbo(state){ return state&&state.turn===22 ? "Giles" : null; }
+function regnalNamesViterbo(state){ var feast=feastNameViterbo(state);return feast?REGNAL_NAMES.concat([feast]):REGNAL_NAMES.slice(); }
 function habemusFlow(id, via){
   $("#screen-game").classList.add("hidden");
   $("#ceremony").classList.remove("hidden");
@@ -3255,7 +3258,7 @@ function habemusFlow(id, via){
     tz.appendChild(h("div",{class:"regnalhint",id:"reghint",html:"By what name shall the Church know you?"}));
     var wrap=h("div",{class:"regnal"});
     var chosen=REGNAL_HINT[id]||"Gregory";
-    REGNAL_NAMES.forEach(function(n){
+    regnalNamesViterbo(S).forEach(function(n){
       var b=h("button",{onclick:function(){
         chosen=n;
         wrap.querySelectorAll("button").forEach(function(x){x.classList.remove("sel");});
@@ -3273,7 +3276,8 @@ function habemusFlow(id, via){
       C.appendChild(h("button",{class:"primary",onclick:showEnd},"To the reckoning"));
     }},"Take the name"));
   } else {
-    var n2=REGNAL_HINT[id]||"Gregory";
+    var feast=feastNameViterbo(S);
+    var n2=(id!=="visconti"&&feast&&hashSeed(S.seed+":feast-regnal:"+id)%100<8)?feast:(REGNAL_HINT[id]||"Gregory");
     S.regnal=n2+" "+(REGNAL_NUM[n2]||"");
     accLine("He takes the name <b>"+S.regnal+"</b>. The bells of an interdict-shy city decide, on reflection, to ring.");
     C.appendChild(h("button",{class:"primary",onclick:showEnd},"To the reckoning"));

@@ -437,7 +437,7 @@ function runTargetedChecks(variant, api) {
 		return ["full-portrait-coverage", "portrait-links", "chooser-stacking", "merged-network-action", "faction-picker-filter", "world-copy", "complete-tally", "uncertain-soundings", "network-membership", "third-party-network-cause", "network-determinism", "player-ballot-preserved", "terminal-guard", "papal-name", "end-score", "directional-profile"];
 	}
 	if (variant.label === "constance-1417") {
-		assert(typeof api.initState === "function" && typeof api.beginScrutiny === "function" && typeof api.playerAccede === "function" && typeof api.makeSounding === "function" && typeof api.thresholds === "function" && typeof api.electedNow === "function" && typeof api.validateData === "function" && typeof api.scoreGame === "function" && typeof api.papalNameForState === "function", "Constance: targeted-test API is not exported");
+		assert(typeof api.initState === "function" && typeof api.beginScrutiny === "function" && typeof api.playerAccede === "function" && typeof api.makeSounding === "function" && typeof api.actionColloquy === "function" && typeof api.colloquySnapshot === "function" && typeof api.thresholds === "function" && typeof api.electedNow === "function" && typeof api.validateData === "function" && typeof api.scoreGame === "function" && typeof api.papalNameForState === "function", "Constance: targeted-test API is not exported");
 		const audit = api.validateData();
 		assert(audit && audit.ok, `Constance: data audit failed: ${audit && (audit.problems || []).join("; ")}`);
 		const roster = cardList(api);
@@ -477,6 +477,10 @@ function runTargetedChecks(variant, api) {
 		assert(JSON.stringify(soundingA) === JSON.stringify(soundingB) && JSON.stringify(state) === snapshot, "Constance: soundings are non-deterministic or mutate simulation state");
 		assert(soundingA.rows.length > 0 && soundingA.rows.every((row) => Number.isInteger(row.low) && Number.isInteger(row.high) && row.low < row.high && !("count" in row) && !("total" in row)), "Constance: soundings expose exact counts or invalid ranges");
 		assert(soundingA.rows.every((row) => ["cardinals", "italia", "gallia", "germania", "anglia", "hispania"].every((key) => row.colleges[key] && row.colleges[key].low <= row.colleges[key].high && Number.isInteger(row.colleges[key].need))), "Constance: per-college soundings are malformed");
+		state = settle(api.initState("dailly", "constance-colloquy", "open"));
+		const apBeforeColloquy = state.ap;
+		const colloquy = api.actionColloquy(state, "colonna", "sound");
+		assert(colloquy && colloquy.ok && state.ap === apBeforeColloquy - 1 && state.intel.colonna === 1 && state.intelLedger.some((entry) => entry.kind === "colloquy" && entry.voterId === "colonna"), "Constance: colloquy did not spend one action and retain its reading in the ledger");
 		const anchored = api.runHeadless("anchor", "polton", "historical");
 		assert(anchored.winner === "colonna" && anchored.ballots <= 3, "Constance: the historical anchor did not elect Colonna by St Martin's morning");
 		const finalRecord = anchored.history[anchored.history.length - 1];
@@ -490,10 +494,19 @@ function runTargetedChecks(variant, api) {
 		const nameA = api.papalNameForState("constance-name", "saluzzo");
 		const nameB = api.papalNameForState("constance-name", "saluzzo");
 		assert(typeof nameA === "string" && nameA === nameB && / [IVXLCDM]+$/.test(nameA), "Constance: papal name is invalid or non-deterministic");
+		assert(api.papalNameForState("constance-history", "colonna") === "Martin V", "Constance: Colonna does not take the historically correct name Martin V");
 		assert(api.regnalOptionsFor("condulmer")[0] === "Eugene IV", "Constance: Condulmer's first regnal choice is not Eugene IV");
+		const constanceSource = fs.readFileSync(path.join(ROOT, variant.file), "utf8");
+		assert(/for\(let i=0;i<5;i\+\+\)/.test(constanceSource), "Constance: selection difficulty is still compressed to a three-star scale");
+		assert(/What the affinity labels mean/.test(constanceSource) && /Doctors[\s\S]*Diplomats[\s\S]*Religious/.test(constanceSource), "Constance: cross-cutting affinity labels are not explained");
+		assert(/id="intelLedger"/.test(constanceSource) && /function renderIntelLedger/.test(constanceSource), "Constance: soundings have no persistent intelligence ledger");
+		assert(/function appendFilterableChooser/.test(constanceSource) && /Filter electors by college/.test(constanceSource) && /Filter electors by affinity/.test(constanceSource), "Constance: action target lists are not filterable");
+		assert(/function openScrutinyRecord/.test(constanceSource) && /View final scrutiny &amp; accessus/.test(constanceSource) && /function doScrutiny\(\)[\s\S]*openModal\("Write your cedula/.test(constanceSource), "Constance: cedulae and scrutiny records are not presented in dialogs");
+		assert(/Word through the wall[\s\S]*It does not directly change a vote/.test(constanceSource), "Constance: word-through-the-wall consequences are not explained");
+		assert(/scrollbar-color/.test(constanceSource) && /::-webkit-scrollbar-corner/.test(constanceSource), "Constance: native scrollbars remain visually unintegrated");
 		const score = api.scoreGame(openA);
 		assert(Number.isFinite(score.total) && score.parts.reduce((sum, part) => sum + part.points, 0) === score.total && score.verdict && score.verdict.grade, "Constance: end score is invalid");
-		return ["data-audit", "six-college-rule", "blank-ballot", "approval-validation", "accession-validation", "no-first-scrutiny-accession", "player-ballot-preserved", "uncertain-soundings", "historical-anchor", "open-termination", "papal-name", "end-score"];
+		return ["data-audit", "six-college-rule", "blank-ballot", "approval-validation", "accession-validation", "no-first-scrutiny-accession", "player-ballot-preserved", "uncertain-soundings", "colloquy-ledger", "historical-anchor", "open-termination", "papal-name", "martin-v", "five-star-difficulty", "affinity-guidance", "persistent-ledger", "filterable-choosers", "scrutiny-dialogs", "wall-guidance", "styled-scrollbars", "end-score"];
 	}
 	if (variant.label === "april-1378") {
 		assert(typeof api.initState === "function" && typeof api.beginScrutiny === "function" && typeof api.makeSounding === "function" && typeof api.runHeadless === "function" && typeof api.validateData === "function" && typeof api.scoreGame === "function" && typeof api.papalNameForState === "function" && typeof api.regnalOptionsFor === "function" && typeof api.regnalSignalFor === "function" && typeof api.choosePlayerRegnalName === "function" && typeof api.axisPosition === "function" && typeof api.roman === "function" && typeof api.scrutinyLabel === "function" && typeof api.resolveDecision === "function" && typeof api.autoChoiceFor === "function", "April 1378: targeted-test API is not exported");
@@ -810,6 +823,22 @@ function checkStaticFiles() {
 	for (const [file, required] of Object.entries(anchors)) {
 		const html = fs.readFileSync(path.join(ROOT, file), "utf8");
 		for (const text of required) assert(html.includes(text), `${file}: missing historical anchor ${text}`);
+	}
+	const feastNames = {
+		"viterbo-1268.html": "Giles",
+		"april-1378.html": "Dionysius I",
+		"constance-1417.html": "Martin V",
+		"accession-1458.html": "Louis I",
+		"1492.html": "Tiburtius",
+		"carafa-winter-1559.html": "Emmanuel I",
+		"venice-1800.html": "Leobinus I",
+		"1903.html": "Dominic I",
+		"october-1978.html": "Gerard I",
+	};
+	for (const [file, name] of Object.entries(feastNames)) {
+		const html = fs.readFileSync(path.join(ROOT, file), "utf8");
+		assert(html.includes(name), `${file}: missing feast-day regnal option ${name}`);
+		assert(/feast[_-]?(?:name|regnal)|feastName|feastDay|isLeobinusDate/i.test(html), `${file}: feast-day name is not tied to a dated rule`);
 	}
 	return VARIANTS.map((variant) => variant.file);
 }

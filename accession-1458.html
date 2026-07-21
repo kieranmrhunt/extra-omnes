@@ -533,7 +533,8 @@ const REGNAL_SIGNAL={
 	"Alexander VI":"conquest and magnificence — a name this family will find again",
 	"Celestine VI":"ascetic reform, distance from every faction",
 	"Gregory XIII":"reform and return, in the line of the eleventh Gregory",
-	"Anastasius V":"his own titulus, S. Anastasia, raised to the throne"
+	"Anastasius V":"his own titulus, S. Anastasia, raised to the throne",
+	"Louis I":"Saint Louis of Toulouse, the Franciscan prince-bishop remembered on 19 August: renunciation, learning and a new name on the throne"
 };
 
 /*
@@ -1366,12 +1367,16 @@ function computeElectionIntegrity(S,record,winner){
 }
 
 function papalNameForState(seed,electedId){
-	const options=regnalOptionsFor(electedId);
+	if(electedId==="piccolomini")return "Pius II";
+	if(pureRand(String(seed)+"|feast-name|"+electedId)<.08)return "Louis I";
+	const options=(REGNAL[electedId]||["Innocent VIII"]).slice();
 	const idx=Math.floor(pureRand(String(seed)+"|name|"+electedId)*options.length)%options.length;
 	return options[idx];
 }
 function regnalOptionsFor(id){
-	return (REGNAL[id]||["Innocent VIII"]).slice();
+	const options=(REGNAL[id]||["Innocent VIII"]).slice();
+	if(options.indexOf("Louis I")<0)options.push("Louis I");
+	return options;
 }
 function regnalSignalFor(name){
 	return REGNAL_SIGNAL[name]||"continuity, reform, and a new papal household";

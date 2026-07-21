@@ -1031,7 +1031,8 @@ const REGNAL_FLAVOR = {
   Martin:"the healer of schism — unity restored, the See made whole and Roman again.",
   Boniface:"the high theory of papal supremacy — and its perilous reckoning with kings.",
   Stephen:"an ancient, early-Church name — a deliberate reach back past the worldly century just passed.",
-  Victor:"a primitive, combative name — orthodoxy asserted, a return to first things."
+  Victor:"a primitive, combative name — orthodoxy asserted, a return to first things.",
+  Tiburtius:"the saint of the day — a rare name chosen on 11 August to bind the new pontificate to its hour of election."
 };
 
 const DATE_LABELS = ["", "Monday 6 August","Tuesday 7 August","Wednesday 8 August","Thursday 9 August","Friday 10 August","Saturday 11 August","Sunday 12 August","Monday 13 August","Tuesday 14 August","Wednesday 15 August","Thursday 16 August","Friday 17 August"];
@@ -3380,7 +3381,7 @@ function endByCompromissum(){
 /* CONCLAVE 1492 — UI layer, part 3: endings & bootstrap */
 const ORDINAL={Alexander:"VI",Pius:"III",Julius:"II",Leo:"X",Paul:"III",Sixtus:"V",Innocent:"IX",Callixtus:"IV",
   Eugene:"V",Nicholas:"VI",Gregory:"XIII",Clement:"VII",Adrian:"VI",Honorius:"V",Celestine:"VI",Urban:"VII",
-  Martin:"VI",Boniface:"X",Stephen:"X",Victor:"IV"};
+  Martin:"VI",Boniface:"X",Stephen:"X",Victor:"IV",Tiburtius:"I"};
 function achievements(E){
   const a=[];const me=S.playerId;const last=S.scrutinies[S.scrutinies.length-1];
   if(E.kind.indexOf("pope")===0){
@@ -3408,9 +3409,13 @@ function achievements(E){
 }
 function npcRegnal(id){
   if(REGNAL_HINT[id]) return REGNAL_HINT[id];
+  if(S.day===6&&(hashSeed(S.seed+":feast-regnal:"+id)%1000)<80) return "Tiburtius";
   const worldly=["Clement","Leo","Sixtus","Urban"],pious=["Pius","Gregory","Celestine","Innocent"],mid=["Innocent","Nicholas","Paul","Urban"];
   const pool=byId[id].ideo>=0.6?pious:(byId[id].ideo<=0.3?worldly:mid);
   return pool[hashSeed(S.seed+":regnal:"+id)%pool.length];
+}
+function regnalNames1492(){
+  return S.day===6?REGNAL_NAMES.concat(["Tiburtius"]):REGNAL_NAMES.slice();
 }
 function renderFinalBallot(){
   const host=$("#ballotbody"); if(!host) return; host.innerHTML="";
@@ -3494,7 +3499,7 @@ function endGame(){
       hintEl.innerHTML="<b>"+n+" "+(ORDINAL[n]||"")+"</b> — "+(REGNAL_FLAVOR[n]||"a name without strong recent precedent; you would make it mean what you will.")+(histName===n?" <span class='goldtx'>The name history records you took.</span>":"");
     }
     let histBtn=null;
-    REGNAL_NAMES.forEach(function(n){
+    regnalNames1492().forEach(function(n){
       const b=h("button",{onclick:function(){pick(n,b);}},n+(histName===n?" ✠":""));
       row.appendChild(b);
       if(histName===n) histBtn=b;

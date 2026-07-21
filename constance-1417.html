@@ -23,7 +23,12 @@
 	--display:"Grenze Gotisch","EB Garamond",Georgia,serif;
 }
 *{box-sizing:border-box}
-html{background:var(--void)}
+html{background:var(--void);scrollbar-color:var(--gold) var(--void2);scrollbar-width:thin}
+*::-webkit-scrollbar{width:10px;height:10px}
+*::-webkit-scrollbar-track{background:var(--void2)}
+*::-webkit-scrollbar-thumb{background:#67552f;border:2px solid var(--void2);border-radius:6px}
+*::-webkit-scrollbar-thumb:hover{background:var(--gold)}
+*::-webkit-scrollbar-corner{background:var(--void2)}
 body{
 	margin:0;color:var(--paper);font-family:var(--serif);line-height:1.5;font-size:16.5px;min-height:100vh;
 	background:
@@ -81,6 +86,10 @@ input,select{font-family:var(--serif);font-size:.95rem;color:var(--paper);backgr
 .chip.hot{color:var(--void);background:var(--gold);border-color:var(--gold);font-weight:600}
 .chip.lock{color:var(--lake-bright);border-color:var(--lake)}
 .ccard .role{font-size:.85rem;color:var(--paper-dim);margin-top:auto}
+.affinity-guide{max-width:920px;margin:.15rem auto 1rem;padding:.65rem .8rem;border:1px solid var(--line);border-radius:8px;background:rgba(18,23,34,.78);color:var(--paper-dim);font-size:.88rem}
+.affinity-guide summary{cursor:pointer;font-family:var(--mono);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-bright)}
+.affinity-guide-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.65rem;margin-top:.65rem}
+.affinity-guide-grid b{display:block;color:var(--paper);font-family:var(--display);font-weight:500;font-size:1.05rem}
 .absent-note{max-width:92ch;margin:1.1rem auto 0;font-size:.86rem;color:var(--smoke);border-top:1px solid var(--line);padding-top:.8rem}
 .startbar{position:sticky;bottom:0;display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:center;margin-top:1.1rem;padding:.8rem;background:linear-gradient(180deg,transparent,rgba(11,14,20,.92) 30%)}
 .seedrow{font-family:var(--mono);font-size:.72rem;color:var(--smoke)}
@@ -127,6 +136,16 @@ input,select{font-family:var(--serif);font-size:.95rem;color:var(--paper);backgr
 .statusbox{background:var(--void2);border:1px solid var(--line);border-radius:10px;padding:.55rem .65rem;margin-bottom:.6rem;font-size:.88rem}
 .statusbox.objective{border-color:var(--gold);background:var(--gold-soft)}
 .statusbox.objective b{font-family:var(--display);font-weight:500;font-size:1.05rem;color:var(--gold-bright)}
+.statusbox.intelligence{padding:0;overflow:hidden}
+.statusbox.intelligence>summary{cursor:pointer;padding:.55rem .65rem;font-family:var(--mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--lake-bright)}
+#intelLedger{border-top:1px solid var(--line);padding:.5rem .65rem;max-height:230px;overflow:auto}
+.intel-empty{color:var(--smoke);font-size:.82rem;font-style:italic}
+.intel-section+.intel-section{margin-top:.6rem;padding-top:.5rem;border-top:1px dashed var(--line)}
+.intel-heading{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--smoke);margin-bottom:.25rem}
+.intel-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.35rem;align-items:start;padding:.18rem 0;font-size:.8rem;color:var(--paper-dim)}
+.intel-row button{padding:0;border:0;background:none;color:var(--paper);text-align:left;font-size:.83rem}
+.intel-row .reading{font-family:var(--mono);font-size:.67rem;color:var(--lake-bright);text-align:right}
+.intel-row.stale{opacity:.62}
 .meter{margin:.32rem 0}
 .meter .lab{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--smoke)}
 .meter .bar{height:6px;border-radius:4px;background:var(--void2);border:1px solid var(--line);overflow:hidden}
@@ -177,6 +196,22 @@ input,select{font-family:var(--serif);font-size:.95rem;color:var(--paper);backgr
 .axisrow .dot{position:absolute;top:50%;width:11px;height:11px;border-radius:50%;background:var(--gold);transform:translate(-50%,-50%)}
 .srow{display:grid;grid-template-columns:1fr 6rem;gap:.4rem;font-size:.9rem;padding:.2rem 0;border-bottom:1px dashed var(--line)}
 .srow .range{font-family:var(--mono);font-size:.76rem;color:var(--lake-bright);text-align:right}
+.chooser-controls{display:grid;grid-template-columns:minmax(0,1fr) 11rem 10rem;gap:.45rem;margin:.6rem 0}
+.chooser-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.38rem;max-height:52vh;overflow:auto;padding-right:.2rem}
+.chooser-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.3rem;align-items:stretch;border:1px solid var(--line);border-left:3px solid var(--smoke);border-radius:7px;background:var(--void2);padding:.28rem}
+.chooser-row.you{border-left-color:var(--lake-bright);background:var(--lake-soft)}
+.chooser-row.selected{border-color:var(--gold);background:var(--gold-soft)}
+.chooser-row .choose{display:flex;flex-direction:column;align-items:flex-start;text-align:left;border:0;background:transparent;padding:.24rem .3rem;min-width:0}
+.chooser-row .choose b{font-size:.92rem;color:var(--paper)}
+.chooser-row .choose small{color:var(--smoke);white-space:normal}
+.chooser-row .profile{align-self:center;padding:.3rem .45rem;font-family:var(--mono);font-size:.62rem}
+.scrutiny-table{width:100%;border-collapse:collapse;margin:.55rem 0;font-size:.86rem}
+.scrutiny-table th,.scrutiny-table td{padding:.28rem .35rem;border-bottom:1px solid var(--line);text-align:right}
+.scrutiny-table th:first-child,.scrutiny-table td:first-child{text-align:left}
+.scrutiny-table th{font-family:var(--mono);font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--smoke)}
+.roll-list{max-height:300px;overflow:auto;border:1px solid var(--line);border-radius:7px;padding:.35rem .55rem}
+.roll-line{display:grid;grid-template-columns:minmax(9rem,.8fr) 1fr;gap:.5rem;padding:.2rem 0;border-bottom:1px dashed var(--line);font-size:.84rem;color:var(--paper-dim)}
+.roll-line b{color:var(--paper)}
 
 /* ---------- end screen ---------- */
 #screen-end{max-width:880px;margin:0 auto;padding:44px 18px 70px;text-align:center}
@@ -203,6 +238,8 @@ input,select{font-family:var(--serif);font-size:.95rem;color:var(--paper);backgr
 @media(max-width:680px){
 	#screen-game{grid-template-columns:1fr}
 	.brow{grid-template-columns:1fr repeat(6,1.7rem)}
+	.affinity-guide-grid,.chooser-list{grid-template-columns:1fr}
+	.chooser-controls{grid-template-columns:1fr}
 }
 @media(prefers-reduced-motion:reduce){
 	*{transition:none!important;animation:none!important;scroll-behavior:auto!important}
@@ -233,6 +270,14 @@ input,select{font-family:var(--serif);font-size:.95rem;color:var(--paper);backgr
 		</select></div>
 		<button id="helpSelect" type="button">Rules &amp; sources</button>
 	</div>
+	<details class="affinity-guide">
+		<summary>What the affinity labels mean</summary>
+		<div class="affinity-guide-grid">
+			<div><b>Doctors</b>Canonists and theologians: drawn toward learning, conciliar procedure and a credible reform settlement.</div>
+			<div><b>Diplomats</b>Legates and negotiators: drawn toward reconciliation and candidates acceptable to courts as well as colleges.</div>
+			<div><b>Religious</b>Monks, friars and regular clergy: drawn toward discipline, reform and candidates known for prayer or learning.</div>
+		</div>
+	</details>
 	<div class="grid-cards" id="selgrid"></div>
 	<div class="absent-note"><b>Not in the Kaufhaus:</b> Baldassare Cossa, the deposed John XXIII, sits in a Palatine prison; Pedro de Luna keeps his tiny court at Peñíscola, and his last loyal cardinals — Murillo, Urriés, Carrillo de Albornoz and Fonseca — with him. Louis de Bar, Morosini, Carbone and Isolani (John's legate holding Rome) are absent; Repington of Lincoln never took his hat. The autumn buried the rest: Hallum of Salisbury on 4 September, Cardinal Zabarella on the 26th, old Gregory XII himself at Recanati on 18 October, and Cardinal Stefaneschi on the month's last day.</div>
 	<div class="startbar">
@@ -265,6 +310,7 @@ input,select{font-family:var(--serif);font-size:.95rem;color:var(--paper);backgr
 		<div id="log" aria-live="polite"></div>
 		<div class="actions" id="actionbar">
 			<button id="actSound" type="button">Take soundings</button>
+			<button id="actColloquy" type="button">Seek a colloquy</button>
 			<button id="actCaucus" type="button">Caucus your bench</button>
 			<button id="actEmbassy" type="button">Send an embassy</button>
 			<button id="actProgramme" type="button">Offer a programme</button>
@@ -277,6 +323,7 @@ input,select{font-family:var(--serif);font-size:.95rem;color:var(--paper);backgr
 	<div class="col" id="rightcol">
 		<div class="colhead"><span>Your position</span><span>16 + 4·5 required</span></div>
 		<div class="statusbox objective" id="objectiveBox"></div>
+		<details class="statusbox intelligence" open><summary>Intelligence ledger</summary><div id="intelLedger"></div></details>
 		<div id="meters"></div>
 		<div class="colhead" style="margin-top:.8rem"><span>The Six Locks</span><span id="lockLabel"></span></div>
 		<p id="lockCandidate"></p>
@@ -297,6 +344,7 @@ input,select{font-family:var(--serif);font-size:.95rem;color:var(--paper);backgr
 	<div id="endStats"></div>
 	<div class="achievements" id="achievements"></div>
 	<div class="endbar">
+		<button id="viewFinalScrutiny" class="gold" type="button">View final scrutiny &amp; accessus</button>
 		<button id="again" class="primary" type="button">Another conclave</button>
 		<button id="replay" type="button">Replay this seed</button>
 		<button id="exportLog" type="button">Export chronicle</button>
@@ -346,6 +394,11 @@ const AXES=[
 	{key:"doctors",label:"Learning and lordship",low:"blood and lordship",high:"the doctors"}
 ];
 const TAG_LIST=["Papabile","Doctors","Religious","Diplomats","Curia","Courts","Conciliar","Broker","Avignon","Pisan","Roman","Gregorian","Savoy"];
+const TAG_HELP={
+	Doctors:"Canonists and theologians: learning, conciliar procedure and credible reform weigh heavily.",
+	Diplomats:"Legates and negotiators: reconciliation and a settlement acceptable across courts and colleges weigh heavily.",
+	Religious:"Monks, friars and regular clergy: discipline, reform, prayer and learning weigh heavily."
+};
 const ORDER_NAME={B:"Cardinal-bishop",P:"Cardinal-priest",D:"Cardinal-deacon"};
 
 function elector(rank,id,short,name,college,country,age,order,office,tags,papabile,difficulty,role){
@@ -751,6 +804,7 @@ function utility(S,voterId,candidateId){
 	value+=feudPenalty(voterId,candidateId);
 	value+=affinityJitter(S,voterId,candidateId);
 	value+=standingFactor(S,candidateId);
+	if(S.personalPressure&&S.personalPressure[voterId])value+=(S.personalPressure[voterId][candidateId]||0);
 	if(S.flags.endorsedId===candidateId&&voterId===S.playerId)value+=.4;
 	return value;
 }
@@ -776,13 +830,16 @@ function initState(playerId,seed,mode){
 		lastVoteColleges:{},
 		lastColleges:{},
 		lastSounding:null,
+		intel:{},
+		intelLedger:[],
+		personalPressure:{},
 		history:[],
 		log:[],
 		pending:null,
 		playerAcceded:false,
 		actionSerial:0,
 		lean:{},
-		playerStats:{deals:0,soundings:0,walls:0,accessionOffered:false},
+		playerStats:{deals:0,soundings:0,colloquies:0,walls:0,accessionOffered:false},
 		player:{objective:objectiveFor(ID[playerId]),endorsedNote:null},
 		flags:{
 			finalLockCollege:null,
@@ -1631,8 +1688,60 @@ function actionSound(S){
 	const sounding=makeSounding(S);
 	S.lastSounding=sounding;
 	S.playerStats.soundings++;
+	S.intelLedger.push({kind:"sounding",ballot:sounding.ballot,confidence:sounding.confidence});
 	addLog(S,"You take soundings along the galleries: whispered ranges, nothing a man would swear to. Confidence "+sounding.confidence+" of a hundred.","");
 	return sounding;
+}
+
+function rankedPreferences(S,voterId){
+	if(!ID[voterId])return [];
+	return IDS.filter(function(candidateId){return candidateId!==voterId}).map(function(candidateId){
+		return {id:candidateId,score:utility(S,voterId,candidateId)};
+	}).sort(function(a,b){return b.score-a.score||(a.id<b.id?-1:1)});
+}
+function colloquySnapshot(S,voterId,level){
+	const ranked=rankedPreferences(S,voterId);
+	const names=ranked.slice(0,level>=3 ? 2 : 3).map(function(row){return ID[row.id].short});
+	let text;
+	if(level<=1)text="Could incline toward "+names.join(" or ")+"; this is still a corridor impression.";
+	else if(level===2)text="Likely to write "+names[0]+", with "+names.slice(1).join(" or ")+" still live.";
+	else text="Current modelled preference: "+names[0]+"; "+names[1]+" is the nearest alternative.";
+	return {voterId:voterId,level:level,ranked:ranked.slice(0,3).map(function(row){return row.id}),text:text};
+}
+function actionColloquy(S,voterId,mode,candidateId){
+	if(!ID[voterId]||voterId===S.playerId)return failAction(S,"Choose another elector for the colloquy.");
+	if(mode!=="sound"&&mode!=="press")return failAction(S,"Choose what you want from the meeting.");
+	if(mode==="press"&&(!ID[candidateId]||candidateId===voterId))return failAction(S,"Ask him to support a legally available name.");
+	if(!spendAP(S))return null;
+	S.playerStats.colloquies++;
+	if(mode==="sound"){
+		const level=clamp((S.intel[voterId]||0)+1,1,3);
+		S.intel[voterId]=level;
+		adjustMetric(S,"trust",1);
+		const snapshot=colloquySnapshot(S,voterId,level);
+		S.intelLedger.push({kind:"colloquy",ballot:S.ballotNo+1,voterId:voterId,level:level,text:snapshot.text});
+		addLog(S,"You walk the gallery with <b>"+ID[voterId].short+"</b>. "+snapshot.text,"deal");
+		return {ok:true,kind:"sound",snapshot:snapshot};
+	}
+	const fit=profileSimilarity(profileFor(S,voterId),profileFor(S,candidateId));
+	let chance=.28+fit*.36+(collegeOf(voterId)===collegeOf(candidateId) ? .08 : 0)+(S.metrics.trust-50)*.003-S.metrics.exposure*.002;
+	chance=clamp(chance,.16,.86);
+	const success=nextRand(S)<chance;
+	if(success){
+		if(!S.personalPressure[voterId])S.personalPressure[voterId]={};
+		S.personalPressure[voterId][candidateId]=clamp((S.personalPressure[voterId][candidateId]||0)+.9,0,2.2);
+		addMomentum(S,candidateId,.55);
+		adjustMetric(S,"trust",1);
+		addLog(S,"In private, <b>"+ID[voterId].short+"</b> agrees to give <b>"+ID[candidateId].short+"</b> a fair hearing when the cedula is written.","deal");
+	}else{
+		adjustMetric(S,"exposure",2);
+		addLog(S,"<b>"+ID[voterId].short+"</b> hears your case for "+ID[candidateId].short+" and gives you the polished silence of a man making no promise.","");
+	}
+	const level=Math.max(1,S.intel[voterId]||0);
+	S.intel[voterId]=level;
+	const snapshot=colloquySnapshot(S,voterId,level);
+	S.intelLedger.push({kind:"colloquy",ballot:S.ballotNo+1,voterId:voterId,level:level,text:(success ? "Heard your case for "+ID[candidateId].short+"." : "Would not commit to "+ID[candidateId].short+".")});
+	return {ok:success,kind:"press",chance:chance,snapshot:snapshot};
 }
 
 /* ---------- campaign actions ---------- */
@@ -1781,10 +1890,17 @@ function scoreGame(S){
 }
 
 /* ---------- regnal names ---------- */
-function regnalOptionsFor(electedId){
-	return (NAME_CHOICES[electedId]||DEFAULT_NAMES).slice(0,3);
+function feastName1417(ballotNumber){return ballotNumber===2||ballotNumber===3 ? "Martin V" : null}
+function regnalOptionsFor(electedId,ballotNumber){
+	const options=(NAME_CHOICES[electedId]||DEFAULT_NAMES).slice(0,3);
+	const feast=feastName1417(ballotNumber);
+	if(feast&&options.indexOf(feast)<0)options.push(feast);
+	return options;
 }
-function papalNameForState(seed,electedId){
+function papalNameForState(seed,electedId,ballotNumber){
+	if(electedId==="colonna")return "Martin V";
+	const feast=feastName1417(ballotNumber);
+	if(feast&&unitFrom(String(seed)+"|feast-regnal|"+electedId)<.08)return feast;
 	const options=regnalOptionsFor(electedId);
 	const index=Math.floor(unitFrom(String(seed)+"|regnal|"+electedId)*options.length)%options.length;
 	return options[index];
@@ -1935,6 +2051,11 @@ function loadSaved(){
 		if(!raw)return null;
 		const parsed=JSON.parse(raw);
 		if(!parsed||parsed.version!==1||!ID[parsed.playerId]||!Array.isArray(parsed.history)||!Array.isArray(parsed.log))return null;
+		if(!parsed.intel||typeof parsed.intel!=="object")parsed.intel={};
+		if(!Array.isArray(parsed.intelLedger))parsed.intelLedger=[];
+		if(!parsed.personalPressure||typeof parsed.personalPressure!=="object")parsed.personalPressure={};
+		if(!parsed.playerStats||typeof parsed.playerStats!=="object")return null;
+		if(!Number.isFinite(parsed.playerStats.colloquies))parsed.playerStats.colloquies=0;
 		return parsed;
 	}catch(_){return null}
 }
@@ -1952,7 +2073,7 @@ function collegeFilterOptions(){
 }
 function difficultyStars(difficulty){
 	let stars="";
-	for(let i=0;i<3;i++)stars+=i<difficulty ? "★" : "☆";
+	for(let i=0;i<5;i++)stars+=i<difficulty ? "★" : "☆";
 	return stars;
 }
 function cardMatches(record){
@@ -1972,11 +2093,15 @@ function renderSelect(){
 		card.setAttribute("aria-pressed",UI.selPlayer===record.id ? "true" : "false");
 		if(UI.selPlayer===record.id)card.className+=" selected";
 		const objective=objectiveFor(record);
-		const meta=el("div","meta",COLLEGE_KEY[record.college].label+(record.age ? " · "+record.age : "")+" · "+difficultyStars(record.difficulty));
+		const meta=el("div","meta",COLLEGE_KEY[record.college].label+(record.age ? " · "+record.age : "")+" · difficulty "+difficultyStars(record.difficulty));
 		const name=el("div","name",record.short);
 		const office=el("div","office",record.office);
 		const chips=el("div","chips");
-		record.tags.slice(0,3).forEach(function(tag){chips.appendChild(el("span","chip"+(tag==="Papabile" ? " hot" : ""),tag))});
+		record.tags.slice(0,3).forEach(function(tag){
+			const chip=el("span","chip"+(tag==="Papabile" ? " hot" : ""),tag);
+			if(TAG_HELP[tag])chip.setAttribute("title",TAG_HELP[tag]);
+			chips.appendChild(chip);
+		});
 		const role=el("div","role",record.role);
 		const goal=el("div","role");
 		goal.innerHTML="<b style='color:var(--gold-bright)'>"+escapeHtml(objective.title)+".</b> "+escapeHtml(objective.text);
@@ -2032,8 +2157,8 @@ function renderAll(){
 	renderTabs();
 	renderRoster();
 	renderObjective();
+	renderIntelLedger();
 	renderDecision();
-	renderBallotBox();
 	renderLog();
 	renderActionBar();
 	renderMeters();
@@ -2069,19 +2194,18 @@ function renderRoster(){
 			if((record.name+" "+record.short+" "+record.office).toLowerCase().indexOf(needle)<0)return;
 		}
 		shown++;
-		const row=el("div","rrow"+(UI.picks.indexOf(record.id)>=0 ? " picked" : "")+(record.id===S.playerId ? " you" : ""));
+		const row=el("div","rrow"+(record.id===S.playerId ? " you" : ""));
 		row.tabIndex=0;
+		row.setAttribute("role","button");
+		row.setAttribute("aria-label","Open dossier for "+record.name);
 		const top=el("div","top");
 		const nameWrap=el("span","nm",record.short+(record.id===S.playerId ? " — you" : ""));
 		const count=el("span","cnt",String(S.lastCounts[record.id]||0));
 		top.appendChild(nameWrap);top.appendChild(count);
-		const sub=el("div","sub",COLLEGE_KEY[record.college].label+" · "+record.office);
-		const info=el("span","cnt","dossier");
-		info.style.setProperty("cursor","pointer");
-		info.addEventListener("click",function(event){if(event&&event.stopPropagation)event.stopPropagation();openDossier(record.id)});
-		top.appendChild(info);
+		const sub=el("div","sub",COLLEGE_KEY[record.college].label+" · "+record.country+" · "+record.office);
 		row.appendChild(top);row.appendChild(sub);
-		row.addEventListener("click",function(){togglePick(record.id)});
+		row.addEventListener("click",function(){openDossier(record.id)});
+		row.addEventListener("keydown",function(event){if(event.key==="Enter"||event.key===" "){event.preventDefault();openDossier(record.id)}});
 		roster.appendChild(row);
 	});
 	$("rosterCount").textContent=shown+" of "+ELECTORS.length;
@@ -2101,6 +2225,46 @@ function togglePick(id){
 function renderObjective(){
 	const objective=S.player.objective;
 	$("objectiveBox").innerHTML="<b>"+escapeHtml(objective.title)+"</b><br>"+escapeHtml(objective.text);
+}
+function renderIntelLedger(){
+	const box=$("intelLedger");
+	box.innerHTML="";
+	if(!S.lastSounding&&!Object.keys(S.intel||{}).length){
+		box.appendChild(el("div","intel-empty","No soundings or private conversations recorded yet."));
+		return;
+	}
+	if(S.lastSounding){
+		const section=el("div","intel-section");
+		section.appendChild(el("div","intel-heading","Soundings for scrutiny "+roman(S.lastSounding.ballot)+" · confidence "+S.lastSounding.confidence+"/100"));
+		S.lastSounding.rows.slice(0,6).forEach(function(row){
+			const line=el("div","intel-row"+(S.lastSounding.stale ? " stale" : ""));
+			const button=el("button","",row.short);
+			button.setAttribute("type","button");
+			button.addEventListener("click",function(){openDossier(row.id)});
+			line.appendChild(button);
+			line.appendChild(el("span","reading",row.low+"–"+row.high+(S.lastSounding.stale ? " · stale" : "")));
+			section.appendChild(line);
+		});
+		box.appendChild(section);
+	}
+	const known=Object.keys(S.intel||{}).filter(function(id){return ID[id]&&S.intel[id]>0}).sort(function(a,b){return ID[a].rank-ID[b].rank});
+	if(known.length){
+		const section=el("div","intel-section");
+		section.appendChild(el("div","intel-heading","Private colloquies"));
+		known.forEach(function(id){
+			const level=S.intel[id];
+			const snapshot=colloquySnapshot(S,id,level);
+			const line=el("div","intel-row");
+			const button=el("button","",ID[id].short);
+			button.setAttribute("type","button");
+			button.setAttribute("title",snapshot.text);
+			button.addEventListener("click",function(){openDossier(id)});
+			line.appendChild(button);
+			line.appendChild(el("span","reading",["","I","II","III"][level]+" · "+ID[snapshot.ranked[0]].short));
+			section.appendChild(line);
+		});
+		box.appendChild(section);
+	}
 }
 function renderBallotBox(){
 	const box=$("ballotBox");
@@ -2141,7 +2305,7 @@ function renderLog(){
 }
 function renderActionBar(){
 	const busy=!!S.pending||S.over;
-	["actSound","actCaucus","actEmbassy","actProgramme","actPromote","actWall","actRetreat"].forEach(function(id){
+	["actSound","actColloquy","actCaucus","actEmbassy","actProgramme","actPromote","actWall","actRetreat"].forEach(function(id){
 		$(id).disabled=busy||S.ap<=0;
 	});
 	$("actProgramme").disabled=busy||S.ap<=0||!!S.flags.playerProgramme;
@@ -2306,18 +2470,66 @@ function decisionOptions(options){
 }
 
 /* ---------- actions ---------- */
-function candidateChooser(title,hint,onPick,excludeSelf){
+function appendFilterableChooser(body,options){
+	const state={query:"",college:"all",tag:"all"};
+	const controls=el("div","chooser-controls");
+	const search=el("input","");
+	search.setAttribute("type","search");
+	search.setAttribute("placeholder","Filter names, countries, offices…");
+	search.setAttribute("aria-label","Filter electors by name, country or office");
+	const college=el("select","");
+	college.setAttribute("aria-label","Filter electors by college");
+	const allCollege=el("option","","All colleges");allCollege.value="all";college.appendChild(allCollege);
+	COLLEGES.forEach(function(entry){const option=el("option","",entry.label);option.value=entry.key;college.appendChild(option)});
+	const tag=el("select","");
+	tag.setAttribute("aria-label","Filter electors by affinity");
+	const allTag=el("option","","All affinities");allTag.value="all";tag.appendChild(allTag);
+	TAG_LIST.forEach(function(name){const option=el("option","",name);option.value=name;tag.appendChild(option)});
+	controls.appendChild(search);controls.appendChild(college);controls.appendChild(tag);
+	body.appendChild(controls);
+	const list=el("div","chooser-list");
+	body.appendChild(list);
+	function render(){
+		list.innerHTML="";
+		const needle=state.query.toLowerCase();
+		const records=ELECTORS.filter(function(record){
+			if(state.college!=="all"&&record.college!==state.college)return false;
+			if(state.tag!=="all"&&record.tags.indexOf(state.tag)<0)return false;
+			if(!needle)return true;
+			return (record.name+" "+record.short+" "+record.country+" "+record.office+" "+record.tags.join(" ")).toLowerCase().indexOf(needle)>=0;
+		}).sort(function(a,b){
+			if(a.id===S.playerId)return -1;
+			if(b.id===S.playerId)return 1;
+			return a.rank-b.rank;
+		});
+		records.forEach(function(record){
+			const disabled=!!(options.excludeSelf&&record.id===S.playerId)||!!(options.excludeId&&record.id===options.excludeId);
+			const selected=options.isSelected&&options.isSelected(record.id);
+			const row=el("div","chooser-row"+(record.id===S.playerId ? " you" : "")+(selected ? " selected" : ""));
+			const choose=el("button","choose");
+			choose.setAttribute("type","button");
+			choose.disabled=disabled;
+			choose.appendChild(el("b","",record.short+(record.id===S.playerId ? " — you" : "")));
+			choose.appendChild(el("small","",COLLEGE_KEY[record.college].label+" · "+record.country+(record.tags.length ? " · "+record.tags.slice(0,2).join(", ") : "")));
+			choose.addEventListener("click",function(){options.onPick(record.id)});
+			const profile=el("button","profile","Dossier");
+			profile.setAttribute("type","button");
+			profile.setAttribute("aria-label","Open dossier for "+record.name);
+			profile.addEventListener("click",function(){openDossier(record.id)});
+			row.appendChild(choose);row.appendChild(profile);list.appendChild(row);
+		});
+		if(!records.length)list.appendChild(el("div","intel-empty","No electors match those filters."));
+	}
+	search.addEventListener("input",function(){state.query=search.value||"";render()});
+	college.addEventListener("change",function(){state.college=college.value;render()});
+	tag.addEventListener("change",function(){state.tag=tag.value;render()});
+	render();
+	return {render:render};
+}
+function candidateChooser(title,hint,onPick,excludeSelf,excludeId){
 	openModal(title,function(body){
 		body.appendChild(el("p","",hint));
-		const list=el("div","picks");
-		ELECTORS.forEach(function(record){
-			if(excludeSelf&&record.id===S.playerId)return;
-			const button=el("button","",record.short);
-			button.setAttribute("type","button");
-			button.addEventListener("click",function(){closeModal();onPick(record.id)});
-			list.appendChild(button);
-		});
-		body.appendChild(list);
+		appendFilterableChooser(body,{excludeSelf:excludeSelf,excludeId:excludeId,onPick:function(id){closeModal();onPick(id)}});
 	});
 }
 function doSound(){
@@ -2341,6 +2553,33 @@ function doSound(){
 			body.appendChild(detail);
 		});
 	});
+}
+function doColloquy(){
+	candidateChooser("Seek a colloquy","Choose an elector to meet privately in the gallery. A conversation can sharpen your reading of his likely cedula or let you press one cause directly.",function(voterId){
+		openModal("Colloquy with "+ID[voterId].short,function(body){
+			body.appendChild(el("p","",ID[voterId].role));
+			const level=S.intel[voterId]||0;
+			body.appendChild(el("p","hint",level ? colloquySnapshot(S,voterId,level).text : "You have no private reading of him yet."));
+			const sound=el("button","gold","Sound him out");
+			sound.setAttribute("type","button");
+			sound.addEventListener("click",function(){
+				const result=actionColloquy(S,voterId,"sound");
+				if(!result)return;
+				saveState();renderAll();openDossier(voterId);
+			});
+			const press=el("button","","Press a cause");
+			press.setAttribute("type","button");
+			press.addEventListener("click",function(){
+				closeModal();
+				candidateChooser("Press "+ID[voterId].short+" for whose cause?","Choose the name you want him to consider. Success depends on their political fit, your standing and how exposed your bargaining has become.",function(candidateId){
+					const result=actionColloquy(S,voterId,"press",candidateId);
+					if(!result)return;
+					saveState();renderAll();openDossier(voterId);
+				},false,voterId);
+			});
+			body.appendChild(sound);body.appendChild(el("span",""," "));body.appendChild(press);
+		});
+	},true);
 }
 function doCaucus(){
 	candidateChooser("Caucus your bench","Choose the name you will press on your own college tonight.",function(id){
@@ -2386,19 +2625,47 @@ function doPromote(){
 		actionPromote(S,id);saveState();renderAll();
 	},true);
 }
-function doWall(){actionWall(S);saveState();renderAll()}
+function doWall(){
+	openModal("Word through the wall",function(body){
+		body.appendChild(el("p","","Use one action to exchange a discreet message through the food-hatch. You learn how the princes outside read the present leader, but their attention raises both court pressure and your exposure. It does not directly change a vote."));
+		const button=el("button","gold","Pass the word");
+		button.setAttribute("type","button");
+		button.addEventListener("click",function(){closeModal();actionWall(S);saveState();renderAll()});
+		body.appendChild(button);
+	});
+}
 function doRetreat(){actionRetreat(S);saveState();renderAll()}
 function doScrutiny(){
 	if(!S||S.over||S.pending)return;
-	try{
-		beginScrutiny(S,UI.picks.slice());
-	}catch(error){
-		toast(error&&error.message||"The cedula was refused.");
-		return;
-	}
 	UI.picks=[];
-	saveState();
-	renderAll();
+	openModal("Write your cedula — scrutiny "+roman(S.ballotNo+1),function(body){
+		body.appendChild(el("p","","Write up to three names. Your own name is forbidden; a blank cedula is lawful. The first cardinal-deacon will read every cedula aloud."));
+		const chosen=el("div","picks");
+		body.appendChild(chosen);
+		let chooser;
+		function renderChosen(){
+			chosen.innerHTML="";
+			if(!UI.picks.length)chosen.appendChild(el("span","hint","Blank cedula"));
+			UI.picks.forEach(function(id){chosen.appendChild(el("span","pickchip",ID[id].short))});
+		}
+		chooser=appendFilterableChooser(body,{excludeSelf:true,isSelected:function(id){return UI.picks.indexOf(id)>=0},onPick:function(id){
+			const index=UI.picks.indexOf(id);
+			if(index>=0)UI.picks.splice(index,1);
+			else if(UI.picks.length<3)UI.picks.push(id);
+			else{toast("Three names at most, in the old manner.");return}
+			renderChosen();chooser.render();
+		}});
+		renderChosen();
+		const confirm=el("button","primary","Seal and read the cedula");
+		confirm.setAttribute("type","button");
+		confirm.style.setProperty("margin-top",".7rem");
+		confirm.addEventListener("click",function(){
+			let record;
+			try{record=beginScrutiny(S,UI.picks.slice())}catch(error){toast(error&&error.message||"The cedula was refused.");return}
+			UI.picks=[];closeModal();saveState();renderAll();openScrutinyRecord(record,false);
+		});
+		body.appendChild(confirm);
+	});
 }
 
 /* ---------- modal ---------- */
@@ -2437,6 +2704,45 @@ function axisRow(body,axis,value){
 	row.appendChild(el("span","",axis.high));
 	body.appendChild(row);
 }
+function openScrutinyRecord(record,isFinal){
+	if(!record)return;
+	openModal((isFinal ? "Final scrutiny" : "Scrutiny "+roman(record.ballot))+" — "+record.date,function(body){
+		const counts=record.counts||countVotes(record.votes,record.accessions||[]);
+		const colleges=record.colleges||collegeTallies(record.votes,record.accessions||[]);
+		const winner=electedNow(S,colleges);
+		body.appendChild(el("p","",winner
+			? "All six thresholds are met for "+ID[winner].name+"."
+			: "No name has yet turned all six locks. The public accessio follows where the procedure permits it."));
+		const table=el("table","scrutiny-table");
+		const head=el("thead","");
+		const headRow=el("tr","");
+		["Name","Total"].concat(COLLEGES.map(function(college){return COLLEGE_ABBR[college.key]})).forEach(function(label){headRow.appendChild(el("th","",label))});
+		head.appendChild(headRow);table.appendChild(head);
+		const tableBody=el("tbody","");
+		sortedCounts(counts).filter(function(entry){return entry.count>0}).forEach(function(entry){
+			const row=el("tr","");
+			row.appendChild(el("td","",entry.elector.short));
+			row.appendChild(el("td","",String(entry.count)));
+			COLLEGES.forEach(function(college){row.appendChild(el("td","",String((colleges[college.key]&&colleges[college.key][entry.id])||0)))});
+			tableBody.appendChild(row);
+		});
+		table.appendChild(tableBody);body.appendChild(table);
+		if(record.accessions&&record.accessions.length){
+			body.appendChild(el("h3","","Accessus"));
+			record.accessions.forEach(function(accession){body.appendChild(el("p","",ID[accession.from].short+" accedes to "+ID[accession.to].short+"."))});
+		}else body.appendChild(el("p","hint",record.ballot===1 ? "No accession is permitted at the first scrutiny." : "No accessions have been recorded in this scrutiny."));
+		const details=el("details","");
+		details.appendChild(el("summary","","Every cedula — who wrote whom"));
+		const roll=el("div","roll-list");
+		record.votes.forEach(function(vote){
+			const line=el("div","roll-line");
+			line.appendChild(el("b","",ID[vote.voter].short+(vote.voter===S.playerId ? " — you" : "")));
+			line.appendChild(el("span","",vote.candidate.length ? vote.candidate.map(function(id){return ID[id].short}).join(", ") : "blank cedula"));
+			roll.appendChild(line);
+		});
+		details.appendChild(roll);body.appendChild(details);
+	});
+}
 function openDossier(id){
 	const record=ID[id];
 	if(!record)return;
@@ -2444,15 +2750,14 @@ function openDossier(id){
 		body.appendChild(el("p","",record.office+" · "+COLLEGE_KEY[record.college].label+" · "+record.country+(record.age ? " · age "+record.age : " · age unrecorded")));
 		body.appendChild(el("p","",record.role));
 		if(record.tags.length)body.appendChild(el("p","","Noted for: "+record.tags.join(", ")+". Papability "+record.papabile+" of 10."));
+		record.tags.filter(function(tag){return TAG_HELP[tag]}).forEach(function(tag){body.appendChild(el("p","hint",tag+": "+TAG_HELP[tag]))});
 		body.appendChild(el("h3","","Where he stands"));
 		const profile=S ? profileFor(S,id) : BASE_PROFILE[id];
 		AXES.forEach(function(axis){axisRow(body,axis,profile[axis.key]||0)});
-		if(S&&!S.over&&id!==S.playerId){
-			const write=el("button","gold","Write "+record.short+" on your cedula");
-			write.setAttribute("type","button");
-			write.addEventListener("click",function(){closeModal();togglePick(id)});
-			body.appendChild(el("p","",""));
-			body.appendChild(write);
+		if(S&&id!==S.playerId){
+			body.appendChild(el("h3","","What you know privately"));
+			const level=S.intel[id]||0;
+			body.appendChild(el("p","",level ? colloquySnapshot(S,id,level).text : "Nothing beyond public reputation. A colloquy can turn corridor rumour into a firmer reading."));
 		}
 	});
 }
@@ -2463,7 +2768,9 @@ function openRules(){
 		body.appendChild(el("h3","","The six locks"));
 		body.appendChild(el("p","","By the council's decree of 30 October (drafted on lines urged by d'Ailly), election requires two-thirds of the cardinals AND two-thirds of each nation, in the same scrutiny: 16 of 23 cardinals, and 4 of 6 in Italia, Gallia, Germania, Anglia and Hispania alike. Adimari warned that nine stubborn men could jam it forever. Each elector writes one, two or three names on an open cedula, read aloud by the first cardinal-deacon, Saluzzo. From the second scrutiny a man may also rise and accede — once — to a name not already on his cedula."));
 		body.appendChild(el("h3","","Actions"));
-		body.appendChild(el("p","","You have three actions between scrutinies: soundings (buy imperfect forecasts), caucusing your own bench, embassies to other benches, publishing a programme, promoting a single name, trading words through the wall with the kings' men, or prayer and silence to repair yourself. Between some scrutinies, history intervenes and asks you to choose."));
+		body.appendChild(el("p","","You have three actions between scrutinies: soundings (buy imperfect forecasts), private colloquies (read or press one elector), caucusing your own bench, embassies to other benches, publishing a programme, promoting a single name, trading words through the wall with the kings' men, or prayer and silence to repair yourself. A word through the wall reports how the princes read the field but raises court pressure and exposure; it does not directly change a vote. Between some scrutinies, history intervenes and asks you to choose."));
+		body.appendChild(el("h3","","Cross-cutting affinities"));
+		Object.keys(TAG_HELP).forEach(function(tag){body.appendChild(el("p","",tag+": "+TAG_HELP[tag]))});
 		body.appendChild(el("h3","","What is fact and what is model"));
 		body.appendChild(el("p","","Documented (chiefly from Cardinal Fillastre's conclave daybook, preserved via Heinrich Finke's Acta Concilii Constanciensis, and J. P. Adams's Sede Vacante 1417): the roster of fifty-three and the six-college rule; the enclosure on 8 November and the procedure day on the 9th; the first scrutiny's failure with no accession permitted; the second scrutiny's counts per college — Saluzzo 23, Colonna 24, Brogny 20, Correr 16 — the English six voting as one man under Henry V's written instruction; Adimari's accession as spokesman for twenty; the stall at fifteen cardinals; and the words of de Foix's accession for himself and Fillastre, \u201caccedimus nos duo\u201d. Modelled: the first scrutiny's exact distribution (Fillastre gives only its shape), every counterfactual line of play, all personality profiles, and every conclave that departs from St Martin's morning. Beaufort of Winchester appears only as the rumour he historically was — never as an elector."));
 		body.appendChild(el("h3","","Sources"));
@@ -2516,6 +2823,7 @@ function showEnd(){
 	$("screen-end").classList.remove("hidden");
 	clearSave();
 	const won=!!S.electedId;
+	$("viewFinalScrutiny").disabled=!S.history.length;
 	$("endTitle").textContent=won ? "Habemus Papam" : "The Locks Hold";
 	const winner=won ? ID[S.electedId] : null;
 	$("endSub").textContent=won
@@ -2555,7 +2863,7 @@ function renderRegnal(){
 	if(!S.electedId)return;
 	if(S.electedId===S.playerId){
 		box.appendChild(el("p","","Choose the name under which you will be crowned:"));
-		regnalOptionsFor(S.electedId).forEach(function(name){
+		regnalOptionsFor(S.electedId,S.ballotNo).forEach(function(name){
 			const button=el("button","regopt "+(UI.chosenName===name ? "gold" : ""),name);
 			button.setAttribute("type","button");
 			button.addEventListener("click",function(){
@@ -2564,10 +2872,10 @@ function renderRegnal(){
 			});
 			box.appendChild(button);
 		});
-		const chosen=UI.chosenName||regnalOptionsFor(S.electedId)[0];
+		const chosen=UI.chosenName||regnalOptionsFor(S.electedId,S.ballotNo)[0];
 		box.appendChild(elHTML("p","","You will reign as <b>"+escapeHtml(chosen)+"</b>"+(REGNAL_NOTES[chosen] ? " — "+escapeHtml(REGNAL_NOTES[chosen]) : "")+"."));
 	}else{
-		const name=papalNameForState(S.seed,S.electedId);
+		const name=papalNameForState(S.seed,S.electedId,S.ballotNo);
 		box.appendChild(elHTML("p","","He takes the name <b>"+escapeHtml(name)+"</b>"+(REGNAL_NOTES[name] ? " — "+escapeHtml(REGNAL_NOTES[name]) : "")+"."));
 	}
 }
@@ -2614,11 +2922,13 @@ function wire(){
 	$("manualBtn").addEventListener("click",openRules);
 	$("saveBtn").addEventListener("click",function(){saveState();toast("Sealed. You may close the shutters; the conclave keeps.")});
 	$("actSound").addEventListener("click",doSound);
+	$("actColloquy").addEventListener("click",doColloquy);
 	$("actCaucus").addEventListener("click",doCaucus);
 	$("actEmbassy").addEventListener("click",doEmbassy);
 	$("actProgramme").addEventListener("click",doProgramme);
 	$("actPromote").addEventListener("click",doPromote);
 	$("actWall").addEventListener("click",doWall);
+	$("actWall").setAttribute("title","Exchange one discreet message for an outside reading; raises court pressure and exposure, but changes no vote directly.");
 	$("actRetreat").addEventListener("click",doRetreat);
 	$("ballotBtn").addEventListener("click",doScrutiny);
 	$("again").addEventListener("click",function(){
@@ -2639,6 +2949,7 @@ function wire(){
 		renderAll();
 	});
 	$("exportLog").addEventListener("click",exportChronicle);
+	$("viewFinalScrutiny").addEventListener("click",function(){if(S&&S.history.length)openScrutinyRecord(S.history[S.history.length-1],true)});
 	$("allYears").addEventListener("click",function(){location.href="./index.html"});
 	$("modalhost").addEventListener("click",function(event){
 		if(event&&event.target===$("modalhost"))closeModal();
@@ -2655,6 +2966,7 @@ const CONSTANCE_1417_ENGINE={
 	COLLEGE_KEY:COLLEGE_KEY,HIST_ROWS:HIST_ROWS,HIST_ACCESSIO:HIST_ACCESSIO,PROGRAMMES:PROGRAMMES,
 	initState:initState,beginScrutiny:beginScrutiny,playerAccede:playerAccede,resolveDecision:resolveDecision,
 	makeSounding:makeSounding,forecastCounts:forecastCounts,forecastColleges:forecastColleges,
+	actionColloquy:actionColloquy,colloquySnapshot:colloquySnapshot,rankedPreferences:rankedPreferences,
 	thresholds:thresholds,thresholdFor:thresholdFor,electedNow:electedNow,collegeTallies:collegeTallies,
 	scoreGame:scoreGame,achievementsFor:achievementsFor,objectiveFor:objectiveFor,
 	papalNameForState:papalNameForState,regnalOptionsFor:regnalOptionsFor,
