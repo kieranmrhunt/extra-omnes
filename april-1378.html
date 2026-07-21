@@ -305,6 +305,10 @@ input,select{font-family:var(--serif);font-size:.95rem;color:var(--paper);backgr
 	#piazza .inner{grid-template-columns:1fr}
 	#piazza .dials{border-left:0;border-top:1px solid var(--line)}
 	#colR{grid-column:auto;display:grid;grid-template-columns:1fr}
+	#colM{display:flex;flex-direction:column}
+	#decision{order:1}
+	#actions{order:2}
+	#chroniclePanel{order:3}
 	#chronicle{max-height:none}
 	#screen-select{padding-bottom:130px}
 	.startrow{
@@ -428,7 +432,7 @@ input,select{font-family:var(--serif);font-size:.95rem;color:var(--paper);backgr
 				<div class="dbody" id="decBody"></div>
 				<div id="decOpts"></div>
 			</div>
-			<div class="panel">
+			<div class="panel" id="chroniclePanel">
 				<h2>Chronicle</h2>
 				<div id="chronicle" aria-live="polite"></div>
 			</div>
@@ -1470,12 +1474,6 @@ function runHeadless(seed,playerId,mode,maxBallots){
 		if(S.ballotNo>=limit)break;
 		beginScrutiny(S,bestLegalPlayerVote(S,forecastCounts(S)));
 	}
-	if(!S.over&&!S.electedId){
-		/* should be unreachable: the cascade guarantees an election by scrutiny X */
-		const t=cascadeTarget(S);
-		S.electedId=t;S.flags.electIntegrity=computeElectionIntegrity(S,{ballot:S.ballotNo,leaderCount:THRESHOLD});
-		computeFinale(S);
-	}
 	while(!S.over&&guard<300){guard++;if(S.pending)resolveDecision(S,autoChoiceFor(S));else break}
 	return {
 		winner:S.electedId,
@@ -1491,6 +1489,7 @@ function runHeadless(seed,playerId,mode,maxBallots){
 		epilogue:S.epilogue,
 		playerId:S.playerId,
 		mode:S.mode,
+		unresolved:!S.over&&!S.electedId,
 		seed:S.seed,
 		log:S.log
 	};
@@ -1801,8 +1800,9 @@ function resolveDecision(S,choiceId){
 }
 /* ===== 05-ui.js ===== */
 var S=null;
-var UI={mode:"historical",selected:null,dossierId:null,renderedLog:0,search:"",faction:"all"};
+var UI={mode:"historical",selected:null,dossierId:null,renderedLog:0,search:"",faction:"all",saveError:false,modalReturnFocus:null};
 var SAVE_KEY="eo-1378-save-v1";
+var SAVE_SCHEMA=2;
 
 function $(id){return (typeof document!=="undefined")?document.getElementById(id):null}
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
@@ -1833,9 +1833,50 @@ function moveToTop(){
 }
 
 /* ---------- persistence ---------- */
+function savedRecord1378(value){return !!value&&typeof value==="object"&&!Array.isArray(value)}
+function savedFiniteMap1378(value,allowedIds,integer){
+	if(!savedRecord1378(value))return false;
+	return Object.entries(value).every(function(entry){
+		return allowedIds.includes(entry[0])&&typeof entry[1]==="number"&&Number.isFinite(entry[1])&&(!integer||Number.isInteger(entry[1]));
+	});
+}
+function savedBallot1378(record,index){
+	if(!savedRecord1378(record)||record.ballot!==index+1||record.electors!==THRESHOLD_N||record.threshold!==THRESHOLD||!Array.isArray(record.votes)||record.votes.length!==THRESHOLD_N)return false;
+	const seen=new Set(),rebuilt={};
+	for(const entry of record.votes){
+		if(!savedRecord1378(entry)||!ID[entry.voter]||seen.has(entry.voter)||!Array.isArray(entry.candidate)||entry.candidate.length>1)return false;
+		seen.add(entry.voter);
+		if(entry.candidate.length){const candidate=entry.candidate[0];if(!CANDIDATE_IDS.includes(candidate)||candidate===entry.voter)return false;rebuilt[candidate]=(rebuilt[candidate]||0)+1}
+	}
+	if(!savedFiniteMap1378(record.counts,CANDIDATE_IDS,true))return false;
+	const keys=new Set(Object.keys(rebuilt).concat(Object.keys(record.counts)));
+	for(const id of keys)if((rebuilt[id]||0)!==(record.counts[id]||0))return false;
+	return record.leaderId===null||CANDIDATE_IDS.includes(record.leaderId);
+}
+function validateSavedState(data){
+	if(!savedRecord1378(data)||data.version!==1||typeof data.seed!=="string"||!data.seed||!ID[data.playerId]||!["historical","open"].includes(data.mode))return false;
+	if(!Number.isInteger(data.ballotNo)||data.ballotNo<0||data.ballotNo>MAX_SCRUTINIES||!Number.isInteger(data.ap)||data.ap<0||data.ap>2||typeof data.over!=="boolean")return false;
+	if(!savedRecord1378(data.rng)||!Number.isInteger(data.rng.state)||data.rng.state<0||data.rng.state>0xffffffff||!Number.isInteger(data.actionSerial)||data.actionSerial<0)return false;
+	if(!savedRecord1378(data.metrics)||!Object.keys(BASE_METRICS).every(function(key){return Number.isFinite(data.metrics[key])&&data.metrics[key]>=0&&data.metrics[key]<=100}))return false;
+	if(!savedFiniteMap1378(data.trust,IDS,false)||!savedFiniteMap1378(data.momentum,CANDIDATE_IDS,false)||!savedFiniteMap1378(data.lastCounts,CANDIDATE_IDS,true))return false;
+	if(!savedRecord1378(data.lean)||!IDS.every(function(id){return savedFiniteMap1378(data.lean[id],CANDIDATE_IDS,false)}))return false;
+	if(!savedRecord1378(data.flags)||!savedRecord1378(data.playerStats)||!savedRecord1378(data.conscience)||!savedRecord1378(data.player)||!savedRecord1378(data.epilogue))return false;
+	if(!Array.isArray(data.history)||!Array.isArray(data.log)||data.log.length>1200||!data.history.every(savedBallot1378))return false;
+	if(data.history.length<data.ballotNo||data.history.length>data.ballotNo+1)return false;
+	if(data.history.length){
+		const last=data.history[data.history.length-1];
+		const keys=new Set(Object.keys(last.counts).concat(Object.keys(data.lastCounts)));
+		for(const id of keys)if((last.counts[id]||0)!==(data.lastCounts[id]||0))return false;
+	}
+	if(data.electedId!==null&&!CANDIDATE_IDS.includes(data.electedId))return false;
+	if(data.over&&(!data.electedId||!savedRecord1378(data.finale)))return false;
+	if(data.pending!==null&&data.pending!==undefined&&!savedRecord1378(data.pending))return false;
+	normaliseState(data);
+	return true;
+}
 function saveState(){
 	if(!S||typeof localStorage==="undefined")return;
-	try{localStorage.setItem(SAVE_KEY,JSON.stringify({v:1,S:S}))}catch(e){}
+	try{localStorage.setItem(SAVE_KEY,JSON.stringify({v:SAVE_SCHEMA,S:S}))}catch(e){}
 }
 function loadSaved(){
 	if(typeof localStorage==="undefined")return null;
@@ -1843,9 +1884,9 @@ function loadSaved(){
 		const raw=localStorage.getItem(SAVE_KEY);
 		if(!raw)return null;
 		const data=JSON.parse(raw);
-		if(!data||data.v!==1||!data.S||data.S.version!==1||!ID[data.S.playerId])return null;
+		if(!data||(data.v!==1&&data.v!==SAVE_SCHEMA)||!validateSavedState(data.S))throw new Error("Invalid saved conclave");
 		return data.S;
-	}catch(e){return null}
+	}catch(e){UI.saveError=true;clearSave();return null}
 }
 function clearSave(){
 	if(typeof localStorage==="undefined")return;
@@ -2156,12 +2197,21 @@ function exportChronicle(){
 /* ---------- modals ---------- */
 function openModal(title,html){
 	const host=$("modalhost");if(!host)return;
+	UI.modalReturnFocus=(typeof document!=="undefined")?document.activeElement:null;
 	host.className="";
 	const t=$("modalTitle");if(t)t.textContent=title;
 	const b=$("modalBody");if(b)b.innerHTML=html;
-	const close=$("modalClose");if(close)close.focus();
+	host.onkeydown=function(event){
+		if(event.key!=="Tab")return;
+		const focusable=[].slice.call(host.querySelectorAll('button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])'));
+		if(!focusable.length){event.preventDefault();host.focus();return}
+		const first=focusable[0],last=focusable[focusable.length-1];
+		if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}
+		else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
+	};
+	const close=$("modalClose");if(close)close.focus();else{host.setAttribute("tabindex","-1");host.focus()}
 }
-function closeModal(){const host=$("modalhost");if(host)host.className="hidden"}
+function closeModal(){const host=$("modalhost"),previous=UI.modalReturnFocus;UI.modalReturnFocus=null;if(host){host.className="hidden";host.onkeydown=null}if(previous&&typeof previous.focus==="function"&&document.contains(previous))previous.focus()}
 function rulesHtml(){
 	return "<h4>The situation</h4><p>Gregory XI is dead and the papacy is back in Rome by a decade-old thread. Sixteen cardinals — eleven French (five of them the late pope's Limousin kin-bloc), four Italians, one Aragonese — must elect by <b>eleven voices</b>, spoken aloud in order of precedence, while a thousand armed Romans hold the palace doors and chant for a Roman pope. The city controls the bridges, the gates, and the wine cellar. The law requires a free election. The square requires the opposite.</p>"
 	+"<h4>The oral scrutiny</h4><p>There are no written cedulae here: each man gives one name aloud — and every man votes <i>having heard the votes before his</i>. Early voices carry weight beyond their number. You may also withhold your voice entirely, as Orsini did, and let the record show it.</p>"
@@ -2223,6 +2273,7 @@ function wire(){
 		if(saved)cont.textContent="Continue as "+displayName(saved.playerId);
 		cont.addEventListener("click",continueGame);
 	}
+	if(UI.saveError)setTimeout(function(){toast("The saved conclave was unreadable and has been discarded.")},0);
 	const sb=$("startBtn");if(sb)sb.addEventListener("click",startGame);
 	const mh=$("modeHist");if(mh)mh.addEventListener("click",function(){UI.mode="historical";updateModeSeg()});
 	const mo=$("modeOpen");if(mo)mo.addEventListener("click",function(){UI.mode="open";updateModeSeg()});
@@ -2288,6 +2339,7 @@ var APRIL_1378_ENGINE={
 	regnalSignalFor:regnalSignalFor,
 	choosePlayerRegnalName:choosePlayerRegnalName,
 	axisPosition:axisPosition,
+	validateSavedState:validateSavedState,
 	validateData:validateData,
 	objectiveFor:objectiveFor,
 	mobTier:mobTier,

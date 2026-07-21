@@ -322,7 +322,7 @@ input[type=checkbox]{accent-color:var(--scarlet)}
 </head>
 <body>
 <script>
-window.onerror=function(m,s,l,c){var w=document.getElementById("jswarn");
+if(typeof window!=="undefined"&&typeof document!=="undefined")window.onerror=function(m,s,l,c){var w=document.getElementById("jswarn");
   if(w){w.style.display="block";var d=document.createElement("div");
   d.style.cssText="font-family:monospace;font-size:11px;margin-top:8px;color:#c4584a;word-break:break-all";
   d.textContent="\u26A0 "+m+" (line "+l+(c?":"+c:"")+")";w.appendChild(d);}};
@@ -1147,7 +1147,7 @@ function initState(playerId, seed, mode, extraElectors){
   const S = {
     seed:String(seed), rng, rngState:rng.state, extraElectors:Array.from(extras), initialElectors:IDS.filter(id=>!byId[id].optional || extras.has(id)), playerId: playerId||null,
     day:1, phase:"day", ap:3, nightUsed:false,
-    over:false, ending:null, electedId:null, regnal:null,
+    over:false, ending:null, electedId:null, regnal:null, terminalProcedure:null,
     cash: playerId? byId[playerId].cash : 0,
     integrity: playerId? byId[playerId].integrity : 50,
     heat:0, influence:0,
@@ -1589,7 +1589,10 @@ function finalizeScrutiny(S){
   S.scrutinies.push(P);
   S.lastFinal=P.final; S.lastTally={...P.tally};
   S.pendingScrutiny=null;
-  if(elected){ S.over=true; S.electedId=elected; }
+  if(elected){
+    S.over=true; S.electedId=elected;
+    S.terminalProcedure={type:"scrutiny",ballot:P.n,electedId:elected,threshold:t,electors:P.electors,votes:Object.entries(P.votes).map(function(entry){return {voter:entry[0],candidate:entry[1].slice()};}),accessions:(P.accessions||[]).map(function(entry){return {from:entry.from,to:entry.to};})};
+  }
   return {elected, final:P.final, threshold:t};
 }
 
@@ -2110,6 +2113,7 @@ function compromissum(S){
       if(byId[c].age>=72) u+=2.5; score[c]+=u; } }
   let best=null,bv=-1e9; for(const c in score){ if(score[c]>bv){bv=score[c];best=c;} }
   S.over=true; S.electedId=best; S.byCompromissum=true; S.committee=committee;
+  S.terminalProcedure={type:"compromissum",electedId:best,committee:committee.slice(),votes:committee.map(function(voter){return {voter:voter,candidate:best};}),unanimous:true};
   return best;
 }
 
@@ -2201,6 +2205,62 @@ function scareCandidate(S){
   return null;
 }
 
+/* ---------- versioned save validation (shared by Node and browser) ---------- */
+function savedRecord1492(value){return !!value&&typeof value==="object"&&!Array.isArray(value);}
+function savedFiniteMap1492(value,allowed,integer){
+  if(!savedRecord1492(value))return false;
+  return Object.entries(value).every(function(entry){return allowed.includes(entry[0])&&Number.isFinite(entry[1])&&(!integer||Number.isInteger(entry[1]));});
+}
+function sameCountMap1492(a,b){
+  if(!savedRecord1492(a)||!savedRecord1492(b))return false;
+  const keys=new Set(Object.keys(a).concat(Object.keys(b)));
+  for(const id of keys)if(Number(a[id]||0)!==Number(b[id]||0))return false;
+  return true;
+}
+function savedScrutiny1492(record,index,complete){
+  if(!savedRecord1492(record)||record.n!==index+1||!Number.isInteger(record.day)||record.day<1||record.day>20||!savedRecord1492(record.votes)||!savedRecord1492(record.tally)||!savedRecord1492(record.running)||!Array.isArray(record.accessions))return false;
+  const voterIds=Object.keys(record.votes),direct={};
+  if(!voterIds.length||voterIds.length>IDS.length||!voterIds.every(function(id){return byId[id];}))return false;
+  for(const voter of voterIds){
+    const picks=record.votes[voter];
+    if(!Array.isArray(picks)||picks.length>3||new Set(picks).size!==picks.length||picks.some(function(candidate){return !byId[candidate]||candidate===voter;}))return false;
+    picks.forEach(function(candidate){direct[candidate]=(direct[candidate]||0)+1;});
+  }
+  if(!sameCountMap1492(record.tally,direct))return false;
+  const final=Object.assign({},direct),accessionVoters=new Set();
+  for(const accession of record.accessions){
+    if(!savedRecord1492(accession)||!voterIds.includes(accession.from)||!byId[accession.to]||accession.from===accession.to||accessionVoters.has(accession.from)||record.votes[accession.from].includes(accession.to))return false;
+    accessionVoters.add(accession.from);final[accession.to]=(final[accession.to]||0)+1;
+  }
+  if(!sameCountMap1492(record.running,final))return false;
+  if(!complete)return record.final===undefined&&record.elected===undefined;
+  if(!sameCountMap1492(record.final,final)||record.electors!==voterIds.length||record.threshold!==Math.ceil(record.electors*2/3))return false;
+  if(record.elected!==null&&(!byId[record.elected]||Number(record.final[record.elected]||0)<record.threshold))return false;
+  return true;
+}
+function validateSavedState1492(obj){
+  if(!savedRecord1492(obj)||obj.saveVersion!==2||typeof obj.seed!=="string"||!obj.seed||!byId[obj.playerId])return false;
+  if(!Number.isInteger(obj.rngState)||obj.rngState<0||obj.rngState>0xffffffff||!Number.isInteger(obj.day)||obj.day<1||obj.day>20||!Number.isInteger(obj.ap)||obj.ap<0||obj.ap>3||typeof obj.over!=="boolean"||typeof obj.nightUsed!=="boolean")return false;
+  if(!Number.isFinite(obj.cash)||!Number.isFinite(obj.integrity)||obj.integrity<0||obj.integrity>100||!Number.isFinite(obj.heat)||obj.heat<0||!Number.isFinite(obj.influence))return false;
+  if(!Array.isArray(obj.initialElectors)||!Array.isArray(obj.extraElectors)||new Set(obj.initialElectors).size!==obj.initialElectors.length||new Set(obj.extraElectors).size!==obj.extraElectors.length)return false;
+  if(!obj.initialElectors.includes(obj.playerId)||obj.initialElectors.some(function(id){return !byId[id];})||obj.extraElectors.some(function(id){return !byId[id]||!byId[id].optional;}))return false;
+  if(IDS.some(function(id){return !byId[id].optional&&!obj.initialElectors.includes(id);})||obj.extraElectors.some(function(id){return !obj.initialElectors.includes(id);}))return false;
+  if(!savedRecord1492(obj.cards)||!IDS.every(function(id){
+    const card=obj.cards[id];
+    return savedRecord1492(card)&&typeof card.ill==="boolean"&&(card.out===undefined||typeof card.out==="boolean")&&Number.isFinite(card.illDays)&&Number.isFinite(card.fatigue)&&card.fatigue>=0&&card.fatigue<=6&&Number.isInteger(card.intel)&&card.intel>=0&&card.intel<=3&&(card.lastVote===null||card.lastVote===undefined||byId[card.lastVote])&&savedRecord1492(card.promisesFrom);
+  }))return false;
+  if(!savedRecord1492(obj.R)||!IDS.every(function(a){return savedRecord1492(obj.R[a])&&IDS.every(function(b){return Number.isFinite(obj.R[a][b]);});}))return false;
+  if(!savedFiniteMap1492(obj.papBoost,IDS,false)||!savedFiniteMap1492(obj.scruple,IDS,false)||!savedRecord1492(obj.flags)||!savedRecord1492(obj.courted)||!savedRecord1492(obj.agents))return false;
+  if(!Array.isArray(obj.log)||obj.log.length>2500||!obj.log.every(function(entry){return savedRecord1492(entry)&&Number.isInteger(entry.day)&&typeof entry.html==="string"&&typeof entry.cls==="string";}))return false;
+  if(!Array.isArray(obj.scrutinies)||obj.scrutinies.length>80||!obj.scrutinies.every(function(record,index){return savedScrutiny1492(record,index,true);}))return false;
+  if(obj.pendingScrutiny!==null&&obj.pendingScrutiny!==undefined&&!savedScrutiny1492(obj.pendingScrutiny,obj.scrutinies.length,false))return false;
+  if(!savedRecord1492(obj.lastFinal)||!savedRecord1492(obj.lastTally))return false;
+  if(obj.scrutinies.length){const last=obj.scrutinies[obj.scrutinies.length-1];if(!sameCountMap1492(obj.lastFinal,last.final)||!sameCountMap1492(obj.lastTally,last.tally))return false;}
+  else if(Object.keys(obj.lastFinal).length||Object.keys(obj.lastTally).length)return false;
+  if((obj.electedId!==null&&!byId[obj.electedId])||(obj.over&&!obj.electedId))return false;
+  return true;
+}
+
 const CONCLAVE_1492_ENGINE = {
   CARDINALS, ABSENT, OBJECTIVES, FATES, REL_PAIRS, FEARS, POWERS, PAPAL_GIFTS,
   BORGIA_PRICES, REGNAL_NAMES, REGNAL_HINT, DATE_LABELS, ORDERS,
@@ -2210,7 +2270,7 @@ const CONCLAVE_1492_ENGINE = {
   beginScrutiny, npcAccessusPass, playerAccede, finalizeScrutiny, maxRunning, accessusCandidates,
   runNight, illnessCheck, advanceDay, doSforzaPivot, recordPromise, offerAcceptChance,
   actSoundOut, actPressVote, actOffer, actAddress, actDevotions, actTend, actSwearOath, ballotSignals, crownsView, scareCandidate, actRota, actSpy, actRumor,
-  computeEnding, compromissum, roleVerdict, runHeadless, topPreference, byId, IDS, rel, getStance, judgePlayerBallotPromises, scrutinyInsights, promiseForm, agentOf, channelRisk, marketOdds, consultBankers, actBorrowAtBanchi, actMoveMarket, actRotaChoice, rotaMessage, fatigueName
+  computeEnding, compromissum, roleVerdict, runHeadless, topPreference, byId, IDS, rel, getStance, judgePlayerBallotPromises, scrutinyInsights, promiseForm, agentOf, channelRisk, marketOdds, consultBankers, actBorrowAtBanchi, actMoveMarket, actRotaChoice, rotaMessage, fatigueName, validateSavedState:validateSavedState1492
 };
 if (typeof module !== "undefined") module.exports = CONCLAVE_1492_ENGINE;
 if (typeof window !== "undefined") window.__om = CONCLAVE_1492_ENGINE;
@@ -3358,6 +3418,7 @@ function endByCompromissum(){
     present(S).filter(function(id){return id!==S.playerId;}).forEach(function(id){
       grid.appendChild(h("button",{onclick:function(){
         S.over=true;S.electedId=id;S.byCompromissum=true;S.committee=actualCommittee;
+        S.terminalProcedure={type:"compromissum",electedId:id,committee:actualCommittee.slice(),votes:actualCommittee.map(function(voter){return {voter:voter,candidate:id};}),unanimous:true};
         log(S,"Twelve days, and no pope. By <b>compromissum</b>, "+actualCommittee.map(function(c){return byId[c].short;}).join(", ")+" choose <b>"+byId[id].short+"</b>.","event");
         document.querySelectorAll(".overlay").forEach(function(o){o.remove();});
         BUSY=false;
@@ -3609,14 +3670,7 @@ function serialiseState(){
   return plain;
 }
 function validSavedState(obj){
-  if(!obj||obj.saveVersion!==SAVE_VERSION||typeof obj.seed!=="string"||!byId[obj.playerId]) return false;
-  if(!Number.isInteger(obj.day)||obj.day<1||!Number.isFinite(obj.ap)) return false;
-  if(!obj.flags||typeof obj.flags!=="object"||!obj.cards||typeof obj.cards!=="object") return false;
-  if(!Array.isArray(obj.log)||!Array.isArray(obj.scrutinies)||!obj.lastFinal||!obj.lastTally) return false;
-  if(!Number.isFinite(obj.cash)||!Number.isFinite(obj.integrity)||!Number.isFinite(obj.heat)) return false;
-  if(obj.initialElectors&&!Array.isArray(obj.initialElectors)) return false;
-  if((obj.initialElectors||[]).some(function(id){return !byId[id];})) return false;
-  return true;
+  return validateSavedState1492(obj);
 }
 function restoreState(obj){
   if(!validSavedState(obj)) throw new Error("Unsupported or incomplete save data");
