@@ -39,6 +39,7 @@ const VARIANTS = [
 	{ file: "1903.html", label: "1903", players: ["rampolla", "sarto", "gibbons"], quickPlayer: "sarto", maxPicks: () => 1, threshold: (n) => Math.ceil(n * 2 / 3) },
 	{ file: "october-1978.html", label: "october-1978", players: ["siri", "benelli", "wojtyla"], quickPlayer: "wojtyla", maxPicks: () => 1, threshold: (n) => Math.floor(n * 2 / 3) + 1 },
 	{ file: "constance-1417.html", label: "constance-1417", players: ["colonna", "dailly", "polton"], quickPlayer: "colonna", maxPicks: () => 3, threshold: (n) => Math.ceil(n * 2 / 3) },
+	{ file: "accession-1458.html", label: "accession-1458", players: ["piccolomini", "estouteville", "borgia"], quickPlayer: "piccolomini", maxPicks: () => 1, threshold: (n) => Math.ceil(n * 2 / 3) },
 	{ file: "april-1378.html", label: "april-1378", players: ["deluna", "orsini", "geneva"], quickPlayer: "deluna", maxPicks: () => 1, threshold: (n) => Math.ceil(n * 2 / 3) },
 ];
 
@@ -610,6 +611,62 @@ function runTargetedChecks(variant, api) {
 		assert(Number.isFinite(score.total) && score.parts.reduce((sum, part) => sum + part.points, 0) === score.total && score.verdict && score.verdict.grade, "April 1378: end score is invalid");
 		return ["data-audit", "faction-arithmetic", "single-outsider", "historical-anchor", "documented-tally", "scrutiny-date", "roman-scrutinies", "orsini-withheld", "schism-onset", "blank-ballot", "player-ballot-preserved", "oral-validation", "uncertain-soundings", "open-termination", "player-drives-schism", "player-drives-unity", "colloquy-dialog", "italian-self-election", "papal-name", "regnal-choice", "directional-profile", "end-score"];
 	}
+	if (variant.label === "accession-1458") {
+		assert(typeof api.initState === "function" && typeof api.beginScrutiny === "function" && typeof api.stepAccession === "function" && typeof api.validateSavedState === "function", "1458: targeted-test API is not exported");
+		assert(api.validateData().length === 0 && api.ELECTORS.length === 18 && api.THRESHOLD === 12, "1458: roster, threshold, or data audit is invalid");
+		const factions = {};
+		api.ELECTORS.forEach((cardinal) => { factions[cardinal.faction] = (factions[cardinal.faction] || 0) + 1; });
+		assert(factions.italian === 8 && factions.catalan === 5 && factions.french === 2 && factions.greek === 2 && factions.avis === 1, "1458: faction arithmetic is wrong");
+
+		const historical = api.runHeadless("1458-chronicle", "mella", "historical", 10);
+		assert(historical.electedId === "piccolomini" && historical.electedName === "Pius II" && historical.history.length === 2, "1458: historical replay does not elect Pius II in two scrutinies");
+		const second = historical.history[1];
+		assert(second.votes.filter((vote) => vote.candidate[0] === "piccolomini").length === 9 && second.votes.filter((vote) => vote.candidate[0] === "estouteville").length === 6, "1458: second scrutiny is not the documented 9–6");
+		assert(second.accessions.map((move) => move.id).join(",") === "borgia,tebaldi,colonna" && second.accessions.every((move) => move.from === move.id), "1458: documented accession order or source IDs are wrong");
+		assert(second.counts.piccolomini === 12 && second.elected, "1458: final recorded tally does not reach twelve");
+		for (const ballot of historical.history) assertBallotIntegrity(variant, api, ballot);
+
+		const blank = api.initState("mella", "1458-blank", "historical");
+		while (blank.pending) api.resolveDecision(blank, api.autoChoiceFor(blank));
+		const blankRecord = api.beginScrutiny(blank, []);
+		assert(blank.flags.divergedFromRecord && !blankRecord.scripted && blankRecord.votes.find((vote) => vote.voter === "mella").candidate.length === 0, "1458: a historical blank paper was overwritten or did not trigger divergence");
+		expectRejected("1458: a self-vote was accepted", () => api.validatePlayerPicks(blank, ["mella"]));
+		expectRejected("1458: an unknown candidate was accepted", () => api.validatePlayerPicks(blank, ["bogus"]));
+		expectRejected("1458: a double paper was accepted", () => api.validatePlayerPicks(blank, ["barbo", "mella"]));
+
+		const selfAccede = api.initState("piccolomini", "1458-self-accession", "open");
+		while (selfAccede.pending) api.resolveDecision(selfAccede, api.autoChoiceFor(selfAccede));
+		api.beginScrutiny(selfAccede, []);
+		selfAccede.accession.phase = "live";
+		selfAccede.accession.leaderId = "piccolomini";
+		assert(!api.accessionEligible(selfAccede, "piccolomini"), "1458: the ballot leader can accede to himself");
+		api.stageAccessionChoice(selfAccede, { act: "accede" });
+		api.stepAccession(selfAccede);
+		assert(!selfAccede.history[0].accessions.some((move) => move.id === "piccolomini"), "1458: an illegal player self-accession reached the record");
+
+		const soundingState = api.initState("mella", "1458-soundings", "open");
+		const soundingBefore = JSON.stringify(soundingState);
+		const soundingA = api.makeSounding(soundingState);
+		const soundingB = api.makeSounding(soundingState);
+		assert(JSON.stringify(soundingA) === JSON.stringify(soundingB) && JSON.stringify(soundingState) === soundingBefore, "1458: soundings are non-deterministic or mutate simulation state");
+		assert(soundingA.rows.length > 0 && soundingA.rows.every((row) => Number.isInteger(row.lo) && Number.isInteger(row.hi) && row.lo <= row.hi && row.lo >= 0 && row.hi <= 18), "1458: soundings contain invalid ranges");
+
+		const saved = api.initState("mella", "1458-save", "open");
+		assert(api.validateSavedState(JSON.parse(JSON.stringify(saved))).schemaVersion === api.SAVE_SCHEMA, "1458: a valid versioned save cannot be restored");
+		expectRejected("1458: an unknown save schema was accepted", () => api.validateSavedState({ schemaVersion: 999 }));
+		const viable = api.ELECTORS.filter((cardinal) => {
+			const state = api.initState(cardinal.id, `1458-viability-${cardinal.id}`, "open");
+			state.ballotNo = 7;
+			state.momentum[cardinal.id] = 65;
+			state.metrics.standing = 90;
+			return (api.forecastCounts(state)[cardinal.id] || 0) >= api.THRESHOLD;
+		});
+		assert(viable.length === api.ELECTORS.length, `1458: only ${viable.length}/${api.ELECTORS.length} player candidacies can theoretically reach the threshold`);
+		assert(Number.isFinite(historical.finale.score.total) && Object.values(historical.finale.score.parts).reduce((sum, value) => sum + value, 0) === historical.finale.score.total, "1458: end score is invalid");
+		const source = fs.readFileSync(path.join(ROOT, variant.file), "utf8");
+		assert(!source.includes("by exhausted acclamation"), "1458: fabricated exhausted-acclamation fallback remains");
+		return ["data-audit", "faction-arithmetic", "historical-replay", "documented-tally", "accession-order", "blank-ballot", "approval-validation", "self-accession", "uncertain-soundings", "versioned-save", "player-candidacy-viability", "end-score", "lawful-ending"];
+	}
 	if (variant.label === "venice-1800") {
 		assert(typeof api.initState === "function" && typeof api.conductBallot === "function" && typeof api.getState === "function" && typeof api.activeElectors === "function" && typeof api.makeSounding === "function" && typeof api.resolveNetworkAction === "function" && typeof api.alignmentWithPlayer === "function" && typeof api.supportBriefCandidates === "function" && typeof api.positionMetricDetail === "function", "Venice: targeted-test API is not exported");
 		api.initState("mattei", "venice-player-ballot", { headless: true });
@@ -742,6 +799,7 @@ function checkStaticFiles() {
 		"venice-1800.html": ["Gregory XVI", "Leo XII"],
 		"october-1978.html": ["Paul VII", "John XXIV", "Pius XIII"],
 		"constance-1417.html": ["Kaufhaus", "Veni Creator", "Frequens", "accedimus nos duo"],
+		"accession-1458.html": ["Et ego Senensi Cardinali accedo", "Mihi te vermiculo commendas", "Pius II"],
 		"april-1378.html": ["Romano lo volemo", "Sermo fugit a me", "ad martellum", "Ego non sum papa"],
 	};
 	for (const [file, required] of Object.entries(anchors)) {

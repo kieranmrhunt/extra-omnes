@@ -1,0 +1,2495 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Accession · Extra Omnes · 1458</title>
+<meta name="description" content="A single-file historical simulation of the papal conclave of August 1458: eighteen cardinals, the Roman fever, the latrine pact, and the accession that made Pius II.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+	--void:#141009;--night:#1c1610;--surface:#241c13;--raise:#2d2318;--line:#3d3122;
+	--paper:#efe6d0;--dim:#b7a888;--faint:#8a7c61;
+	--sienna:#c05f33;--gold:#d9a13f;--verdi:#5f9686;--scarlet:#a83232;--rouge:#8c2f39;
+	--french:#4f6d96;--greek:#5f9686;--catalan:#b3852f;--italian:#b0492c;--avis:#7d6a9e;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{background:var(--void);color:var(--paper);font-family:"EB Garamond",Georgia,serif;font-size:17.5px;line-height:1.55;
+	background-image:radial-gradient(1200px 600px at 20% -10%,rgba(217,161,63,.06),transparent 60%),radial-gradient(900px 500px at 110% 10%,rgba(192,95,51,.05),transparent 55%)}
+a{color:var(--gold)}
+.directory-link{display:inline-flex;align-items:center;gap:.35rem;color:var(--dim);font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.08em;text-decoration:none;text-transform:uppercase}
+.directory-link:hover{color:var(--gold)}
+.skip{position:absolute;left:-999px;top:0;background:var(--gold);color:var(--void);padding:.5rem .8rem;z-index:99}
+.skip:focus{left:.5rem}
+button{font:inherit;cursor:pointer}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.wrap{max-width:1240px;margin:0 auto;padding:1.2rem 1.4rem 3rem}
+/* ---------- title ---------- */
+.titleblock{text-align:center;padding:2.6rem 0 1.2rem}
+.overline{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.34em;text-transform:uppercase;color:var(--faint)}
+h1{font-family:Cinzel,serif;font-weight:700;font-size:clamp(2.4rem,6vw,4.2rem);letter-spacing:.06em;margin:.45rem 0 .2rem;color:var(--paper)}
+h1 em{font-style:normal;color:var(--sienna)}
+.scenario{font-family:Cinzel,serif;font-size:1.02rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+.sub{max-width:62ch;margin:.9rem auto 0;color:var(--dim);font-size:1.03rem}
+.chantband{margin:1.5rem auto 0;max-width:56ch;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:.7rem 0;color:var(--gold);font-style:italic;letter-spacing:.05em}
+.chantband small{display:block;color:var(--faint);font-style:normal;letter-spacing:.12em;font-family:"IBM Plex Mono",monospace;font-size:.66rem;margin-top:.35rem;text-transform:uppercase}
+/* ---------- select ---------- */
+.setup{display:flex;flex-wrap:wrap;gap:.9rem;justify-content:center;align-items:center;margin:1.4rem 0 .8rem}
+.segment{display:flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.segment button{background:var(--surface);color:var(--dim);border:0;padding:.5rem 1rem;font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase}
+.segment button.on{background:var(--sienna);color:var(--void);font-weight:600}
+.seed input{background:var(--surface);border:1px solid var(--line);color:var(--paper);padding:.5rem .7rem;border-radius:6px;font-family:"IBM Plex Mono",monospace;width:14ch}
+.btn{background:var(--raise);border:1px solid var(--line);color:var(--paper);padding:.55rem 1rem;border-radius:6px;letter-spacing:.02em}
+.btn:hover{border-color:var(--gold)}
+.btn.primary{background:var(--sienna);border-color:var(--sienna);color:#1b0f08;font-weight:600}
+.btn.primary:hover{background:var(--gold);border-color:var(--gold)}
+.btn.ghost{background:transparent;color:var(--dim)}
+.btn.off{opacity:.4;cursor:not-allowed}
+.filterrow{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin:.6rem 0 1rem}
+.filterrow input{background:var(--surface);border:1px solid var(--line);color:var(--paper);padding:.45rem .7rem;border-radius:6px;min-width:220px}
+.filterrow .segment button{padding:.45rem .7rem;font-size:.7rem}
+#continuebar{display:flex;gap:.7rem;justify-content:center;align-items:center;margin:.4rem 0 1rem;color:var(--gold)}
+.selgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:.7rem}
+.selcard{text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.75rem .85rem;color:var(--paper);display:flex;flex-direction:column;gap:.28rem;transition:border-color .15s}
+.selcard:hover{border-color:var(--gold)}
+.selcard.on{border-color:var(--sienna);background:var(--raise);box-shadow:0 0 0 1px var(--sienna)}
+.selname{font-family:Cinzel,serif;font-weight:600;letter-spacing:.04em;font-size:1.02rem}
+.selsee{color:var(--dim);font-size:.82rem;line-height:1.3}
+.selhook{color:var(--gold);font-style:italic;font-size:.9rem}
+.selmeta{display:flex;gap:.55rem;align-items:center;font-size:.75rem;color:var(--faint);margin-top:.15rem}
+.stars{color:var(--gold);letter-spacing:.1em}
+.dimstar{color:var(--line)}
+.chip{display:inline-block;padding:.08rem .45rem;border-radius:99px;font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line);color:var(--dim)}
+.chip:empty{width:.68rem;height:.68rem;padding:0;border-radius:50%;vertical-align:-1px;margin-right:.35rem}
+.chip-italian{border-color:var(--italian);color:var(--italian)}.chip-italian:empty{background:var(--italian)}
+.chip-french{border-color:var(--french);color:var(--french)}.chip-french:empty{background:var(--french)}
+.chip-catalan{border-color:var(--catalan);color:var(--catalan)}.chip-catalan:empty{background:var(--catalan)}
+.chip-greek{border-color:var(--greek);color:var(--greek)}.chip-greek:empty{background:var(--greek)}
+.chip-avis{border-color:var(--avis);color:var(--avis)}.chip-avis:empty{background:var(--avis)}
+#selblurb{max-width:78ch;margin:1rem auto;background:var(--night);border:1px solid var(--line);border-left:3px solid var(--sienna);border-radius:6px;padding:.9rem 1.1rem;color:var(--paper)}
+.record{margin-top:.55rem;color:var(--faint);font-size:.86rem;font-style:italic}
+.footnote{max-width:78ch;margin:1.2rem auto 0;color:var(--faint);font-size:.86rem;text-align:center}
+/* ---------- game ---------- */
+#screen-game[hidden],#screen-select[hidden]{display:none}
+.gametop{display:flex;flex-wrap:wrap;gap:.6rem 1.4rem;align-items:baseline;justify-content:space-between;border-bottom:1px solid var(--line);padding:.6rem 0 .7rem;position:sticky;top:0;background:linear-gradient(var(--void) 88%,transparent);z-index:5}
+.gt-title{font-family:Cinzel,serif;letter-spacing:.14em;font-size:1rem;color:var(--sienna)}
+.gt-meta{display:flex;flex-wrap:wrap;gap:.4rem 1.2rem;font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.06em;color:var(--dim);text-transform:uppercase}
+.gt-meta b{color:var(--paper)}
+#g-player{font-family:"EB Garamond",serif;font-size:.95rem;text-transform:none;letter-spacing:0}
+.stripe{display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:center;padding:.65rem 0;border-bottom:1px solid var(--line)}
+#cityline{color:var(--dim);font-style:italic}
+#metrics{display:flex;gap:1.1rem;flex-wrap:wrap}
+.dial{min-width:150px}
+.dial-label{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+.dial-bar{height:6px;background:var(--surface);border:1px solid var(--line);border-radius:4px;overflow:hidden;margin:.25rem 0 .1rem}
+.dial-bar span{display:block;height:100%;background:var(--verdi)}
+.dial.hot .dial-bar span{background:var(--scarlet)}
+.dial-num{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--dim)}
+.cols{display:grid;grid-template-columns:300px 1fr 300px;gap:1.1rem;margin-top:1rem}
+.panel{background:var(--night);border:1px solid var(--line);border-radius:8px;padding:.8rem .9rem;margin-bottom:1rem}
+.panel-title{font-family:Cinzel,serif;font-size:.82rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:.55rem}
+/* board */
+.cand-row{display:flex;align-items:center;gap:.5rem;padding:.28rem 0;border-bottom:1px dashed rgba(61,49,34,.6)}
+.cand-row.elect .cand-name{color:var(--gold)}
+.cand-name{flex:0 0 108px;font-size:.95rem}
+.pips{flex:1;display:flex;gap:2.5px;flex-wrap:wrap}
+.pip{width:11px;height:11px;border-radius:2px;background:var(--surface);border:1px solid var(--line)}
+.pip.on{background:var(--sienna);border-color:var(--sienna)}
+.pip.on.acc{background:var(--gold);border-color:var(--gold)}
+.cand-n{font-family:"IBM Plex Mono",monospace;color:var(--dim);min-width:2ch;text-align:right}
+.boardnote,.sndnote,.acc-note,.votehint,.subnote{color:var(--faint);font-size:.85rem;font-style:italic;margin-top:.5rem}
+.lastscrutiny{margin-top:.9rem;border-top:1px solid var(--line);padding-top:.6rem}
+.voterow{display:flex;justify-content:space-between;font-size:.86rem;color:var(--dim);padding:.1rem 0}
+.voterow.me span{color:var(--gold)}
+.voterow.ill{opacity:.55;font-style:italic}
+.accrow{margin-top:.5rem;color:var(--gold);font-size:.86rem}
+/* centre */
+.decision,.actions,.votepanel,.accession-panel,.finale{background:var(--night);border:1px solid var(--line);border-radius:8px;padding:.9rem 1rem;margin-bottom:1rem}
+.decision{border-left:3px solid var(--gold)}
+.dec-body{margin-bottom:.8rem}
+.dec-opts{display:flex;flex-direction:column;gap:.5rem}
+.dec-btn{text-align:left;padding:.6rem .8rem;line-height:1.35}
+.act-row{display:flex;gap:.7rem;align-items:baseline;padding:.3rem 0;border-bottom:1px dashed rgba(61,49,34,.55)}
+.act-btn{flex:0 0 190px;font-size:.9rem}
+.act-line{color:var(--dim);font-size:.86rem}
+.subpick{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;padding:.55rem;background:var(--surface);border:1px solid var(--line);border-radius:6px;margin:.4rem 0}
+.subpick select{background:var(--raise);color:var(--paper);border:1px solid var(--line);border-radius:5px;padding:.4rem}
+.votepanel select{width:100%;background:var(--surface);color:var(--paper);border:1px solid var(--line);border-radius:6px;padding:.5rem;margin-bottom:.6rem;font-size:1rem}
+.votepanel .btn{margin-right:.5rem;margin-bottom:.4rem}
+/* accession theatre */
+.accession-panel{border-left:3px solid var(--sienna)}
+.acc-title{color:var(--sienna)}
+.acc-feed{display:flex;flex-direction:column;gap:.5rem;margin-bottom:.8rem}
+.beat{padding:.5rem .7rem;background:var(--surface);border:1px solid var(--line);border-radius:6px;font-size:.95rem}
+.beat-accede{border-left:3px solid var(--gold)}
+.beat-scuffle,.beat-ledout{border-left:3px solid var(--scarlet)}
+.beat-walk,.beat-adjourn{border-left:3px solid var(--french)}
+.beat-silence{color:var(--dim);font-style:italic}
+.acc-controls{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.4rem}
+/* chronicle */
+#chronicle{max-height:430px;overflow-y:auto}
+.logline{padding:.45rem 0;border-bottom:1px dashed rgba(61,49,34,.5);font-size:.95rem}
+.logwhen{display:block;font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:.15rem}
+.log-scrutiny{color:var(--paper)}
+.log-accession{color:#f2d9a6}
+.log-mob{color:#d78a6a}
+.log-event{color:var(--paper)}
+.log-action{color:var(--dim)}
+.log-note{color:var(--dim);font-style:italic}
+.log-election{color:var(--gold)}
+.log-finale{color:var(--gold);font-size:1rem}
+/* side */
+.obj-body{font-style:italic;color:var(--dim)}
+.ledrow{font-size:.88rem;padding:.15rem 0;color:var(--paper)}
+.ledrow.none{color:var(--faint);font-style:italic}
+.ledrow.exposed{color:var(--scarlet)}
+.dbl{color:var(--scarlet);font-family:"IBM Plex Mono",monospace;font-size:.68rem}
+.ledsub{margin-top:.5rem;color:var(--faint);font-size:.82rem}
+.dosrow{display:block;width:100%;padding:.3rem 0;border:0;border-bottom:1px dashed rgba(61,49,34,.5);background:transparent;color:inherit;text-align:left;cursor:pointer}
+.dosrow:hover .doshead b{color:var(--gold)}
+.dosrow.ill .doshead{opacity:.6}
+.doshead{display:flex;align-items:center;gap:.15rem;font-size:.92rem}
+.dossee{color:var(--faint);font-size:.78rem;margin-left:.35rem}
+.dosbody{padding:.5rem 0 .3rem;color:var(--dim);font-size:.9rem}
+.sndrow{display:flex;justify-content:space-between;font-size:.9rem;padding:.12rem 0}
+.sndrange{font-family:"IBM Plex Mono",monospace;color:var(--gold)}
+/* finale */
+.scorebox{margin:.8rem 0;border:1px solid var(--line);border-radius:8px;padding:.8rem;text-align:center;background:var(--surface)}
+.scoregrade{font-family:Cinzel,serif;font-size:3rem;color:var(--gold)}
+.scoretotal{font-family:"IBM Plex Mono",monospace;color:var(--dim)}
+.scoreparts{margin:.5rem 0;color:var(--dim);font-size:.85rem}
+.verdict{font-style:italic;color:var(--paper)}
+.achv{margin:.7rem 0;display:flex;flex-direction:column;gap:.4rem;font-size:.92rem;color:var(--paper)}
+/* modal + toast */
+#modal{position:fixed;inset:0;background:rgba(10,7,4,.8);display:none;align-items:center;justify-content:center;z-index:50;padding:1rem}
+#modal.open{display:flex}
+.modalbox{background:var(--night);border:1px solid var(--line);border-radius:10px;max-width:760px;max-height:84vh;overflow-y:auto;padding:1.2rem 1.4rem;position:relative}
+.modalbox h2{font-family:Cinzel,serif;letter-spacing:.14em;font-size:1.05rem;color:var(--gold);margin-bottom:.8rem;text-transform:uppercase}
+#modalbody p{margin-bottom:.85rem}
+#modalclose{position:sticky;float:right;top:0}
+#toast{position:fixed;left:50%;bottom:1.4rem;transform:translateX(-50%) translateY(20px);background:var(--raise);border:1px solid var(--gold);color:var(--paper);padding:.6rem 1rem;border-radius:8px;opacity:0;transition:.25s;pointer-events:none;z-index:60}
+#toast.show{opacity:1;transform:translateX(-50%)}
+.gamefoot{display:flex;gap:.6rem;justify-content:flex-end;align-items:center;margin-top:.4rem}
+.gamefoot .directory-link{margin-right:auto}
+@media(max-width:1020px){.cols{grid-template-columns:1fr 1fr}.cols>.col-right{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:1.1rem}}
+@media(max-width:700px){.cols{grid-template-columns:1fr}.col-mid{order:1}.col-left{order:2}.col-right{order:3}.cols>.col-right{grid-template-columns:1fr}.stripe{grid-template-columns:1fr}.stripe #metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.65rem 1rem}.dial{min-width:0}.act-btn{flex-basis:150px}.gametop{position:static}.gamefoot{flex-wrap:wrap}.gamefoot .directory-link{width:100%;margin-bottom:.25rem}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#centre">Skip to the decision</a>
+
+<section id="screen-select">
+	<div class="wrap">
+		<div class="titleblock">
+			<div class="overline">Extra Omnes · Anno Domini MCDLVIII</div>
+			<h1>The <em>Accession</em></h1>
+			<div class="scenario">Rome · 16–19 August 1458 · eighteen cardinals · twelve elect</div>
+			<p class="sub">Calixtus III is dead and his Catalans are hunted through the Banchi. Capranica, the man this conclave was meant to crown, died four days before it opened, of the fever that has not left the city. Eighteen men are walled into two chapels in the Roman August; the French party has a fortune, a candidate and, by Friday night, a written pact sworn in the latrines — eleven voices, one short of a pope. What stands against it is a poor, gouty poet from Siena, a counter-meeting at dawn in the Dean's cell, and the newest, strangest instrument in the Church's electoral law: the <i>accessio</i>, by which a man may rise after the count and carry his voice, out loud, with everyone watching, to another's total.</p>
+			<div class="chantband">«Et ego Senensi Cardinali accedo, eumque Papam facio.»<small>And I accede to the Cardinal of Siena — and make him Pope. · Prospero Colonna, 19 August 1458, shaking two cardinals off his arms</small></div>
+			<a class="directory-link" href="./index.html">← Conclave directory</a>
+		</div>
+		<div id="continuebar" hidden>
+			<span>A chronicle in progress was found.</span>
+			<button class="btn primary" id="continuebtn">Continue the conclave</button>
+			<button class="btn ghost" id="discardbtn">Burn it</button>
+		</div>
+		<div class="setup">
+			<div class="segment" role="group" aria-label="Mode">
+				<button data-mode="historical" class="on" type="button">Historical</button>
+				<button data-mode="open" type="button">Open</button>
+			</div>
+			<div class="seed"><input id="seedinput" placeholder="seed (optional)" aria-label="Seed"></div>
+			<button class="btn" id="rulesbtn" type="button">Rules</button>
+			<button class="btn" id="sourcesbtn" type="button">Sources &amp; liberties</button>
+			<button class="btn primary" id="startbtn" type="button">Enter the conclave</button>
+		</div>
+		<div class="filterrow">
+			<input id="searchbox" placeholder="Search the College — name, see, hook…" aria-label="Search cardinals">
+			<div class="segment" role="group" aria-label="Faction filter">
+				<button data-filter="all" class="on" type="button">All</button>
+				<button data-filter="italian" type="button">Italians</button>
+				<button data-filter="catalan" type="button">Catalans</button>
+				<button data-filter="french" type="button">French</button>
+				<button data-filter="greek" type="button">Greeks</button>
+				<button data-filter="avis" type="button">Infante</button>
+			</div>
+		</div>
+		<div class="selgrid" id="selgrid"></div>
+		<div id="selblurb"></div>
+		<p class="footnote">Everything marked <i>Documented</i> is from the record — above all Pius II's own Commentarii and J.&nbsp;P. Adams' Sede Vacante 1458 dossier; the rest is inference wearing period dress, and the Sources &amp; liberties note says exactly which is which. Historical mode replays the recorded papers wherever you do; the open mode, and every divergence, belongs to the model.</p>
+	</div>
+</section>
+
+<section id="screen-game" hidden>
+	<div class="wrap">
+		<div class="gametop">
+			<span class="gt-title">The Accession · MCDLVIII</span>
+			<div class="gt-meta">
+				<span id="g-player"></span>
+				<span><b id="g-session"></b></span>
+				<span id="g-ballot"></span>
+				<span>Acts: <b id="g-ap"></b></span>
+			</div>
+		</div>
+		<div class="stripe">
+			<span id="cityline"></span>
+			<div id="metrics"></div>
+		</div>
+		<div class="cols">
+			<div class="col-left">
+				<div class="panel" id="board"></div>
+			</div>
+			<div class="col-mid">
+				<div id="centre"></div>
+				<div class="panel" id="chronicle"></div>
+			</div>
+			<div class="col-right">
+				<div class="panel" id="objective"></div>
+				<div class="panel" id="ledger"></div>
+				<div class="panel" id="soundings"></div>
+				<div class="panel" id="dossiers"></div>
+			</div>
+		</div>
+		<div class="gamefoot">
+			<a class="directory-link" href="./index.html">← Conclave directory</a>
+			<button class="btn" id="rulesbtn2" type="button">Rules</button>
+			<button class="btn" id="sourcesbtn2" type="button">Sources</button>
+			<button class="btn ghost" id="abandonbtn" type="button">Abandon the conclave</button>
+		</div>
+	</div>
+</section>
+
+<div id="modal" role="dialog" aria-modal="true" aria-labelledby="modaltitle">
+	<div class="modalbox">
+		<button class="btn ghost" id="modalclose" type="button">Close</button>
+		<h2 id="modaltitle"></h2>
+		<div id="modalbody"></div>
+	</div>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ===== 01-data.js ===== */
+"use strict";
+const THRESHOLD_N=18;
+const THRESHOLD=Math.ceil(THRESHOLD_N*2/3); /* 12 of 18 */
+
+const FACTIONS={
+	italian:{key:"italian",label:"The Italians",line:"Eight votes and one dead front-runner. Milan, Venice, Rome and Siena in one bloc that agrees on a single thing: not Avignon again."},
+	catalan:{key:"catalan",label:"The Catalans",line:"Five creatures and kinsmen of the dead Borgia pope, hunted in the streets they ruled a fortnight ago. They need a protector more than a party."},
+	french:{key:"french",label:"The French party",line:"Two votes, one fortune. Rouen's money, Avignon's price, and the memory of seventy years beside the Rhône."},
+	greek:{key:"greek",label:"The Greeks",line:"Two exiles of a fallen empire. They will crown whoever will actually sail against the Turk — and they no longer much care what he costs."},
+	avis:{key:"avis",label:"The Infante",line:"One vote, twenty-five years old, of the blood royal of Portugal, and — alone in this palace — not for sale."}
+};
+
+const ELECTORS=[
+	{id:"fieschi",name:"Giorgio Fieschi",latin:"Ostiensis",see:"Cardinal Bishop of Ostia e Velletri · Dean of the Sacred College",order:"bishop",precedence:1,faction:"italian",origin:"genoese",age:63,stars:2,
+		hook:"The Dean whose cell becomes the counter-conspiracy.",
+		blurb:"A count of Lavagna of the great Guelf house that gave the Church Innocent IV and Adrian V, and an exile: Genoa, which his family once ran, has this spring handed itself to the French crown. He presides over this conclave from the see of Ostia, old, correct, and courted by both sides — the French party swears him in the latrines on Friday night, and by dawn on Saturday the Italians are meeting in his cell.",
+		record:"Documented: Dean and president of the conclave; named by Pius among the eight sworn to Rouen; host of Barbo's dawn assembly of the Italians; among the nine who voted for Siena in the second scrutiny. Died 1461.",
+		axes:{learning:1,nerve:0,purse:1,ambition:1}},
+	{id:"isidore",name:"Isidore of Kiev",latin:"Ruthenus",see:"Cardinal Bishop of Sabina",order:"bishop",precedence:2,faction:"greek",origin:"greek",age:77,stars:2,
+		hook:"He watched Constantinople fall. Nothing here frightens him.",
+		blurb:"Metropolitan of Kiev and all Rus', who signed the Union of Florence and was thrown into a Muscovite cell for it; papal legate inside Constantinople when the walls broke in 1453 — it is said the Turks beheaded a corpse dressed in his hat while he went out through the harbour in a slave's rags. Seventy-seven now, half-deaf to threats, wholly deaf to shame, he wants one thing of the next pope: ships.",
+		record:"Documented: named among the eight sworn to Rouen; a scrutator of the second scrutiny; voted for Rouen; rose with Torquemada as if to leave during the accession, and sat back down when no one followed; Bessarion's concession speech was made in his name too.",
+		axes:{learning:2,nerve:1,purse:-1,ambition:-1}},
+	{id:"bessarion",name:"Bessarion",latin:"Nicaenus",see:"Cardinal Bishop of Frascati",order:"bishop",precedence:3,faction:"greek",origin:"greek",age:55,stars:3,
+		hook:"Three years ago they would not crown a Greek. He has not forgotten.",
+		blurb:"Born at Trebizond, monk of St Basil, titular of Nicaea, the finest Greek mind in the Latin world — his house is a refuge for exile scholars and his library the best in Rome. In the conclave of 1455 he came within reach of the tiara until Avignon asked the College whether it really meant to hand the Latin Church to a bearded neophyte. He backs Rouen now, for the fleet Rouen promises; and when the arithmetic turns he will hold a man down with his own hands rather than watch it happen again.",
+		record:"Documented: papabile; named among the eight sworn to Rouen; voted for Rouen; with Rouen he seized Prospero Colonna by the arm to stop the twelfth voice, and failed; then made the concession speech for himself and Isidore — offering, by way of apology, that God would supply the defect of the new pope's gouty feet.",
+		axes:{learning:2,nerve:1,purse:0,ambition:1}},
+	{id:"estouteville",name:"Guillaume d'Estouteville",latin:"Rotomagensis",see:"Cardinal Priest of Ss. Silvestro e Martino ai Monti · Archbishop of Rouen",order:"priest",precedence:4,faction:"french",origin:"french",age:46,stars:3,
+		hook:"Rouen's money against history.",
+		blurb:"Kin to the King of France in the third degree, son of a lord taken at Agincourt, reviewer of the case of Jeanne d'Arc, reformer of the University of Paris — and the richest man in this chapel by a distance no one else can count. He has decided, correctly, that no scrutiny will crown him, and that the accession might: promises are going out tonight priced in sees, palaces and the government of the Estates of St Peter. His problem has a name, and the name has five votes.",
+		record:"Documented: the French candidate; ran the campaign of vilification against Siena — a poor man, a gouty man, a poet, a civil lawyer, too long in Germany; convener of the latrine pact with its written pledges and oaths; promised the Vice-Chancellery to Avignon while telling the Vice-Chancellor he would keep it; certain of eleven votes on Friday evening; a scrutator of the Saturday scrutiny; whispered to Siena at the chalice and was answered with a worm; laid hands on Colonna at the last, and lost.",
+		axes:{learning:1,nerve:0,purse:2,ambition:2}},
+	{id:"torquemada",name:"Juan de Torquemada",latin:"Sancti Sixti",see:"Cardinal Priest of S. Maria in Trastevere",order:"priest",precedence:5,faction:"catalan",origin:"castilian",age:70,stars:2,
+		hook:"The papacy's greatest theorist, sworn in its latrines.",
+		blurb:"A Dominican of Valladolid, seventy years old, author of the Summa de Ecclesia — the strongest defence of papal monarchy ever written against the conciliar men of Basel. Every argument for the dignity of this election is his; Pius will write that he swore the latrine pact all the same. A Castilian, not a Catalan, but the mob outside makes no such distinctions, and neither, tonight, does he.",
+		record:"Documented: papabile; named among the eight sworn to Rouen; voted for Rouen in the second scrutiny; rose with Isidore as if to break up the accession, and returned to his seat when the room did not move. His nephew, a young prior at Segovia, would carry the family name into a very different fame.",
+		axes:{learning:2,nerve:0,purse:0,ambition:0}},
+	{id:"barbo",name:"Pietro Barbo",latin:"Sancti Marci",see:"Cardinal Priest of S. Marco",order:"priest",precedence:6,faction:"italian",origin:"venetian",age:40,stars:2,
+		hook:"The kingmaker who came here to be king.",
+		blurb:"Nephew of Eugenius IV, Venetian, splendid, forty, a collector of cameos and antiquities who wears his magnificence like a second vestment. He entered this conclave meaning to leave it as pope; when Capranica's death scattered the board he lodged his hopes with Rouen instead — and somewhere past midnight on Friday his Italian conscience, or his Venetian arithmetic, turned him around. By dawn he is going cell to cell, and the Italians are meeting in the Dean's chamber.",
+		record:"Documented: entered with hopes of his own; joined the French interest, then abandoned it in the night; convened the Italian cardinals — all but Colonna — in Fieschi's cell and put Siena's name to them; among the nine of the second scrutiny. Elected pope himself six years later as Paul II.",
+		axes:{learning:0,nerve:1,purse:2,ambition:2}},
+	{id:"lacerda",name:"Antonio de la Cerda",latin:"Ilerdensis",see:"Cardinal Priest of S. Crisogono",order:"priest",precedence:7,faction:"catalan",origin:"majorcan",age:67,stars:1,
+		hook:"The old Majorcan who nominated himself.",
+		blurb:"A Trinitarian friar of Santa Margalida in Majorca, a theologian of parts, Bishop of Lérida, sixty-seven — and, in the shameless canvassing after Friday's dinner, one of the men Pius records going about the cells asking for the papacy on his own behalf. He was in the three-cardinal consistory of 31 July that scandalised Rome; he knows exactly how little time a Catalan has to find a friend.",
+		record:"Documented: canvassed for himself after the first scrutiny; one of only three cardinals at Calixtus's last consistory; among the nine who voted for Siena on Saturday. Died the following year.",
+		axes:{learning:2,nerve:-1,purse:0,ambition:2}},
+	{id:"orsini",name:"Latino Orsini",latin:"de Ursinis",see:"Cardinal Priest of Ss. Giovanni e Paolo · Archbishop of Bari",order:"priest",precedence:8,faction:"italian",origin:"roman",age:47,stars:2,
+		hook:"Rouen counts his vote. Milan has already spoken for it.",
+		blurb:"Prince of the house that fought the Borgia nephew's soldiers in the Tagliacozzo hills last summer, Archpriest of the Lateran, brother to a count, uncle to half the swords in Lazio. Milan's ambassador reached him within hours of Capranica's death and turned him to Siena; the French party still lists him among their eleven. One of these two ledgers is wrong.",
+		record:"Documented: won for Piccolomini by Ottone de Carretto in the pre-conclave; counted — wrongly — by the French among their votes; among the nine of the second scrutiny. The following winter, as legate, it was he who crowned Ferrante at Barletta.",
+		axes:{learning:1,nerve:2,purse:2,ambition:2}},
+	{id:"coetivy",name:"Alain de Coëtivy",latin:"Avinionensis",see:"Cardinal Priest of S. Prassede · Bishop of Avignon",order:"priest",precedence:9,faction:"french",origin:"breton",age:50,stars:2,
+		hook:"Every conclave has a price. He has published his.",
+		blurb:"A Breton lord of Taillebourg, brother of an Admiral of France, Bishop of Avignon — the city that remembers what a French papacy pays. It was his question that sank Bessarion in 1455. Pius calls him bold and for sale, audax et venalis, and itemises the sale: Rouen's archbishopric, Rouen's palace in Rome, and the Vice-Chancellery of the Holy Roman Church, all promised to him against the morning Rouen is crowned.",
+		record:"Documented: wrecked the Greek candidacy of 1455; sworn of the pact; promised the Vice-Chancellery already held by Borgia; voted for Rouen to the end.",
+		axes:{learning:0,nerve:1,purse:1,ambition:2}},
+	{id:"calandrini",name:"Filippo Calandrini",latin:"Bononiensis",see:"Cardinal Priest of S. Lorenzo in Lucina · Bishop of Bologna",order:"priest",precedence:10,faction:"italian",origin:"lunigianese",age:54,stars:2,
+		hook:"Half-brother to one pope; midnight herald of another.",
+		blurb:"Of Sarzana, uterine half-brother of Nicholas V, mild and liked and five votes strong in the first scrutiny — a man everyone could accept and no one quite fights for. He swore Rouen's pact in the latrines like the rest; and past the middle of that night it was he who woke Aeneas in his cell to tell him the thing was done, whether as a kindness, a recruitment, or a conscience relieving itself, not even Pius could afterwards decide.",
+		record:"Documented: five votes in the first scrutiny; named among the eight sworn to Rouen; woke Piccolomini at midnight — nescis quia iam papam habemus? — and stood away from the pact by morning; among the nine of the second scrutiny.",
+		axes:{learning:1,nerve:-1,purse:1,ambition:1}},
+	{id:"mila",name:"Luis Juan del Milà",latin:"Segobricensis",see:"Cardinal Priest of Ss. Quattro Coronati · Bishop of Segorbe",order:"priest",precedence:11,faction:"catalan",origin:"valencian",age:28,stars:1,
+		hook:"The other nephew, learning to be invisible.",
+		blurb:"The quieter of the dead pope's two cardinal-nephews, twenty-eight, lately legate at Bologna, cousin to the Vice-Chancellor and joined to him by blood, benefice and danger. His uncle's name is being burned off shop-fronts a few hundred yards from this chapel. He will outlive every man in the room by decades, which tells you something about his talent for the middle of the crowd.",
+		record:"Documented: among the nine who voted for Siena in the second scrutiny — a Catalan voice for an Italian pope, and cheap at the price. Died in 1510, the last of the Calixtan purple.",
+		axes:{learning:0,nerve:0,purse:1,ambition:0}},
+	{id:"mella",name:"Juan de Mella",latin:"Zamorensis",see:"Cardinal Priest of S. Prisca · Bishop of Zamora",order:"priest",precedence:12,faction:"catalan",origin:"castilian",age:61,stars:1,
+		hook:"The Rota's auditor, auditing the College.",
+		blurb:"A career judge of the Rota out of Zamora, dry, exact, unbribed because unnoticed. He and Piccolomini received the red hat on the same December day and had their mouths opened in the same consistory; he has been listening carefully ever since. Castilian by birth, Catalan by association, safe with neither party and therefore useful to both.",
+		record:"Documented: created with Piccolomini in December 1456; among the nine of the second scrutiny.",
+		axes:{learning:2,nerve:0,purse:0,ambition:0}},
+	{id:"castiglione",name:"Giovanni Castiglione",latin:"Papiensis",see:"Cardinal Priest of S. Clemente · Bishop of Pavia",order:"priest",precedence:13,faction:"italian",origin:"milanese",age:45,stars:2,
+		hook:"Branda's nephew, caught between Milan's orders and Milan's shame.",
+		blurb:"Milanese, Bishop of Pavia, nephew of the great Cardinal Branda who spent a lifetime dragging the papacy home from Avignon and did not rest until Martin V was crowned. Sforza's agents tried to buy his vote for Capranica in July; Rouen has been buying it since Friday. At dawn Aeneas puts the family question to him plainly: he must betray somebody before Mass — Italy, the Church, or Rouen. Choose.",
+		record:"Documented: canvassed for Rouen after the first scrutiny; confronted by Piccolomini at first light with his uncle Branda's example, and deserted the French; among the nine of the second scrutiny. Dead within two years.",
+		axes:{learning:1,nerve:-1,purse:1,ambition:1}},
+	{id:"piccolomini",name:"Enea Silvio Piccolomini",latin:"Senensis",see:"Cardinal Priest of S. Sabina · Bishop of Siena",order:"priest",precedence:14,faction:"italian",origin:"sienese",age:52,stars:2,
+		hook:"Gout, debts, Virgil, and the best pen in the room.",
+		blurb:"Of Corsignano in the Sienese hills: imperial poet laureate, one-time secretary to an antipope and an emperor, author of a scandalous love-story half of Europe has read and a history of Bohemia almost nobody has, priest at forty-two, cardinal at fifty-one. He has spent the summer at the baths of Viterbo boiling the gout out of his feet; he arrives poor enough that Article 5 of the capitulation is about him. Rouen's whole case is a list of his defects. His whole case is the room's fear of Rouen — and, when the whisper comes at the chalice, an answer of exactly four words.",
+		record:"Documented: the common talk's favourite before the doors closed, to his own later embarrassment; five votes in the first scrutiny; woken at midnight with news of the pact and refused it; declared himself unequal to the burden at Barbo's meeting and was overruled; nine votes, then the accession; answered Rouen's murmured self-commendation — mihi te vermiculo commendas?; elected at the third hour, took the name of Virgil's pious Aeneas, and watched Rome carry his house away down to the marbles.",
+		axes:{learning:2,nerve:1,purse:-2,ambition:2}},
+	{id:"tebaldi",name:"Giacomo Tebaldi",latin:"Sancti Anastasiae",see:"Cardinal Priest of S. Anastasia · Bishop of Montefeltro",order:"priest",precedence:15,faction:"italian",origin:"roman",age:56,stars:1,
+		hook:"Rome's quiet beneficiary, counted by both sides.",
+		blurb:"A Roman, brother of the dead pope's physician, and the man Calixtus made Archbishop of Naples three weeks ago in a consistory of three cardinals that the rest of the College boycotted as unlawful. The French list him among their eleven with a question-mark; the Italians assume him theirs. He says very little, which is how a man collects archbishoprics.",
+		record:"Documented: at the three-cardinal consistory of 31 July; counted as uncertain in Rouen's arithmetic; the second voice of the accession — Et ego Senensi accedo — that carried Siena to eleven.",
+		axes:{learning:0,nerve:0,purse:1,ambition:1}},
+	{id:"colonna",name:"Prospero Colonna",latin:"de Columna",see:"Cardinal Deacon of S. Giorgio in Velabro · Protodeacon",order:"deacon",precedence:16,faction:"italian",origin:"roman",age:48,stars:3,
+		hook:"History's hinge is his to withhold.",
+		blurb:"Nephew of Martin V, in the purple since he was a boy of sixteen, prince of the house that holds half the fortified corners of Lazio and lately sheltered the fleeing Borgia's castles. He swore Rouen's pact; he voted Rouen's name; he loves Aeneas of old, veteri benevolentia coniunctus. On Saturday morning these three facts will meet in the middle of the chapel floor, with a Greek holding one of his arms and a Norman the other — and what he shouts as he shakes them off will decide a century.",
+		record:"Documented: named among the eight sworn to Rouen; voted for Rouen in the scrutiny; rose to accede, was seized and berated by Bessarion and d'Estouteville, who tried to drag him from the chapel; broke free and gave the twelfth voice — Et ego Senensi Cardinali accedo, eumque Papam facio. As Protodeacon he crowned the man he made, on the steps of St Peter's, 3 September.",
+		axes:{learning:0,nerve:2,purse:2,ambition:1}},
+	{id:"jaime",name:"Jaime of Portugal",latin:"Portugallensis",see:"Cardinal Deacon of S. Eustachio",order:"deacon",precedence:17,faction:"avis",origin:"portuguese",age:25,stars:1,
+		hook:"Twenty-five, exiled, incorruptible.",
+		blurb:"Infante of the house of Avis, son of the Duke of Coimbra who was cut down with his cause at Alfarrobeira, nephew of kings and guest of none. Twenty-five years old, ascetic, book-fed, beautiful, and — every canvasser in this palace has now confirmed it — not for sale at any benefice yet minted. Vespasiano will write his life; Florence will build his tomb. Tonight he simply watches what old men do to the Bride of Christ, and takes notes.",
+		record:"Documented: among the nine who voted for Siena; named Legate of the March within the month. Dead at Florence within the year, aged twenty-six — the Chapel of the Cardinal of Portugal at San Miniato is his.",
+		axes:{learning:1,nerve:1,purse:-1,ambition:-1}},
+	{id:"borgia",name:"Rodrigo de Borja",latin:"Valentinus",see:"Cardinal Deacon of S. Nicola in Carcere · Vice-Chancellor",order:"deacon",precedence:18,faction:"catalan",origin:"valencian",age:27,stars:3,
+		hook:"Twenty-seven, hunted in the streets, first to move in the chapel.",
+		blurb:"The dead pope's nephew and the live Curia's paymaster: Vice-Chancellor at twenty-six, loaded with deaneries, provostships and commendams from Valencia to Mainz. His brother the Prefect fled Rome through the mob a fortnight ago and is dying at Civitavecchia on a chest of seventy thousand ducats; the crowd outside would happily fold Rodrigo into the same sentence. Rouen has promised him he keeps the Chancellery. Aeneas, at first light, asks him how long he thinks a Frenchman's promise to a Catalan lasts once Avignon wants the same office. He votes last of the eighteen — and in the silence after the count, he moves first.",
+		record:"Documented: sworn of the pact; told by Rouen he would keep the Vice-Chancellery that Rouen had promised to Avignon; challenged by Piccolomini at dawn; voted for Rouen in the scrutiny, discharging the oath — then rose first in the accession and transferred his voice to Siena. He kept the Chancellery thirty-four more years, and this chapel would see him again in 1492.",
+		axes:{learning:1,nerve:2,purse:2,ambition:2}}
+];
+
+/* Eight not in Rome: for the dossier drawer and the sources modal. */
+const ABSENT=[
+	{name:"Pierre de Foix",note:"Bishop of Albano, legate in Avignon; the last cardinal of the Great Schism, created by Pisan John XXIII."},
+	{name:"Ludovico Trevisan",note:"the Camerlengo, commanding the papal war-fleet off Rhodes — which is why there are no sede vacante coins this year."},
+	{name:"Juan Carvajal",note:"legate in Hungary, holding the Danube frontier."},
+	{name:"Nikolaus von Cusa",note:"legate in Germany; he reaches Rome on 30 September, six weeks too late."},
+	{name:"Peter von Schaumberg",note:"Protopriest, at Augsburg."},
+	{name:"Dénes Szécsi",note:"Archbishop of Esztergom, in Hungary."},
+	{name:"Jean Rolin",note:"Bishop of Autun, in Burgundy."},
+	{name:"Richard Olivier de Longueil",note:"at the Gravelines conference, speaking for the King of France — two French votes short of a French pope."}
+];
+
+const IDS=ELECTORS.map(function(c){return c.id});
+const ID={};
+ELECTORS.forEach(function(c){ID[c.id]=c});
+const CARDINALS=ELECTORS; /* harness alias */
+const CANDIDATE_IDS=IDS.slice(); /* every elector is a lawful candidate; there is no outsider in 1458 */
+
+/* The eight Pius names as sworn to Rouen in the latrines (Commentarii, via Adams). */
+const PACT_CORE=["fieschi","isidore","bessarion","torquemada","coetivy","colonna","calandrini","borgia"];
+/* Counted by Rouen as probable, wrongly (Orsini) and half-rightly (Tebaldi). */
+const PACT_COUNTED=["orsini","tebaldi"];
+/* Canvassed hard for Rouen after dinner without appearing on the sworn list. */
+const PACT_CANVASSERS=["castiglione","barbo"];
+
+/* Offices and expectancies that can be promised between the scrutinies. */
+const OFFICES=[
+	{id:"vicechancery",label:"The Vice-Chancellery",line:"The first office of the Curia and its richest pen. Borgia holds it; every promise of it to another man is a promise to unseat him.",weight:5},
+	{id:"penitentiary",label:"The Major Penitentiary",line:"Vacant five days: Capranica's keys of penance lie on a dead man's desk.",weight:4},
+	{id:"camerlengato",label:"The Camerlengato",line:"Trevisan holds it from a war-galley off Rhodes. A pope minded to punish absence could call it forfeit.",weight:4},
+	{id:"patrimony",label:"The governance of the Patrimony",line:"The Estates of St Peter under one man's seal — the very coin Rouen is spending tonight.",weight:5},
+	{id:"marches",label:"The Legation of the March",line:"Ancona and its roads: an army's pay and a smuggler's tithe.",weight:3},
+	{id:"bologna",label:"The Legation of Bologna",line:"The second city of the States, and the fattest legation in Italy.",weight:3},
+	{id:"rouen",label:"Rouen — the see and the palace",line:"The richest see in France and its owner's palace in Rome. Only its owner can promise it, and Avignon has already named it as his price.",weight:5,ownerOnly:"estouteville"},
+	{id:"richvacancy",label:"The next rich vacancy",line:"A promissory note against providence: the first fat see or abbey that falls.",weight:2}
+];
+const OFFICE={};
+OFFICES.forEach(function(o){OFFICE[o.id]=o});
+
+/* Interval labels, indexed by ballotNo (the interval before scrutiny ballotNo+1). */
+const SESSIONS=[
+	"Thursday 17 August · the day of the capitulation",
+	"Friday 18 August · after dinner",
+	"Saturday 19 August · after the scrutiny",
+	"Sunday 20 August · after Mass",
+	"Sunday 20 August · evening",
+	"Monday 21 August · the heat",
+	"Tuesday 22 August · the fever in the cells",
+	"Wednesday 23 August · the ninth day",
+	"Thursday 24 August · St Bartholomew's day",
+	"Friday 25 August · St Louis' day",
+	"Saturday 26 August · the last credit of the College"
+];
+const BALLOT_DATES=[
+	"", /* ballots are 1-indexed in speech */
+	"the morning of Friday 18 August",
+	"the morning of Saturday 19 August",
+	"Sunday 20 August, after Mass",
+	"the evening of Sunday 20 August",
+	"the morning of Monday 21 August",
+	"the morning of Tuesday 22 August",
+	"the morning of Wednesday 23 August",
+	"St Bartholomew's day, 24 August",
+	"St Louis' day, 25 August",
+	"the morning of Saturday 26 August"
+];
+function sessionLabel(S){
+	if(S.ballotNo===0&&!S.flags.capitDone)return "Wednesday 16 August · the enclosure";
+	return SESSIONS[Math.min(S.ballotNo,SESSIONS.length-1)];
+}
+function ballotDateLabel(n){return BALLOT_DATES[Math.min(n,BALLOT_DATES.length-1)]||BALLOT_DATES[BALLOT_DATES.length-1]}
+
+/*
+	Scrutiny I, Friday 18 August. Documented totals only: Siena 5, Bologna 5,
+	and of the rest no one above three — "ex reliquis nemo tres superavit" —
+	with Rouen very probably at three (Coëtivy and Barbo certain). The
+	per-voter assignment below is a model constrained to those totals; it is
+	flagged as such in Sources & liberties.
+*/
+const HIST_SCRUTINY_1={
+	fieschi:"calandrini",isidore:"estouteville",bessarion:"torquemada",estouteville:"barbo",
+	torquemada:"calandrini",barbo:"estouteville",lacerda:"calandrini",orsini:"piccolomini",
+	coetivy:"estouteville",calandrini:"torquemada",mila:"piccolomini",mella:"piccolomini",
+	castiglione:"calandrini",piccolomini:"calandrini",tebaldi:"piccolomini",colonna:"barbo",
+	jaime:"piccolomini",borgia:"torquemada"
+};
+/*
+	Scrutiny II, Saturday 19 August. The nine for Siena and the six for Rouen
+	follow the Commentarii as read by Adams; Burkle-Young's alternative six is
+	set out in Sources & liberties. The three scattered voices (Siena's own,
+	Rouen's own, Tebaldi's) are modelled.
+*/
+const HIST_SCRUTINY_2={
+	fieschi:"piccolomini",isidore:"estouteville",bessarion:"estouteville",estouteville:"calandrini",
+	torquemada:"estouteville",barbo:"piccolomini",lacerda:"piccolomini",orsini:"piccolomini",
+	coetivy:"estouteville",calandrini:"piccolomini",mila:"piccolomini",mella:"piccolomini",
+	castiglione:"piccolomini",piccolomini:"calandrini",tebaldi:"torquemada",colonna:"estouteville",
+	jaime:"piccolomini",borgia:"estouteville"
+};
+/* The documented accession of Saturday 19 August, beat by beat. */
+const HIST_ACCESSION=[
+	{type:"silence"},
+	{type:"accede",id:"borgia",to:"piccolomini"},
+	{type:"silence"},
+	{type:"walk",ids:["isidore","torquemada"]},
+	{type:"return"},
+	{type:"accede",id:"tebaldi",to:"piccolomini"},
+	{type:"silence"},
+	{type:"restraint",id:"colonna",by:["bessarion","estouteville"]},
+	{type:"accede",id:"colonna",to:"piccolomini"},
+	{type:"elected",id:"piccolomini"}
+];
+
+/* Regnal names. First option is the documented or most defensible choice. */
+const REGNAL={
+	piccolomini:["Pius II"],
+	estouteville:["Clement VII","Martin VI"],
+	barbo:["Paul II","Mark II","Formosus II"],
+	calandrini:["Nicholas VI","Innocent VIII"],
+	bessarion:["Eugene V","Leo X"],
+	isidore:["Leo X","Urban VII"],
+	torquemada:["Benedict XIII","Sixtus IV"],
+	fieschi:["Innocent VIII","Adrian VI"],
+	lacerda:["Callixtus IV","Innocent VIII"],
+	orsini:["Nicholas VI","Celestine VI"],
+	coetivy:["Clement VII","Gregory XIII"],
+	mila:["Callixtus IV","Alexander VI"],
+	mella:["Innocent VIII","Benedict XIII"],
+	castiglione:["Martin VI","Celestine VI"],
+	tebaldi:["Anastasius V","Callixtus IV"],
+	colonna:["Martin VI","Adrian VI"],
+	jaime:["Eugene V","Celestine VI"],
+	borgia:["Callixtus IV","Alexander VI"]
+};
+const REGNAL_SIGNAL={
+	"Pius II":"Virgil's pious Aeneas: letters on the throne, and a crusade preached in Ciceronian periods",
+	"Clement VII":"clemency towards a divided past — and a name Avignon wore for forty years",
+	"Martin VI":"the restoration completed: Colonna's work, claimed anew",
+	"Paul II":"apostolic splendour, Venetian magnificence",
+	"Mark II":"the Evangelist of Venice on the Roman throne",
+	"Formosus II":"a learned, ill-omened archaism — the College would talk him out of it",
+	"Nicholas VI":"continuity with the builder of libraries and walls",
+	"Innocent VIII":"legal order, restraint, the Fieschi inheritance",
+	"Adrian VI":"the short-reigned Fieschi pope remembered, rashly",
+	"Eugene V":"the union of Florence carried forward; the Greeks kept inside the Church",
+	"Leo X":"the lion against the Turk",
+	"Urban VII":"the city of Rome, held",
+	"Benedict XIII":"Dominican discipline; a disputed number reclaimed for the lawful line",
+	"Sixtus IV":"the old title of San Sisto worn as a crown",
+	"Callixtus IV":"the Borgia continuity, announced to a city that is burning its symbols",
+	"Alexander VI":"conquest and magnificence — a name this family will find again",
+	"Celestine VI":"ascetic reform, distance from every faction",
+	"Gregory XIII":"reform and return, in the line of the eleventh Gregory",
+	"Anastasius V":"his own titulus, S. Anastasia, raised to the throne"
+};
+
+/*
+	Pre-conclave leanings (inferred weights, from the pact list, the Carretto
+	letters and the Commentarii's account of who stood where before Friday).
+*/
+const BASE_LEAN={
+	fieschi:{calandrini:4,piccolomini:2,estouteville:2},
+	isidore:{estouteville:3,bessarion:3,torquemada:2},
+	bessarion:{estouteville:3,torquemada:3,calandrini:2},
+	estouteville:{calandrini:3,torquemada:2},
+	torquemada:{calandrini:4,estouteville:2,bessarion:2},
+	barbo:{estouteville:3,calandrini:2,piccolomini:2},
+	lacerda:{calandrini:3,torquemada:2,piccolomini:2},
+	orsini:{piccolomini:5,calandrini:2},
+	coetivy:{estouteville:6,torquemada:1},
+	calandrini:{piccolomini:3,torquemada:2,estouteville:2},
+	mila:{piccolomini:3,calandrini:2,borgia:1},
+	mella:{piccolomini:4,calandrini:3},
+	castiglione:{calandrini:3,estouteville:2,piccolomini:2},
+	piccolomini:{calandrini:4,torquemada:2},
+	tebaldi:{torquemada:3,piccolomini:2,calandrini:2},
+	colonna:{estouteville:3,piccolomini:3},
+	jaime:{piccolomini:4,calandrini:2,bessarion:2},
+	borgia:{estouteville:3,piccolomini:3,calandrini:1}
+};
+
+/* fever: the Roman August that killed Capranica. tumult: the anti-Catalan city.
+   secrecy: what the ambassadors' letters do not yet contain. standing: personal credit. */
+const BASE_METRICS={fever:30,tumult:46,secrecy:55,standing:50};
+
+/* The seventeen articles, abridged for the capitulation day and the rules modal. */
+const CAPITULATION=[
+	{n:1,latin:"expeditionem incoeptam contra infideles… prosequi",text:"Prosecute the crusade begun against the enemies of the Cross with all the Church's strength, by the counsel of the cardinals."},
+	{n:2,latin:"intendet reformationi curiae Romanae",text:"Set his hand to the reform of the Roman Curia."},
+	{n:3,latin:"non transferet curiam Romanam de provincia ad provinciam",text:"Not move the Curia from province to province without the counsel and consent of the cardinals — the article aimed at Avignon."},
+	{n:4,latin:"non creabit aliquos cardinales… nisi de consilio et consensu",text:"Create no cardinal, at any prince's asking, save with the consent of the majority, voted in consistory and not in the ear, after the rule of Constance in number and quality."},
+	{n:5,latin:"providebit de centum florenis camerae omni mense",text:"Pay a hundred camera florins a month to every cardinal whose benefices and hat yield less than four thousand a year."},
+	{n:12,latin:"bona cardinalium… nullo modo occupabit",text:"Never seize the goods of dead cardinals and courtiers, but let them will their own."},
+	{n:15,latin:"omni anno semel in unum congregati",text:"Suffer the cardinals to meet once a year to examine whether he keeps these articles, and to admonish him charitably to a third admonition."},
+	{n:17,latin:"haec omnia ratificabit… ante publicationem electionis suae",text:"Ratify all of this, under oath and under his new name, before his election is published to the people."}
+];
+
+
+/* ===== 02-engine.js ===== */
+function hashSeed(str){
+	let h=2166136261>>>0;
+	const s=String(str);
+	for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0}
+	return h>>>0;
+}
+function nextRand(S){
+	/* mulberry32 step over S.rng.state — simulation randomness only */
+	let t=S.rng.state=(S.rng.state+0x6D2B79F5)>>>0;
+	t=Math.imul(t^(t>>>15),t|1);
+	t^=t+Math.imul(t^(t>>>7),t|61);
+	return ((t^(t>>>14))>>>0)/4294967296;
+}
+function pureRand(key){
+	/* stateless, seed-stable draw for scripted flourishes */
+	const h=hashSeed("p|"+key);
+	let t=(h+0x6D2B79F5)>>>0;
+	t=Math.imul(t^(t>>>15),t|1);
+	t^=t+Math.imul(t^(t>>>7),t|61);
+	return ((t^(t>>>14))>>>0)/4294967296;
+}
+function clamp(x,lo,hi){return Math.max(lo,Math.min(hi,x))}
+
+function addLog(S,html,kind,when){
+	S.log.push({n:S.log.length,html:html,kind:kind||"note",when:when||sessionLabel(S)});
+}
+function adjustMetric(S,key,delta){
+	S.metrics[key]=clamp(Math.round((S.metrics[key]||0)+delta),0,100);
+}
+function normaliseState(S){
+	["fever","tumult","secrecy","standing"].forEach(function(key){
+		const v=Number(S.metrics[key]);
+		S.metrics[key]=clamp(Math.round(Number.isFinite(v)?v:BASE_METRICS[key]),0,100);
+	});
+}
+
+function objectiveFor(card){
+	switch(card.id){
+		case "piccolomini":return "The tiara — poor, gouty and Sienese as you are. Failing that, any Italian: the Curia must not see the Rhône again.";
+		case "estouteville":return "Win the crown history refuses you. The scrutiny will never give you twelve; the accession, properly purchased, might.";
+		case "borgia":return "Keep the Vice-Chancellery whoever wins, and keep the Catalans alive in a city that is hunting them. Be owed by the next pope.";
+		case "colonna":return "A friend on the throne, or the crown placed by your hand. The house of Colonna does not follow; it decides.";
+		case "orsini":return "Deny the Colonna the making of a pope, deny the French the tiara, and take the Naples legation for yourself.";
+		case "bessarion":return "A pope who will actually sail against the Turk. You were refused in 1455 for your beard; make the refusal cost them a crusade at least.";
+		case "isidore":return "Ships for the East and union kept alive. You have watched one Rome fall; the price of this one's follies is not abstract to you.";
+		case "barbo":return "The tiara if the room turns your way; the making of the pope if it does not. Leave this conclave owed by its winner.";
+		case "calandrini":return "You have five votes and everyone's second thoughts. Become the compromise — or place your five where they buy the most.";
+		case "torquemada":return "The dignity of the papacy you spent a lifetime defending — elected, if possible, without shaming your own Summa.";
+		case "jaime":return "Keep your hands clean in a room full of merchants. Vote your conscience, refuse every price, and be able to write it all to your uncle the King.";
+		case "coetivy":return "Rouen crowned, and the invoice honoured: his see, his palace, and the Vice-Chancellery. You have sold your vote; make sure the goods are delivered.";
+		case "castiglione":return "Serve Milan without shaming Branda's name. Sforza wants no French pope; Rouen pays in advance; your uncle's ghost votes Italian.";
+		case "mila":return "Survive. Keep your benefices, keep your head down, and be on the winning side without ever having visibly joined it.";
+		case "mella":return "A lawful election you could defend before the Rota — and a quiet friendship with whoever wins it.";
+		case "lacerda":return "You are sixty-seven and a dead pope's creature: this is the last conclave that can crown you. Ask, shamelessly, and see.";
+		case "fieschi":return "Preside over an election Genoa's new French masters cannot use against you — and end it holding the gratitude of the winner.";
+		case "tebaldi":return "Keep the archbishopric of Naples that three cardinals gave you, which means keeping in with whoever can confirm it.";
+		default:return "See a pope elected whom your nation can live with, and be remembered kindly by him.";
+	}
+}
+
+function factionLabel(f){return (FACTIONS[f]||{}).label||f}
+
+function initState(playerId,seed,mode){
+	if(!ID[playerId])throw new Error("Unknown cardinal: "+playerId);
+	const S={
+		schemaVersion:1,
+		playerId:playerId,seed:String(seed),mode:mode==="open"?"open":"historical",
+		rng:{state:hashSeed(String(seed)+"|"+playerId)},
+		ballotNo:0,ap:2,actionSerial:0,
+		metrics:{fever:BASE_METRICS.fever,tumult:BASE_METRICS.tumult,secrecy:BASE_METRICS.secrecy,standing:BASE_METRICS.standing},
+		lean:{},trust:{},momentum:{},oath:{},ill:{},
+		promises:[],exposures:[],
+		flags:{capitDone:false,pactHeld:false,pactBroken:false,divergedFromRecord:false},
+		conscience:{},playerStats:{colloquies:0,rallies:0,soundings:0,denounces:0,whispers:0,vigils:0,physics:0,promisesMade:0},
+		pending:null,pendingQueue:[],
+		history:[],accession:null,electedId:null,electedName:null,
+		log:[],over:false,finale:null,epilogue:null
+	};
+	IDS.forEach(function(id){
+		S.lean[id]=Object.assign({},BASE_LEAN[id]||{});
+		S.trust[id]=42+Math.round(nextRand(S)*16);
+		S.momentum[id]=0;
+		S.oath[id]=null; /* "rouen" once the pact is sworn; "feigned"; "broken" */
+		S.ill[id]=false;
+	});
+	const me=ID[playerId];
+	IDS.forEach(function(id){
+		if(id===playerId)return;
+		const c=ID[id];
+		if(c.faction===me.faction)S.trust[id]=clamp(S.trust[id]+14,0,100);
+	});
+	/* the Vice-Chancellor begins with the office everyone else must be promised */
+	S.holds={vicechancery:"borgia"};
+	openingLogs(S);
+	queueDecision(S,"capitulation");
+	return S;
+}
+
+function queueDecision(S,key,extra){
+	const item={key:key,extra:extra||null};
+	if(S.pending)S.pendingQueue.push(item);
+	else S.pending=item;
+}
+function advanceQueue(S){
+	S.pending=S.pendingQueue.shift()||null;
+}
+
+function openingLogs(S){
+	const me=ID[S.playerId];
+	addLog(S,"<b>Wednesday 16 August, towards sunset.</b> The obsequies of Calixtus are done; the Mass of the Holy Spirit is sung; the Bishop of Torcello has preached the College its duty. Eighteen of you file into the Apostolic Palace — two chapels and a suite of rooms — while the masons brick the doors. The cells are drawn by lot in the greater chapel; the voting will be done under Fra Angelico's saints in the little chapel of Nicholas. Twelve voices make a pope.","event","Wednesday 16 August · the enclosure");
+	addLog(S,"Outside, the city is still settling its accounts with the last pontificate: a fortnight ago the crowd hunted Catalans through the Banchi while the Prefect, the dead pope's nephew, ran for Ostia with an escort and left his fortresses to the Colonna. Eight cardinals are absent — the Camerlengo among them, at sea off Rhodes against the Turk — and Domenico Capranica, whom half of Italy expected this conclave to crown, has been four days in his grave at the Minerva. The August fever that took him has not left the city.","mob","Wednesday 16 August · the enclosure");
+	addLog(S,"You are <b>"+me.name+"</b>, "+me.see+". "+objectiveFor(me),"note","Wednesday 16 August · the enclosure");
+}
+
+/* ---------- the promises ledger ---------- */
+function officeAvailableTo(S,officeId,promiser){
+	const o=OFFICE[officeId];
+	if(!o)return false;
+	if(o.ownerOnly&&o.ownerOnly!==promiser)return false;
+	return true;
+}
+function promiseOffice(S,promiser,officeId,target){
+	if(!officeAvailableTo(S,officeId,promiser))throw new Error("That office is not yours to promise");
+	if(!ID[target]||target===promiser)throw new Error("Unknown beneficiary");
+	const o=OFFICE[officeId];
+	const prior=S.promises.filter(function(p){return p.office===officeId&&p.by===promiser});
+	const double=prior.length>0&&prior.every(function(p){return p.to!==target});
+	S.promises.push({by:promiser,office:officeId,to:target,ballot:S.ballotNo,double:double});
+	/* the beneficiary warms to the promiser's line */
+	if(promiser===S.playerId){
+		S.playerStats.promisesMade++;
+		S.trust[target]=clamp(S.trust[target]+8+o.weight,0,100);
+		const line=playerLine(S);
+		S.lean[target][line]=(S.lean[target][line]||0)+1.1+o.weight*0.35;
+	}
+	/* unseating the sitting Vice-Chancellor has a special edge */
+	if(officeId==="vicechancery"&&target!=="borgia"&&S.holds.vicechancery==="borgia"){
+		S.trust.borgia=clamp((S.trust.borgia||0)-(promiser===S.playerId?10:6),0,100);
+	}
+	return {double:double,office:o};
+}
+function exposureRisk(S){
+	/* per interval: each double promise may surface, faster in a leaky conclave */
+	return clamp((100-S.metrics.secrecy)/220+0.06,0.05,0.5);
+}
+function runExposures(S){
+	const doubles=S.promises.filter(function(p){return p.double&&!p.exposed});
+	doubles.forEach(function(p){
+		if(nextRand(S)<exposureRisk(S)){
+			p.exposed=true;
+			S.exposures.push(p);
+			const wronged=S.promises.filter(function(q){return q.office===p.office&&q.by===p.by&&q.to!==p.to}).map(function(q){return q.to});
+			const names=[p.to].concat(wronged).map(displayName).join(" and ");
+			if(p.by===S.playerId){
+				adjustMetric(S,"standing",-12);
+				[p.to].concat(wronged).forEach(function(w){S.trust[w]=clamp(S.trust[w]-22,0,100)});
+				addLog(S,"The ledgers meet. It is now known in every cell that you promised <b>"+esc(OFFICE[p.office].label)+"</b> twice over — "+esc(names)+" compare notes across the supper table, and neither looks at you again this evening. In a palace this small, arithmetic is character.","event");
+				S.conscience.exposedDouble=true;
+			}else{
+				addLog(S,"A small scandal goes cell to cell before Compline: <b>"+esc(displayName(p.by))+"</b> has promised <b>"+esc(OFFICE[p.office].label)+"</b> to more than one man. "+esc(names)+" now know exactly what his word weighs.","event");
+				S.momentum[p.by]=(S.momentum[p.by]||0)-2.2;
+				[p.to].concat(wronged).forEach(function(w){if(S.lean[w])S.lean[w][p.by]=Math.max(0,(S.lean[w][p.by]||0)-2)});
+			}
+		}
+	});
+}
+
+/* ---------- lines and candidacies ---------- */
+function playerLine(S){
+	/* whom is the player currently pushing? their declared line, else their faction's natural line */
+	if(S.flags.playerLine&&CANDIDATE_IDS.includes(S.flags.playerLine))return S.flags.playerLine;
+	return factionLine(S,S.playerId);
+}
+function factionLine(S,voterId){
+	const f=ID[voterId].faction;
+	if(f==="french")return "estouteville";
+	if(f==="greek")return (S.flags.italianBloc&&S.ballotNo>=2)?"piccolomini":"estouteville";
+	if(f==="avis")return "piccolomini";
+	if(f==="catalan")return (S.flags.italianBloc||S.ballotNo>=2)?"piccolomini":"calandrini";
+	/* italian */
+	return S.flags.italianBloc?S.flags.italianBloc:(S.ballotNo>=1?"piccolomini":"calandrini");
+}
+
+function feverUrgency(S){
+	/* the August ramp that guarantees this ends: illness, stink, and the memory of Viterbo */
+	const base=Math.max(0,S.ballotNo-2)*6.5;
+	const heat=Math.max(0,S.metrics.fever-40)*0.22;
+	return base+heat;
+}
+
+function pactPull(S,voterId,candId){
+	if(S.oath[voterId]!=="rouen")return 0;
+	if(candId==="estouteville")return 4.2;
+	/* sworn men resist the rival line until conscience or arithmetic breaks the oath */
+	if(candId===rivalOfRouen(S))return -3.4+Math.min(3.4,feverUrgency(S)*0.18);
+	return 0;
+}
+function rivalOfRouen(S){
+	return S.flags.italianBloc||"piccolomini";
+}
+
+function scoreCandidate(S,voterId,candId,running,jitter){
+	if(voterId===candId)return -99; /* one does not write one's own name */
+	const voter=ID[voterId],cand=ID[candId];
+	let sc=(S.lean[voterId][candId]||0)*2.1;
+	sc+=(S.momentum[candId]||0);
+	sc+=(running[candId]||0)*0.55;
+	if(voter.faction===cand.faction)sc+=1.6;
+	/* the room's structural fears */
+	if(cand.faction==="french"&&voter.faction==="italian")sc-=2.6; /* Avignon */
+	if(cand.faction==="catalan"&&voter.faction!=="catalan")sc-=1.4+S.metrics.tumult/40; /* the city outside */
+	if(cand.id==="piccolomini")sc+=0.4; /* the common talk before the doors closed */
+	sc+=pactPull(S,voterId,candId);
+	sc+=feverUrgency(S)*((S.momentum[candId]||0)>1?0.16:0.02);
+	if(S.ill[voterId])sc-=0.5;
+	sc+=jitter||0;
+	return sc;
+}
+
+function aiVote(S,voterId,running){
+	let best=null,bestSc=-1e9;
+	CANDIDATE_IDS.forEach(function(candId){
+		const j=(nextRand(S)-0.5)*4.0;
+		const sc=scoreCandidate(S,voterId,candId,running,j);
+		if(sc>bestSc){bestSc=sc;best=candId}
+	});
+	return best;
+}
+
+function forecastCounts(S){
+	const counts={};
+	const running={};
+	const ordered=ELECTORS.slice().sort(function(a,b){return a.precedence-b.precedence});
+	ordered.forEach(function(voter){
+		if(voter.id===S.playerId)return;
+		if(S.ill[voter.id])return;
+		let pick=null,bestSc=-1e9;
+		CANDIDATE_IDS.forEach(function(candId){
+			const j=(pureRand(S.seed+"|f|"+S.ballotNo+"|"+voter.id+"|"+candId)-0.5)*4.0;
+			const sc=scoreCandidate(S,voter.id,candId,running,j);
+			if(sc>bestSc){bestSc=sc;pick=candId}
+		});
+		if(pick){counts[pick]=(counts[pick]||0)+1;running[pick]=(running[pick]||0)+1}
+	});
+	return counts;
+}
+
+function bestLegalPlayerVote(S,forecast){
+	/* used by the headless runner: the recorded voice where one exists, else the best forecast line */
+	if(S.mode==="historical"){
+		const roll=S.ballotNo===0?HIST_SCRUTINY_1:(S.ballotNo===1?HIST_SCRUTINY_2:null);
+		if(roll&&roll[S.playerId])return [roll[S.playerId]];
+	}
+	const line=playerLine(S);
+	if(line&&line!==S.playerId)return [line];
+	let best=null,bestN=-1;
+	CANDIDATE_IDS.forEach(function(id){
+		if(id===S.playerId)return;
+		const n=(forecast&&forecast[id])||0;
+		if(n>bestN){bestN=n;best=id}
+	});
+	return [best||"calandrini"];
+}
+
+function makeSounding(S){
+	const fc=forecastCounts(S);
+	const ranked=Object.keys(fc).sort(function(a,b){return fc[b]-fc[a]||a.localeCompare(b)});
+	const width=Math.max(1,Math.round(3-S.metrics.standing/45+(100-S.metrics.secrecy)/60));
+	const rows=[];
+	ranked.slice(0,6).forEach(function(id){
+		const n=fc[id];
+		const w1=1+Math.floor(pureRand(S.seed+"|s|"+S.ballotNo+"|"+id)*width);
+		const w2=1+Math.floor(pureRand(S.seed+"|s2|"+S.ballotNo+"|"+id)*width);
+		rows.push({id:id,lo:Math.max(0,n-w1),hi:Math.min(THRESHOLD_N,n+w2)});
+	});
+	return {ballot:S.ballotNo,rows:rows};
+}
+
+function roman(n){
+	const R=[[10,"X"],[9,"IX"],[5,"V"],[4,"IV"],[1,"I"]];let out="",x=n;
+	R.forEach(function(p){while(x>=p[0]){out+=p[1];x-=p[0]}});
+	return out||"I";
+}
+function scrutinyLabel(n,lower){
+	return (lower?"scrutiny ":"Scrutiny ")+roman(n);
+}
+function displayName(id){
+	const c=ID[id];
+	return c?c.name:id;
+}
+function shortName(id){
+	const map={fieschi:"Fieschi",isidore:"Isidore",bessarion:"Bessarion",estouteville:"Rouen",torquemada:"Torquemada",barbo:"Barbo",lacerda:"la Cerda",orsini:"Orsini",coetivy:"Avignon",calandrini:"Bologna",mila:"Milà",mella:"Mella",castiglione:"Pavia",piccolomini:"Siena",tebaldi:"Tebaldi",colonna:"Colonna",jaime:"Portugal",borgia:"Borgia"};
+	return map[id]||displayName(id);
+}
+function esc(s){
+	return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+
+/* ===== 03-scrutiny.js ===== */
+var MAX_SCRUTINIES=10;
+var BEAT_CAP=28;
+
+function validatePlayerPicks(S,playerPicks){
+	if(!Array.isArray(playerPicks))throw new Error("The ballot must be an array");
+	if(playerPicks.length>1)throw new Error("One paper, one name");
+	if(playerPicks.length===0)return null; /* a blank paper is lawful, and noticed */
+	const pick=playerPicks[0];
+	if(!CANDIDATE_IDS.includes(pick))throw new Error("No such candidate is in the chapel");
+	if(pick===S.playerId)throw new Error("One does not write one's own name");
+	return pick;
+}
+
+function scriptedRollFor(S){
+	if(S.mode!=="historical"||S.flags.divergedFromRecord)return null;
+	if(S.ballotNo===0)return HIST_SCRUTINY_1;
+	if(S.ballotNo===1)return HIST_SCRUTINY_2;
+	return null;
+}
+
+function beginScrutiny(S,playerPicks){
+	if(S.over)throw new Error("The conclave is over");
+	if(S.pending)throw new Error("A matter is before the College");
+	if(S.accession&&S.accession.phase==="live")throw new Error("The accession is still on the floor");
+	if(S.ballotNo>=MAX_SCRUTINIES)throw new Error("No further scrutiny can be held");
+	const mine=validatePlayerPicks(S,playerPicks);
+	const roll=scriptedRollFor(S);
+	if(roll&&roll[S.playerId]&&mine!==roll[S.playerId]){
+		S.flags.divergedFromRecord=true;
+		addLog(S,"Your paper does not read as the record reads. From this ballot the chronicle follows the model, not the notaries.","note");
+	}
+	const useRoll=scriptedRollFor(S); /* re-check after possible divergence */
+	const ordered=ELECTORS.slice().sort(function(a,b){return a.precedence-b.precedence});
+	const votes=[];
+	const running={};
+	const counts={};
+	ordered.forEach(function(voter){
+		if(S.ill[voter.id]){votes.push({voter:voter.id,candidate:[],ill:true});return}
+		let pick;
+		if(voter.id===S.playerId){
+			pick=mine;
+		}else if(useRoll){
+			pick=useRoll[voter.id]||null;
+		}else{
+			pick=aiVote(S,voter.id,running);
+		}
+		if(pick){
+			counts[pick]=(counts[pick]||0)+1;
+			running[pick]=(running[pick]||0)+1;
+		}
+		votes.push({voter:voter.id,candidate:pick?[pick]:[]});
+	});
+	S.ballotNo++;
+	let leaderId=null,leaderCount=0;
+	Object.keys(counts).forEach(function(id){
+		if(counts[id]>leaderCount||(counts[id]===leaderCount&&id<(leaderId||"~"))){leaderId=id;leaderCount=counts[id]}
+	});
+	const record={
+		ballot:S.ballotNo,date:ballotDateLabel(S.ballotNo),
+		votes:votes,counts:counts,leaderId:leaderId,leaderCount:leaderCount,
+		electors:THRESHOLD_N,threshold:THRESHOLD,
+		elected:leaderCount>=THRESHOLD,scripted:!!useRoll,accessions:[]
+	};
+	S.history.push(record);
+	narrateScrutiny(S,record,mine);
+	if(record.elected){
+		finalizeElection(S,record,leaderId,"in the scrutiny itself, without accession");
+	}else{
+		startAccession(S,record);
+	}
+	return record;
+}
+
+function narrateScrutiny(S,record,mine){
+	const n=record.ballot;
+	if(n===1){
+		addLog(S,"<b>"+esc(record.date)+".</b> Mass of the Holy Spirit, and then the first scrutiny. Each of you writes a name, walks to the altar under Fra Angelico's Stephen and Lawrence, and lays the paper in the chalice. The count is carried to the table in the middle of the chapel.","scrutiny");
+	}else if(n===2&&record.scripted){
+		addLog(S,"<b>"+esc(record.date)+".</b> Mass again; then the tellers are chosen — <b>Isidore</b> for the bishops, <b>Rouen</b> for the priests, <b>Colonna</b> for the deacons — and the College files to the chalice in order of rank and seniority.","scrutiny");
+		if(S.playerId==="piccolomini"&&!S.flags.whisperDone){/* handled by the whisper decision beforehand */}
+		else addLog(S,"As Siena passes the Cardinal of Rouen's stall there is a murmur too low for the room — <i>En, Aenea, habeto me commendatum</i> — and an answer of four words that Rouen will remember: <i>Mihi te vermiculo commendas?</i> You commend yourself to me — to a little worm?","scrutiny");
+	}else{
+		addLog(S,"<b>"+esc(record.date)+".</b> "+scrutinyLabel(n)+". The papers go into the chalice; the chalice goes to the table; the room does its silent arithmetic along with the tellers.","scrutiny");
+	}
+	const parts=Object.keys(record.counts).sort(function(a,b){return record.counts[b]-record.counts[a]||a.localeCompare(b)})
+		.map(function(id){return "<b>"+esc(shortName(id))+"</b> "+record.counts[id]});
+	addLog(S,"The count: "+parts.join(" · ")+" — twelve elect."+(record.leaderCount>=THRESHOLD?"":" No election by scrutiny."),"scrutiny");
+	if(n===1&&record.scripted){
+		addLog(S,"Five for Siena, five for Bologna, and of the rest no man past three — <i>ex reliquis nemo tres superavit</i>. The College sits a moment for the accession, that untested novelty of three years' standing; and before a single voice can move, several who want no stampede simply rise and go to dinner. The accession dies on an empty stomach. It is a clever, obvious tactic, and everyone marks who used it.","scrutiny");
+	}
+}
+
+/* ---------- the accession ---------- */
+function startAccession(S,record){
+	S.accession={
+		ballot:record.ballot,
+		leaderId:record.leaderId,
+		count:record.leaderCount,
+		acceded:[],
+		beats:[],
+		phase:"live",
+		silence:0,
+		walked:null,
+		suppressed:{},
+		scripted:record.scripted&&record.ballot===2,
+		scriptIdx:0,
+		playerStaged:null,
+		beatNo:0
+	};
+	if(record.ballot===1&&record.scripted){
+		/* the documented Friday: the accession is broken up before it begins */
+		S.accession.phase="adjourned";
+		S.accession.beats.push({type:"adjourn",html:"The accession of Friday is broken up by the dinner tactic before a voice can move."});
+		afterAccession(S);
+		return;
+	}
+	const lead=record.leaderId?shortName(record.leaderId):"no one";
+	addLog(S,"No two-thirds. The papers are burned, but the College keeps its seats: the <b>accessio</b> is open — any man whose written voice went elsewhere may now rise and carry it to another who had votes. <b>"+esc(lead)+"</b> stands at "+record.leaderCount+" of the needed "+THRESHOLD+".","accession");
+	if(S.accession.scripted){
+		addLog(S,"For a long time nobody moves. Nobody speaks. Nobody, Pius will write, so much as sighs; the cardinals sit pale as the plaster, each waiting for a braver man.","accession");
+	}
+}
+
+function accessionEligible(S,id){
+	const A=S.accession;
+	if(!A||A.phase!=="live")return false;
+	if(id===A.leaderId)return false;
+	if(S.ill[id])return false;
+	if(A.suppressed[id])return false;
+	const rec=S.history[S.history.length-1];
+	const v=rec.votes.find(function(x){return x.voter===id});
+	if(!v)return false;
+	const wrote=v.candidate[0]||null;
+	if(wrote===A.leaderId)return false; /* his voice is already counted */
+	if(A.acceded.some(function(a){return a.id===id}))return false;
+	return true;
+}
+
+function accessionUrge(S,id){
+	const A=S.accession;
+	const c=ID[id];
+	let u=(S.lean[id][A.leaderId]||0)*1.15;
+	u+=(S.momentum[A.leaderId]||0)*0.8;
+	u+=(A.count-9)*0.95; /* the bandwagon */
+	u+=A.silence*0.55; /* silence is its own pressure */
+	u+=pactPull(S,id,A.leaderId);
+	u+=feverUrgency(S)*0.3;
+	if(ID[A.leaderId].faction===c.faction)u+=1.3;
+	if(A.count===THRESHOLD-1)u+=1.1; /* the moment of glory */
+	u+=(pureRand(S.seed+"|urge|"+A.ballot+"|"+A.beatNo+"|"+id)-0.5)*2.2;
+	return u;
+}
+
+function stageAccessionChoice(S,choice){
+	/* choice: {act:"accede"}|{act:"hold"}|{act:"walk"} — the player's move for the next beat */
+	if(!S.accession||S.accession.phase!=="live")throw new Error("The floor is not open");
+	S.accession.playerStaged=choice;
+}
+
+function stepAccession(S){
+	/* advances one beat; returns the beat, or a {need:"choice",spec} demand, or null when done */
+	const A=S.accession;
+	if(!A||A.phase!=="live")return null;
+	A.beatNo++;
+	if(A.beatNo>BEAT_CAP){
+		A.phase="spent";
+		const b={type:"spent",html:"The heat wins. The accession dies of silence; the custodians knock; the College rises for the day with nothing decided."};
+		A.beats.push(b);addLog(S,b.html,"accession");
+		afterAccession(S);
+		return b;
+	}
+	/* a staged player move takes the floor first */
+	if(A.playerStaged){
+		const st=A.playerStaged;A.playerStaged=null;
+		if(st.act==="accede"&&accessionEligible(S,S.playerId)){
+			return doAccede(S,S.playerId,true);
+		}
+		if(st.act==="walk"){
+			return doWalk(S,[S.playerId],true);
+		}
+		/* hold: fall through to the room */
+	}
+	/* scripted beats, while the record holds */
+	if(A.scripted&&!S.flags.divergedFromRecord){
+		const beat=HIST_ACCESSION[A.scriptIdx++];
+		if(beat)return playScriptedBeat(S,beat);
+		A.scripted=false;
+	}
+	/* the model’s room */
+	let best=null,bestU=-1e9;
+	IDS.forEach(function(id){
+		if(id===S.playerId)return;
+		if(!accessionEligible(S,id))return;
+		const u=accessionUrge(S,id);
+		if(u>bestU){bestU=u;best=id}
+	});
+	const gate=7.6-Math.min(4.5,feverUrgency(S)*0.35)-(A.count>=THRESHOLD-1?0.8:0);
+	if(best&&bestU>=gate){
+		return maybeRestrainedAccede(S,best,false);
+	}
+	/* an organised walk, while the pact still believes in tomorrow */
+	if(!A.walked&&A.count<THRESHOLD-1&&A.ballot<=4){
+		const walkers=IDS.filter(function(id){
+			return id!==S.playerId&&S.oath[id]==="rouen"&&accessionEligible(S,id)&&accessionUrge(S,id)<gate-2.5;
+		}).slice(0,2);
+		if(walkers.length>=2&&pureRand(S.seed+"|walk|"+A.ballot+"|"+A.beatNo)<0.5){
+			return doWalk(S,walkers,false);
+		}
+	}
+	A.silence++;
+	const b={type:"silence",html:silenceLine(S,A.silence)};
+	A.beats.push(b);
+	if(A.silence>=4&&bestU<gate-3&&!bestFeasible(S)){
+		A.phase="spent";
+		const e={type:"spent",html:"Nobody rises. The moment passes; the College adjourns the accession to another day's courage."};
+		A.beats.push(e);addLog(S,e.html,"accession");
+		afterAccession(S);
+		return e;
+	}
+	return b;
+}
+function bestFeasible(S){
+	let any=false;
+	IDS.forEach(function(id){if(id!==S.playerId&&accessionEligible(S,id))any=true});
+	return any&&S.accession.count>=THRESHOLD-3;
+}
+function silenceLine(S,n){
+	const lines=[
+		"Silence again. Somewhere below, through the bricked windows, the city can be heard being the city.",
+		"No one moves. The tellers keep their eyes on the table; everyone else keeps his on his neighbour.",
+		"A cough; a bench creaks; nothing else. The chapel holds its breath and its arithmetic together.",
+		"The heat leans on the room. A fly circles the chalice with the only free vote in the chapel."
+	];
+	return lines[(n-1)%lines.length];
+}
+
+function playScriptedBeat(S,beat){
+	const A=S.accession;
+	if(beat.type==="silence"){
+		A.silence++;
+		const b={type:"silence",html:silenceLine(S,A.silence)};
+		A.beats.push(b);return b;
+	}
+	if(beat.type==="walk"){
+		const ids=beat.ids.filter(function(id){return id!==S.playerId});
+		if(ids.length<beat.ids.length){
+			/* the player is one of the documented walkers: put the choice to them */
+			return demandChoice(S,{key:"acc-walk",title:"The old tactic",
+				body:"Yesterday the dinner-bell killed the accession. You could kill this one the same way: rise, as if the business were over, and see who follows you to the door.",
+				options:[
+					{id:"walk",label:"Rise as if to leave — the recorded gesture"},
+					{id:"sit",label:"Keep your seat"}
+				],extra:{others:ids}});
+		}
+		return doWalk(S,ids,false,true);
+	}
+	if(beat.type==="return"){
+		const who=A.walked&&A.walked.ids&&A.walked.ids.length?A.walked.ids.map(shortName).map(esc).join(" and "):null;
+		const b={type:"return",html:who?("Nobody follows. <b>"+who+"</b> stand"+(A.walked.ids.length===1?"s":"")+" a moment in the aisle, looking less like a tactic and more like age needing the door — and then, presently, return"+(A.walked.ids.length===1?"s":"")+" to "+(A.walked.ids.length===1?"his":"their")+" seat."):"The tactic finds no takers, and the benches settle again."};
+		A.beats.push(b);addLog(S,b.html,"accession");
+		A.walked=null;
+		return b;
+	}
+	if(beat.type==="accede"){
+		if(beat.id===S.playerId){
+			return demandChoice(S,{key:"acc-turn",title:"Your moment on the record",
+				body:accTurnBody(S,beat),
+				options:[
+					{id:"accede",label:"Rise: “Ego "+esc(shortName(A.leaderId))+" accedo.” — the recorded voice"},
+					{id:"hold",label:"Keep your seat, and let the record break"}
+				]});
+		}
+		return doAccede(S,beat.id,false,beat.to);
+	}
+	if(beat.type==="restraint"){
+		return playRestraint(S,beat.id,beat.by,true);
+	}
+	if(beat.type==="elected"){
+		/* safety: the scripted path should already have elected on the twelfth voice */
+		if(!S.electedId&&A.count>=THRESHOLD)finalizeElection(S,S.history[S.history.length-1],A.leaderId,"by accession");
+		return {type:"elected"};
+	}
+	return {type:"noop"};
+}
+function accTurnBody(S,beat){
+	if(S.playerId==="borgia")return "Eighteen men are studying the floor. You are the youngest and the last in precedence; you swore Rouen's paper in the latrines and you have just, lawfully, discharged it in the scrutiny. The oath is spent. The Chancellery is not. The record says you stood first.";
+	if(S.playerId==="tebaldi")return "Borgia has moved; the count stands at ten; two men have tried the door-trick and sat back down. Both parties counted your voice in advance. The record says you spent it now: <i>Et ego Senensi accedo.</i>";
+	if(S.playerId==="colonna")return "Eleven. One voice makes a pope, and the room knows whose it can be. You swore Rouen's pact; you wrote Rouen's name; and Aeneas has been your friend for twenty years. The record says you rose.";
+	return "The count stands at "+S.accession.count+". The record says you rose now.";
+}
+
+function maybeRestrainedAccede(S,id,isPlayer){
+	const A=S.accession;
+	if(A.count===THRESHOLD-1&&A.leaderId!=="estouteville"){
+		/* the decisive voice draws the pact's hands */
+		const enforcers=IDS.filter(function(e){
+			return e!==id&&S.oath[e]==="rouen"&&!S.ill[e]&&e!==A.leaderId&&(ID[e].axes.nerve>=1);
+		}).sort(function(a,b){return ID[b].axes.nerve-ID[a].axes.nerve}).slice(0,2);
+		if(enforcers.length>=1&&pureRand(S.seed+"|scuffle|"+A.ballot+"|"+A.beatNo)<0.7){
+			return playRestraint(S,id,enforcers,false);
+		}
+	}
+	return doAccede(S,id,isPlayer);
+}
+
+function playRestraint(S,id,by,scripted){
+	const A=S.accession;
+	if(id===S.playerId){
+		return demandChoice(S,{key:"acc-scuffle",title:"Hands on your arms",
+			body:"You are barely off the bench before <b>"+esc(shortName(by[0]))+"</b> has your right arm and <b>"+esc(by[1]?shortName(by[1]):"another")+"</b> your left, hissing that you will not do this, trying to walk you bodily to the door as though you had been taken ill. The chapel watches. The count stands at eleven.",
+			options:[
+				{id:"break",label:"Shake them off and cry the formula"},
+				{id:"submit",label:"Let them lead you out"}
+			],extra:{by:by}});
+	}
+	if(by.includes(S.playerId)){
+		const other=by.find(function(b){return b!==S.playerId});
+		return demandChoice(S,{key:"acc-restrain",title:"The twelfth voice is rising",
+			body:"<b>"+esc(shortName(id))+"</b> is on his feet, and everyone in the chapel knows what he is about to say. "+(other?("<b>"+esc(shortName(other))+"</b> is already moving"):"No one else is moving")+". You are close enough to take his arm. It would be outrageous — socially, legally, in every sense. It might also work.",
+			options:[
+				{id:"seize",label:"Seize his arm"+(scripted?" — the recorded act":"")},
+				{id:"sit",label:"Sit still and let it happen"}
+			],extra:{acceder:id,by:by}});
+	}
+	/* AI scuffle resolves on the acceder's nerve */
+	const breaks=scripted||ID[id].axes.nerve>=1||pureRand(S.seed+"|break|"+A.ballot+"|"+A.beatNo)<0.7;
+	const b={type:"scuffle",html:scuffleHtml(S,id,by,breaks)};
+	A.beats.push(b);addLog(S,b.html,"accession");
+	if(breaks)return doAccede(S,id,false,A.leaderId,true);
+	A.suppressed[id]=true;
+	const e={type:"ledout",html:"<b>"+esc(shortName(id))+"</b> lets himself be walked to the door, and the chapel pretends not to have seen. The count holds at "+A.count+"."};
+	A.beats.push(e);addLog(S,e.html,"accession");
+	return e;
+}
+function scuffleHtml(S,id,by,breaks){
+	const names=by.map(shortName).map(esc);
+	let h="<b>"+esc(shortName(id))+"</b> rises to give his voice — and is caught mid-floor, "+names[0]+" at one arm"+(names[1]?", "+names[1]+" at the other":"")+", berating him in two languages, trying to drag him from the chapel as though the tiara could be wrestled away from a man's mouth.";
+	if(breaks)h+=" He plants his feet, shakes them off, and turns to the College.";
+	return h;
+}
+
+function doWalk(S,ids,isPlayer,scripted){
+	const A=S.accession;
+	A.walked={ids:ids,beat:A.beatNo};
+	const names=ids.map(shortName).map(esc).join(" and ");
+	const b={type:"walk",html:"<b>"+names+"</b> rise"+(ids.length===1?"s":"")+" — not to speak, but as if the sitting were simply over: yesterday's dinner-trick, tried again. If the room follows them out, the accession is dead."+(scripted?"":"")};
+	A.beats.push(b);addLog(S,b.html,"accession");
+	if(isPlayer)S.conscience.walkedOut=true;
+	/* the model decides at the next beat whether anyone follows; in scripted play the return beat handles it */
+	if(!A.scripted){
+		const follows=IDS.filter(function(id){
+			return !ids.includes(id)&&id!==S.playerId&&S.oath[id]==="rouen"&&accessionEligible(S,id)&&pureRand(S.seed+"|follow|"+A.ballot+"|"+A.beatNo+"|"+id)<0.3;
+		});
+		if(follows.length>=2){
+			A.phase="adjourned";
+			const e={type:"adjourn",html:"Enough rise with them. The accession collapses into a shuffle of benches and dignity; the custodians open the inner door; the day ends with no pope and several new grudges."};
+			A.beats.push(e);addLog(S,e.html,"accession");
+			afterAccession(S);
+			return e;
+		}
+		const r={type:"return",html:"Nobody follows. There is a bad moment in the aisle — a tactic with no takers is just two men standing — and they sit back down with what dignity the heat has left them."};
+		A.beats.push(r);addLog(S,r.html,"accession");
+		A.walked=null;
+		return r;
+	}
+	return b;
+}
+
+function doAccede(S,id,isPlayer,forcedTarget,afterScuffle){
+	const A=S.accession;
+	if(!accessionEligible(S,id))throw new Error("That cardinal cannot accede in this ballot");
+	const to=A.leaderId;
+	A.acceded.push({id:id,to:to});
+	A.count++;
+	const rec=S.history[S.history.length-1];
+	rec.accessions.push({id:id,from:id,to:to});
+	rec.counts[to]=A.count;
+	rec.leaderId=to;
+	rec.leaderCount=A.count;
+	rec.elected=A.count>=THRESHOLD;
+	let line;
+	if(id==="borgia"&&A.scripted)line="Then the silence breaks from the last place anyone was watching: the youngest man in the room, the hunted pope's nephew, the Vice-Chancellor. <b>Borgia</b> rises. <i>“Ego Senensi Cardinali accedo.”</i> His oath to Rouen is discharged and dead; the count stands at <b>"+A.count+"</b>, and it went through the room, Pius writes, like a knife.";
+	else if(id==="tebaldi"&&A.scripted)line="<b>Tebaldi</b> rises, the quiet Roman both parties had pencilled into their sums. <i>“Et ego Senensi accedo.”</i> <b>"+A.count+"</b>.";
+	else if(id==="colonna"&&afterScuffle!==undefined&&A.scripted)line="<i>“Et ego Senensi Cardinali accedo — eumque Papam facio.”</i> The Protodeacon's voice fills the chapel like a bell. <b>Twelve.</b> Quo audito, Pius writes, the spirit went out of the adversaries, and the whole machination broke.";
+	else line="<b>"+esc(shortName(id))+"</b> rises. <i>“I accede to "+esc(shortName(to))+".”</i> The count stands at <b>"+A.count+"</b> of "+THRESHOLD+".";
+	const b={type:"accede",id:id,to:to,html:line};
+	A.beats.push(b);addLog(S,b.html,"accession");
+	if(isPlayer){
+		S.conscience.acceded=to;
+		if(S.oath[S.playerId]==="rouen"&&to!=="estouteville")S.oath[S.playerId]="broken";
+	}
+	if(S.oath[id]==="rouen"&&to!=="estouteville")S.oath[id]="broken";
+	S.momentum[to]=(S.momentum[to]||0)+1.2;
+	if(A.count>=THRESHOLD){
+		A.phase="done";
+		finalizeElection(S,rec,to,"by accession, at the "+A.count+"th voice");
+	}
+	return b;
+}
+
+function demandChoice(S,spec){
+	S.pending={key:spec.key,extra:spec.extra||null,accSpec:spec};
+	return {type:"choice",spec:spec};
+}
+
+function afterAccession(S){
+	if(S.electedId)return;
+	if(S.ballotNo>=MAX_SCRUTINIES){
+		const rec=S.history[S.history.length-1];
+		const A=S.accession;
+		if(A&&A.leaderId){
+			A.phase="live";
+			A.scripted=false;
+			addLog(S,"The tenth scrutiny fails and the palace has nothing left to burn but patience. Under the memory of Viterbo — locked roofs, bread and water — the College remains for a final, public accession.","accession");
+			ELECTORS.filter(function(c){return c.id!==S.playerId&&accessionEligible(S,c.id)})
+				.sort(function(a,b){return accessionUrge(S,b.id)-accessionUrge(S,a.id)||a.precedence-b.precedence})
+				.some(function(c){doAccede(S,c.id,false);return S.electedId!==null});
+		}
+		if(!S.electedId){
+			if(A)A.phase="adjourned";
+			const line="The tenth scrutiny and its final accession end without twelve lawful voices. The model records no election rather than inventing one.";
+			const sc=scoreGame(S);
+			S.over=true;
+			S.finale={key:"unresolved",electedId:null,electedName:null,how:"no lawful settlement",integrity:null,line:line,score:sc};
+			S.epilogue={achievements:[]};
+			addLog(S,"No lawful coalition reaches twelve. The chronicle closes without an election.","finale");
+		}
+		return;
+	}
+	intervalWorld(S);
+}
+
+/* ---------- the world between ballots ---------- */
+function intervalWorld(S){
+	S.ap=2;
+	adjustMetric(S,"fever",5+Math.round(nextRand(S)*4));
+	adjustMetric(S,"secrecy",-3);
+	runExposures(S);
+	/* rumour and the sack of palazzi: the city despoils the house of any man it believes elected */
+	const rec=S.history[S.history.length-1];
+	if(rec&&rec.leaderId&&!S.flags["sacked_"+rec.leaderId]&&S.metrics.secrecy<52){
+		const p=clamp((52-S.metrics.secrecy)/70+S.metrics.tumult/300,0.05,0.55);
+		if(nextRand(S)<p){
+			S.flags["sacked_"+rec.leaderId]=true;
+			const victim=rec.leaderId;
+			adjustMetric(S,"tumult",6);
+			const own=victim===S.playerId;
+			addLog(S,(own?"Word of your lead has jumped the wall. ":"Word of the count has jumped the wall. ")+"By the custom of vacancies, the crowd goes to strip the house of the man it believes elected — and <b>"+esc(displayName(victim))+"'s</b> palazzo pays the rumour's bill: doors, plate, hangings"+(own?", your library carried off in armfuls":"")+". If the count changes tomorrow, the city will simply sack the next address.","mob");
+			if(own)adjustMetric(S,"standing",-2);
+		}
+	}
+	/* the fever finds the cells from the fourth day */
+	if(S.ballotNo>=3&&S.metrics.fever>55){
+		const candidates=IDS.filter(function(id){return !S.ill[id]&&id!==S.playerId});
+		if(candidates.length&&nextRand(S)<clamp((S.metrics.fever-50)/120,0.05,0.4)){
+			const sick=candidates[Math.floor(nextRand(S)*candidates.length)];
+			S.ill[sick]=true;
+			addLog(S,"The palace physician is called before Matins: <b>"+esc(displayName(sick))+"</b> has the fever — the same lenta febbre that put Capranica in the Minerva. He is bled, and will not sit the next scrutiny. Every man in the chapel does the same subtraction.","event");
+		}
+	}else{
+		/* recoveries */
+		IDS.forEach(function(id){
+			if(S.ill[id]&&nextRand(S)<0.5){S.ill[id]=false;addLog(S,"<b>"+esc(displayName(id))+"</b> is on his feet again, grey but voting.","event")}
+		});
+	}
+	/* the pact's arithmetic, spoken aloud on the documented evening */
+	if(S.ballotNo===1&&!S.flags.pactHeld){
+		queueDecision(S,"canvass");
+	}
+	if(S.ballotNo>=2){
+		IDS.forEach(function(id){if(S.ill[id]&&nextRand(S)<0.45){S.ill[id]=false;addLog(S,"<b>"+esc(displayName(id))+"</b> returns to the chapel, thinner by a fever.","event")}});
+	}
+}
+function computeElectionIntegrity(S,record,winner){
+	let iv=78;
+	const bought=S.promises.filter(function(p){return p.to&&p.by&&(p.by===winner||p.to===winner)});
+	iv-=Math.min(24,bought.length*6);
+	if(S.flags.pactHeld&&winner==="estouteville")iv-=14;
+	if(PACT_CORE.includes(winner)&&S.oath[winner]==="rouen")iv-=6;
+	iv-=Math.min(16,S.exposures.length*4);
+	iv-=Math.round(Math.min(12,feverUrgency(S)*0.35));
+	iv+=Math.min(9,S.playerStats.denounces*3);
+	if(S.conscience.exposedDouble)iv-=4;
+	return clamp(iv,5,95);
+}
+
+function papalNameForState(seed,electedId){
+	const options=regnalOptionsFor(electedId);
+	const idx=Math.floor(pureRand(String(seed)+"|name|"+electedId)*options.length)%options.length;
+	return options[idx];
+}
+function regnalOptionsFor(id){
+	return (REGNAL[id]||["Innocent VIII"]).slice();
+}
+function regnalSignalFor(name){
+	return REGNAL_SIGNAL[name]||"continuity, reform, and a new papal household";
+}
+function choosePlayerRegnalName(state,name){
+	if(!state||state.electedId!==state.playerId)throw new Error("The player has not been elected");
+	const options=regnalOptionsFor(state.playerId);
+	if(options.indexOf(name)<0)throw new Error("That regnal name is not available");
+	state.playerRegnalName=name;
+	state.electedName=name;
+	if(state.finale)state.finale.electedName=name;
+	return name;
+}
+
+function finalizeElection(S,record,winner,how){
+	S.electedId=winner;
+	S.flags.electHow=how;
+	S.flags.electIntegrity=computeElectionIntegrity(S,record,winner);
+	S.electedName=winner===S.playerId?null:papalNameForState(S.seed,winner);
+	if(S.accession)S.accession.phase="done";
+	const w=ID[winner];
+	addLog(S,"It is done. The cardinals rise as one man and make the first obeisance, kissing the feet of him they have made; then, seat by seat, the election is made <i>unanimiter et concorditer</i> — unanimous, as the phrase and the fiction require.","election");
+	if(winner==="piccolomini"&&record.scripted){
+		addLog(S,"<b>Bessarion</b> stands to speak, for himself and for Isidore: they opposed no man's merit, he says, only a sick man's feet — the burden wants a body to carry it — and if the College judges otherwise, God will supply the defect of the feet. It is gracious, it is necessary, and nobody in the chapel mistakes it for pleasure. The new pope answers with better grace than he was offered.","election");
+	}
+	queueDecision(S,"announce");
+	return S;
+}
+
+/* ---------- headless ---------- */
+function autoChoiceFor(S){
+	const p=S.pending;if(!p)return "ok";
+	const spec=decisionSpec(S);
+	if(!spec||!spec.options||!spec.options.length)return "ok";
+	/* prefer the documented / first-listed course */
+	return spec.options[0].id;
+}
+function autoAccessionChoice(S){
+	/* the headless player's floor conduct: follow the record; otherwise accede when the leader is their line and the count is close */
+	const A=S.accession;
+	if(!A||A.phase!=="live")return null;
+	if(A.scripted&&!S.flags.divergedFromRecord)return null; /* the script will demand choices as needed */
+	if(!accessionEligible(S,S.playerId))return null;
+	const line=playerLine(S);
+	if(A.leaderId===line&&A.count>=THRESHOLD-3)return {act:"accede"};
+	if(accessionUrge(S,S.playerId)>9)return {act:"accede"};
+	return null;
+}
+function runHeadless(seed,playerId,mode,maxBallots){
+	const S=initState(playerId||"mella",seed||"audit",mode||"open");
+	const limit=Math.min(maxBallots||MAX_SCRUTINIES,MAX_SCRUTINIES);
+	let guard=0;
+	while(!S.over&&guard<900){
+		guard++;
+		if(S.pending){resolveDecision(S,autoChoiceFor(S));continue}
+		if(S.accession&&S.accession.phase==="live"){
+			const c=autoAccessionChoice(S);
+			if(c)stageAccessionChoice(S,c);
+			stepAccession(S);
+			continue;
+		}
+		if(S.electedId){if(!S.over&&!S.pending)break;continue}
+		if(S.ballotNo>=limit)break;
+		beginScrutiny(S,bestLegalPlayerVote(S,forecastCounts(S)));
+	}
+	while(!S.over&&guard<1100){guard++;if(S.pending)resolveDecision(S,autoChoiceFor(S));else break}
+	return {
+		winner:S.electedId,electedId:S.electedId,electedName:S.electedName,
+		ballots:S.history.length,history:S.history,accession:S.accession,
+		finale:S.finale,metrics:S.metrics,flags:S.flags,conscience:S.conscience,
+		playerStats:S.playerStats,promises:S.promises,exposures:S.exposures,
+		epilogue:S.epilogue,playerId:S.playerId,mode:S.mode,seed:S.seed,log:S.log,over:S.over
+	};
+}
+
+
+/* ===== 04-actions.js ===== */
+const ACTIONS=[
+	{id:"colloquy",label:"A quiet colloquy",cost:1,line:"Walk the cell corridor with one elector and talk him gently towards your line."},
+	{id:"rally",label:"Rally your nation",cost:1,line:"Gather your countrymen and party over the wine ration and hold them to a single name."},
+	{id:"promise",label:"Promise an office",cost:1,line:"Pledge a curial office or expectancy to a named man. Promised twice, offices have a way of comparing notes."},
+	{id:"denounce",label:"Denounce the bargains",cost:1,line:"Stand in the chapel and name the traffic in offices for what it is. Cheap if you have proof; expensive if you are guessing."},
+	{id:"sound",label:"Sound the College",cost:1,line:"Send your conclavist along the cells and bring back ranges — how the next scrutiny is likely to fall."},
+	{id:"whisperout",label:"A word through the wall",cost:1,line:"The bricked windows are not so brick as all that. Pass a line to Milan's and Naples' men outside — and accept that walls talk both ways."},
+	{id:"vigil",label:"Keep the night watch",cost:1,line:"Sit up past Compline where the lamps go. Conspiracies need corridors, and corridors can be watched."},
+	{id:"physic",label:"Physic and prayers",cost:1,line:"Barley water, bleeding, a Mass for the sick. Cool your own fever and the palace's."}
+];
+
+function performAction(S,id,extra){
+	if(S.over)throw new Error("The conclave is over");
+	if(S.pending)throw new Error("A matter is before the College");
+	if(S.accession&&S.accession.phase==="live")throw new Error("The floor belongs to the accession");
+	const act=ACTIONS.find(function(a){return a.id===id});
+	if(!act)throw new Error("Unknown action");
+	if(S.ap<act.cost)throw new Error("You have spent this interval");
+	S.ap-=act.cost;S.actionSerial++;
+	extra=extra||{};
+	const me=ID[S.playerId];
+	switch(id){
+		case "colloquy":{
+			S.playerStats.colloquies++;
+			let target=extra.target;
+			if(!target||!ID[target]||target===S.playerId){
+				const others=IDS.filter(function(x){return x!==S.playerId&&!S.ill[x]});
+				target=others.sort(function(a,b){return (S.trust[a]-S.trust[b])})[Math.floor(nextRand(S)*Math.min(4,others.length))]||others[0];
+			}
+			const line=playerLine(S);
+			const sway=0.9+(me.axes.learning||0)*0.25+(S.trust[target]-45)/55+(nextRand(S)-0.4);
+			if(sway>0.8){
+				S.lean[target][line]=(S.lean[target][line]||0)+1.4;
+				S.trust[target]=clamp(S.trust[target]+7,0,100);
+				addLog(S,"You take <b>"+esc(displayName(target))+"</b> down the corridor of cells, past the snoring and the copying clerks, and talk of "+esc(shortName(line))+" as the door out of this heat. He does not say yes. He stops saying no.","action");
+			}else{
+				S.trust[target]=clamp(S.trust[target]+2,0,100);
+				addLog(S,"An hour's walking with <b>"+esc(displayName(target))+"</b> buys civility and nothing else; he answers you in generalities and blesses the weather.","action");
+			}
+			break;
+		}
+		case "rally":{
+			S.playerStats.rallies++;
+			const line=playerLine(S);
+			const kin=IDS.filter(function(x){return x!==S.playerId&&ID[x].faction===me.faction});
+			kin.forEach(function(k){
+				S.lean[k][line]=(S.lean[k][line]||0)+1.1;
+				S.trust[k]=clamp(S.trust[k]+4,0,100);
+			});
+			S.momentum[line]=(S.momentum[line]||0)+0.6;
+			addLog(S,"You gather "+(kin.length?"your own — "+kin.map(shortName).map(esc).join(", ")+" — ":"what passes for your party ")+"over the evening ration and hold the name of <b>"+esc(shortName(line))+"</b> up like a lamp. Nations vote as nations when someone insists.","action");
+			break;
+		}
+		case "promise":{
+			const office=extra.office,target=extra.target;
+			if(!office||!OFFICE[office])throw new Error("Choose an office to promise");
+			if(!target||!ID[target]||target===S.playerId)throw new Error("Choose a beneficiary");
+			if(!officeAvailableTo(S,office,S.playerId))throw new Error("That office is not yours to promise");
+			const res=promiseOffice(S,S.playerId,office,target);
+			adjustMetric(S,"secrecy",-2);
+			addLog(S,"In the half-dark by the latrine lamps you pledge <b>"+esc(OFFICE[office].label)+"</b> to <b>"+esc(displayName(target))+"</b>"+(res.double?" — an office your own ledger says is already spoken for. Two promises, one seal: pray they never dine together":"")+". He presses your hand. The Curia's future is being written tonight in whispers, and you have just added a line.","action");
+			if(office==="vicechancery"&&target!=="borgia")S.conscience.promisedChancery=true;
+			break;
+		}
+		case "denounce":{
+			S.playerStats.denounces++;
+			const proof=!!S.flags.pactWitnessed||S.exposures.length>0;
+			if(proof||S.metrics.standing>=60){
+				adjustMetric(S,"standing",proof?6:2);
+				S.momentum.estouteville=(S.momentum.estouteville||0)-1.6;
+				IDS.forEach(function(x){if(S.oath[x]==="rouen"&&nextRand(S)<0.35)S.oath[x]="broken"});
+				addLog(S,"After Mass you stand in your stall and say the quiet part in Latin: that the papacy is being sold by written instalments, and that men who signed such papers know their canon law well enough to fear it. "+(proof?"You name what you saw, and no one can call you a liar.":"You name no names, and the guilty supply their own.")+" The pact loses its nerve where you can see it.","action");
+			}else{
+				adjustMetric(S,"standing",-6);
+				addLog(S,"You denounce the traffic in offices to a chapel that has been trafficking all night, on no evidence but your temper. The silence you get back is the expensive kind.","action");
+			}
+			break;
+		}
+		case "sound":{
+			S.playerStats.soundings++;
+			S.lastSounding=makeSounding(S);
+			addLog(S,"Your conclavist makes his round of the cells with a wine-jug and an innocent face, and comes back with ranges — see the soundings panel. Numbers gathered by jug are ranges, not promises.","action");
+			break;
+		}
+		case "whisperout":{
+			S.playerStats.whispers++;
+			adjustMetric(S,"secrecy",-6);
+			const line=playerLine(S);
+			S.momentum[line]=(S.momentum[line]||0)+0.9;
+			if(nextRand(S)<0.4)adjustMetric(S,"tumult",4);
+			addLog(S,"A folded paper goes out with the dinner-plates to the ambassadors of Milan and Naples: how the count stands, and where a well-placed word outside might firm a vote inside. By morning <b>"+esc(shortName(line))+"</b> is being spoken well of at two embassies — and the wall now has a hole in it that others will find.","action");
+			break;
+		}
+		case "vigil":{
+			S.playerStats.vigils++;
+			if(!S.flags.pactHeld&&S.ballotNo===1){
+				S.flags.vigilTonight=true;
+				addLog(S,"You give up your sleep to the corridor, cloaked in the dark by the lamp at the turn — the one place every cell must pass to reach the latrines. Whatever walks tonight will walk past you.","action");
+			}else if(nextRand(S)<0.5){
+				adjustMetric(S,"secrecy",4);
+				addLog(S,"You keep the watch and catch a conclavist ferrying notes for a fee. The notes go in the lamp; the fee goes to the poor-box; the palace is a little more honest by morning.","action");
+			}else{
+				addLog(S,"You keep the watch. Nothing moves but the heat and one cardinal's snoring, which you now know to be tremendous.","action");
+			}
+			break;
+		}
+		case "physic":{
+			S.playerStats.physics++;
+			adjustMetric(S,"fever",-7);
+			if(S.ill[S.playerId])S.ill[S.playerId]=false;
+			IDS.forEach(function(x){if(S.ill[x]&&nextRand(S)<0.3)S.ill[x]=false});
+			addLog(S,"You spend your credit on barley-water, clean straw and a sung Mass for the sick; two physicians are let in to bleed the worst. The palace breathes a degree easier, and men vote better who expect to live.","action");
+			break;
+		}
+	}
+	return S;
+}
+
+/* ---------- decisions ---------- */
+function decisionSpec(S){
+	const p=S.pending;if(!p)return null;
+	if(p.accSpec)return p.accSpec;
+	const me=ID[S.playerId];
+	switch(p.key){
+		case "capitulation":{
+			const opts=[
+				{id:"sign",label:"Sign, and say nothing"},
+				{id:"crusade",label:"Sign, and speak to Article 1 — the crusade before all"},
+				{id:"transfer",label:"Sign, and drive Article 3 home — the Curia stays in Rome"}
+			];
+			if((me.axes.purse||0)>=2)opts.push({id:"fund",label:"Sign, and offer to stand surety for Article 5 yourself"});
+			else if((me.axes.purse||0)<0)opts.push({id:"thanks",label:"Sign, and thank the College for Article 5 — it is about men like you"});
+			return {key:"capitulation",title:"The seventeen articles",
+				body:"<b>Thursday 17 August.</b> The whole day goes to the electoral capitulation: seventeen articles binding whoever leaves this room in white. The crusade prosecuted; the Curia reformed; the Curia not moved from Rome without the College's consent; no new hats without a majority, after the rule of Constance; a hundred florins a month to any cardinal under four thousand a year; hands off dead men's goods; and once a year the College may sit in judgement on the pope's observance. Every man will sign; the elect must sign again, under his new name, before the election is even published. The only question is what you say as you take the pen.",
+				options:opts};
+		}
+		case "canvass":{
+			/* the after-dinner canvass of Friday 18 August, branched by who you are */
+			if(S.playerId==="estouteville")return {key:"canvass",title:"The night is yours to spend",
+				body:"The dinner-trick bought you a night, and a night is money. The vilification is already running — Siena is poor, Siena is gouty, Siena is a poet, Siena would move the Curia to the Germans — and your own case runs beside it: seniority, royal blood, and a fortune that can carry the Church's debts. Now comes the closing. Where, and how?",
+				options:[
+					{id:"latrines",label:"Convene the party in the latrines — written pledges, sworn oaths"},
+					{id:"open",label:"Canvass in the open, cell to cell, and put nothing in writing"},
+					{id:"restraint",label:"Spend nothing tonight; let the scrutiny speak first"}
+				]};
+			if(PACT_CORE.includes(S.playerId))return {key:"canvass",title:"An invitation after Compline",
+				body:"A conclavist touches your sleeve: the Cardinal of Rouen begs a word — in the latrines, of all places, because it is the one room in this palace with an excuse for traffic and no dignity to lose. There are papers there, and pens, and men you know signing. The terms are generous. The oath is real.",
+				options:[
+					{id:"swear",label:"Swear, and sign the paper"},
+					{id:"feign",label:"Swear with your mouth and keep your mind"},
+					{id:"refuse",label:"Refuse, and walk back to your cell"}
+				]};
+			if(PACT_COUNTED.includes(S.playerId))return {key:"canvass",title:"You are being counted",
+				body:"You have signed nothing and sworn nothing, and yet by midnight two separate men have congratulated you on Rouen's behalf. Somewhere a list exists with your name on it, entered as probable. A list like that can be corrected, confirmed, or left profitably vague.",
+				options:[
+					{id:"confirm",label:"Let the count stand — send Rouen a civil word"},
+					{id:"deny",label:"Correct the list — you are promised to no man"},
+					{id:"vague",label:"Say nothing, and be owned by whoever wins"}
+				]};
+			return {key:"canvass",title:"The palace is awake",
+				body:"After dinner the canvassing comes out of the shadows: Rouen and Avignon go cell to cell for the French case; Barbo works his own; old la Cerda, God love him, asks men to their faces to make him pope. The talk against Siena is loud and specific — the poverty, the gout, the verses, the years among the Germans. Your own night is still yours.",
+				options:[
+					{id:"counter",label:"Walk the cells against the French case"},
+					{id:"listen",label:"Keep your door open and your mouth shut — learn who visits whom"},
+					{id:"sleep",label:"Sleep. Tomorrow needs a clear head"}
+				]};
+		}
+		case "midnight":{
+			if(S.playerId==="piccolomini")return {key:"midnight",title:"Nescis quia iam papam habemus?",
+				body:"Past the middle of the night, a hand on your shoulder: <b>Calandrini</b>, half-lit, half-ashamed. <i>“Quid ais, Aenea? Do you not know we already have a pope? Some cardinals met in the latrines and settled to elect Guillaume — they are only waiting for daylight.”</i> He advises you, kindly, to go over in time and not be found among the last. Eleven voices, he says. Perhaps twelve by Terce.",
+				options:[
+					{id:"refuse",label:"“You would ruin yourself, and Italy with you.” Refuse, and go wake the others"},
+					{id:"yield",label:"Thank him, and be with Rouen by morning"},
+					{id:"pray",label:"Say nothing tonight; let him watch you pray"}
+				]};
+			return {key:"midnight",title:"Word travels by lamplight",
+				body:"You are woken in the small hours by your conclavist with the palace's worst-kept secret: a meeting in the latrines, written pledges, oaths — the French have their eleven, or say they do, and mean to finish it at the accession. Daylight is four hours away, and four hours is a long time in an election.",
+				options:[
+					{id:"wake",label:"Wake the Italians — this gets answered before Mass"},
+					{id:"sleep",label:"Sleep on it; panic is a poor counsellor"},
+					{id:"join",label:"Send Rouen your compliments before dawn — be early, be remembered"}
+				]};
+		}
+		case "counterplot":{
+			if(me.faction==="italian"||me.faction==="avis"||S.playerId==="mila"||S.playerId==="mella")return {key:"counterplot",title:"The Dean's cell, before dawn",
+				body:"By first light the counter-meeting is assembling in old <b>Fieschi's</b> cell — Barbo going door to door, the Italians gathering, the arithmetic laid out on the bed like a corpse: Rouen claims eleven; twelve elects; one Italian bloc, held together for one morning, is the only wall left. The bloc needs a single name to hold. Whose?",
+				options:[
+					{id:"siena",label:"Siena — Piccolomini. Poor, gouty, and the man the French fear"},
+					{id:"bologna",label:"Bologna — Calandrini. Mild, liked, and nobody's enemy"}
+				].concat(me.faction==="italian"&&S.playerId!=="piccolomini"&&S.playerId!=="calandrini"?[{id:"self",label:"Your own name. Someone must say it; why not you"}]:[])};
+			if(me.faction==="french"||S.oath[S.playerId]==="rouen")return {key:"counterplot",title:"They are meeting in the Dean's cell",
+				body:"Your conclavist has counted the slippers outside Fieschi's door: seven pairs, all Italian. The night's eleven is being unpicked while you stand here. There are perhaps two hours before Mass in which to answer.",
+				options:[
+					{id:"break",label:"Go door to door now with better offers — outbid the dawn"},
+					{id:"hold",label:"Trust the oaths and the arithmetic; let them talk"}
+				]};
+			return {key:"counterplot",title:"Two meetings, one morning",
+				body:"The palace holds two conspiracies before Mass: the French counting their sworn eleven, and the Italians in the Dean's cell building a wall of nine. You belong wholly to neither, which this morning makes you interesting to both.",
+				options:[
+					{id:"italians",label:"Slip into the Dean's cell and stand with the Italians"},
+					{id:"french",label:"Send Rouen word that you hold firm"},
+					{id:"apart",label:"Stand apart, and let the morning find you unbought"}
+				]};
+		}
+		case "whisper":{
+			return {key:"whisper",title:"En, Aenea, habeto me commendatum",
+				body:"Filing to the chalice, you pass the Cardinal of Rouen's stall, and he leans out just far enough: <i>“See, Aeneas — commend me. I ask your voice.”</i> Last night this man told the College you were a pauper, a cripple and a versifier. The tellers are waiting. You have perhaps four words.",
+				options:[
+					{id:"vermiculo",label:"“Mihi te vermiculo commendas?” — you commend yourself to a worm?"},
+					{id:"soft",label:"“God will provide, monsignor.” Pass on"},
+					{id:"silence",label:"Meet his eye, say nothing, and vote"}
+				]};
+		}
+		case "announce":{
+			const meElect=S.electedId===S.playerId;
+			if(meElect)return {key:"announce",title:"Ex alta fenestra",
+				body:"They are opening the bricked window. Below, a city that has been betting, rioting and praying for ten days is about to be told your name — and, by the custom of vacancies, the crowd will then go directly to your house and strip it to the marble, because a pope needs nothing and leaves everything. There is just time for one instruction before the shout goes up.",
+				options:[
+					{id:"custom",label:"Let the custom run. They may have the house"},
+					{id:"books",label:"Send a runner to the Conservators: the mob may have the plate, but beg them spare the library"}
+				]};
+			return {key:"announce",title:"The window is opened",
+				body:"The eldest deacon goes to the high window with the paper in his hand. Below, ten thousand people are about to learn a name; some of them will cheer it, some will curse it, and a well-organised few are already positioned outside the right palazzo with handcarts. Inside, the elect signs the capitulation again under his new name, as Article 17 requires, and the College watches its ten days' work become a man.",
+				options:[{id:"ok",label:"Witness it"}]};
+		}
+		case "regnal":{
+			const opts=regnalOptionsFor(S.playerId).map(function(n){
+				return {id:n,label:n+" — "+regnalSignalFor(n)};
+			});
+			return {key:"regnal",title:"By what name?",
+				body:"The Dean puts the second ritual question. The name you choose is the first act of the pontificate: a programme in two words, read aloud from a window to a city that reads such things fluently.",
+				options:opts};
+		}
+		case "ep-naples":{
+			return {key:"ep-naples",title:"The first dispatch-box",
+				body:"The obedience of the ambassadors begins within the hour, and the first box on the new desk is the oldest quarrel in Italy: <b>Naples</b>. Calixtus died refusing Ferrante the investiture; Anjou's fleet is fitting out; every Italian state is watching what the new pope does before his coronation chrism is dry.",
+				options:[
+					{id:"ferrante",label:"Recognise Ferrante — peace in Italy buys the crusade"},
+					{id:"anjou",label:"Hear the Angevin claim — France has earned a courtesy"},
+					{id:"delay",label:"Refer it to a congregation; let them both sweat"}
+				]};
+		}
+		case "ep-aftermath":{
+			return {key:"ep-aftermath",title:"The morning after",
+				body:"The doors are unbricked; the cells are looted by the conclavists, as is also the custom; and eighteen men walk out into the August light with a new master and long memories. Your own ledger from these ten days — the oaths, the promises, the voices — is now a career.",
+				options:[{id:"ok",label:"Step out into Rome"}]};
+		}
+	}
+	return {key:p.key,title:"A matter before the College",body:"",options:[{id:"ok",label:"Continue"}]};
+}
+
+function resolveDecision(S,choiceId){
+	const p=S.pending;if(!p)throw new Error("Nothing is pending");
+	const key=p.key,extra=p.extra||{};
+	S.pending=null;
+	switch(key){
+		case "capitulation":{
+			S.flags.capitDone=true;S.flags.capitChoice=choiceId;
+			addLog(S,"<b>Thursday 17 August.</b> The seventeen articles are read, disputed, amended and at last signed by all eighteen — <i>Ego N. praemissa omnia et singula promitto et iuro servare</i> — the College legislating for a pope who is still, this evening, one of the men holding the pen.","event");
+			if(choiceId==="crusade"){adjustMetric(S,"standing",3);["bessarion","isidore"].forEach(function(g){S.trust[g]=clamp(S.trust[g]+10,0,100)});addLog(S,"You speak to Article 1 before signing: the fleet is at sea and the frontier bleeding; let the article be a vow and not a decoration. The two Greeks look at you for a long moment, the way drowning men look at rope.","action");}
+			else if(choiceId==="transfer"){adjustMetric(S,"standing",2);IDS.forEach(function(x){if(ID[x].faction==="italian")S.trust[x]=clamp(S.trust[x]+5,0,100)});IDS.forEach(function(x){if(ID[x].faction==="french")S.trust[x]=clamp(S.trust[x]-6,0,100)});addLog(S,"You dwell, signing, on Article 3 — the Curia moves nowhere without this College's consent — and you say <i>nowhere</i> in a voice that means <i>Avignon</i>. The Italians hear it. So do the French.","action");}
+			else if(choiceId==="fund"){adjustMetric(S,"standing",4);IDS.forEach(function(x){if((ID[x].axes.purse||0)<0)S.trust[x]=clamp(S.trust[x]+12,0,100)});addLog(S,"You offer to stand personal surety for Article 5 until the Camera can pay it. The poorer half of the chapel — which is most of it — will remember which fortune spoke first.","action");}
+			else if(choiceId==="thanks"){adjustMetric(S,"standing",2);addLog(S,"You thank the College plainly for Article 5, being one of the men it describes. Honest poverty, worn without ceremony, buys a strange amount in a room full of purchased things.","action");}
+			addLog(S,"The rest of Thursday goes to small politics and the drawing of lots for the worse cells. Tomorrow, after Mass: the first scrutiny.","note");
+			break;
+		}
+		case "canvass":{
+			resolveCanvass(S,choiceId);
+			break;
+		}
+		case "midnight":{
+			resolveMidnight(S,choiceId);
+			break;
+		}
+		case "counterplot":{
+			resolveCounterplot(S,choiceId);
+			break;
+		}
+		case "whisper":{
+			S.flags.whisperDone=true;
+			if(choiceId==="vermiculo"){S.conscience.vermiculo=true;S.trust.estouteville=clamp(S.trust.estouteville-10,0,100);adjustMetric(S,"standing",2);addLog(S,"You stop, look at the man who spent last night pricing your defects, and give him four words he will be quoting bitterly for years: <i>“Mihi te vermiculo commendas?”</i> — you commend yourself to me, a little worm? Then you walk on and vote.","action");}
+			else if(choiceId==="soft"){addLog(S,"<i>“God will provide, monsignor.”</i> You pass on. There are insults, and there are receipts; you have decided not to issue either.","action");}
+			else{addLog(S,"You give the Cardinal of Rouen precisely nothing: not a word, not a nod, not the satisfaction. The tellers are waiting.","action");}
+			break;
+		}
+		case "acc-turn":{
+			if(choiceId==="accede"){doAccede(S,S.playerId,true);}
+			else{S.flags.divergedFromRecord=true;if(S.accession)S.accession.scripted=false;addLog(S,"You keep your seat. Somewhere a notary's future sentence about you dies unwritten; the record is broken, and the room must now find its twelve without your recorded voice.","accession");}
+			break;
+		}
+		case "acc-walk":{
+			const others=(extra.others||[]);
+			if(choiceId==="walk")doWalk(S,[S.playerId].concat(others),true,true);
+			else if(others.length)doWalk(S,others,false,true);
+			else addLog(S,"You keep your seat, and the tactic dies unattempted.","accession");
+			break;
+		}
+		case "acc-scuffle":{
+			const by=extra.by||[];
+			if(choiceId==="break"){
+				const b={type:"scuffle",html:scuffleHtml(S,S.playerId,by,true)};
+				S.accession.beats.push(b);addLog(S,b.html,"accession");
+				S.conscience.brokeFree=true;
+				doAccede(S,S.playerId,true,S.accession.leaderId,true);
+			}else{
+				S.accession.suppressed[S.playerId]=true;
+				S.flags.divergedFromRecord=true;S.accession.scripted=false;
+				const e={type:"ledout",html:"You let them walk you out — two men steering a third past Fra Angelico's martyrs, everyone's eyes on the floor. The count holds at "+S.accession.count+", and history, unmade, waits in the aisle."};
+				S.accession.beats.push(e);addLog(S,e.html,"accession");
+				S.conscience.submitted=true;
+			}
+			break;
+		}
+		case "acc-restrain":{
+			const acceder=extra.acceder;
+			if(choiceId==="seize"){
+				S.conscience.laidHands=true;
+				const breaks=(S.accession.scripted&&!S.flags.divergedFromRecord)||ID[acceder].axes.nerve>=1||pureRand(S.seed+"|pbreak|"+S.accession.ballot+"|"+S.accession.beatNo)<0.7;
+				const b={type:"scuffle",html:scuffleHtml(S,acceder,[S.playerId].concat((extra.by||[]).filter(function(x){return x!==S.playerId})).slice(0,2),breaks)};
+				S.accession.beats.push(b);addLog(S,b.html,"accession");
+				if(breaks)doAccede(S,acceder,false,S.accession.leaderId,true);
+				else{
+					S.accession.suppressed[acceder]=true;
+					const e={type:"ledout",html:"<b>"+esc(shortName(acceder))+"</b> falters under your grip and lets himself be sat back down. The chapel exhales. The count holds — for now."};
+					S.accession.beats.push(e);addLog(S,e.html,"accession");
+					S.flags.divergedFromRecord=true;if(S.accession)S.accession.scripted=false;
+				}
+			}else{
+				const b={type:"accede-clear",html:"You sit still. No hand is laid on him; he crosses the floor unimpeded and turns to the College."};
+				S.accession.beats.push(b);addLog(S,b.html,"accession");
+				doAccede(S,acceder,false,S.accession.leaderId);
+			}
+			break;
+		}
+		case "announce":{
+			resolveAnnounce(S,choiceId);
+			break;
+		}
+		case "regnal":{
+			choosePlayerRegnalName(S,choiceId);
+			addLog(S,"The Dean asks by what name you will be called, and you answer for the window to hear: <b>"+esc(choiceId)+"</b> — "+esc(regnalSignalFor(choiceId))+". Then, as Article 17 requires, you sign the capitulation again under the name you have just invented for yourself.","election");
+			queueDecision(S,"ep-naples");
+			break;
+		}
+		case "ep-naples":{
+			if(choiceId==="ferrante"){S.flags.naples="ferrante";addLog(S,"You recognise <b>Ferrante</b>, as Pius did within the month: a bastard's crown confirmed to keep Anjou out of Italy and Italy's swords free for the East. The Milanese ambassador is seen to smile in a cathedral.","epilogue");}
+			else if(choiceId==="anjou"){S.flags.naples="anjou";addLog(S,"You give the <b>Angevins</b> their hearing, and Italy its next war. France is grateful, which is worth something; Milan and Naples begin counting lances, which will cost more.","epilogue");}
+			else{S.flags.naples="delay";addLog(S,"You refer Naples to a congregation of cardinals — the pontifical art of saying no slowly. Both claimants send richer gifts. The question, like the fleet at Rhodes, stays at sea.","epilogue");}
+			computeFinale(S);
+			break;
+		}
+		case "ep-aftermath":{
+			computeFinale(S);
+			break;
+		}
+		default:{
+			/* tolerant: unknown keys resolve silently */
+			break;
+		}
+	}
+	if(!S.pending)advanceQueue(S);
+	return S;
+}
+
+function resolveCanvass(S,choiceId){
+	const me=ID[S.playerId];
+	addLog(S,"<b>Friday, after dinner.</b> The canvass comes into the open — Pius will write it without blushing: they sought the papacy for themselves or for their friends; they asked, they promised, they even threatened. Rouen's case against Siena runs the cells like a ballad: the poverty, the gout, the poetry, the Germans. Old la Cerda canvasses for la Cerda, which at least has the merit of honesty.","event");
+	if(S.playerId==="estouteville"){
+		if(choiceId==="latrines"){
+			holdPact(S,true);
+			addLog(S,"You choose the latrines — <i>ut secretior esset locus</i>, as the man you are trying to beat will one day write, adding that it was a fitting place for such a pope to be chosen in. Papers are produced; hands go on hearts; the arithmetic comes back eleven. One waverer from twelve, before a vote is cast.","action");
+		}else if(choiceId==="open"){
+			holdPact(S,false);
+			addLog(S,"You keep it in the open: no papers, no oaths, only promises a gentleman may deny. It is cleaner, and it is weaker, and you know exactly which of those the morning will care about.","action");
+		}else{
+			addLog(S,"You spend nothing. The party murmurs; Avignon looks at you as a merchant looks at a debtor. Tomorrow's scrutiny will now speak first, and the night's advantage passes to whoever uses it instead.","action");
+			S.flags.pactRefusedByRouen=true;
+		}
+	}else if(PACT_CORE.includes(S.playerId)){
+		holdPact(S,true,S.playerId);
+		if(choiceId==="swear"){S.oath[S.playerId]="rouen";S.conscience.sworePact=true;addLog(S,"You go, and you sign, and you swear. The paper is real; the terms are generous; the room smells of what such rooms smell of, and the future Pius II will spend a chapter on the fact. Eleven, Rouen counts, with your name among them.","action");}
+		else if(choiceId==="feign"){S.oath[S.playerId]="feigned";S.conscience.feigned=true;addLog(S,"You swear with your mouth and file the oath under things said in latrines. Rouen counts eleven; one of his eleven is you; both of these facts are now weapons, and only you know whose.","action");}
+		else{S.oath[S.playerId]=null;S.conscience.refusedPact=true;adjustMetric(S,"standing",3);S.trust.estouteville=clamp(S.trust.estouteville-12,0,100);addLog(S,"You look at the papers, and the pens, and the place, and you walk back to your cell. Whatever is elected tomorrow, it will not be able to say it bought you in a latrine.","action");}
+	}else if(PACT_COUNTED.includes(S.playerId)){
+		holdPact(S,true);
+		if(choiceId==="confirm"){S.oath[S.playerId]="feigned";addLog(S,"You send Rouen a word of civil warmth that promises nothing and lets the count stand. Being wanted by both sides is a position; you intend to hold it as long as it pays.","action");}
+		else if(choiceId==="deny"){adjustMetric(S,"standing",2);S.trust.estouteville=clamp(S.trust.estouteville-8,0,100);addLog(S,"You have the list corrected: your voice is promised to no man. Rouen's eleven quietly becomes Rouen's ten-and-a-hope, and he knows who made it so.","action");}
+		else{addLog(S,"You say nothing, which both parties record as encouragement. There are worse things to be than everyone's assumption.","action");}
+	}else{
+		holdPact(S,true);
+		if(choiceId==="counter"){adjustMetric(S,"standing",2);S.playerStats.colloquies++;const line=playerLine(S);IDS.forEach(function(x){if(ID[x].faction==="italian"&&x!==S.playerId){S.lean[x][line]=(S.lean[x][line]||0)+0.8}});addLog(S,"You walk the cells against the French case, answering the ballad point by point: poverty is not simony, gout is not heresy, and a poet at least writes his own bulls. You change no votes tonight; you keep several from changing.","action");}
+		else if(choiceId==="listen"){S.flags.vigilTonight=true;addLog(S,"You keep your door open and your lamp low, and count the traffic: who visits whom, and how long, and who leaves smiling. By midnight you hold a map of the night that most men would pay for.","action");}
+		else addLog(S,"You sleep, on the theory that tomorrow's judgement will be worth more than tonight's gossip. Around you, the palace disagrees all night.","action");
+	}
+	/* the watched corridor sees the pact happen */
+	if(S.flags.vigilTonight&&S.flags.pactHeld){
+		S.flags.pactWitnessed=true;
+		addLog(S,"Past midnight your patience is paid: file after file of red past the lamp at the turn — Rouen, Avignon, and one by one the men you can now name — into the latrines, where paper rustles and voices swear. You have seen the thing itself. Proof, in this palace, is power.","event");
+	}
+	queueDecision(S,"midnight");
+}
+
+function holdPact(S,written,exceptId){
+	if(S.flags.pactHeld)return;
+	S.flags.pactHeld=true;S.flags.pactWritten=!!written;
+	PACT_CORE.forEach(function(id){
+		if(id===S.playerId)return;
+		if(id===exceptId)return;
+		S.oath[id]="rouen";
+		S.lean[id].estouteville=(S.lean[id].estouteville||0)+(written?2.6:1.6);
+	});
+	S.momentum.estouteville=(S.momentum.estouteville||0)+(written?2.2:1.2);
+	adjustMetric(S,"secrecy",-4);
+	if(S.playerId!=="estouteville"&&!PACT_CORE.includes(S.playerId)){
+		addLog(S,"Deep in the night, the latrines do their work: written pledges, sworn oaths, and an arithmetic that comes back <b>eleven</b> for Rouen — one voice short of a pope before a single paper is cast. The pact will keep till morning. Whether the men will is another question.","event");
+	}
+}
+
+function resolveMidnight(S,choiceId){
+	if(S.playerId==="piccolomini"){
+		if(choiceId==="refuse"){S.conscience.refusedPact=true;adjustMetric(S,"standing",3);addLog(S,"<i>“Fefellisti me — no: you have deceived yourself, and Italy your fatherland with you, unless you come to your senses.”</i> You send Calandrini back into the dark with his kindness refused, and go, in your nightgown and your gout, to wake the Italians. If Rouen is to be beaten, it will be by men roused before Terce.","action");}
+		else if(choiceId==="yield"){S.conscience.yieldedToRouen=true;S.flags.playerLine="estouteville";addLog(S,"You thank him, and mean it, and by morning your compliments are with Rouen. History will now need a different pivot; you have declined the part.","action");S.flags.divergedFromRecord=true;}
+		else addLog(S,"You say nothing, and let him watch you pray, which unsettles him more than argument would. He leaves less certain than he came — and the night is still yours to use.","action");
+	}else{
+		if(choiceId==="wake"){adjustMetric(S,"standing",2);S.flags.wokeItalians=true;addLog(S,"You go door to door in the dark — Barbo first, then the Dean — and by the time the bell rings for Matins the counter-meeting is already assembling. Whatever happens at the scrutiny, it will not happen to men asleep.","action");}
+		else if(choiceId==="join"){S.flags.playerLine="estouteville";S.oath[S.playerId]=S.oath[S.playerId]||"feigned";S.trust.estouteville=clamp(S.trust.estouteville+12,0,100);addLog(S,"You send Rouen your compliments before dawn, on the sound principle that the first men aboard a winning ship choose their cabins. If the ship wins.","action");}
+		else addLog(S,"You sleep on it. The palace, meanwhile, stays up and decides things.","action");
+	}
+	queueDecision(S,"counterplot");
+}
+
+function resolveCounterplot(S,choiceId){
+	const me=ID[S.playerId];
+	if(choiceId==="siena"||choiceId==="bologna"||choiceId==="self"||choiceId==="italians"){
+		const target=choiceId==="siena"?"piccolomini":choiceId==="bologna"?"calandrini":choiceId==="self"?S.playerId:"piccolomini";
+		S.flags.italianBloc=target;
+		if(choiceId==="self"){
+			S.flags.playerLine=S.playerId;S.conscience.namedSelf=true;
+			const backing=Math.round(S.metrics.standing/18);
+			addLog(S,"Someone must be named, and you name yourself, into a silence with edges. "+(backing>=3?"To your surprise, the cell does not laugh; heads turn to the Dean, and the Dean does not say no. The bloc forms behind you — thinner than it would be behind Siena, but yours.":"The silence stretches a beat too long, and Barbo mends it smoothly by putting Siena's name beside yours. The bloc forms; your share of it is smaller than your hopes."),"event");
+			if(backing<3)S.flags.italianBloc="piccolomini";
+		}else{
+			S.flags.playerLine=target;
+			addLog(S,"In the Dean's cramped cell — seven men, one candle, the Cardinal of Siena protesting his own unfitness and being talked down — the wall is built: the Italians will hold as one for <b>"+esc(shortName(S.flags.italianBloc))+"</b>, and Rouen's eleven will break on it or not. Dawn finds the palace with two armies and one chapel.","event");
+		}
+		if(S.mode!=="historical"||S.flags.divergedFromRecord){
+			IDS.forEach(function(x){
+				if(x===S.playerId)return;
+				const c=ID[x];
+				if(c.faction==="italian"&&x!=="colonna"){S.lean[x][S.flags.italianBloc]=(S.lean[x][S.flags.italianBloc]||0)+3.2;if(S.oath[x]==="rouen")S.oath[x]="broken"}
+				if(c.faction==="catalan"||c.faction==="avis"){S.lean[x][S.flags.italianBloc]=(S.lean[x][S.flags.italianBloc]||0)+1.4}
+			});
+			S.momentum[S.flags.italianBloc]=(S.momentum[S.flags.italianBloc]||0)+2.4;
+		}
+	}else if(choiceId==="break"){
+		adjustMetric(S,"secrecy",-3);
+		S.flags.italianBloc=S.flags.italianBloc||"piccolomini";
+		const bribed=IDS.filter(function(x){return x!==S.playerId&&ID[x].faction==="italian"&&pureRand(S.seed+"|outbid|"+x)<0.3});
+		bribed.forEach(function(x){S.lean[x].estouteville=(S.lean[x].estouteville||0)+2.0});
+		addLog(S,"You spend the last dark hours outbidding the dawn, door to door with better terms. "+(bribed.length?"Behind "+bribed.map(shortName).map(esc).join(" and ")+"'s doors, at least, the arithmetic audibly wavers.":"The doors are polite and the arithmetic does not move; the Italians have found something money is bad at buying, which is fear of Avignon.")+"","action");
+	}else if(choiceId==="french"){
+		S.flags.playerLine="estouteville";S.flags.italianBloc=S.flags.italianBloc||"piccolomini";
+		S.trust.estouteville=clamp(S.trust.estouteville+10,0,100);
+		addLog(S,"You send Rouen word that you hold firm, and are answered with a list of what firmness pays. The wall across the chapel goes up without you.","action");
+	}else{
+		S.flags.italianBloc=S.flags.italianBloc||"piccolomini";
+		addLog(S,"You stand apart and let the morning happen: the Italians build their wall in the Dean's cell — Siena's name upon it — and the French count their oaths, and Mass finds the chapel divided into two silences.","event");
+	}
+	if(S.mode==="historical"&&!S.flags.divergedFromRecord){
+		addLog(S,"The morning arithmetic, for those keeping it: Rouen's sworn eleven against the Dean's cell's nine — and the nine hold the pen-and-paper advantage, because a scrutiny is written and an oath is only sworn.","note");
+	}
+	if(S.playerId==="piccolomini"&&S.mode==="historical"&&!S.flags.divergedFromRecord){
+		queueDecision(S,"whisper");
+	}
+}
+
+function resolveAnnounce(S,choiceId){
+	const w=ID[S.electedId];
+	const name=S.electedId===S.playerId?"(the name you are about to choose)":S.electedName;
+	if(S.electedId===S.playerId){
+		if(choiceId==="books"){S.conscience.savedBooks=true;addLog(S,"Your runner beats the rumour by minutes. The crowd takes the plate, the hangings, the wine and most of the doors — but the Conservators' men stand on the stair with staves, and the library lives. Rome respects a pope who knows exactly which things are worth a riot.","epilogue");}
+		else addLog(S,"You let the custom run. By nightfall your house stands open to the sky, stripped, as Pius drily recorded of his own, <i>even to the marbles</i> — and the city, having eaten its pope's past, is strangely satisfied with him.","epilogue");
+	}
+	addLog(S,"The bricks come out of the high window. <b>Colonna</b>, eldest of the deacons, leans into the roar: <i>“Habemus pontificem —”</i> and gives the city the name it has been betting on for ten days: <b>"+esc(S.electedId===S.playerId?ID[S.playerId].name:w.name)+"</b>"+(S.electedId===S.playerId?"":", who is called <b>"+esc(S.electedName)+"</b>")+". The Te Deum starts raggedly and gets its feet; the mob peels off Banchi-wards, towards a certain palazzo, with professional speed.","election");
+	if(S.electedId!==S.playerId&&!S.flags["sacked_"+S.electedId]){
+		S.flags["sacked_"+S.electedId]=true;
+		addLog(S,"By the custom of vacancies the new pope's house is despoiled to the walls before Vespers — the crowd's commission for ten days' patience — while inside the palace the conclavists strip his cell with equal ceremony and better manners.","mob");
+	}
+	if(S.electedId===S.playerId)queueDecision(S,"regnal");
+	else queueDecision(S,"ep-aftermath");
+}
+
+function computeFinale(S){
+	if(S.over)return;
+	const w=ID[S.electedId];
+	const me=S.playerId===S.electedId;
+	let key,line;
+	if(me){key="elected-you";line="You are "+(S.electedName||"pope")+". The window has your name; the city has your furniture; the capitulation has your signature twice. Now govern.";}
+	else if(S.electedId==="piccolomini"&&!S.flags.divergedFromRecord&&S.mode==="historical"){key="pius";line="Pius II, as the record has it: the poor, gouty humanist carried to the throne by an accession that nearly died of silence, one office-broker's ledger torn up on the chapel floor. Mantua, the crusade sermon of the age, and six years of trying to shame Europe onto ships — all of it starts this noon.";}
+	else if(w.faction==="french"){key="avignon";line=S.electedName+" — a French pope, sworn to Article 3 and trailed out of the conclave by the one question every Italian is already asking: how long before the Curia sees the Rhône? The palazzi begin, quietly, to price their leases.";}
+	else if(w.faction==="catalan"){key="catalan";line=S.electedName+" — a Catalan pope proclaimed to a city that spent last month burning Catalan doors. The Te Deum is sung over the sound of the Borgo boarding its windows.";}
+	else if(w.faction==="greek"){key="greek";line=S.electedName+" — the refusal of 1455 answered at last: a Greek on the Latin throne, and a pontificate that will be one long argument with everyone who said it could never happen, conducted while fitting out a fleet.";}
+	else{key="model";line=S.electedName+" — an Italian settlement the record never saw, made by the same heat, the same fear of Avignon and the same arithmetic that made the real one.";}
+	S.finale={key:key,electedId:S.electedId,electedName:me?(S.electedName||null):S.electedName,how:S.flags.electHow,integrity:S.flags.electIntegrity,line:line};
+	const sc=scoreGame(S);
+	S.finale.score=sc;
+	addLog(S,"<b>"+esc(line)+"</b>","finale");
+	addLog(S,"The conclave of 1458 is over. Verdict: <b>"+sc.grade+"</b> — "+esc(sc.verdict)+" ("+sc.total+" of 100.)","finale");
+	S.over=true;
+	S.epilogue={achievements:achievementsFor(S)};
+	if(S.epilogue.achievements.length){
+		addLog(S,"Chronicle honours: "+S.epilogue.achievements.map(function(a){return "<b>"+esc(a.name)+"</b> — "+esc(a.line)}).join(" · "),"finale");
+	}
+}
+
+function scoreGame(S){
+	const me=ID[S.playerId];
+	const w=S.electedId?ID[S.electedId]:null;
+	const iv=S.flags.electIntegrity||50;
+	/* The Church (35) */
+	let church=0;
+	if(w){church=14+Math.round(iv*0.21)}
+	/* Conscience (20) */
+	let conscience=12;
+	if(S.conscience.sworePact)conscience-=6;
+	if(S.conscience.feigned)conscience-=2;
+	if(S.conscience.refusedPact)conscience+=4;
+	if(S.conscience.exposedDouble)conscience-=6;
+	if(S.playerStats.promisesMade>0)conscience-=Math.min(6,S.playerStats.promisesMade*2);
+	if(S.playerStats.denounces>0&&S.flags.pactWitnessed)conscience+=3;
+	if(S.conscience.laidHands)conscience-=3;
+	if(S.conscience.savedBooks)conscience+=1;
+	conscience=clamp(conscience,0,20);
+	/* Nation & ambition (20) */
+	let nation=6;
+	if(w){
+		if(S.electedId===S.playerId)nation=20;
+		else if(w.faction===me.faction)nation=16;
+		else if(S.electedId===playerLine(S))nation=14;
+		else if(me.faction==="italian"&&w.faction==="french")nation=2;
+		else if(me.faction==="french"&&w.faction!=="french")nation=4;
+		else if(me.faction==="catalan"&&(S.electedId==="piccolomini"))nation=12;
+		else nation=8;
+		if(S.playerId==="borgia"&&w&&S.electedId!=="borgia"){nation=clamp(nation+(S.conscience.promisedChancery?-4:(S.holds.vicechancery==="borgia"?2:0)),0,20)}
+	}
+	nation=clamp(nation,0,20);
+	/* The City (10) */
+	let city=clamp(Math.round((100-S.metrics.tumult)/10),0,10);
+	/* The Crusade (15) */
+	let crusade=4;
+	if(S.flags.capitChoice==="crusade")crusade+=3;
+	if(w&&["piccolomini","bessarion","isidore","torquemada"].includes(S.electedId))crusade+=6;
+	if(w&&me.faction==="greek"&&["piccolomini","bessarion","isidore"].includes(S.electedId))crusade+=2;
+	crusade=clamp(crusade,0,15);
+	const total=clamp(church+conscience+nation+city+crusade,0,100);
+	let grade,verdict;
+	if(total>=85){grade="A";verdict="A conclave to sign twice: the Church served, your hands clean enough, your nation content, and Rome still standing."}
+	else if(total>=70){grade="B";verdict="Well played by the standards of a hot August: the See filled, the ledger defensible, the grudges survivable."}
+	else if(total>=55){grade="C";verdict="A pope was made and you were in the room; history will not blame you, or thank you."}
+	else if(total>=40){grade="D";verdict="The See is filled, but your part in it reads badly by candlelight — and worse in the ambassadors' ciphers."}
+	else{grade="E";verdict="Pius wrote of nights like yours. Pray he spells your name wrong."}
+	return {total:total,parts:{church:church,conscience:conscience,nation:nation,city:city,crusade:crusade},grade:grade,verdict:verdict};
+}
+
+function achievementsFor(S){
+	const out=[];
+	const me=S.playerId,w=S.electedId;
+	if(w===me)out.push({name:"Ex Alta Fenestra",line:"Elected pope, and announced from the high window to a city holding handcarts."});
+	if(me==="piccolomini"&&S.conscience.vermiculo&&w==="piccolomini")out.push({name:"Vermiculus",line:"Answer the whisper at the chalice with the worm, and take the tiara anyway."});
+	if(me==="colonna"&&S.conscience.brokeFree&&w&&w!=="estouteville")out.push({name:"Eumque Papam Facio",line:"Shake off two cardinals and make a pope with four words."});
+	if(me==="borgia"&&S.accession&&S.accession.acceded.length&&S.accession.acceded[0].id==="borgia")out.push({name:"Primus Surrexit",line:"Youngest in the room, last in precedence, first on his feet."});
+	if(S.flags.italianBloc&&w===S.flags.italianBloc&&S.flags.wokeItalians)out.push({name:"Faber Pontificis",line:"Wake the Italians at midnight and see the dawn meeting's man crowned."});
+	if(w&&S.playerStats.promisesMade===0&&!S.conscience.sworePact&&!S.conscience.feigned)out.push({name:"Sine Pretio",line:"See a pope made without pledging an office or swearing in a latrine."});
+	if(S.conscience.sworePact&&w==="estouteville")out.push({name:"In Latrinis",line:"Sign in the latrines and watch the signature become a pontificate. Pius will name the room."});
+	if(S.flags["sacked_"+me])out.push({name:"Marmoribus Asportatis",line:"Have your own house carried off, down to the marbles, on the strength of a rumour."});
+	if(S.conscience.laidHands&&w&&w!=="estouteville")out.push({name:"Fracta Machinatio",line:"Seize the rising arm with your own hands, and watch the twelfth voice carry anyway."});
+	if(S.conscience.refusedPact&&me==="piccolomini"&&w==="piccolomini")out.push({name:"Fefellisti Te Ipsum",line:"Refuse the midnight kindness, wake the Italians, and let the latrines keep their pope."});
+	return out;
+}
+
+/* ---------- self-audit ---------- */
+function validateData(){
+	const problems=[];
+	if(ELECTORS.length!==18)problems.push("elector count "+ELECTORS.length);
+	const seen={};
+	ELECTORS.forEach(function(c){
+		if(seen[c.id])problems.push("duplicate id "+c.id);seen[c.id]=1;
+		if(!FACTIONS[c.faction])problems.push("bad faction "+c.id);
+		["learning","nerve","purse","ambition"].forEach(function(a){if(typeof c.axes[a]!=="number")problems.push("axes "+c.id+"."+a)});
+	});
+	const prec=ELECTORS.map(function(c){return c.precedence}).sort(function(a,b){return a-b});
+	for(let i=0;i<18;i++)if(prec[i]!==i+1)problems.push("precedence gap at "+(i+1));
+	const fsz={};ELECTORS.forEach(function(c){fsz[c.faction]=(fsz[c.faction]||0)+1});
+	if(fsz.italian!==8||fsz.catalan!==5||fsz.french!==2||fsz.greek!==2||fsz.avis!==1)problems.push("faction sizes "+JSON.stringify(fsz));
+	if(THRESHOLD!==12)problems.push("threshold "+THRESHOLD);
+	function tally(roll){const t={};Object.keys(roll).forEach(function(v){const c=roll[v];if(!ID[v])problems.push("roll voter "+v);if(!ID[c])problems.push("roll cand "+c);if(v===c)problems.push("self vote "+v);t[c]=(t[c]||0)+1});return t}
+	const t1=tally(HIST_SCRUTINY_1);
+	if(Object.keys(HIST_SCRUTINY_1).length!==18)problems.push("scrutiny I voter count");
+	if(t1.piccolomini!==5||t1.calandrini!==5)problems.push("scrutiny I fives "+JSON.stringify(t1));
+	Object.keys(t1).forEach(function(c){if(c!=="piccolomini"&&c!=="calandrini"&&t1[c]>3)problems.push("scrutiny I: "+c+" exceeds three")});
+	const t2=tally(HIST_SCRUTINY_2);
+	if(Object.keys(HIST_SCRUTINY_2).length!==18)problems.push("scrutiny II voter count");
+	if(t2.piccolomini!==9||t2.estouteville!==6)problems.push("scrutiny II nine-and-six "+JSON.stringify(t2));
+	const scat=18-9-6;
+	if((t2.calandrini||0)+(t2.torquemada||0)!==scat)problems.push("scrutiny II scattered");
+	/* the documented accessions must be lawful: mover's written voice went elsewhere, target had scrutiny votes */
+	HIST_ACCESSION.filter(function(b){return b.type==="accede"}).forEach(function(b){
+		if(HIST_SCRUTINY_2[b.id]===b.to)problems.push("accession "+b.id+" duplicates his written voice");
+		if(!t2[b.to])problems.push("accession target without scrutiny votes");
+	});
+	if(PACT_CORE.length!==8)problems.push("pact core size");
+	PACT_CORE.forEach(function(id){if(!ID[id])problems.push("pact id "+id)});
+	CANDIDATE_IDS.forEach(function(id){
+		const names=REGNAL[id];
+		if(!names||!names.length)problems.push("regnal missing "+id);
+		else names.forEach(function(n){if(!/[IVXL]+$/.test(n.split(" ").pop()))problems.push("regnal numeral "+n);if(!REGNAL_SIGNAL[n])problems.push("regnal signal "+n)});
+	});
+	if(REGNAL.piccolomini.length!==1||REGNAL.piccolomini[0]!=="Pius II")problems.push("Pius II is not optional");
+	Object.keys(BASE_LEAN).forEach(function(v){
+		if(!ID[v])problems.push("lean voter "+v);
+		Object.keys(BASE_LEAN[v]).forEach(function(c){if(!ID[c])problems.push("lean target "+c);if(v===c)problems.push("self lean "+v)});
+	});
+	OFFICES.forEach(function(o){if(o.ownerOnly&&!ID[o.ownerOnly])problems.push("office owner "+o.id)});
+	SESSIONS.forEach(function(s){if(!s)problems.push("empty session")});
+	return problems;
+}
+
+
+/* ===== 05-ui.js ===== */
+var SAVE_SCHEMA=1;
+var SAVE_KEY="extra-omnes-1458-v1";
+var UI={state:null,selected:"piccolomini",mode:"historical",filter:"all",search:"",dossierOpen:null,promiseOpen:false,colloquyOpen:false,modalReturnFocus:null};
+
+function hasDOM(){return typeof document!=="undefined"&&document&&document.getElementById}
+function $(id){return document.getElementById(id)}
+function el(tag,cls,html){const e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e}
+
+function saveGame(){
+	if(!hasDOM()||!UI.state)return;
+	try{localStorage.setItem(SAVE_KEY,JSON.stringify(UI.state))}catch(e){}
+}
+function validateSavedState(S){
+	const objects=["lean","trust","momentum","oath","ill","flags","conscience","playerStats","metrics","rng"];
+	const arrays=["promises","exposures","pendingQueue","history","log"];
+	if(!S||typeof S!=="object"||Array.isArray(S)||S.schemaVersion!==SAVE_SCHEMA)throw new Error("Unsupported saved-game version");
+	if(!ID[S.playerId]||typeof S.seed!=="string"||(S.mode!=="historical"&&S.mode!=="open"))throw new Error("Invalid saved-game identity");
+	if(!S.rng||!Number.isInteger(S.rng.state))throw new Error("Invalid saved-game random state");
+	objects.forEach(function(key){if(!S[key]||typeof S[key]!=="object"||Array.isArray(S[key]))throw new Error("Invalid saved-game "+key)});
+	arrays.forEach(function(key){if(!Array.isArray(S[key]))throw new Error("Invalid saved-game "+key)});
+	if(!Number.isInteger(S.ballotNo)||S.ballotNo<0||S.ballotNo>MAX_SCRUTINIES)throw new Error("Invalid saved-game ballot");
+	if(S.electedId!==null&&!ID[S.electedId])throw new Error("Invalid saved-game winner");
+	normaliseState(S);
+	return S;
+}
+function loadGame(){
+	if(!hasDOM())return null;
+	try{const raw=localStorage.getItem(SAVE_KEY);if(!raw)return null;return validateSavedState(JSON.parse(raw))}catch(e){try{localStorage.removeItem(SAVE_KEY)}catch(ignore){}return null}
+}
+function clearSave(){if(hasDOM()){try{localStorage.removeItem(SAVE_KEY)}catch(e){}}}
+
+function toast(msg){
+	if(!hasDOM())return;
+	const t=$("toast");if(!t)return;
+	t.textContent=msg;t.classList.add("show");
+	clearTimeout(UI._tt);UI._tt=setTimeout(function(){t.classList.remove("show")},2600);
+}
+
+function boot(){
+	if(!hasDOM())return;
+	buildSelect();
+	wireChrome();
+	const saved=loadGame();
+	if(saved){
+		const bar=$("continuebar");
+		if(bar){
+			bar.hidden=false;
+			$("continuebtn").onclick=function(){UI.state=saved;showGame();renderAll()};
+			$("discardbtn").onclick=function(){clearSave();bar.hidden=true;toast("The old chronicle is burned.")};
+		}
+	}
+}
+
+function wireChrome(){
+	$("startbtn").onclick=function(){
+		const seed=($("seedinput").value||"").trim()||("MCDLVIII-"+Math.floor(Math.random()*9000+1000));
+		clearSave();
+		UI.state=initState(UI.selected,seed,UI.mode);
+		saveGame();
+		showGame();renderAll();
+	};
+	document.querySelectorAll("[data-mode]").forEach(function(b){
+		b.setAttribute("aria-pressed",String(b.classList.contains("on")));
+		b.onclick=function(){UI.mode=b.getAttribute("data-mode");document.querySelectorAll("[data-mode]").forEach(function(x){const on=x===b;x.classList.toggle("on",on);x.setAttribute("aria-pressed",String(on))})};
+	});
+	$("searchbox").oninput=function(){UI.search=this.value.toLowerCase();buildCards()};
+	document.querySelectorAll("[data-filter]").forEach(function(b){
+		b.setAttribute("aria-pressed",String(b.classList.contains("on")));
+		b.onclick=function(){UI.filter=b.getAttribute("data-filter");document.querySelectorAll("[data-filter]").forEach(function(x){const on=x===b;x.classList.toggle("on",on);x.setAttribute("aria-pressed",String(on))});buildCards()};
+	});
+	["rules","sources"].forEach(function(k){
+		$(k+"btn").onclick=function(){openModal(k)};
+		$(k+"btn2").onclick=function(){openModal(k)};
+	});
+	$("modalclose").onclick=closeModal;
+	$("modal").onclick=function(e){if(e.target===this)closeModal()};
+	document.addEventListener("keydown",function(e){
+		const modal=$("modal");
+		if(!modal||!modal.classList.contains("open"))return;
+		if(e.key==="Escape"){closeModal();return}
+		if(e.key!=="Tab")return;
+		const focusable=Array.from(modal.querySelectorAll("button,[href],input,select,textarea,[tabindex]:not([tabindex='-1'])")).filter(function(node){return !node.disabled});
+		if(!focusable.length)return;
+		const first=focusable[0],last=focusable[focusable.length-1];
+		if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}
+		else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}
+	});
+	$("abandonbtn").onclick=function(){
+		if(confirm("Leave the conclave and burn this chronicle?")){clearSave();UI.state=null;showSelect()}
+	};
+}
+function openModal(kind){
+	UI.modalReturnFocus=document.activeElement;
+	$("modaltitle").textContent=kind==="rules"?"Rules of the game":"Sources & liberties";
+	$("modalbody").innerHTML=kind==="rules"?rulesHtml():sourcesHtml();
+	$("modal").classList.add("open");
+	$("modalclose").focus();
+}
+function closeModal(){if(hasDOM()){$("modal").classList.remove("open");if(UI.modalReturnFocus&&typeof UI.modalReturnFocus.focus==="function")UI.modalReturnFocus.focus();UI.modalReturnFocus=null}}
+function showGame(){$("screen-select").hidden=true;$("screen-game").hidden=false;window.scrollTo(0,0)}
+function showSelect(){$("screen-game").hidden=true;$("screen-select").hidden=false;window.scrollTo(0,0)}
+
+function buildSelect(){buildCards()}
+function buildCards(){
+	const grid=$("selgrid");if(!grid)return;
+	grid.innerHTML="";
+	ELECTORS.slice().sort(function(a,b){return a.precedence-b.precedence}).forEach(function(c){
+		if(UI.filter!=="all"&&c.faction!==UI.filter)return;
+		const hay=(c.name+" "+c.see+" "+c.hook+" "+c.origin).toLowerCase();
+		if(UI.search&&hay.indexOf(UI.search)<0)return;
+		const card=el("button","selcard"+(UI.selected===c.id?" on":""));
+		card.setAttribute("type","button");
+		card.setAttribute("aria-pressed",String(UI.selected===c.id));
+		card.innerHTML="<span class='selname'>"+esc(c.name)+"</span>"+
+			"<span class='selsee'>"+esc(c.see)+"</span>"+
+			"<span class='selhook'>"+esc(c.hook)+"</span>"+
+			"<span class='selmeta'><span class='chip chip-"+c.faction+"'>"+esc(FACTIONS[c.faction].label)+"</span><span class='stars'>"+"★".repeat(c.stars)+"<span class='dimstar'>"+"★".repeat(3-c.stars)+"</span></span> <span class='age'>æt. "+c.age+"</span></span>";
+		card.onclick=function(){UI.selected=c.id;buildCards();$("selblurb").innerHTML="<b>"+esc(c.name)+".</b> "+c.blurb+"<div class='record'>"+esc(c.record)+"</div>"};
+		grid.appendChild(card);
+	});
+	const sel=ID[UI.selected];
+	if(sel)$("selblurb").innerHTML="<b>"+esc(sel.name)+".</b> "+sel.blurb+"<div class='record'>"+esc(sel.record)+"</div>";
+}
+
+/* ---------- game rendering ---------- */
+function renderAll(){
+	const S=UI.state;if(!S||!hasDOM())return;
+	renderTop(S);renderMetrics(S);renderBoard(S);renderCentre(S);renderChronicle(S);renderSide(S);
+	saveGame();
+}
+function renderTop(S){
+	$("g-session").textContent=sessionLabel(S);
+	$("g-ballot").textContent=S.history.length?("after "+scrutinyLabel(S.ballotNo,true)):"before the first scrutiny";
+	$("g-ap").textContent=S.over?"—":(S.ap+" of 2");
+	$("g-player").innerHTML="<b>"+esc(ID[S.playerId].name)+"</b> · "+esc(ID[S.playerId].see);
+}
+function dial(id,label,v,tone){
+	return "<div class='dial "+(tone||"")+"'><div class='dial-label'>"+label+"</div><div class='dial-bar'><span style='width:"+v+"%'></span></div><div class='dial-num'>"+v+"</div></div>";
+}
+function renderMetrics(S){
+	$("metrics").innerHTML=
+		dial("m1","The August fever",S.metrics.fever,S.metrics.fever>65?"hot":"")+
+		dial("m2","Tumult in the city",S.metrics.tumult,S.metrics.tumult>65?"hot":"")+
+		dial("m3","Secrecy of the walls",S.metrics.secrecy,S.metrics.secrecy<35?"hot":"")+
+		dial("m4","Your standing",S.metrics.standing,"");
+	const lines=[
+		"In the Banchi they are boarding Catalan shopfronts by day and unboarding them by night.",
+		"The pilgrim inns are full; the corn is dear; the city waits under the heat like a dog under a table.",
+		"Handcarts have been seen loitering, professionally, near several palazzi.",
+		"The ambassadors' couriers ride at all hours. Somebody inside is writing to somebody outside."
+	];
+	$("cityline").textContent=lines[(S.ballotNo+S.log.length)%lines.length];
+}
+function renderBoard(S){
+	const rec=S.history[S.history.length-1];
+	const counts=rec?Object.assign({},rec.counts):forecastNothing();
+	const box=$("board");box.innerHTML="";
+	const title=el("div","panel-title","The race to twelve");
+	box.appendChild(title);
+	const order=CANDIDATE_IDS.slice().sort(function(a,b){return (counts[b]||0)-(counts[a]||0)||ID[a].precedence-ID[b].precedence});
+	order.forEach(function(id){
+		const n=counts[id]||0;
+		if(!rec&&n===0)return;
+		if(rec&&n===0&&!["piccolomini","estouteville","calandrini"].includes(id))return;
+		const row=el("div","cand-row"+(S.electedId===id?" elect":""));
+		let pips="";
+		for(let i=0;i<THRESHOLD;i++)pips+="<span class='pip"+(i<n?" on":"")+(rec&&rec.accessions&&i>=rec.leaderCount&&i<n&&id===rec.leaderId?" acc":"")+"'></span>";
+		row.innerHTML="<span class='cand-name'><span class='chip chip-"+ID[id].faction+"'></span>"+esc(shortName(id))+"</span><span class='pips'>"+pips+"</span><span class='cand-n'>"+n+"</span>";
+		box.appendChild(row);
+	});
+	if(!rec)box.appendChild(el("div","boardnote","No scrutiny yet. Twelve voices of eighteen elect; the accession may finish what the papers begin."));
+	if(rec){
+		const last=el("div","lastscrutiny");
+		last.innerHTML="<div class='panel-title'>"+scrutinyLabel(rec.ballot)+" · "+esc(rec.date)+"</div>"+
+			rec.votes.map(function(v){
+				const who=shortName(v.voter);
+				if(v.ill)return "<div class='voterow ill'><span>"+esc(who)+"</span><span>— confined by the fever</span></div>";
+				const c=v.candidate[0]?shortName(v.candidate[0]):"a blank paper";
+				return "<div class='voterow"+(v.voter===S.playerId?" me":"")+"'><span>"+esc(who)+"</span><span>→ "+esc(c)+"</span></div>";
+			}).join("")+
+			(rec.accessions.length?"<div class='accrow'>Accessions: "+rec.accessions.map(function(a){return esc(shortName(a.id))+" → "+esc(shortName(a.to))}).join(" · ")+"</div>":"");
+		box.appendChild(last);
+	}
+}
+function forecastNothing(){return {}}
+
+function renderCentre(S){
+	const c=$("centre");c.innerHTML="";
+	if(S.pending){
+		const spec=decisionSpec(S);
+		const d=el("div","decision");
+		d.innerHTML="<div class='panel-title'>"+esc(spec.title)+"</div><div class='dec-body'>"+spec.body+"</div>";
+		const wrap=el("div","dec-opts");
+		spec.options.forEach(function(o){
+			const b=el("button","btn dec-btn",o.label);
+			b.onclick=function(){
+				try{resolveDecision(S,o.id)}catch(e){toast(e.message);return}
+				renderAll();
+			};
+			wrap.appendChild(b);
+		});
+		d.appendChild(wrap);c.appendChild(d);
+		return;
+	}
+	if(S.accession&&S.accession.phase==="live"){
+		renderAccession(S,c);
+		return;
+	}
+	if(S.over){
+		const f=el("div","finale");
+		const sc=S.finale&&S.finale.score;
+		f.innerHTML="<div class='panel-title'>The chronicle closes</div><div class='dec-body'>"+(S.finale?esc(S.finale.line):"")+"</div>"+
+			(sc?"<div class='scorebox'><div class='scoregrade'>"+sc.grade+"</div><div class='scoretotal'>"+sc.total+" / 100</div>"+
+			"<div class='scoreparts'>The Church "+sc.parts.church+"/35 · Conscience "+sc.parts.conscience+"/20 · Nation &amp; ambition "+sc.parts.nation+"/20 · The City "+sc.parts.city+"/10 · The Crusade "+sc.parts.crusade+"/15</div>"+
+			"<div class='verdict'>"+esc(sc.verdict)+"</div></div>":"")+
+			(S.epilogue&&S.epilogue.achievements.length?"<div class='achv'>"+S.epilogue.achievements.map(function(a){return "<div><b>"+esc(a.name)+"</b> — "+esc(a.line)+"</div>"}).join("")+"</div>":"");
+		const again=el("button","btn primary","Another conclave");
+		again.onclick=function(){clearSave();UI.state=null;showSelect()};
+		f.appendChild(again);c.appendChild(f);
+		return;
+	}
+	/* the interval: actions + the paper */
+	const a=el("div","actions");
+	a.innerHTML="<div class='panel-title'>The interval · "+S.ap+" of 2 acts remain</div>";
+	ACTIONS.forEach(function(act){
+		const row=el("div","act-row");
+		const b=el("button","btn act-btn"+(S.ap<act.cost?" off":""),act.label);
+		b.onclick=function(){
+			if(S.ap<act.cost){toast("You have spent this interval.");return}
+			if(act.id==="promise"){UI.promiseOpen=!UI.promiseOpen;UI.colloquyOpen=false;renderAll();return}
+			if(act.id==="colloquy"){UI.colloquyOpen=!UI.colloquyOpen;UI.promiseOpen=false;renderAll();return}
+			try{performAction(S,act.id)}catch(e){toast(e.message);return}
+			UI.promiseOpen=UI.colloquyOpen=false;
+			renderAll();
+		};
+		row.appendChild(b);
+		row.appendChild(el("span","act-line",act.line));
+		a.appendChild(row);
+		if(act.id==="promise"&&UI.promiseOpen)a.appendChild(promisePicker(S));
+		if(act.id==="colloquy"&&UI.colloquyOpen)a.appendChild(colloquyPicker(S));
+	});
+	c.appendChild(a);
+	/* the paper */
+	const v=el("div","votepanel");
+	v.innerHTML="<div class='panel-title'>"+(S.ballotNo>=MAX_SCRUTINIES?"No further scrutiny can be held":"The next scrutiny")+"</div>";
+	if(S.ballotNo<MAX_SCRUTINIES){
+		const sel=el("select","voteselect");
+		sel.id="votesel";
+		CANDIDATE_IDS.filter(function(id){return id!==S.playerId}).sort(function(a,b){return ID[a].precedence-ID[b].precedence}).forEach(function(id){
+			const o=document.createElement("option");o.value=id;o.textContent=displayName(id)+" ("+shortName(id)+")";
+			sel.appendChild(o);
+		});
+		const roll=scriptedRollFor(S);
+		if(roll&&roll[S.playerId])sel.value=roll[S.playerId];
+		else{const line=playerLine(S);if(line&&line!==S.playerId)sel.value=line}
+		const cast=el("button","btn primary","Write the name and go to the chalice");
+		cast.onclick=function(){
+			try{beginScrutiny(S,[sel.value])}catch(e){toast(e.message);return}
+			renderAll();
+		};
+		const blank=el("button","btn ghost","Cast a blank paper");
+		blank.onclick=function(){
+			try{beginScrutiny(S,[])}catch(e){toast(e.message);return}
+			renderAll();
+		};
+		v.appendChild(sel);v.appendChild(cast);v.appendChild(blank);
+		if(roll&&roll[S.playerId])v.appendChild(el("div","votehint","The record has your paper reading <b>"+esc(shortName(roll[S.playerId]))+"</b>. Write otherwise and the chronicle leaves the notaries for the model."));
+	}
+	c.appendChild(v);
+}
+function promisePicker(S){
+	const box=el("div","subpick");
+	const os=el("select");OFFICES.filter(function(o){return officeAvailableTo(S,o.id,S.playerId)}).forEach(function(o){
+		const opt=document.createElement("option");opt.value=o.id;opt.textContent=o.label;os.appendChild(opt);
+	});
+	const ts=el("select");IDS.filter(function(id){return id!==S.playerId}).sort(function(a,b){return ID[a].precedence-ID[b].precedence}).forEach(function(id){
+		const opt=document.createElement("option");opt.value=id;opt.textContent=displayName(id);ts.appendChild(opt);
+	});
+	const go=el("button","btn","Pledge it");
+	go.onclick=function(){
+		try{performAction(S,"promise",{office:os.value,target:ts.value})}catch(e){toast(e.message);return}
+		UI.promiseOpen=false;renderAll();
+	};
+	const note=el("div","subnote","");
+	os.onchange=function(){note.textContent=(OFFICE[os.value]||{}).line||""};
+	note.textContent=(OFFICE[os.value]||{}).line||"";
+	box.appendChild(os);box.appendChild(ts);box.appendChild(go);box.appendChild(note);
+	return box;
+}
+function colloquyPicker(S){
+	const box=el("div","subpick");
+	const ts=el("select");IDS.filter(function(id){return id!==S.playerId&&!S.ill[id]}).sort(function(a,b){return ID[a].precedence-ID[b].precedence}).forEach(function(id){
+		const opt=document.createElement("option");opt.value=id;opt.textContent=displayName(id);ts.appendChild(opt);
+	});
+	const go=el("button","btn","Walk with him");
+	go.onclick=function(){
+		try{performAction(S,"colloquy",{target:ts.value})}catch(e){toast(e.message);return}
+		UI.colloquyOpen=false;renderAll();
+	};
+	box.appendChild(ts);box.appendChild(go);
+	return box;
+}
+function renderAccession(S,c){
+	const A=S.accession;
+	const d=el("div","accession-panel");
+	d.innerHTML="<div class='panel-title acc-title'>The accessio · "+esc(shortName(A.leaderId))+" stands at "+A.count+" of "+THRESHOLD+"</div>"+
+		"<div class='acc-feed'>"+A.beats.slice(-7).map(function(b){return "<div class='beat beat-"+b.type+"'>"+(b.html||"")+"</div>"}).join("")+"</div>";
+	const controls=el("div","acc-controls");
+	const eligible=accessionEligible(S,S.playerId);
+	const acc=el("button","btn primary"+(eligible?"":" off"),eligible?("Rise: accede to "+shortName(A.leaderId)):"Your voice already counts for "+shortName(A.leaderId));
+	acc.onclick=function(){
+		if(!eligible){toast("Your written voice already stands with the leader.");return}
+		stageAccessionChoice(S,{act:"accede"});stepAccession(S);renderAll();
+	};
+	const hold=el("button","btn","Hold — let the room move");
+	hold.onclick=function(){stepAccession(S);renderAll()};
+	const walk=el("button","btn ghost","Rise as if to leave");
+	walk.onclick=function(){stageAccessionChoice(S,{act:"walk"});stepAccession(S);renderAll()};
+	controls.appendChild(acc);controls.appendChild(hold);controls.appendChild(walk);
+	d.appendChild(controls);
+	d.appendChild(el("div","acc-note","Any man whose written voice went elsewhere may rise and carry it to one who had votes. Twelve elects on the floor, in the open, with everyone watching everyone."));
+	c.appendChild(d);
+}
+function renderChronicle(S){
+	const box=$("chronicle");
+	box.innerHTML="<div class='panel-title'>The chronicle</div>"+S.log.slice(-40).map(function(L){
+		return "<div class='logline log-"+L.kind+"'><span class='logwhen'>"+esc(L.when)+"</span>"+L.html+"</div>";
+	}).join("");
+	box.scrollTop=box.scrollHeight;
+}
+function renderSide(S){
+	const me=ID[S.playerId];
+	$("objective").innerHTML="<div class='panel-title'>Your object</div><div class='obj-body'>"+esc(objectiveFor(me))+"</div>";
+	const led=$("ledger");
+	const mine=S.promises.filter(function(p){return p.by===S.playerId});
+	led.innerHTML="<div class='panel-title'>The ledger of promises</div>"+
+		(mine.length?mine.map(function(p){return "<div class='ledrow"+(p.exposed?" exposed":"")+"'>"+esc(OFFICE[p.office].label)+" → "+esc(shortName(p.to))+(p.double?" <span class='dbl'>(twice pledged)</span>":"")+(p.exposed?" <span class='dbl'>— exposed</span>":"")+"</div>"}).join(""):"<div class='ledrow none'>Nothing pledged. Nothing owed. Nothing to be found out.</div>")+
+		(S.exposures.filter(function(p){return p.by!==S.playerId}).length?"<div class='ledsub'>Known scandals: "+S.exposures.filter(function(p){return p.by!==S.playerId}).map(function(p){return esc(shortName(p.by))+" ("+esc(OFFICE[p.office].label)+")"}).join(" · ")+"</div>":"");
+	const dos=$("dossiers");
+	dos.innerHTML="<div class='panel-title'>The College</div>"+ELECTORS.slice().sort(function(a,b){return a.precedence-b.precedence}).map(function(cd){
+		const open=UI.dossierOpen===cd.id;
+		return "<button type='button' class='dosrow"+(open?" open":"")+(S.ill[cd.id]?" ill":"")+"' data-dos='"+cd.id+"' aria-expanded='"+open+"'>"+
+			"<div class='doshead'><span class='chip chip-"+cd.faction+"'></span><b>"+esc(shortName(cd.id))+"</b> <span class='dossee'>"+esc(cd.name)+(cd.id===S.playerId?" — you":"")+(S.ill[cd.id]?" · fevered":"")+"</span></div>"+
+			(open?"<div class='dosbody'>"+cd.blurb+"<div class='record'>"+esc(cd.record)+"</div></div>":"")+
+		"</button>";
+	}).join("");
+	dos.querySelectorAll("[data-dos]").forEach(function(row){
+		row.onclick=function(){const id=row.getAttribute("data-dos");UI.dossierOpen=UI.dossierOpen===id?null:id;renderSide(S)};
+	});
+	const snd=$("soundings");
+	if(S.lastSounding){
+		snd.innerHTML="<div class='panel-title'>Soundings · before "+scrutinyLabel(S.lastSounding.ballot+1,true)+"</div>"+
+			S.lastSounding.rows.map(function(r){return "<div class='sndrow'><span>"+esc(shortName(r.id))+"</span><span class='sndrange'>"+r.lo+"–"+r.hi+"</span></div>"}).join("")+
+			"<div class='sndnote'>Ranges by wine-jug, not by notary.</div>";
+	}else{
+		snd.innerHTML="<div class='panel-title'>Soundings</div><div class='sndnote'>Send your conclavist along the cells to bring back ranges.</div>";
+	}
+}
+
+function rulesHtml(){
+	return "<p><b>The situation.</b> Calixtus III is dead; his Catalans are hunted in the streets; Capranica, the man everyone expected this conclave to crown, died four days before it opened. Eighteen cardinals are walled into the Apostolic Palace in the Roman August that killed him. <b>Twelve voices of eighteen make a pope.</b></p>"+
+	"<p><b>The scrutiny.</b> Each interval you may spend <b>two acts</b> — colloquies, rallies, promises, denunciations, soundings, words through the wall, night watches, physic — then write one name and carry it to the chalice. Blank papers are lawful and noticed. In <b>historical</b> mode the first two scrutinies follow the documented record wherever you do; write otherwise and the chronicle leaves the notaries for the model. In <b>open</b> mode the model runs from the first paper.</p>"+
+	"<p><b>The accessio.</b> The heart of 1458, and of this game. When a scrutiny fails, the College keeps its seats and the floor opens: any man whose written voice went elsewhere may rise, in the open, and carry it to a candidate who already has votes — never to his own written choice, never to a man with none. Silence is pressure; the bandwagon is real; the pact's enforcers may lay hands on a rising man, and a walk-out at the right moment can kill the whole thing, as it did on the Friday. Twelve on the floor elects, and everyone will remember exactly when you stood.</p>"+
+	"<p><b>The ledger.</b> Offices may be promised — once each, safely. Promised twice, they have a way of comparing notes, and the leakier the walls, the sooner. The Vice-Chancellery is not vacant: Borgia is holding it, and watching.</p>"+
+	"<p><b>The world.</b> Four dials: the <b>August fever</b> ramps until the College would elect a hat-stand to get out; <b>tumult</b> is the city, which sacks the palazzo of any man it merely believes elected; <b>secrecy</b> is what the ambassadors don't yet know; <b>standing</b> is your credit. The conclave always ends: the only question is whose name is on it, and what your part reads like in the Commentarii.</p>"+
+	"<p><b>Scoring.</b> One hundred points across the Church (a pope, honestly made), your conscience, your nation and ambition, the city, and the crusade.</p>";
+}
+function sourcesHtml(){
+	return "<p><b>Primary.</b> The inside of this conclave is documented as no earlier one is, because the winner wrote it up: <i>Pius II, Commentarii rerum memorabilium</i>, Book I — the source of the latrine pact and its eleven, Calandrini's midnight visit (<i>nescis quia iam papam habemus?</i>), the vilification of Siena, the dawn encounters with Borgia and Castiglione, the whisper at the chalice and the worm, the nine-and-six of the second scrutiny, Borgia rising first, the walk-out attempt, Tebaldi's voice, the seizing of Colonna's arms and his <i>Et ego Senensi Cardinali accedo, eumque Papam facio</i>, Bessarion's concession, and the sack of the new pope's house <i>even to the marbles</i>. A first-person source written by the beneficiary: gripping, partisan, and used here with that health warning attached.</p>"+
+	"<p><b>Assembled and checked against</b> J.&nbsp;P. Adams' <a href='https://www.csun.edu/~hcfll004/SV1458.html' target='_blank' rel='noopener'>Sede Vacante 1458</a> dossier and its companion page on the <a href='https://www.csun.edu/~hcfll004/1458_Electoral_Capitulations.html' target='_blank' rel='noopener'>electoral capitulations</a>, which print the sources at length — the eighteen articles, the ambassadors' letters, Ottone de Carretto's pivot to Piccolomini on the day Capranica died, and the biographical record of all twenty-six cardinals, present and absent.</p>"+
+	"<p><b>A named dispute.</b> The Commentarii's arithmetic for the second scrutiny (nine for Siena, six for Rouen, as followed here) is not the only reading: Burkle-Young reconstructs Rouen's six differently — Coëtivy, Colonna, Bessarion, Fieschi, Torquemada, Castiglione — with Isidore and even Rouen himself among Siena's nine. Where the accounts part, this game follows the Commentarii as read by Adams, and says so.</p>"+
+	"<p><b>Liberties, honestly listed.</b> The per-voter papers inside the documented totals of the first scrutiny (5 Siena, 5 Bologna, none of the rest above three) are modelled, as are the three scattered voices of the second, the exact beat-order of silences, Rouen's precise promises beyond the documented three to Avignon, all conversations you have that Pius did not record, every counterfactual after a divergence, and the regnal names of the seventeen men who never chose one. The dials, the acts, the ledger's exposure arithmetic and the accession urges are game mechanics wearing period dress. The capitulation articles are abridged from the Latin text; translations from the Commentarii are fresh ones made for this game.</p>"+
+	"<p><b>Also consulted:</b> the standard modern accounts of the conclave and of Pius II's election, the Vespasiano da Bisticci life of Jaime of Portugal, and the documentary record of the 31 July consistory of three cardinals. Anything that reads like a novel is the fifteenth century's fault: most of the best lines are theirs.</p>";
+}
+
+if(hasDOM()){
+	if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);
+	else boot();
+}
+
+
+/* ===== 06-exports.js ===== */
+const ACCESSION_1458_ENGINE={
+	THRESHOLD_N:THRESHOLD_N,THRESHOLD:THRESHOLD,MAX_SCRUTINIES:MAX_SCRUTINIES,
+	FACTIONS:FACTIONS,ELECTORS:ELECTORS,CARDINALS:CARDINALS,IDS:IDS,ID:ID,CANDIDATE_IDS:CANDIDATE_IDS,
+	ABSENT:ABSENT,PACT_CORE:PACT_CORE,PACT_COUNTED:PACT_COUNTED,OFFICES:OFFICES,OFFICE:OFFICE,
+	SESSIONS:SESSIONS,CAPITULATION:CAPITULATION,
+	HIST_SCRUTINY_1:HIST_SCRUTINY_1,HIST_SCRUTINY_2:HIST_SCRUTINY_2,HIST_ACCESSION:HIST_ACCESSION,
+	REGNAL:REGNAL,REGNAL_SIGNAL:REGNAL_SIGNAL,BASE_LEAN:BASE_LEAN,BASE_METRICS:BASE_METRICS,
+	hashSeed:hashSeed,nextRand:nextRand,pureRand:pureRand,clamp:clamp,
+	initState:initState,queueDecision:queueDecision,decisionSpec:decisionSpec,resolveDecision:resolveDecision,
+	autoChoiceFor:autoChoiceFor,performAction:performAction,ACTIONS:ACTIONS,
+	beginScrutiny:beginScrutiny,validatePlayerPicks:validatePlayerPicks,
+	startAccession:startAccession,stepAccession:stepAccession,stageAccessionChoice:stageAccessionChoice,
+	accessionEligible:accessionEligible,accessionUrge:accessionUrge,autoAccessionChoice:autoAccessionChoice,
+	forecastCounts:forecastCounts,makeSounding:makeSounding,scoreCandidate:scoreCandidate,aiVote:aiVote,
+	promiseOffice:promiseOffice,officeAvailableTo:officeAvailableTo,
+	sessionLabel:sessionLabel,ballotDateLabel:ballotDateLabel,scrutinyLabel:scrutinyLabel,roman:roman,
+	objectiveFor:objectiveFor,playerLine:playerLine,factionLine:factionLine,feverUrgency:feverUrgency,
+	computeElectionIntegrity:computeElectionIntegrity,finalizeElection:finalizeElection,
+	papalNameForState:papalNameForState,regnalOptionsFor:regnalOptionsFor,regnalSignalFor:regnalSignalFor,
+	choosePlayerRegnalName:choosePlayerRegnalName,
+	scoreGame:scoreGame,achievementsFor:achievementsFor,computeFinale:computeFinale,
+	validateData:validateData,runHeadless:runHeadless,normaliseState:normaliseState,
+	displayName:displayName,shortName:shortName,esc:esc,
+	SAVE_SCHEMA:(typeof SAVE_SCHEMA!=="undefined")?SAVE_SCHEMA:1,
+	SAVE_KEY:(typeof SAVE_KEY!=="undefined")?SAVE_KEY:"extra-omnes-1458-v1",
+	validateSavedState:(typeof validateSavedState!=="undefined")?validateSavedState:null
+};
+if(typeof module!=="undefined"&&module.exports){module.exports=ACCESSION_1458_ENGINE}
+if(typeof window!=="undefined"){window.__om=ACCESSION_1458_ENGINE}
+
+</script>
+</body>
+</html>
