@@ -824,6 +824,13 @@ function checkStaticFiles() {
 	for (const [year, roman] of Object.entries(romanDates)) assert(index.includes(`<span class="year">${year}</span><span class="roman">${roman}</span>`), `index: missing Roman date ${roman} for ${year}`);
 	assert(index.includes("The Keys of Heaven"), "index: 1492 still lacks its distinctive title");
 	assert(/class="card beta" href="\.\/constance-1417\.html"[\s\S]*?<span class="status">Beta<\/span>/.test(index), "index: Constance 1417 is not promoted to beta");
+	for (const [status, expected] of Object.entries({ complete: 1, beta: 2, alpha: 6 })) {
+		const section = index.match(new RegExp(`<section class="status-group" aria-labelledby="${status}-heading">([\\s\\S]*?)<\\/section>`));
+		assert(section, `index: ${status} status section is missing`);
+		const cards = (section[1].match(/<a class="card(?: [^"]*)?"/g) || []).length;
+		const shown = section[1].match(/<span class="group-count">(\d+) games?<\/span>/);
+		assert(cards === expected && shown && Number(shown[1]) === cards, `index: ${status} count says ${shown ? shown[1] : "nothing"}, but contains ${cards} cards`);
+	}
 	assert(index.includes("assets/art/conclave-1878.webp") && fs.existsSync(path.join(ROOT, "assets", "art", "conclave-1878.webp")), "index: historical header engraving is missing");
 	const anchors = {
 		"1492.html": ["The Keys of Heaven"],
