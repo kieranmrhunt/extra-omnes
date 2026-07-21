@@ -97,11 +97,11 @@ input,select{font-family:var(--serif);font-size:.95rem;color:var(--paper);backgr
 
 /* ---------- game screen ---------- */
 #screen-game{display:grid;grid-template-columns:290px minmax(430px,1fr) 348px;grid-template-rows:auto 1fr;gap:.7rem;max-width:1440px;margin:0 auto;padding:12px 14px 18px;height:100vh}
-#screen-game header{grid-column:1/-1;display:flex;align-items:center;gap:.7rem;border-bottom:1px solid var(--line);padding-bottom:.5rem}
-#screen-game header h1{font-family:var(--display);font-weight:600;font-size:1.5rem;margin:0;color:var(--paper)}
+#screen-game header{grid-column:1/-1;display:grid;grid-template-columns:auto minmax(15rem,1fr) auto auto minmax(18rem,auto);align-items:center;gap:.7rem;border-bottom:1px solid var(--line);padding-bottom:.5rem}
+#screen-game header h1{font-family:var(--display);font-weight:600;font-size:1.5rem;line-height:1.08;margin:0;color:var(--paper);word-break:normal;overflow-wrap:normal}
 #screen-game header .home{font-family:var(--mono);font-size:.7rem;color:var(--paper-dim);text-decoration:none;border:1px solid var(--line2);border-radius:6px;padding:.32rem .5rem}
 #screen-game header .home:hover{color:var(--paper);border-color:var(--gold)}
-#screen-game header .date{margin-left:auto;font-family:var(--mono);font-size:.74rem;color:var(--lake-bright);letter-spacing:.06em}
+#screen-game header .date{text-align:right;font-family:var(--mono);font-size:.74rem;color:var(--lake-bright);letter-spacing:.06em}
 .col{min-height:0;display:flex;flex-direction:column;background:linear-gradient(170deg,var(--surface),transparent 70%);border:1px solid var(--line);border-radius:12px;padding:.7rem}
 .colhead{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--mono);font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--smoke);margin-bottom:.5rem}
 .tabs{display:flex;flex-wrap:wrap;gap:.28rem;margin-bottom:.5rem}
@@ -212,6 +212,15 @@ input,select{font-family:var(--serif);font-size:.95rem;color:var(--paper);backgr
 .roll-list{max-height:300px;overflow:auto;border:1px solid var(--line);border-radius:7px;padding:.35rem .55rem}
 .roll-line{display:grid;grid-template-columns:minmax(9rem,.8fr) 1fr;gap:.5rem;padding:.2rem 0;border-bottom:1px dashed var(--line);font-size:.84rem;color:var(--paper-dim)}
 .roll-line b{color:var(--paper)}
+.cedula-limit{display:flex;justify-content:space-between;gap:.5rem;align-items:center;margin:.45rem 0;padding:.42rem .55rem;border:1px solid var(--gold);border-radius:7px;background:var(--gold-soft);font-family:var(--mono);font-size:.7rem;color:var(--gold-bright)}
+.scrutiny-reading{border:1px solid var(--line2);border-radius:9px;background:var(--void2);padding:.65rem .75rem;margin:.55rem 0}
+.scrutiny-progress{font-family:var(--mono);font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;color:var(--smoke)}
+.scrutiny-current{min-height:3.2rem;margin:.35rem 0;color:var(--paper);font-size:1rem}
+.scrutiny-current b{color:var(--gold-bright)}
+.scrutiny-running-tally{display:flex;flex-wrap:wrap;gap:.3rem;margin:.4rem 0}
+.scrutiny-running-tally span{border:1px solid var(--line);border-radius:5px;padding:.18rem .35rem;font-family:var(--mono);font-size:.68rem;color:var(--paper-dim)}
+.scrutiny-running-tally span:first-child{border-color:var(--gold);color:var(--gold-bright)}
+.public-roll-note{padding:.45rem .55rem;border-left:2px solid var(--lake);background:var(--lake-soft);color:var(--paper-dim);font-size:.84rem}
 
 /* ---------- end screen ---------- */
 #screen-end{max-width:880px;margin:0 auto;padding:44px 18px 70px;text-align:center}
@@ -232,14 +241,24 @@ input,select{font-family:var(--serif);font-size:.95rem;color:var(--paper);backgr
 
 @media(max-width:1080px){
 	#screen-game{grid-template-columns:1fr 1fr;height:auto}
-	#centercol{grid-column:1/-1;order:-1}
+	#screen-game header{order:-3}
+	#centercol{grid-column:1/-1;order:-2}
+	#rightcol{order:-1}
+	#leftcol{order:0}
 	#log{max-height:44vh}
 }
 @media(max-width:680px){
 	#screen-game{grid-template-columns:1fr}
+	#screen-game header{grid-template-columns:minmax(0,1fr) auto auto;gap:.45rem .5rem}
+	#screen-game header .home{grid-column:1;grid-row:1;justify-self:start}
+	#screen-game header #manualBtn{grid-column:2;grid-row:1}
+	#screen-game header #saveBtn{grid-column:3;grid-row:1}
+	#screen-game header h1{grid-column:1/-1;grid-row:2;font-size:1.35rem;max-width:100%}
+	#screen-game header .date{grid-column:1/-1;grid-row:3;text-align:left;font-size:.68rem;line-height:1.45}
 	.brow{grid-template-columns:1fr repeat(6,1.7rem)}
 	.affinity-guide-grid,.chooser-list{grid-template-columns:1fr}
 	.chooser-controls{grid-template-columns:1fr}
+	.roll-line{grid-template-columns:1fr}
 }
 @media(prefers-reduced-motion:reduce){
 	*{transition:none!important;animation:none!important;scroll-behavior:auto!important}
@@ -590,11 +609,30 @@ const NAME_CHOICES={
 const DEFAULT_NAMES=["Martin V","Innocent VIII","Gregory XIII","Nicholas V","Celestine VI","Boniface X","Urban VII","Honorius V","Sixtus IV","Pius II","Callistus III","Leo X"];
 const REGNAL_NOTES={
 	"Martin V":"for St Martin of Tours, on whose feast the lock turned",
+	"Leo X":"after St Leo the Great, commemorated on 10 November in medieval calendars",
+	"Lebuin I":"after St Lebuin, commemorated on 12 November",
+	"Brice I":"after St Brice of Tours, commemorated on 13 November",
+	"Lawrence I":"after St Lawrence O'Toole, commemorated on 14 November",
+	"Malo I":"after St Malo, commemorated on 15 November",
+	"Edmund I":"after St Edmund of Abingdon, commemorated on 16 November",
+	"Hugh I":"after St Hugh of Lincoln, commemorated on 17 November",
+	"Paul II":"for the dedication of the churches of St Peter and St Paul on 18 November",
 	"Eugene IV":"the name Condulmer would in truth take in 1431",
 	"Clement VII":"a number the Avignon line already wore; choosing it would be a flag",
 	"Benedict XIII":"Pedro de Luna's own stolen number, reclaimed for the lawful line",
 	"Felix V":"a name Savoy would in truth reach for at Basel, a generation on",
 	"John XXIV":"conceding Cossa's number to history rather than fighting it"
+};
+const FEAST_NAMES_1417={
+	1:"Leo X",
+	2:"Martin V",3:"Martin V",
+	4:"Lebuin I",5:"Lebuin I",
+	6:"Brice I",7:"Brice I",
+	8:"Lawrence I",
+	9:"Malo I",
+	10:"Edmund I",
+	11:"Hugh I",
+	12:"Paul II"
 };
 
 function objectiveFor(electorRecord){
@@ -855,6 +893,7 @@ function initState(playerId,seed,mode){
 			playerProgramme:null,
 			endorsedId:null,
 			adimariCascade:false,
+			historicalCascadeSkipped:false,
 			holdoutMoment:false,
 			consummationBy:null,
 			unanimous:false
@@ -1291,9 +1330,26 @@ function playerAccede(S,targetId){
 function accessionPhase(S,record){
 	S.pendingBallot=record;
 	if(S.mode==="historical"&&record.ballot===2&&!S.flags.blocBroken){
-		return historicalCascade(S,record);
+		if(historicalCascadeWillRun(S,record))return historicalCascade(S,record);
+		S.flags.historicalCascadeSkipped=true;
+		addLog(S,"Adimari rises with a paper crowded by names, but the twenty will not yet move as one. Colonna remains the strongest settlement; the accessions are left to individual consciences.","event",record.date);
 	}
 	return openAccessions(S,record);
+}
+function historicalCascadeChance(S,record){
+	let chance=.44;
+	const playerVote=record.votes.filter(function(entry){return entry.voter===S.playerId})[0];
+	if(playerVote&&playerVote.candidate.indexOf("colonna")>=0)chance+=.08;
+	else if(playerVote&&playerVote.candidate.length)chance-=.08;
+	if(S.flags.endorsedId==="colonna")chance+=.12;
+	else if(S.flags.endorsedId)chance-=.18;
+	if(S.playerId==="adimari")chance+=.06;
+	if((S.momentum.colonna||0)<-2)chance-=.12;
+	if((S.momentum.colonna||0)>3)chance+=.08;
+	return clamp(chance,.18,.82);
+}
+function historicalCascadeWillRun(S,record){
+	return unitFrom(S.seed+"|adimari-cascade|"+record.ballot)<historicalCascadeChance(S,record);
 }
 function cascadeBloc(S,record,targetId,collegeNeeds,excludeIds){
 	/* Bring the target's per-college tallies up to the stated minimums with legal accessions,
@@ -1708,10 +1764,35 @@ function colloquySnapshot(S,voterId,level){
 	else text="Current modelled preference: "+names[0]+"; "+names[1]+" is the nearest alternative.";
 	return {voterId:voterId,level:level,ranked:ranked.slice(0,3).map(function(row){return row.id}),text:text};
 }
+function tightenSoundingRange(range,estimate){
+	if(!range)return;
+	if(range.low<estimate)range.low++;
+	if(range.high>estimate)range.high--;
+	if(range.low>range.high)range.low=range.high=estimate;
+}
+function refineSoundingWithColloquy(S,voterId,snapshot,wasStale){
+	const sounding=S.lastSounding;
+	if(!sounding||sounding.ballot!==S.ballotNo+1)return false;
+	const totals=forecastCounts(S);
+	const colleges=forecastColleges(S);
+	const voterCollege=collegeOf(voterId);
+	const relevant=snapshot.ranked||[];
+	sounding.rows.forEach(function(row){
+		if(relevant.indexOf(row.id)<0)return;
+		tightenSoundingRange(row,totals[row.id]||0);
+		tightenSoundingRange(row.colleges[voterCollege],(colleges[voterCollege]&&colleges[voterCollege][row.id])||0);
+	});
+	if(!Array.isArray(sounding.refinedVoters))sounding.refinedVoters=[];
+	if(sounding.refinedVoters.indexOf(voterId)<0)sounding.refinedVoters.push(voterId);
+	sounding.confidence=clamp(sounding.confidence+2,0,92);
+	sounding.stale=!!wasStale;
+	return true;
+}
 function actionColloquy(S,voterId,mode,candidateId){
 	if(!ID[voterId]||voterId===S.playerId)return failAction(S,"Choose another elector for the colloquy.");
 	if(mode!=="sound"&&mode!=="press")return failAction(S,"Choose what you want from the meeting.");
 	if(mode==="press"&&(!ID[candidateId]||candidateId===voterId))return failAction(S,"Ask him to support a legally available name.");
+	const soundingWasStale=!!(S.lastSounding&&S.lastSounding.stale);
 	if(!spendAP(S))return null;
 	S.playerStats.colloquies++;
 	if(mode==="sound"){
@@ -1719,8 +1800,10 @@ function actionColloquy(S,voterId,mode,candidateId){
 		S.intel[voterId]=level;
 		adjustMetric(S,"trust",1);
 		const snapshot=colloquySnapshot(S,voterId,level);
-		S.intelLedger.push({kind:"colloquy",ballot:S.ballotNo+1,voterId:voterId,level:level,text:snapshot.text});
+		const refined=refineSoundingWithColloquy(S,voterId,snapshot,soundingWasStale);
+		S.intelLedger.push({kind:"colloquy",ballot:S.ballotNo+1,voterId:voterId,level:level,text:snapshot.text,refined:refined});
 		addLog(S,"You walk the gallery with <b>"+ID[voterId].short+"</b>. "+snapshot.text,"deal");
+		if(refined)addLog(S,"That private reading slightly narrows the general sounding for the next scrutiny.","");
 		return {ok:true,kind:"sound",snapshot:snapshot};
 	}
 	const fit=profileSimilarity(profileFor(S,voterId),profileFor(S,candidateId));
@@ -1890,18 +1973,23 @@ function scoreGame(S){
 }
 
 /* ---------- regnal names ---------- */
-function feastName1417(ballotNumber){return ballotNumber===2||ballotNumber===3 ? "Martin V" : null}
+function feastName1417(ballotNumber){return FEAST_NAMES_1417[ballotNumber]||null}
 function regnalOptionsFor(electedId,ballotNumber){
-	const options=(NAME_CHOICES[electedId]||DEFAULT_NAMES).slice(0,3);
+	let options=(NAME_CHOICES[electedId]||DEFAULT_NAMES).slice(0,3);
 	const feast=feastName1417(ballotNumber);
+	if(electedId==="colonna"){
+		options=options.filter(function(name){return name!=="Martin V"&&name!==feast});
+		if(feast)options.unshift(feast);
+		return options.slice(0,3);
+	}
 	if(feast&&options.indexOf(feast)<0)options.push(feast);
 	return options;
 }
 function papalNameForState(seed,electedId,ballotNumber){
-	if(electedId==="colonna")return "Martin V";
 	const feast=feastName1417(ballotNumber);
+	if(electedId==="colonna"&&feast)return feast;
 	if(feast&&unitFrom(String(seed)+"|feast-regnal|"+electedId)<.08)return feast;
-	const options=regnalOptionsFor(electedId);
+	const options=regnalOptionsFor(electedId,ballotNumber);
 	const index=Math.floor(unitFrom(String(seed)+"|regnal|"+electedId)*options.length)%options.length;
 	return options[index];
 }
@@ -1911,7 +1999,7 @@ function achievementsFor(S){
 	const out=[];
 	if(!S.electedId)return out;
 	const winner=ID[S.electedId];
-	if(S.ballotNo<=2)out.push("St Martin's Morning");
+	if(S.ballotNo===2)out.push("St Martin's Morning");
 	if(S.flags.unanimous)out.push("The Six Keys");
 	if(S.flags.consummationBy===S.playerId)out.push("Accedimus nos duo");
 	if(winner.college!=="cardinals")out.push("A Pope Without a Hat");
@@ -1942,7 +2030,7 @@ function autoChoiceFor(S){
 	if(key==="holdout")return "accede";
 	if(key==="cascade"){
 		const target=S.pending.target;
-		if(S.mode==="historical")return "accede";
+		if(S.mode==="historical"&&S.flags.adimariCascade)return "accede";
 		return utility(S,S.playerId,target)>1.2 ? "accede" : "hold";
 	}
 	return "ignore";
@@ -2013,7 +2101,7 @@ function validateData(){
 /* Rendering never touches the simulation RNG: everything drawn here is either
    public knowledge (scrutinies are read aloud) or an explicit paid-for sounding. */
 let S=null;
-const UI={picks:[],selPlayer:null,filter:"all",search:"",tab:"all",rosterSearch:"",logRendered:0,chosenName:null,toastTimer:null};
+const UI={picks:[],selPlayer:null,filter:"all",search:"",tab:"all",rosterSearch:"",logRendered:0,chosenName:null,toastTimer:null,modalOnClose:null,modalTimers:[]};
 
 function $(id){return document.getElementById(id)}
 function el(tag,className,text){
@@ -2036,6 +2124,17 @@ function toast(message){
 }
 function stripTags(html){return String(html).replace(/<[^>]*>/g,"")}
 function escapeHtml(text){return String(text).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+function freshSeed(){
+	const names=["bodensee","kaufhaus","frequens","six-locks","st-martin","constance"];
+	let randomPart="";
+	try{
+		if(typeof crypto!=="undefined"&&crypto.getRandomValues){
+			const values=new Uint32Array(1);crypto.getRandomValues(values);randomPart=values[0].toString(36);
+		}
+	}catch(_){}
+	if(!randomPart)randomPart=(Date.now().toString(36)+Math.floor(Math.random()*1679616).toString(36));
+	return names[Math.floor(Math.random()*names.length)]+"-"+randomPart.slice(-5);
+}
 
 /* ---------- persistence ---------- */
 function saveState(){
@@ -2124,9 +2223,15 @@ function updateStartButton(){
 		button.textContent="Choose an elector";
 	}
 }
+function scrollGameToTop(){
+	try{
+		if(typeof window!=="undefined"&&typeof window.scrollTo==="function")window.scrollTo({top:0,left:0,behavior:"auto"});
+	}catch(_){}
+}
 function startGame(){
 	if(!UI.selPlayer)return;
-	const seed=($("seedin").value||"").trim()||"bodensee";
+	const seed=($("seedin").value||"").trim()||freshSeed();
+	$("seedin").value=seed;
 	const mode=$("modeSelect").value==="open" ? "open" : "historical";
 	S=initState(UI.selPlayer,seed,mode);
 	UI.picks=[];UI.tab="all";UI.rosterSearch="";UI.logRendered=0;UI.chosenName=null;
@@ -2135,6 +2240,7 @@ function startGame(){
 	$("screen-game").classList.remove("hidden");
 	saveState();
 	renderAll();
+	scrollGameToTop();
 	try{$("screen-game").focus()}catch(_){}
 }
 function resumeGame(){
@@ -2147,6 +2253,7 @@ function resumeGame(){
 	$("screen-end").classList.add("hidden");
 	$("screen-game").classList.remove("hidden");
 	renderAll();
+	scrollGameToTop();
 }
 
 /* ---------- game rendering ---------- */
@@ -2235,7 +2342,8 @@ function renderIntelLedger(){
 	}
 	if(S.lastSounding){
 		const section=el("div","intel-section");
-		section.appendChild(el("div","intel-heading","Soundings for scrutiny "+roman(S.lastSounding.ballot)+" · confidence "+S.lastSounding.confidence+"/100"));
+		const refinementCount=(S.lastSounding.refinedVoters||[]).length;
+		section.appendChild(el("div","intel-heading","Soundings for scrutiny "+roman(S.lastSounding.ballot)+" · confidence "+S.lastSounding.confidence+"/100"+(refinementCount ? " · "+refinementCount+" private reading"+(refinementCount===1 ? "" : "s") : "")));
 		S.lastSounding.rows.slice(0,6).forEach(function(row){
 			const line=el("div","intel-row"+(S.lastSounding.stale ? " stale" : ""));
 			const button=el("button","",row.short);
@@ -2471,7 +2579,7 @@ function decisionOptions(options){
 
 /* ---------- actions ---------- */
 function appendFilterableChooser(body,options){
-	const state={query:"",college:"all",tag:"all"};
+	const state=options.state||{query:"",college:"all",tag:"all"};
 	const controls=el("div","chooser-controls");
 	const search=el("input","");
 	search.setAttribute("type","search");
@@ -2486,6 +2594,9 @@ function appendFilterableChooser(body,options){
 	const allTag=el("option","","All affinities");allTag.value="all";tag.appendChild(allTag);
 	TAG_LIST.forEach(function(name){const option=el("option","",name);option.value=name;tag.appendChild(option)});
 	controls.appendChild(search);controls.appendChild(college);controls.appendChild(tag);
+	search.value=state.query||"";
+	college.value=state.college||"all";
+	tag.value=state.tag||"all";
 	body.appendChild(controls);
 	const list=el("div","chooser-list");
 	body.appendChild(list);
@@ -2515,7 +2626,10 @@ function appendFilterableChooser(body,options){
 			const profile=el("button","profile","Dossier");
 			profile.setAttribute("type","button");
 			profile.setAttribute("aria-label","Open dossier for "+record.name);
-			profile.addEventListener("click",function(){openDossier(record.id)});
+			profile.addEventListener("click",function(){
+				if(options.onDossier)options.onDossier(record.id);
+				else openDossier(record.id);
+			});
 			row.appendChild(choose);row.appendChild(profile);list.appendChild(row);
 		});
 		if(!records.length)list.appendChild(el("div","intel-empty","No electors match those filters."));
@@ -2527,10 +2641,14 @@ function appendFilterableChooser(body,options){
 	return {render:render};
 }
 function candidateChooser(title,hint,onPick,excludeSelf,excludeId){
-	openModal(title,function(body){
-		body.appendChild(el("p","",hint));
-		appendFilterableChooser(body,{excludeSelf:excludeSelf,excludeId:excludeId,onPick:function(id){closeModal();onPick(id)}});
-	});
+	const chooserState={query:"",college:"all",tag:"all"};
+	function showChooser(){
+		openModal(title,function(body){
+			body.appendChild(el("p","",hint));
+			appendFilterableChooser(body,{state:chooserState,excludeSelf:excludeSelf,excludeId:excludeId,onPick:function(id){closeModal();onPick(id)},onDossier:function(id){openDossier(id,showChooser)}});
+		});
+	}
+	showChooser();
 }
 function doSound(){
 	const sounding=actionSound(S);
@@ -2640,11 +2758,16 @@ function doScrutiny(){
 	UI.picks=[];
 	openModal("Write your cedula — scrutiny "+roman(S.ballotNo+1),function(body){
 		body.appendChild(el("p","","Write up to three names. Your own name is forbidden; a blank cedula is lawful. The first cardinal-deacon will read every cedula aloud."));
+		const limit=el("div","cedula-limit");
+		limit.appendChild(el("b","","Choose up to three"));
+		const limitCount=el("span","","0 of 3 names selected");
+		limit.appendChild(limitCount);body.appendChild(limit);
 		const chosen=el("div","picks");
 		body.appendChild(chosen);
 		let chooser;
 		function renderChosen(){
 			chosen.innerHTML="";
+			limitCount.textContent=UI.picks.length+" of 3 names selected";
 			if(!UI.picks.length)chosen.appendChild(el("span","hint","Blank cedula"));
 			UI.picks.forEach(function(id){chosen.appendChild(el("span","pickchip",ID[id].short))});
 		}
@@ -2669,9 +2792,21 @@ function doScrutiny(){
 }
 
 /* ---------- modal ---------- */
-function openModal(title,build){
+function clearModalTimers(){
+	(UI.modalTimers||[]).forEach(function(timer){clearTimeout(timer)});
+	UI.modalTimers=[];
+}
+function queueModalStep(callback,delay){
+	const timer=setTimeout(callback,delay);
+	UI.modalTimers.push(timer);
+	return timer;
+}
+function openModal(title,build,options){
+	const opts=options||{};
 	const host=$("modalhost");
+	clearModalTimers();
 	host.innerHTML="";
+	UI.modalOnClose=typeof opts.onClose==="function" ? opts.onClose : null;
 	const modal=el("div","modal");
 	const heading=el("h2","",title);
 	heading.setAttribute("id","modalTitle");
@@ -2680,7 +2815,7 @@ function openModal(title,build){
 	build(body);
 	modal.appendChild(body);
 	const closebar=el("div","closebar");
-	const close=el("button","primary","Close");
+	const close=el("button","primary",opts.closeLabel||"Close");
 	close.setAttribute("type","button");
 	close.addEventListener("click",closeModal);
 	closebar.appendChild(close);
@@ -2690,8 +2825,12 @@ function openModal(title,build){
 }
 function closeModal(){
 	const host=$("modalhost");
+	const returnTo=UI.modalOnClose;
+	UI.modalOnClose=null;
+	clearModalTimers();
 	host.classList.add("hidden");
 	host.innerHTML="";
+	if(returnTo)returnTo();
 }
 function axisRow(body,axis,value){
 	const row=el("div","axisrow");
@@ -2704,46 +2843,96 @@ function axisRow(body,axis,value){
 	row.appendChild(el("span","",axis.high));
 	body.appendChild(row);
 }
+function renderRunningTally(host,votes,accessions){
+	host.innerHTML="";
+	sortedCounts(countVotes(votes,accessions)).filter(function(entry){return entry.count>0}).slice(0,7).forEach(function(entry){
+		host.appendChild(el("span","",entry.elector.short+" "+entry.count));
+	});
+}
+function appendScrutinySummary(body,record){
+	const recordedCounts=record.counts&&Object.keys(record.counts).length ? record.counts : countVotes(record.votes,record.accessions||[]);
+	const recordedColleges=record.colleges&&Object.keys(record.colleges).length ? record.colleges : collegeTallies(record.votes,record.accessions||[]);
+	const winner=electedNow(S,recordedColleges);
+	body.appendChild(el("p","",winner
+		? "All six thresholds are met for "+ID[winner].name+"."
+		: "No name has yet turned all six locks. The public accessio follows where the procedure permits it."));
+	const table=el("table","scrutiny-table");
+	const head=el("thead","");
+	const headRow=el("tr","");
+	["Name","Total"].concat(COLLEGES.map(function(college){return COLLEGE_ABBR[college.key]})).forEach(function(label){headRow.appendChild(el("th","",label))});
+	head.appendChild(headRow);table.appendChild(head);
+	const tableBody=el("tbody","");
+	sortedCounts(recordedCounts).filter(function(entry){return entry.count>0}).forEach(function(entry){
+		const row=el("tr","");
+		row.appendChild(el("td","",entry.elector.short));
+		row.appendChild(el("td","",String(entry.count)));
+		COLLEGES.forEach(function(college){row.appendChild(el("td","",String((recordedColleges[college.key]&&recordedColleges[college.key][entry.id])||0)))});
+		tableBody.appendChild(row);
+	});
+	table.appendChild(tableBody);body.appendChild(table);
+	if(record.accessions&&record.accessions.length){
+		body.appendChild(el("h3","","Accessus"));
+		record.accessions.forEach(function(accession){body.appendChild(el("p","",ID[accession.from].short+" accedes to "+ID[accession.to].short+"."))});
+	}else body.appendChild(el("p","hint",record.ballot===1 ? "No accession is permitted at the first scrutiny." : "No accessions have been recorded in this scrutiny."));
+	body.appendChild(el("p","public-roll-note","The 1417 form was not a secret ballot inside the hall: Saluzzo read both the vote and the name of its elector aloud. The roll below is therefore available during play; its individual entries are this simulation's reconstruction, not a claim that every historical cedula survives."));
+	const details=el("details","");
+	details.appendChild(el("summary","","Public cedula roll — each elector and the names he wrote"));
+	const roll=el("div","roll-list");
+	record.votes.forEach(function(vote){
+		const line=el("div","roll-line");
+		line.appendChild(el("b","",ID[vote.voter].short+(vote.voter===S.playerId ? " — you" : "")));
+		line.appendChild(el("span","",vote.candidate.length ? vote.candidate.map(function(id){return ID[id].short}).join(", ") : "blank cedula"));
+		roll.appendChild(line);
+	});
+	details.appendChild(roll);body.appendChild(details);
+}
 function openScrutinyRecord(record,isFinal){
 	if(!record)return;
 	openModal((isFinal ? "Final scrutiny" : "Scrutiny "+roman(record.ballot))+" — "+record.date,function(body){
-		const counts=record.counts||countVotes(record.votes,record.accessions||[]);
-		const colleges=record.colleges||collegeTallies(record.votes,record.accessions||[]);
-		const winner=electedNow(S,colleges);
-		body.appendChild(el("p","",winner
-			? "All six thresholds are met for "+ID[winner].name+"."
-			: "No name has yet turned all six locks. The public accessio follows where the procedure permits it."));
-		const table=el("table","scrutiny-table");
-		const head=el("thead","");
-		const headRow=el("tr","");
-		["Name","Total"].concat(COLLEGES.map(function(college){return COLLEGE_ABBR[college.key]})).forEach(function(label){headRow.appendChild(el("th","",label))});
-		head.appendChild(headRow);table.appendChild(head);
-		const tableBody=el("tbody","");
-		sortedCounts(counts).filter(function(entry){return entry.count>0}).forEach(function(entry){
-			const row=el("tr","");
-			row.appendChild(el("td","",entry.elector.short));
-			row.appendChild(el("td","",String(entry.count)));
-			COLLEGES.forEach(function(college){row.appendChild(el("td","",String((colleges[college.key]&&colleges[college.key][entry.id])||0)))});
-			tableBody.appendChild(row);
-		});
-		table.appendChild(tableBody);body.appendChild(table);
-		if(record.accessions&&record.accessions.length){
-			body.appendChild(el("h3","","Accessus"));
-			record.accessions.forEach(function(accession){body.appendChild(el("p","",ID[accession.from].short+" accedes to "+ID[accession.to].short+"."))});
-		}else body.appendChild(el("p","hint",record.ballot===1 ? "No accession is permitted at the first scrutiny." : "No accessions have been recorded in this scrutiny."));
-		const details=el("details","");
-		details.appendChild(el("summary","","Every cedula — who wrote whom"));
-		const roll=el("div","roll-list");
-		record.votes.forEach(function(vote){
-			const line=el("div","roll-line");
-			line.appendChild(el("b","",ID[vote.voter].short+(vote.voter===S.playerId ? " — you" : "")));
-			line.appendChild(el("span","",vote.candidate.length ? vote.candidate.map(function(id){return ID[id].short}).join(", ") : "blank cedula"));
-			roll.appendChild(line);
-		});
-		details.appendChild(roll);body.appendChild(details);
+		const reduced=typeof window!=="undefined"&&window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+		if(isFinal||reduced){appendScrutinySummary(body,record);return}
+		const reading=el("div","scrutiny-reading");
+		const progress=el("div","scrutiny-progress","Saluzzo takes the first cedula from the urn");
+		const current=el("div","scrutiny-current","The hall settles. Each elector will hear his own name and vote read aloud.");
+		const running=el("div","scrutiny-running-tally");
+		const skip=el("button","ghost","Show full count");
+		skip.setAttribute("type","button");
+		reading.appendChild(progress);reading.appendChild(current);reading.appendChild(running);reading.appendChild(skip);body.appendChild(reading);
+		const summaryHost=el("div","");body.appendChild(summaryHost);
+		const shownVotes=[];const shownAccessions=[];
+		const total=record.votes.length+(record.accessions||[]).length;
+		let index=0;let finished=false;
+		function finish(){
+			if(finished)return;
+			finished=true;clearModalTimers();
+			progress.textContent="Reading complete · "+record.votes.length+" cedulae"+((record.accessions||[]).length ? " · "+record.accessions.length+" accessions" : "");
+			current.textContent="The count is entered in the scrutiny book.";
+			renderRunningTally(running,record.votes,record.accessions||[]);
+			skip.remove();appendScrutinySummary(summaryHost,record);
+		}
+		function revealNext(){
+			if(finished)return;
+			if(index<record.votes.length){
+				const vote=record.votes[index];shownVotes.push(vote);
+				progress.textContent="Cedula "+(index+1)+" of "+record.votes.length;
+				current.innerHTML="<b>"+escapeHtml(ID[vote.voter].short)+"</b> writes "+escapeHtml(vote.candidate.length ? vote.candidate.map(function(id){return ID[id].short}).join(", ") : "a blank cedula")+".";
+			}else{
+				const accession=(record.accessions||[])[index-record.votes.length];
+				if(accession){
+					shownAccessions.push(accession);
+					progress.textContent="Accessus "+shownAccessions.length+" of "+record.accessions.length;
+					current.innerHTML="<b>"+escapeHtml(ID[accession.from].short)+"</b> accedes to "+escapeHtml(ID[accession.to].short)+".";
+				}
+			}
+			index++;renderRunningTally(running,shownVotes,shownAccessions);
+			if(index>=total)queueModalStep(finish,320);
+			else queueModalStep(revealNext,index<record.votes.length ? 85 : 130);
+		}
+		skip.addEventListener("click",finish);
+		queueModalStep(revealNext,300);
 	});
 }
-function openDossier(id){
+function openDossier(id,onReturn){
 	const record=ID[id];
 	if(!record)return;
 	openModal(record.name,function(body){
@@ -2759,7 +2948,7 @@ function openDossier(id){
 			const level=S.intel[id]||0;
 			body.appendChild(el("p","",level ? colloquySnapshot(S,id,level).text : "Nothing beyond public reputation. A colloquy can turn corridor rumour into a firmer reading."));
 		}
-	});
+	},{onClose:onReturn||null,closeLabel:onReturn ? "Back" : "Close"});
 }
 function openRules(){
 	openModal("Rules & sources",function(body){
@@ -2788,8 +2977,13 @@ function epilogueFor(){
 	}
 	const winner=ID[S.electedId];
 	const isPlayer=S.electedId===S.playerId;
+	const papalName=isPlayer ? (UI.chosenName||regnalOptionsFor(S.electedId,S.ballotNo)[0]) : papalNameForState(S.seed,S.electedId,S.ballotNo);
 	if(S.electedId==="colonna"){
-		paragraphs.push("It falls out as Fillastre wrote it"+(S.ballotNo<=2 ? "" : " — later, and by a harder road, but it falls out")+": Oddone Colonna, cardinal-deacon of San Giorgio, not yet even a priest, is pope. Ordained deacon on the 12th, priest on the 13th, consecrated bishop on the 14th by old Brogny, he is crowned Martin V — for the saint of the day the lock turned — on 21 November, and Sigismund, King of the Romans, walks through Constance holding his bridle like a groom.");
+		if(S.ballotNo===2){
+			paragraphs.push("It falls out as Fillastre wrote it: Oddone Colonna, cardinal-deacon of San Giorgio, not yet even a priest, is pope. Ordained deacon on the 12th, priest on the 13th, consecrated bishop on the 14th by old Brogny, he is crowned Martin V — for the saint of the day the lock turned — on 21 November, and Sigismund, King of the Romans, walks through Constance holding his bridle like a groom.");
+		}else{
+			paragraphs.push("Oddone Colonna, cardinal-deacon of San Giorgio and not yet even a priest, is pope by a road Fillastre never recorded. Elected "+ballotDate(S.ballotNo)+", he takes the name "+papalName+" — "+(REGNAL_NOTES[papalName]||"a name for this altered day")+". His ordinations and coronation now follow the election on a different calendar, while Sigismund, King of the Romans, still insists on walking beside the new pope's bridle.");
+		}
 		paragraphs.push("Rome takes three more years to be entered, and the reform the nations were promised is signed in concordats and quietly starved. But the Schism of thirty-nine years is over: one pope, one obedience, and a Colonna in the Lateran of his ancestors. Peñíscola shrinks to a curiosity with a tiara.");
 	}else if(S.electedId==="saluzzo"){
 		paragraphs.push("The reader of ballots reads his own name last. Amedeo di Saluzzo, first cardinal-deacon, takes the throne he announced vote by vote — a Piedmontese pope of the old Avignon creation, acceptable to France, tolerable to the empire, and owing the nations his crown. The concordats he signs are more generous than Colonna's would have been; Rome waits far longer for him.");
@@ -2830,9 +3024,6 @@ function showEnd(){
 		? winner.name+" · elected "+(S.electedVia==="accessio" ? "by scrutiny and accession" : "in the scrutiny")+" · "+ballotDate(S.ballotNo)
 		: "Twelve scrutinies · no election · the council stirs";
 	renderRegnal();
-	const body=$("endBody");
-	body.innerHTML="";
-	epilogueFor().forEach(function(text){body.appendChild(el("p","",text))});
 	const score=scoreGame(S);
 	const stats=$("endStats");
 	stats.innerHTML="";
@@ -2855,6 +3046,13 @@ function showEnd(){
 	const achievements=$("achievements");
 	achievements.innerHTML="";
 	achievementsFor(S).forEach(function(name){achievements.appendChild(el("span","ach",name))});
+	renderEndBody();
+}
+function renderEndBody(){
+	const body=$("endBody");
+	body.innerHTML="";
+	epilogueFor().forEach(function(text){body.appendChild(el("p","",text))});
+	const score=scoreGame(S);
 	body.appendChild(el("p","",score.verdict.title+". "+score.verdict.text));
 }
 function renderRegnal(){
@@ -2869,6 +3067,7 @@ function renderRegnal(){
 			button.addEventListener("click",function(){
 				UI.chosenName=name;
 				renderRegnal();
+				renderEndBody();
 			});
 			box.appendChild(button);
 		});
@@ -2910,6 +3109,7 @@ function exportChronicle(){
 /* ---------- wiring ---------- */
 function wire(){
 	collegeFilterOptions();
+	if(!($("seedin").value||"").trim())$("seedin").value=freshSeed();
 	renderSelect();
 	updateStartButton();
 	$("search").addEventListener("input",function(){UI.search=$("search").value||"";renderSelect()});
@@ -2936,6 +3136,7 @@ function wire(){
 		$("screen-end").classList.add("hidden");
 		$("screen-game").classList.add("hidden");
 		$("screen-select").classList.remove("hidden");
+		$("seedin").value=freshSeed();
 		renderSelect();updateStartButton();
 	});
 	$("replay").addEventListener("click",function(){
@@ -2947,6 +3148,7 @@ function wire(){
 		$("screen-game").classList.remove("hidden");
 		saveState();
 		renderAll();
+		scrollGameToTop();
 	});
 	$("exportLog").addEventListener("click",exportChronicle);
 	$("viewFinalScrutiny").addEventListener("click",function(){if(S&&S.history.length)openScrutinyRecord(S.history[S.history.length-1],true)});
@@ -2969,7 +3171,7 @@ const CONSTANCE_1417_ENGINE={
 	actionColloquy:actionColloquy,colloquySnapshot:colloquySnapshot,rankedPreferences:rankedPreferences,
 	thresholds:thresholds,thresholdFor:thresholdFor,electedNow:electedNow,collegeTallies:collegeTallies,
 	scoreGame:scoreGame,achievementsFor:achievementsFor,objectiveFor:objectiveFor,
-	papalNameForState:papalNameForState,regnalOptionsFor:regnalOptionsFor,
+	papalNameForState:papalNameForState,regnalOptionsFor:regnalOptionsFor,feastName1417:feastName1417,
 	runHeadless:runHeadless,validateData:validateData,autoChoiceFor:autoChoiceFor,
 	settlementLeader:settlementLeader,bestLegalPlayerVote:bestLegalPlayerVote,
 	getState:function(){return S}

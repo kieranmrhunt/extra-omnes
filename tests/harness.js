@@ -478,15 +478,21 @@ function runTargetedChecks(variant, api) {
 		assert(soundingA.rows.length > 0 && soundingA.rows.every((row) => Number.isInteger(row.low) && Number.isInteger(row.high) && row.low < row.high && !("count" in row) && !("total" in row)), "Constance: soundings expose exact counts or invalid ranges");
 		assert(soundingA.rows.every((row) => ["cardinals", "italia", "gallia", "germania", "anglia", "hispania"].every((key) => row.colleges[key] && row.colleges[key].low <= row.colleges[key].high && Number.isInteger(row.colleges[key].need))), "Constance: per-college soundings are malformed");
 		state = settle(api.initState("dailly", "constance-colloquy", "open"));
+		state.lastSounding = api.makeSounding(state);
+		const soundingConfidenceBefore = state.lastSounding.confidence;
+		const soundingWidthsBefore = Object.fromEntries(state.lastSounding.rows.map((row) => [row.id, row.high - row.low]));
 		const apBeforeColloquy = state.ap;
 		const colloquy = api.actionColloquy(state, "colonna", "sound");
 		assert(colloquy && colloquy.ok && state.ap === apBeforeColloquy - 1 && state.intel.colonna === 1 && state.intelLedger.some((entry) => entry.kind === "colloquy" && entry.voterId === "colonna"), "Constance: colloquy did not spend one action and retain its reading in the ledger");
+		assert(state.lastSounding.confidence === soundingConfidenceBefore + 2 && state.lastSounding.refinedVoters.includes("colonna") && state.lastSounding.rows.every((row) => row.high - row.low <= soundingWidthsBefore[row.id]), "Constance: a private colloquy did not narrow the overall sounding");
 		const anchored = api.runHeadless("anchor", "polton", "historical");
 		assert(anchored.winner === "colonna" && anchored.ballots <= 3, "Constance: the historical anchor did not elect Colonna by St Martin's morning");
 		const finalRecord = anchored.history[anchored.history.length - 1];
 		assert(Array.isArray(finalRecord.locks && finalRecord.locks.colonna) && finalRecord.locks.colonna.length === 6, "Constance: the anchor election did not turn all six locks");
 		const anchorNeeds = api.thresholds(anchored);
 		assert(Object.keys(anchorNeeds).every((key) => (finalRecord.colleges[key].colonna || 0) >= anchorNeeds[key]), "Constance: anchor tallies fall below a college threshold");
+		const alternateHistoricalWinners = ["balance-4", "balance-7", "balance-17"].map((seed) => api.runHeadless(seed, "dailly", "historical").winner);
+		assert(alternateHistoricalWinners.includes("brogny") && alternateHistoricalWinners.includes("saluzzo") && alternateHistoricalWinners.includes("correr"), "Constance: historical pressure has reverted to a compulsory Colonna victory");
 		const openA = api.runHeadless("constance-open", "dailly", "open");
 		const openB = api.runHeadless("constance-open", "dailly", "open");
 		assert(JSON.stringify(openA) === JSON.stringify(openB) && openA.winner && openA.ballots <= 12, "Constance: open-mode run is non-deterministic or fails to resolve within twelve scrutinies");
@@ -494,7 +500,9 @@ function runTargetedChecks(variant, api) {
 		const nameA = api.papalNameForState("constance-name", "saluzzo");
 		const nameB = api.papalNameForState("constance-name", "saluzzo");
 		assert(typeof nameA === "string" && nameA === nameB && / [IVXLCDM]+$/.test(nameA), "Constance: papal name is invalid or non-deterministic");
-		assert(api.papalNameForState("constance-history", "colonna") === "Martin V", "Constance: Colonna does not take the historically correct name Martin V");
+		assert(api.papalNameForState("constance-history", "colonna", 2) === "Martin V", "Constance: Colonna does not take the historically correct name Martin V on St Martin's morning");
+		assert(api.papalNameForState("constance-counterfactual", "colonna", 1) === "Leo X" && api.papalNameForState("constance-counterfactual", "colonna", 6) === "Brice I" && api.papalNameForState("constance-counterfactual", "colonna", 11) === "Hugh I", "Constance: a counterfactual Colonna election does not follow the actual feast date");
+		assert(api.regnalOptionsFor("colonna", 6)[0] === "Brice I" && !api.regnalOptionsFor("colonna", 6).includes("Martin V"), "Constance: a player Colonna can still take Martin away from St Martin's day");
 		assert(api.regnalOptionsFor("condulmer")[0] === "Eugene IV", "Constance: Condulmer's first regnal choice is not Eugene IV");
 		const constanceSource = fs.readFileSync(path.join(ROOT, variant.file), "utf8");
 		assert(/for\(let i=0;i<5;i\+\+\)/.test(constanceSource), "Constance: selection difficulty is still compressed to a three-star scale");
@@ -502,11 +510,16 @@ function runTargetedChecks(variant, api) {
 		assert(/id="intelLedger"/.test(constanceSource) && /function renderIntelLedger/.test(constanceSource), "Constance: soundings have no persistent intelligence ledger");
 		assert(/function appendFilterableChooser/.test(constanceSource) && /Filter electors by college/.test(constanceSource) && /Filter electors by affinity/.test(constanceSource), "Constance: action target lists are not filterable");
 		assert(/function openScrutinyRecord/.test(constanceSource) && /View final scrutiny &amp; accessus/.test(constanceSource) && /function doScrutiny\(\)[\s\S]*openModal\("Write your cedula/.test(constanceSource), "Constance: cedulae and scrutiny records are not presented in dialogs");
+		assert(/Choose up to three/.test(constanceSource) && /0 of 3 names selected/.test(constanceSource), "Constance: the cedula chooser does not make its three-name limit prominent");
+		assert(/queueModalStep\(revealNext/.test(constanceSource) && /Show full count/.test(constanceSource) && /prefers-reduced-motion: reduce/.test(constanceSource), "Constance: scrutiny votes are not serially revealed with a reduced-motion escape hatch");
+		assert(/Public cedula roll/.test(constanceSource) && /read both the vote and the name of its elector aloud/.test(constanceSource), "Constance: the in-game public cedula roll is not historically explained");
+		assert(/onDossier:function\(id\)\{openDossier\(id,showChooser\)\}/.test(constanceSource) && /closeLabel:onReturn \? "Back"/.test(constanceSource), "Constance: dossiers opened from action choosers do not return to the chooser");
+		assert(/#screen-game header\{order:-3\}/.test(constanceSource) && /#rightcol\{order:-1\}/.test(constanceSource) && /#leftcol\{order:0\}/.test(constanceSource), "Constance: mobile header, intelligence and roster order is wrong");
 		assert(/Word through the wall[\s\S]*It does not directly change a vote/.test(constanceSource), "Constance: word-through-the-wall consequences are not explained");
 		assert(/scrollbar-color/.test(constanceSource) && /::-webkit-scrollbar-corner/.test(constanceSource), "Constance: native scrollbars remain visually unintegrated");
 		const score = api.scoreGame(openA);
 		assert(Number.isFinite(score.total) && score.parts.reduce((sum, part) => sum + part.points, 0) === score.total && score.verdict && score.verdict.grade, "Constance: end score is invalid");
-		return ["data-audit", "six-college-rule", "blank-ballot", "approval-validation", "accession-validation", "no-first-scrutiny-accession", "player-ballot-preserved", "uncertain-soundings", "colloquy-ledger", "historical-anchor", "open-termination", "papal-name", "martin-v", "five-star-difficulty", "affinity-guidance", "persistent-ledger", "filterable-choosers", "scrutiny-dialogs", "wall-guidance", "styled-scrollbars", "end-score"];
+		return ["data-audit", "six-college-rule", "blank-ballot", "approval-validation", "accession-validation", "no-first-scrutiny-accession", "player-ballot-preserved", "uncertain-soundings", "colloquy-ledger", "colloquy-refines-soundings", "historical-anchor", "historical-alternates", "open-termination", "papal-name", "dated-colonna-name", "five-star-difficulty", "affinity-guidance", "persistent-ledger", "filterable-choosers", "chooser-return", "three-name-guidance", "serial-scrutiny", "public-cedula-roll", "mobile-order", "scrutiny-dialogs", "wall-guidance", "styled-scrollbars", "end-score"];
 	}
 	if (variant.label === "april-1378") {
 		assert(typeof api.initState === "function" && typeof api.beginScrutiny === "function" && typeof api.makeSounding === "function" && typeof api.runHeadless === "function" && typeof api.validateData === "function" && typeof api.scoreGame === "function" && typeof api.papalNameForState === "function" && typeof api.regnalOptionsFor === "function" && typeof api.regnalSignalFor === "function" && typeof api.choosePlayerRegnalName === "function" && typeof api.axisPosition === "function" && typeof api.roman === "function" && typeof api.scrutinyLabel === "function" && typeof api.resolveDecision === "function" && typeof api.autoChoiceFor === "function", "April 1378: targeted-test API is not exported");
@@ -810,6 +823,7 @@ function checkStaticFiles() {
 	const romanDates = {1268:"MCCLXVIII",1378:"MCCCLXXVIII",1417:"MCDXVII",1458:"MCDLVIII",1492:"MCDXCII",1559:"MDLIX",1800:"MDCCC",1903:"MCMIII",1978:"MCMLXXVIII"};
 	for (const [year, roman] of Object.entries(romanDates)) assert(index.includes(`<span class="year">${year}</span><span class="roman">${roman}</span>`), `index: missing Roman date ${roman} for ${year}`);
 	assert(index.includes("The Keys of Heaven"), "index: 1492 still lacks its distinctive title");
+	assert(/class="card beta" href="\.\/constance-1417\.html"[\s\S]*?<span class="status">Beta<\/span>/.test(index), "index: Constance 1417 is not promoted to beta");
 	assert(index.includes("assets/art/conclave-1878.webp") && fs.existsSync(path.join(ROOT, "assets", "art", "conclave-1878.webp")), "index: historical header engraving is missing");
 	const anchors = {
 		"1492.html": ["The Keys of Heaven"],
