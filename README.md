@@ -7,7 +7,7 @@ Single-file browser simulations of historical papal conclaves. Each variant is p
 - `1492.html` — complete/stable baseline.
 - `viterbo-1268.html` — alpha.
 - `april-1378.html` — alpha.
-- `constance-1417.html` — alpha.
+- `constance-1417.html` — beta.
 - `accession-1458.html` — alpha.
 - `carafa-winter-1559.html` — alpha.
 - `venice-1800.html` — alpha.
@@ -57,6 +57,16 @@ The harness fails on:
 - missing navigation, reduced-motion, live-status, or key historical anchors.
 
 The report also prints winner distributions and ballot-count summaries. Threshold policy is variant-specific: October 1978 uses the two-thirds-plus-one rule in Paul VI's *Romano Pontifici Eligendo*. The minimal-DOM bootstrap and presentation-RNG probes catch common integration errors, but they do not replace a final play-through in a current browser.
+
+The Chromium smoke suite covers every selection screen at a 390-pixel mobile viewport, checks horizontal geometry and runtime errors, exercises dialog focus trapping and restoration, verifies the 1458 faction strip, and guards the Carafa game's mobile start position:
+
+```bash
+npm install
+npx playwright install chromium
+npm run test:browser
+```
+
+CI runs the quick engine gate and browser suite for each change. A scheduled and manually dispatchable job also exercises every playable character once, so newly added or rarely selected electors cannot be silently skipped.
 
 ## Seed and Replay Semantics
 

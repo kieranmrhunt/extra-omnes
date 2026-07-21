@@ -32,15 +32,15 @@ if (args.has("timeout-ms") && (!Number.isSafeInteger(requestedTimeoutMs) || requ
 const BLANK_PICK_IDS = new Set(["_blank", "blank"]);
 
 const VARIANTS = [
-	{ file: "1492.html", label: "1492", players: ["borgia", "giuliano", "sforza"], quickPlayer: "borgia", maxPicks: () => 3, threshold: (n) => Math.ceil(n * 2 / 3) },
-	{ file: "viterbo-1268.html", label: "viterbo-1268", players: ["orsini", "annibale", "paltanieri"], quickPlayer: "orsini", maxPicks: (ballot) => ballot.turn <= 3 ? 3 : 2, threshold: (n) => Math.ceil(n * 2 / 3) },
-	{ file: "carafa-winter-1559.html", label: "carafa-winter-1559", players: ["ccarafa", "medici", "morone"], quickPlayer: "medici", maxPicks: () => 3, threshold: (n) => Math.ceil(n * 2 / 3) },
-	{ file: "venice-1800.html", label: "venice-1800", players: ["bellisomi", "mattei", "chiaramonti"], quickPlayer: "chiaramonti", maxPicks: () => 1, threshold: (n) => Math.ceil(n * 2 / 3) },
-	{ file: "1903.html", label: "1903", players: ["rampolla", "sarto", "gibbons"], quickPlayer: "sarto", maxPicks: () => 1, threshold: (n) => Math.ceil(n * 2 / 3) },
-	{ file: "october-1978.html", label: "october-1978", players: ["siri", "benelli", "wojtyla"], quickPlayer: "wojtyla", maxPicks: () => 1, threshold: (n) => Math.floor(n * 2 / 3) + 1 },
-	{ file: "constance-1417.html", label: "constance-1417", players: ["colonna", "dailly", "polton"], quickPlayer: "colonna", maxPicks: () => 3, threshold: (n) => Math.ceil(n * 2 / 3) },
-	{ file: "accession-1458.html", label: "accession-1458", players: ["piccolomini", "estouteville", "borgia"], quickPlayer: "piccolomini", maxPicks: () => 1, threshold: (n) => Math.ceil(n * 2 / 3) },
-	{ file: "april-1378.html", label: "april-1378", players: ["deluna", "orsini", "geneva"], quickPlayer: "deluna", maxPicks: () => 1, threshold: (n) => Math.ceil(n * 2 / 3) },
+	{ file: "1492.html", label: "1492", modeLabel: "open simulation", players: ["borgia", "giuliano", "sforza"], quickPlayer: "borgia", maxPicks: () => 3, threshold: (n) => Math.ceil(n * 2 / 3) },
+	{ file: "viterbo-1268.html", label: "viterbo-1268", modeLabel: "counterfactual with historical gravity", players: ["orsini", "annibale", "paltanieri"], quickPlayer: "orsini", maxPicks: (ballot) => ballot.turn <= 3 ? 3 : 2, threshold: (n) => Math.ceil(n * 2 / 3) },
+	{ file: "carafa-winter-1559.html", label: "carafa-winter-1559", modeLabel: "historical-pressure simulation", players: ["ccarafa", "medici", "morone"], quickPlayer: "medici", maxPicks: () => 3, threshold: (n) => Math.ceil(n * 2 / 3) },
+	{ file: "venice-1800.html", label: "venice-1800", modeLabel: "historical-pressure simulation", players: ["bellisomi", "mattei", "chiaramonti"], quickPlayer: "chiaramonti", maxPicks: () => 1, threshold: (n) => Math.ceil(n * 2 / 3) },
+	{ file: "1903.html", label: "1903", modeLabel: "historical", players: ["rampolla", "sarto", "gibbons"], quickPlayer: "sarto", maxPicks: () => 1, threshold: (n) => Math.ceil(n * 2 / 3) },
+	{ file: "october-1978.html", label: "october-1978", modeLabel: "historical pressure with active player", players: ["siri", "benelli", "wojtyla"], quickPlayer: "wojtyla", maxPicks: () => 1, threshold: (n) => Math.floor(n * 2 / 3) + 1 },
+	{ file: "constance-1417.html", label: "constance-1417", modeLabel: "historical", players: ["colonna", "dailly", "polton"], quickPlayer: "colonna", maxPicks: () => 3, threshold: (n) => Math.ceil(n * 2 / 3) },
+	{ file: "accession-1458.html", label: "accession-1458", modeLabel: "open simulation", players: ["piccolomini", "estouteville", "borgia"], quickPlayer: "piccolomini", maxPicks: () => 1, threshold: (n) => Math.ceil(n * 2 / 3) },
+	{ file: "april-1378.html", label: "april-1378", modeLabel: "open simulation", players: ["deluna", "orsini", "geneva"], quickPlayer: "deluna", maxPicks: () => 1, threshold: (n) => Math.ceil(n * 2 / 3) },
 ];
 
 function fail(message) {
@@ -171,6 +171,15 @@ function loadVariant(file) {
 	return Object.assign({ __uiBooted: true, __uiCardsRendered: selectionGrid.children.length }, context.__EO_TEST_EXPORTS__, moduleObject.exports || {}, context.__om1903 || {}, context.window.__om || {});
 }
 
+function loadEngineWithoutDom(file) {
+	const html = fs.readFileSync(path.join(ROOT, file), "utf8");
+	const moduleObject = { exports: {} };
+	const context = { console, module: moduleObject, exports: moduleObject.exports, setTimeout, clearTimeout, URL, URLSearchParams };
+	vm.createContext(context);
+	vm.runInContext(htmlScripts(html), context, { filename: file, timeout: 10000 });
+	return moduleObject.exports;
+}
+
 function cardList(api) {
 	return api.CARDINALS || api.ELECTORS || api.windowOm && (api.windowOm.CARDINALS || api.windowOm.ELECTORS) || [];
 }
@@ -271,6 +280,16 @@ function expectRejected(label, fn) {
 function runTargetedChecks(variant, api) {
 	if (variant.label === "1492") {
 		assert(typeof api.initState === "function" && typeof api.beginScrutiny === "function", "1492: validation API is not exported");
+		const nodeEngine = loadEngineWithoutDom("1492.html");
+		assert(nodeEngine && typeof nodeEngine.runHeadless === "function" && Array.isArray(nodeEngine.CARDINALS), "1492: the Node module boundary still requires DOM shims");
+		const saveState = nodeEngine.initState("borgia", "1492-save", "open", []);
+		nodeEngine.beginScrutiny(saveState, ["carafa"]);
+		nodeEngine.finalizeScrutiny(saveState);
+		const validSave = JSON.parse(JSON.stringify(Object.assign({}, saveState, { saveVersion: 2, rngState: saveState.rng.state, rng: undefined, queue: [] })));
+		assert(typeof nodeEngine.validateSavedState === "function" && nodeEngine.validateSavedState(validSave), "1492: a valid saved conclave cannot be restored");
+		const invalidSave = JSON.parse(JSON.stringify(validSave));
+		invalidSave.cards.borgia.intel = 99;
+		assert(!nodeEngine.validateSavedState(invalidSave), "1492: a corrupt cardinal record was accepted from a save");
 		const state = api.initState("borgia", "1492-validation", "open", []);
 		const ballot = api.beginScrutiny(state, ["carafa", "carafa", "borgia", "not-a-cardinal"]);
 		assert(JSON.stringify(ballot.votes.borgia) === JSON.stringify(["carafa"]), "1492: player approvals were not deduplicated and validated");
@@ -279,7 +298,12 @@ function runTargetedChecks(variant, api) {
 		const oddsFirst = JSON.stringify(api.marketOdds(presentationState));
 		const oddsSecond = JSON.stringify(api.marketOdds(presentationState));
 		assert(oddsFirst === oddsSecond && presentationState.rng.state === rngBefore, "1492: opening the market changed the simulation RNG");
-		return ["approval-validation", "presentation-rng"];
+		const compromiseState = api.initState("borgia", "1492-compromissum", "open", []);
+		const compromiseWinner = api.compromissum(compromiseState);
+		const procedure = compromiseState.terminalProcedure;
+		assert(compromiseState.over && compromiseWinner === compromiseState.electedId && procedure && procedure.type === "compromissum", "1492: compromissum did not create a terminal procedure record");
+		assert(procedure.committee.length === 3 && procedure.votes.length === 3 && procedure.unanimous && procedure.votes.every((vote) => procedure.committee.includes(vote.voter) && vote.candidate === compromiseWinner), "1492: compromissum is not auditable to a unanimous three-cardinal committee");
+		return ["node-module-boundary", "strict-save", "approval-validation", "presentation-rng", "auditable-compromissum"];
 	}
 	if (variant.label === "viterbo-1268") {
 		assert(typeof api.initState === "function" && typeof api.beginScrutiny === "function" && typeof api.playerAccede === "function" && typeof api.canVote === "function" && typeof api.canBeElected === "function", "Viterbo: validation API is not exported");
@@ -295,7 +319,11 @@ function runTargetedChecks(variant, api) {
 		state.cards.paltanieri.ill = true;
 		assert(!api.canVote(state, "paltanieri") && api.canBeElected(state, "paltanieri"), "Viterbo: illness did not remove the vote while preserving canonical eligibility");
 		assert(api.REGNAL_HINT && api.REGNAL_NUM && api.REGNAL_HINT.guy === "Eugene" && api.REGNAL_NUM.Eugene === "IV" && api.REGNAL_HINT.goffredo === "Callistus" && api.REGNAL_NUM.Callistus === "III", "Viterbo: corrected regnal names are not exported or do not agree");
-		return ["blank-ballot", "approval-validation", "accessus-validation", "illness-eligibility", "regnal-names"];
+		const openWinners = new Set(Array.from({ length: 20 }, (_, index) => api.runHeadless(`viterbo-open-balance-${index}`, "orsini", [], {}).electedId));
+		assert(openWinners.size >= 2 && [...openWinners].some((winner) => winner !== "visconti"), "Viterbo: counterfactual mode has reverted to a compulsory Visconti victory");
+		const chronicleWinners = Array.from({ length: 3 }, (_, index) => api.runHeadless(`viterbo-chronicle-${index}`, "orsini", [], { historicalMode: true }).electedId);
+		assert(chronicleWinners.every((winner) => winner === "visconti"), "Viterbo: strict chronicle mode no longer preserves the historical committee choice");
+		return ["blank-ballot", "approval-validation", "accessus-validation", "illness-eligibility", "regnal-names", "counterfactual-variety", "strict-chronicle-anchor"];
 	}
 	if (variant.label === "carafa-winter-1559") {
 		assert(typeof api.initState === "function" && typeof api.beginScrutiny === "function" && typeof api.playerAccede === "function" && typeof api.getState === "function", "Carafa Winter: targeted-test API is not exported");
@@ -328,7 +356,16 @@ function runTargetedChecks(variant, api) {
 		assert(api.present().length === 44 && api.voters().length === 44 && api.threshold() === 30, "Carafa Winter: final attendance or threshold is wrong");
 		assert(state.cards.capodiferro.dead && !api.canBeElected("capodiferro"), "Carafa Winter: Capodiferro remains eligible after death");
 		assert(!api.canVote("dubellay") && api.canBeElected("dubellay"), "Carafa Winter: du Bellay's departure was not represented correctly");
-		return ["attendance-40-to-44", "approval-validation", "accessus-validation", "illness-eligibility", "metric-bounds"];
+		const bishops = api.ELECTORS.filter((cardinal) => cardinal.order === "B");
+		assert(bishops.map((cardinal) => cardinal.id).join(",") === "dubellay,tournon,carpi,pisani,cesi,pacheco", `Carafa Winter: cardinal-bishop roster is ${bishops.map((cardinal) => cardinal.id).join(",")}`);
+		assert(bishops.every((cardinal) => /Ostia e Velletri|Sabina|Porto e Santa Rufina|Frascati|Palestrina|Albano/.test(cardinal.title)) && api.ELECTORS.find((cardinal) => cardinal.id === "gonzaga").order === "P" && api.ELECTORS.find((cardinal) => cardinal.id === "caetani").order === "P", "Carafa Winter: corrected suburbicarian titles or priestly orders are missing");
+		state = api.initState("medici", "carafa-save", { headless: true });
+		const saved = JSON.parse(JSON.stringify(api.serialiseState()));
+		assert(api.validateSavedState(saved), "Carafa Winter: a valid versioned save cannot be restored");
+		const corrupt = JSON.parse(JSON.stringify(saved));
+		corrupt.cards.medici.dead = "certainly";
+		assert(!api.validateSavedState(corrupt), "Carafa Winter: a corrupt save was accepted");
+		return ["attendance-40-to-44", "approval-validation", "accessus-validation", "illness-eligibility", "metric-bounds", "six-cardinal-bishops", "versioned-save"];
 	}
 	if (variant.label === "1903") {
 		assert(typeof api.initState === "function" && typeof api.makeSounding === "function" && typeof api.playerNetworks === "function" && typeof api.networkAccess === "function" && typeof api.resolveNetworkAction === "function" && typeof api.actionRouteCopy === "function" && typeof api.portraitFor === "function" && typeof api.alignmentWithPlayer === "function" && typeof api.pressureMetricDetail === "function" && typeof api.scoreGame === "function", "1903: revised information/network/portrait/pressure/score API is not exported");
@@ -371,6 +408,12 @@ function runTargetedChecks(variant, api) {
 		const completed = api.runHeadless("1903-score", "gibbons", "historical");
 		const score = api.scoreGame(completed);
 		assert(Number.isFinite(score.total) && score.parts.reduce((sum, part) => sum + part.points, 0) === score.total && score.verdict && score.verdict.grade, "1903: end score is invalid");
+		const validSave = JSON.parse(JSON.stringify(api.initState("gibbons", "1903-save", "open")));
+		assert(typeof api.validateSavedState === "function" && api.validateSavedState(validSave), "1903: a valid saved conclave cannot be restored");
+		const invalidSave = JSON.parse(JSON.stringify(validSave));
+		invalidSave.history = [{ votes: [{ voter: "gibbons", candidate: "gibbons" }] }];
+		invalidSave.ballotNo = 1;
+		assert(!api.validateSavedState(invalidSave), "1903: an invalid saved ballot was accepted");
 		const viablePlayers = api.ELECTORS.filter((cardinal) => {
 			const candidacy = api.initState(cardinal.id, `1903-viability-${cardinal.id}`, "historical");
 			candidacy.ballotNo = 7;
@@ -382,7 +425,7 @@ function runTargetedChecks(variant, api) {
 			return (api.forecastCounts(candidacy)[cardinal.id] || 0) >= api.THRESHOLD;
 		});
 		assert(viablePlayers.length === api.ELECTORS.length, `1903: only ${viablePlayers.length}/${api.ELECTORS.length} active player candidacies can theoretically reach the threshold`);
-		return ["portrait-lookup", "cardinal-alignment", "pressure-explanations", "pressure-ledger", "uncertain-soundings", "action-route-copy", "network-membership", "network-determinism", "player-ballot-preserved", "player-candidacy-viability", "end-score"];
+		return ["portrait-lookup", "cardinal-alignment", "pressure-explanations", "pressure-ledger", "uncertain-soundings", "action-route-copy", "network-membership", "network-determinism", "player-ballot-preserved", "player-candidacy-viability", "end-score", "strict-save"];
 	}
 	if (variant.label === "october-1978") {
 		assert(typeof api.initState === "function" && typeof api.runBallot === "function" && typeof api.getState === "function" && typeof api.makeSounding === "function" && typeof api.networkAccess === "function" && typeof api.workNetwork === "function" && typeof api.sortedCountEntries === "function" && typeof api.portraitFor === "function" && typeof api.scoreGame === "function", "October 1978: targeted-test API is not exported");
@@ -434,7 +477,22 @@ function runTargetedChecks(variant, api) {
 		const score = api.scoreGame(api.getState());
 		assert(Number.isFinite(score.total) && score.parts.reduce((sum, part) => sum + part.points, 0) === score.total && score.verdict && score.verdict.grade, "October 1978: end score is invalid");
 		assert(/conciliar/.test(api.axisPosition("vatican2", 1.8)) && !/high|middle/.test(api.axisPosition("vatican2", 1.8)), "October 1978: dossier axes still use ambiguous magnitude labels");
-		return ["full-portrait-coverage", "portrait-links", "chooser-stacking", "merged-network-action", "faction-picker-filter", "world-copy", "complete-tally", "uncertain-soundings", "network-membership", "third-party-network-cause", "network-determinism", "player-ballot-preserved", "terminal-guard", "papal-name", "end-score", "directional-profile"];
+		const liveCandidates = api.ELECTORS.filter((cardinal) => {
+			api.initState(cardinal.id, `october-live-field-${cardinal.id}`, { headless: true });
+			return api.activeCandidatePool1978().includes(cardinal.id);
+		});
+		assert(liveCandidates.length === api.ELECTORS.length, `October 1978: ${api.ELECTORS.length - liveCandidates.length} player candidacies are pruned from their own ballot field`);
+		api.initState("villot", "october-save", { headless: true });
+		const saveState = api.getState();
+		const validSave = JSON.parse(JSON.stringify(Object.assign({}, saveState, { rng: undefined, rngState: saveState.rng.state })));
+		assert(api.validateSavedState(validSave), "October 1978: a valid saved conclave cannot be restored");
+		const invalidSave = JSON.parse(JSON.stringify(validSave));
+		invalidSave.metrics.stature = 101;
+		assert(!api.validateSavedState(invalidSave), "October 1978: an out-of-range saved metric was accepted");
+		const neutralA = api.runNeutralHeadless("october-neutral");
+		const neutralB = api.runNeutralHeadless("october-neutral");
+		assert(JSON.stringify(neutralA) === JSON.stringify(neutralB) && neutralA.over && neutralA.winner, "October 1978: neutral calibration mode is non-deterministic or unresolved");
+		return ["full-portrait-coverage", "portrait-links", "chooser-stacking", "merged-network-action", "faction-picker-filter", "world-copy", "complete-tally", "uncertain-soundings", "network-membership", "third-party-network-cause", "network-determinism", "player-ballot-preserved", "terminal-guard", "papal-name", "end-score", "directional-profile", "all-player-live-field", "strict-save", "neutral-calibration"];
 	}
 	if (variant.label === "constance-1417") {
 		assert(typeof api.initState === "function" && typeof api.beginScrutiny === "function" && typeof api.playerAccede === "function" && typeof api.makeSounding === "function" && typeof api.actionColloquy === "function" && typeof api.colloquySnapshot === "function" && typeof api.thresholds === "function" && typeof api.electedNow === "function" && typeof api.validateData === "function" && typeof api.scoreGame === "function" && typeof api.papalNameForState === "function", "Constance: targeted-test API is not exported");
@@ -519,7 +577,12 @@ function runTargetedChecks(variant, api) {
 		assert(/scrollbar-color/.test(constanceSource) && /::-webkit-scrollbar-corner/.test(constanceSource), "Constance: native scrollbars remain visually unintegrated");
 		const score = api.scoreGame(openA);
 		assert(Number.isFinite(score.total) && score.parts.reduce((sum, part) => sum + part.points, 0) === score.total && score.verdict && score.verdict.grade, "Constance: end score is invalid");
-		return ["data-audit", "six-college-rule", "blank-ballot", "approval-validation", "accession-validation", "no-first-scrutiny-accession", "player-ballot-preserved", "uncertain-soundings", "colloquy-ledger", "colloquy-refines-soundings", "historical-anchor", "historical-alternates", "open-termination", "papal-name", "dated-colonna-name", "five-star-difficulty", "affinity-guidance", "persistent-ledger", "filterable-choosers", "chooser-return", "three-name-guidance", "serial-scrutiny", "public-cedula-roll", "mobile-order", "scrutiny-dialogs", "wall-guidance", "styled-scrollbars", "end-score"];
+		const validSave = JSON.parse(JSON.stringify(api.initState("dailly", "constance-save", "open")));
+		assert(typeof api.validateSavedState === "function" && api.validateSavedState(validSave), "Constance: a valid saved conclave cannot be restored");
+		const invalidSave = JSON.parse(JSON.stringify(validSave));
+		invalidSave.rng.state = -1;
+		assert(!api.validateSavedState(invalidSave), "Constance: an invalid RNG state was accepted from a save");
+		return ["data-audit", "six-college-rule", "blank-ballot", "approval-validation", "accession-validation", "no-first-scrutiny-accession", "player-ballot-preserved", "uncertain-soundings", "colloquy-ledger", "colloquy-refines-soundings", "historical-anchor", "historical-alternates", "open-termination", "papal-name", "dated-colonna-name", "five-star-difficulty", "affinity-guidance", "persistent-ledger", "filterable-choosers", "chooser-return", "three-name-guidance", "serial-scrutiny", "public-cedula-roll", "mobile-order", "scrutiny-dialogs", "wall-guidance", "styled-scrollbars", "end-score", "strict-save"];
 	}
 	if (variant.label === "april-1378") {
 		assert(typeof api.initState === "function" && typeof api.beginScrutiny === "function" && typeof api.makeSounding === "function" && typeof api.runHeadless === "function" && typeof api.validateData === "function" && typeof api.scoreGame === "function" && typeof api.papalNameForState === "function" && typeof api.regnalOptionsFor === "function" && typeof api.regnalSignalFor === "function" && typeof api.choosePlayerRegnalName === "function" && typeof api.axisPosition === "function" && typeof api.roman === "function" && typeof api.scrutinyLabel === "function" && typeof api.resolveDecision === "function" && typeof api.autoChoiceFor === "function", "April 1378: targeted-test API is not exported");
@@ -635,7 +698,70 @@ function runTargetedChecks(variant, api) {
 		// end score integrity
 		const score = api.scoreGame(openA);
 		assert(Number.isFinite(score.total) && score.parts.reduce((sum, part) => sum + part.points, 0) === score.total && score.verdict && score.verdict.grade, "April 1378: end score is invalid");
-		return ["data-audit", "faction-arithmetic", "single-outsider", "historical-anchor", "documented-tally", "scrutiny-date", "roman-scrutinies", "orsini-withheld", "schism-onset", "blank-ballot", "player-ballot-preserved", "oral-validation", "uncertain-soundings", "open-termination", "player-drives-schism", "player-drives-unity", "colloquy-dialog", "italian-self-election", "papal-name", "regnal-choice", "directional-profile", "end-score"];
+		const capped = api.runHeadless("april-capped", "geneva", "open", 1);
+		assert(capped.unresolved && !capped.winner && capped.ballots === 1, "April 1378: a capped simulation fabricated a winner instead of returning unresolved");
+		const validSave = JSON.parse(JSON.stringify(api.initState("geneva", "april-save", "open")));
+		assert(typeof api.validateSavedState === "function" && api.validateSavedState(validSave), "April 1378: a valid saved conclave cannot be restored");
+		const invalidSave = JSON.parse(JSON.stringify(validSave));
+		invalidSave.trust.geneva = Infinity;
+		assert(!api.validateSavedState(invalidSave), "April 1378: an invalid saved trust value was accepted");
+		return ["data-audit", "faction-arithmetic", "single-outsider", "historical-anchor", "documented-tally", "scrutiny-date", "roman-scrutinies", "orsini-withheld", "schism-onset", "blank-ballot", "player-ballot-preserved", "oral-validation", "uncertain-soundings", "open-termination", "player-drives-schism", "player-drives-unity", "colloquy-dialog", "italian-self-election", "papal-name", "regnal-choice", "directional-profile", "end-score", "lawful-unresolved-cap", "strict-save"];
+	}
+	if (variant.label === "accession-1458") {
+		assert(typeof api.initState === "function" && typeof api.beginScrutiny === "function" && typeof api.stepAccession === "function" && typeof api.validateSavedState === "function", "1458: targeted-test API is not exported");
+		assert(api.validateData().length === 0 && api.ELECTORS.length === 18 && api.THRESHOLD === 12, "1458: roster, threshold, or data audit is invalid");
+		const factions = {};
+		api.ELECTORS.forEach((cardinal) => { factions[cardinal.faction] = (factions[cardinal.faction] || 0) + 1; });
+		assert(factions.italian === 8 && factions.catalan === 5 && factions.french === 2 && factions.greek === 2 && factions.avis === 1, "1458: faction arithmetic is wrong");
+
+		const historical = api.runHeadless("1458-chronicle", "mella", "historical", 10);
+		assert(historical.electedId === "piccolomini" && historical.electedName === "Pius II" && historical.history.length === 2, "1458: historical replay does not elect Pius II in two scrutinies");
+		const second = historical.history[1];
+		assert(second.votes.filter((vote) => vote.candidate[0] === "piccolomini").length === 9 && second.votes.filter((vote) => vote.candidate[0] === "estouteville").length === 6, "1458: second scrutiny is not the documented 9–6");
+		assert(second.accessions.map((move) => move.id).join(",") === "borgia,tebaldi,colonna" && second.accessions.every((move) => move.from === move.id), "1458: documented accession order or source IDs are wrong");
+		assert(second.counts.piccolomini === 12 && second.elected, "1458: final recorded tally does not reach twelve");
+		for (const ballot of historical.history) assertBallotIntegrity(variant, api, ballot);
+
+		const blank = api.initState("mella", "1458-blank", "historical");
+		while (blank.pending) api.resolveDecision(blank, api.autoChoiceFor(blank));
+		const blankRecord = api.beginScrutiny(blank, []);
+		assert(blank.flags.divergedFromRecord && !blankRecord.scripted && blankRecord.votes.find((vote) => vote.voter === "mella").candidate.length === 0, "1458: a historical blank paper was overwritten or did not trigger divergence");
+		expectRejected("1458: a self-vote was accepted", () => api.validatePlayerPicks(blank, ["mella"]));
+		expectRejected("1458: an unknown candidate was accepted", () => api.validatePlayerPicks(blank, ["bogus"]));
+		expectRejected("1458: a double paper was accepted", () => api.validatePlayerPicks(blank, ["barbo", "mella"]));
+
+		const selfAccede = api.initState("piccolomini", "1458-self-accession", "open");
+		while (selfAccede.pending) api.resolveDecision(selfAccede, api.autoChoiceFor(selfAccede));
+		api.beginScrutiny(selfAccede, []);
+		selfAccede.accession.phase = "live";
+		selfAccede.accession.leaderId = "piccolomini";
+		assert(!api.accessionEligible(selfAccede, "piccolomini"), "1458: the ballot leader can accede to himself");
+		api.stageAccessionChoice(selfAccede, { act: "accede" });
+		api.stepAccession(selfAccede);
+		assert(!selfAccede.history[0].accessions.some((move) => move.id === "piccolomini"), "1458: an illegal player self-accession reached the record");
+
+		const soundingState = api.initState("mella", "1458-soundings", "open");
+		const soundingBefore = JSON.stringify(soundingState);
+		const soundingA = api.makeSounding(soundingState);
+		const soundingB = api.makeSounding(soundingState);
+		assert(JSON.stringify(soundingA) === JSON.stringify(soundingB) && JSON.stringify(soundingState) === soundingBefore, "1458: soundings are non-deterministic or mutate simulation state");
+		assert(soundingA.rows.length > 0 && soundingA.rows.every((row) => Number.isInteger(row.lo) && Number.isInteger(row.hi) && row.lo <= row.hi && row.lo >= 0 && row.hi <= 18), "1458: soundings contain invalid ranges");
+
+		const saved = api.initState("mella", "1458-save", "open");
+		assert(api.validateSavedState(JSON.parse(JSON.stringify(saved))).schemaVersion === api.SAVE_SCHEMA, "1458: a valid versioned save cannot be restored");
+		expectRejected("1458: an unknown save schema was accepted", () => api.validateSavedState({ schemaVersion: 999 }));
+		const viable = api.ELECTORS.filter((cardinal) => {
+			const state = api.initState(cardinal.id, `1458-viability-${cardinal.id}`, "open");
+			state.ballotNo = 7;
+			state.momentum[cardinal.id] = 65;
+			state.metrics.standing = 90;
+			return (api.forecastCounts(state)[cardinal.id] || 0) >= api.THRESHOLD;
+		});
+		assert(viable.length === api.ELECTORS.length, `1458: only ${viable.length}/${api.ELECTORS.length} player candidacies can theoretically reach the threshold`);
+		assert(Number.isFinite(historical.finale.score.total) && Object.values(historical.finale.score.parts).reduce((sum, value) => sum + value, 0) === historical.finale.score.total, "1458: end score is invalid");
+		const source = fs.readFileSync(path.join(ROOT, variant.file), "utf8");
+		assert(!source.includes("by exhausted acclamation"), "1458: fabricated exhausted-acclamation fallback remains");
+		return ["data-audit", "faction-arithmetic", "historical-replay", "documented-tally", "accession-order", "blank-ballot", "approval-validation", "self-accession", "uncertain-soundings", "versioned-save", "player-candidacy-viability", "end-score", "lawful-ending"];
 	}
 	if (variant.label === "accession-1458") {
 		assert(typeof api.initState === "function" && typeof api.beginScrutiny === "function" && typeof api.stepAccession === "function" && typeof api.validateSavedState === "function", "1458: targeted-test API is not exported");
@@ -697,6 +823,11 @@ function runTargetedChecks(variant, api) {
 		assert(typeof api.initState === "function" && typeof api.conductBallot === "function" && typeof api.getState === "function" && typeof api.activeElectors === "function" && typeof api.makeSounding === "function" && typeof api.resolveNetworkAction === "function" && typeof api.alignmentWithPlayer === "function" && typeof api.supportBriefCandidates === "function" && typeof api.positionMetricDetail === "function", "Venice: targeted-test API is not exported");
 		api.initState("mattei", "venice-player-ballot", { headless: true });
 		const state = api.getState();
+		const validSave = JSON.parse(JSON.stringify(Object.assign({}, state, { rng: null, rngState: state.rng.state, savedAt: 1 })));
+		assert(typeof api.validateVeniceSave === "function" && api.validateVeniceSave(validSave), "Venice: a valid saved conclave cannot be restored");
+		const invalidSave = JSON.parse(JSON.stringify(validSave));
+		invalidSave.metrics.trust = 101;
+		assert(!api.validateVeniceSave(invalidSave), "Venice: an out-of-range saved metric was accepted");
 		const positionDetails = ["stature", "trust", "secrecy", "exposure", "temporal", "adaptation"].map((key) => api.positionMetricDetail(key));
 		assert(positionDetails.every((detail) => detail && Number.isInteger(detail.value) && detail.label && detail.level && detail.scope && detail.direction && detail.definition && detail.effect && detail.moves), "Venice: Your position explanations are incomplete");
 		state.support.bellisomi = 100;
@@ -748,7 +879,7 @@ function runTargetedChecks(variant, api) {
 		const score = api.scoreGame();
 		assert(Number.isFinite(score.total) && score.parts.reduce((sum, part) => sum + part.points, 0) === score.total && score.verdict && score.verdict.grade, "Venice: end score is invalid");
 		assert(/Austrian-aligned/.test(api.axisPosition("austria", 1.1)) && !/very high|middle/.test(api.axisPosition("austria", 1.1)), "Venice: dossiers still use abstract rather than directional labels");
-		return ["position-explanations", "player-ballot-preserved", "self-vote", "herzan-arrival", "alignment-guidance", "opening-support", "historical-opening", "uncertain-soundings", "portrait-lookup", "network-membership", "network-determinism", "alternate-winner", "end-score", "directional-profile"];
+		return ["strict-save", "position-explanations", "player-ballot-preserved", "self-vote", "herzan-arrival", "alignment-guidance", "opening-support", "historical-opening", "uncertain-soundings", "portrait-lookup", "network-membership", "network-determinism", "alternate-winner", "end-score", "directional-profile"];
 	}
 	return [];
 }
@@ -765,6 +896,7 @@ function runHeadlessChecks(variant, api) {
 	}
 	const players = full ? cards.map((card) => card.id) : quick ? [variant.quickPlayer] : variant.players;
 	const winners = new Map();
+	const winnersByPlayer = new Map(players.map((player) => [player, new Map()]));
 	const ballotCounts = [];
 	for (let seedIndex = 0; seedIndex < seedCount; seedIndex++) {
 		for (const player of players) {
@@ -794,22 +926,33 @@ function runHeadlessChecks(variant, api) {
 			const reportedBallots = Number.isInteger(first.ballots) ? first.ballots : history.length;
 			assert(reportedBallots === history.length, `${variant.label}: reports ${reportedBallots} ballots but records ${history.length}`);
 			winners.set(winner, (winners.get(winner) || 0) + 1);
+			const playerWinners = winnersByPlayer.get(player);
+			playerWinners.set(winner, (playerWinners.get(winner) || 0) + 1);
 			ballotCounts.push(reportedBallots);
 		}
 	}
 	ballotCounts.sort((a, b) => a - b);
 	const targeted = runTargetedChecks(variant, api);
 	return {
+		mode: variant.modeLabel,
 		runs: ballotCounts.length,
 		players: players.length,
+		playersTested: players,
 		medianBallots: ballotCounts[Math.floor(ballotCounts.length / 2)] || 0,
 		maxBallots: Math.max(...ballotCounts),
 		winners: Object.fromEntries([...winners.entries()].sort((a, b) => b[1] - a[1]).slice(0, 12)),
+		winnersByPlayer: Object.fromEntries([...winnersByPlayer].map(([player, distribution]) => [player, Object.fromEntries([...distribution.entries()].sort((a, b) => b[1] - a[1]))])),
 		targeted,
 	};
 }
 
 function checkStaticFiles() {
+	const browserSmoke = fs.readFileSync(path.join(ROOT, "tests", "browser-smoke.js"), "utf8");
+	const packageJson = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), "utf8"));
+	const workflow = fs.readFileSync(path.join(ROOT, ".github", "workflows", "regression.yml"), "utf8");
+	assert(packageJson.scripts && packageJson.scripts["test:browser"] === "node tests/browser-smoke.js", "project: browser regression script is not wired through package.json");
+	assert(/checkConstanceChooserReturn/.test(browserSmoke) && /checkStickyChooser/.test(browserSmoke) && /checkCarafaStart/.test(browserSmoke), "project: browser suite lacks chooser-return, portrait-stacking, or mobile-start coverage");
+	assert(/browser-smoke:/.test(workflow) && /weekly-all-player:/.test(workflow) && /schedule:/.test(workflow), "project: CI lacks browser or scheduled all-player gates");
 	const index = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
 	const hrefs = [...new Set([...index.matchAll(/href="\.\/([^"#?]+\.html)"/g)].map((match) => match[1]))];
 	for (const href of hrefs) assert(fs.existsSync(path.join(ROOT, href)), `index links to missing file ${href}`);
@@ -910,7 +1053,11 @@ async function main() {
 	console.log(JSON.stringify({ seedCount, quick, full, indexLinks, variants }, null, 2));
 }
 
-main().catch((error) => {
-	console.error(error && error.stack || error);
-	process.exit(1);
-});
+if (require.main === module) {
+	main().catch((error) => {
+		console.error(error && error.stack || error);
+		process.exit(1);
+	});
+} else {
+	module.exports = { VARIANTS, loadVariant, loadEngineWithoutDom, runHeadlessChecks, runTargetedChecks, checkStaticFiles };
+}

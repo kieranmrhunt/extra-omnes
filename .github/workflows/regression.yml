@@ -4,6 +4,8 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+  schedule:
+    - cron: "17 3 * * 1"
 
 concurrency:
   group: extra-omnes-${{ github.event.pull_request.head.sha || github.sha }}
@@ -25,3 +27,34 @@ jobs:
           node-version: 22
       - name: Run deterministic engine and invariant checks
         run: node tests/harness.js --seeds=2 --quick
+
+  browser-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install browser test dependency
+        run: npm install --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run responsive and keyboard browser checks
+        run: npm run test:browser
+
+  weekly-all-player:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Exercise every playable character
+        run: node tests/harness.js --seeds=1 --full --timeout-ms=1800000

@@ -1,0 +1,13 @@
+{
+  "name": "extra-omnes",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Regression checks for the Extra Omnes conclave simulations",
+  "scripts": {
+    "test": "node tests/harness.js --quick --seeds=2",
+    "test:browser": "node tests/browser-smoke.js"
+  },
+  "devDependencies": {
+    "playwright": "1.61.1"
+  }
+}
