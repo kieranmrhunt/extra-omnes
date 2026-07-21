@@ -302,7 +302,7 @@ input,select{font-family:var(--serif);font-size:.95rem;color:var(--paper);backgr
 	<div class="startbar">
 		<button id="startbtn" class="primary" type="button" disabled>Choose an elector</button>
 		<button id="resumeBtn" class="gold hidden" type="button">Resume sealed conclave</button>
-		<div class="seedrow">seed <input id="seedin" placeholder="bodensee"> · all fifty-three electors — cardinals and deputies alike — are playable</div>
+		<div class="seedrow"><label for="seedin">Seed</label> <input id="seedin" placeholder="bodensee" aria-describedby="seedHelp"> · all fifty-three electors — cardinals and deputies alike — are playable <span id="seedHelp" hidden>Enter a seed to replay the same conclave.</span></div>
 	</div>
 </section>
 
@@ -2101,7 +2101,7 @@ function validateData(){
 /* Rendering never touches the simulation RNG: everything drawn here is either
    public knowledge (scrutinies are read aloud) or an explicit paid-for sounding. */
 let S=null;
-const UI={picks:[],selPlayer:null,filter:"all",search:"",tab:"all",rosterSearch:"",logRendered:0,chosenName:null,toastTimer:null,modalOnClose:null,modalTimers:[]};
+const UI={picks:[],selPlayer:null,filter:"all",search:"",tab:"all",rosterSearch:"",logRendered:0,chosenName:null,toastTimer:null,modalOnClose:null,modalReturnFocus:null,modalTimers:[],saveError:false};
 
 function $(id){return document.getElementById(id)}
 function el(tag,className,text){
@@ -2137,6 +2137,57 @@ function freshSeed(){
 }
 
 /* ---------- persistence ---------- */
+function savedRecord1417(value){return !!value&&typeof value==="object"&&!Array.isArray(value)}
+function savedFiniteMap1417(value,ids,bounds){
+	if(!savedRecord1417(value))return false;
+	return Object.entries(value).every(function(entry){
+		const number=entry[1];
+		return ids.includes(entry[0])&&typeof number==="number"&&Number.isFinite(number)&&(!bounds||(number>=bounds[0]&&number<=bounds[1]));
+	});
+}
+function sameCountMap1417(a,b){
+	if(!savedRecord1417(a)||!savedRecord1417(b))return false;
+	const keys=new Set(Object.keys(a).concat(Object.keys(b)));
+	for(const id of keys)if(Number(a[id]||0)!==Number(b[id]||0))return false;
+	return true;
+}
+function savedBallot1417(record,index){
+	if(!savedRecord1417(record)||record.ballot!==index+1||record.electors!==ELECTORS.length||!Array.isArray(record.votes)||record.votes.length!==ELECTORS.length||!Array.isArray(record.accessions))return false;
+	const voters=new Set();
+	for(const entry of record.votes){
+		if(!savedRecord1417(entry)||!ID[entry.voter]||voters.has(entry.voter)||!Array.isArray(entry.candidate)||entry.candidate.length>3||new Set(entry.candidate).size!==entry.candidate.length)return false;
+		voters.add(entry.voter);
+		if(entry.candidate.some(function(candidate){return !ID[candidate]||candidate===entry.voter}))return false;
+	}
+	const accessionVoters=new Set();
+	for(const accession of record.accessions){
+		if(!savedRecord1417(accession)||!voters.has(accession.from)||!ID[accession.to]||accession.from===accession.to||accessionVoters.has(accession.from))return false;
+		const direct=record.votes.find(function(entry){return entry.voter===accession.from});
+		if(direct.candidate.includes(accession.to))return false;
+		accessionVoters.add(accession.from);
+	}
+	return sameCountMap1417(record.counts,countVotes(record.votes,record.accessions))&&savedRecord1417(record.colleges)&&savedRecord1417(record.locks)&&(record.leaderId===null||ID[record.leaderId]);
+}
+function validateSavedState(data){
+	if(!savedRecord1417(data)||data.version!==1||typeof data.seed!=="string"||!data.seed||!ID[data.playerId]||!["historical","open"].includes(data.mode))return false;
+	if(!Number.isInteger(data.ballotNo)||data.ballotNo<0||data.ballotNo>MAX_SCRUTINIES||!Number.isInteger(data.ap)||data.ap<0||data.ap>3||typeof data.over!=="boolean"||!Number.isInteger(data.actionSerial)||data.actionSerial<0)return false;
+	if(!savedRecord1417(data.rng)||!Number.isInteger(data.rng.state)||data.rng.state<0||data.rng.state>0xffffffff)return false;
+	if(!savedRecord1417(data.metrics)||!Object.keys(BASE_METRICS).every(function(key){return Number.isFinite(data.metrics[key])&&data.metrics[key]>=0&&data.metrics[key]<=100}))return false;
+	if(!savedFiniteMap1417(data.momentum,IDS,false)||!savedFiniteMap1417(data.lastCounts,IDS,false)||!savedFiniteMap1417(data.lastVoteCounts,IDS,false))return false;
+	if(!savedRecord1417(data.profileMods)||!IDS.every(function(id){return savedRecord1417(data.profileMods[id])&&Object.values(data.profileMods[id]).every(Number.isFinite)}))return false;
+	if(!savedRecord1417(data.lean)||!Object.entries(data.lean).every(function(entry){
+		return !!COLLEGE_KEY[entry[0]]&&savedRecord1417(entry[1])&&ID[entry[1].id]&&Number.isFinite(entry[1].strength)&&entry[1].strength>=0&&entry[1].strength<=1.6;
+	}))return false;
+	if(!savedRecord1417(data.intel)||!Object.entries(data.intel).every(function(entry){return ID[entry[0]]&&Number.isInteger(entry[1])&&entry[1]>=1&&entry[1]<=3}))return false;
+	if(!savedRecord1417(data.personalPressure)||!savedRecord1417(data.flags)||!savedRecord1417(data.playerStats)||!savedRecord1417(data.player))return false;
+	if(!Array.isArray(data.history)||data.history.length!==data.ballotNo||!data.history.every(savedBallot1417)||!Array.isArray(data.log)||data.log.length>1500||!Array.isArray(data.intelLedger))return false;
+	if(data.history.length&&!sameCountMap1417(data.lastCounts,data.history[data.history.length-1].counts))return false;
+	if(data.pending!==null&&data.pending!==undefined&&!savedRecord1417(data.pending))return false;
+	if(data.pendingBallot!==null&&data.pendingBallot!==undefined&&!savedBallot1417(data.pendingBallot,data.ballotNo))return false;
+	if(data.electedId!==null&&!ID[data.electedId])return false;
+	if(data.over&&!data.electedId)return false;
+	return true;
+}
 function saveState(){
 	if(!S)return;
 	try{localStorage.setItem(SAVE_KEY,JSON.stringify(S))}catch(_){/* private mode: play on unsealed */}
@@ -2149,14 +2200,9 @@ function loadSaved(){
 		const raw=localStorage.getItem(SAVE_KEY);
 		if(!raw)return null;
 		const parsed=JSON.parse(raw);
-		if(!parsed||parsed.version!==1||!ID[parsed.playerId]||!Array.isArray(parsed.history)||!Array.isArray(parsed.log))return null;
-		if(!parsed.intel||typeof parsed.intel!=="object")parsed.intel={};
-		if(!Array.isArray(parsed.intelLedger))parsed.intelLedger=[];
-		if(!parsed.personalPressure||typeof parsed.personalPressure!=="object")parsed.personalPressure={};
-		if(!parsed.playerStats||typeof parsed.playerStats!=="object")return null;
-		if(!Number.isFinite(parsed.playerStats.colloquies))parsed.playerStats.colloquies=0;
+		if(!validateSavedState(parsed))throw new Error("Invalid saved conclave");
 		return parsed;
-	}catch(_){return null}
+	}catch(_){UI.saveError=true;clearSave();return null}
 }
 
 /* ---------- selection screen ---------- */
@@ -2806,8 +2852,10 @@ function openModal(title,build,options){
 	const host=$("modalhost");
 	clearModalTimers();
 	host.innerHTML="";
+	UI.modalReturnFocus=(typeof document!=="undefined")?document.activeElement:null;
 	UI.modalOnClose=typeof opts.onClose==="function" ? opts.onClose : null;
 	const modal=el("div","modal");
+	modal.setAttribute("tabindex","-1");
 	const heading=el("h2","",title);
 	heading.setAttribute("id","modalTitle");
 	modal.appendChild(heading);
@@ -2822,14 +2870,27 @@ function openModal(title,build,options){
 	modal.appendChild(closebar);
 	host.appendChild(modal);
 	host.classList.remove("hidden");
+	host.onkeydown=function(event){
+		if(event.key!=="Tab")return;
+		const focusable=[].slice.call(modal.querySelectorAll('button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])'));
+		if(!focusable.length){event.preventDefault();modal.focus();return}
+		const first=focusable[0],last=focusable[focusable.length-1];
+		if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}
+		else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
+	};
+	requestAnimationFrame(function(){const focusable=modal.querySelector('button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])');(focusable||modal).focus()});
 }
 function closeModal(){
 	const host=$("modalhost");
 	const returnTo=UI.modalOnClose;
+	const previous=UI.modalReturnFocus;
 	UI.modalOnClose=null;
+	UI.modalReturnFocus=null;
 	clearModalTimers();
 	host.classList.add("hidden");
+	host.onkeydown=null;
 	host.innerHTML="";
+	if(previous&&typeof previous.focus==="function"&&document.contains(previous))previous.focus();
 	if(returnTo)returnTo();
 }
 function axisRow(body,axis,value){
@@ -3118,6 +3179,7 @@ function wire(){
 	$("startbtn").addEventListener("click",startGame);
 	$("resumeBtn").addEventListener("click",resumeGame);
 	if(loadSaved())$("resumeBtn").classList.remove("hidden");
+	if(UI.saveError)setTimeout(function(){toast("The saved conclave was unreadable and has been discarded.")},0);
 	$("rosterSearch").addEventListener("input",function(){UI.rosterSearch=$("rosterSearch").value||"";renderRoster()});
 	$("manualBtn").addEventListener("click",openRules);
 	$("saveBtn").addEventListener("click",function(){saveState();toast("Sealed. You may close the shutters; the conclave keeps.")});
@@ -3172,7 +3234,7 @@ const CONSTANCE_1417_ENGINE={
 	thresholds:thresholds,thresholdFor:thresholdFor,electedNow:electedNow,collegeTallies:collegeTallies,
 	scoreGame:scoreGame,achievementsFor:achievementsFor,objectiveFor:objectiveFor,
 	papalNameForState:papalNameForState,regnalOptionsFor:regnalOptionsFor,feastName1417:feastName1417,
-	runHeadless:runHeadless,validateData:validateData,autoChoiceFor:autoChoiceFor,
+	runHeadless:runHeadless,validateData:validateData,validateSavedState:validateSavedState,autoChoiceFor:autoChoiceFor,
 	settlementLeader:settlementLeader,bestLegalPlayerVote:bestLegalPlayerVote,
 	getState:function(){return S}
 };

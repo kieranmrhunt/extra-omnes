@@ -51,7 +51,8 @@ h1 em{font-style:normal;color:var(--sienna)}
 .btn.off{opacity:.4;cursor:not-allowed}
 .filterrow{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin:.6rem 0 1rem}
 .filterrow input{background:var(--surface);border:1px solid var(--line);color:var(--paper);padding:.45rem .7rem;border-radius:6px;min-width:220px}
-.filterrow .segment button{padding:.45rem .7rem;font-size:.7rem}
+.filterrow .segment{max-width:100%;overflow-x:auto;scrollbar-color:var(--gold) var(--surface)}
+.filterrow .segment button{flex:0 0 auto;min-height:40px;padding:.45rem .7rem;font-size:.7rem}
 #continuebar{display:flex;gap:.7rem;justify-content:center;align-items:center;margin:.4rem 0 1rem;color:var(--gold)}
 .selgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:.7rem}
 .selcard{text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.75rem .85rem;color:var(--paper);display:flex;flex-direction:column;gap:.28rem;transition:border-color .15s}
@@ -176,7 +177,7 @@ h1 em{font-style:normal;color:var(--sienna)}
 .gamefoot{display:flex;gap:.6rem;justify-content:flex-end;align-items:center;margin-top:.4rem}
 .gamefoot .directory-link{margin-right:auto}
 @media(max-width:1020px){.cols{grid-template-columns:1fr 1fr}.cols>.col-right{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:1.1rem}}
-@media(max-width:700px){.cols{grid-template-columns:1fr}.col-mid{order:1}.col-left{order:2}.col-right{order:3}.cols>.col-right{grid-template-columns:1fr}.stripe{grid-template-columns:1fr}.stripe #metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.65rem 1rem}.dial{min-width:0}.act-btn{flex-basis:150px}.gametop{position:static}.gamefoot{flex-wrap:wrap}.gamefoot .directory-link{width:100%;margin-bottom:.25rem}}
+@media(max-width:700px){.cols{grid-template-columns:1fr}.col-mid{order:1}.col-left{order:2}.col-right{order:3}.cols>.col-right{grid-template-columns:1fr}.stripe{grid-template-columns:1fr}.stripe #metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.65rem 1rem}.dial{min-width:0}.act-btn{flex-basis:150px}.gametop{position:static}.gamefoot{flex-wrap:wrap}.gamefoot .directory-link{width:100%;margin-bottom:.25rem}.filterrow{display:grid;grid-template-columns:minmax(0,1fr);justify-items:stretch}.filterrow input{width:100%;min-width:0}.filterrow .segment{justify-content:flex-start}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -2199,7 +2200,7 @@ function buildCards(){
 		card.innerHTML="<span class='selname'>"+esc(c.name)+"</span>"+
 			"<span class='selsee'>"+esc(c.see)+"</span>"+
 			"<span class='selhook'>"+esc(c.hook)+"</span>"+
-			"<span class='selmeta'><span class='chip chip-"+c.faction+"'>"+esc(FACTIONS[c.faction].label)+"</span><span class='stars'>"+"★".repeat(c.stars)+"<span class='dimstar'>"+"★".repeat(3-c.stars)+"</span></span> <span class='age'>æt. "+c.age+"</span></span>";
+			"<span class='selmeta'><span class='chip chip-"+c.faction+"'>"+esc(FACTIONS[c.faction].label)+"</span><span class='stars' role='img' aria-label='Difficulty "+c.stars+" of 3' title='Difficulty "+c.stars+" of 3'><span aria-hidden='true'>"+"★".repeat(c.stars)+"<span class='dimstar'>"+"★".repeat(3-c.stars)+"</span></span></span> <span class='age'>æt. "+c.age+"</span></span>";
 		card.onclick=function(){UI.selected=c.id;buildCards();$("selblurb").innerHTML="<b>"+esc(c.name)+".</b> "+c.blurb+"<div class='record'>"+esc(c.record)+"</div>"};
 		grid.appendChild(card);
 	});

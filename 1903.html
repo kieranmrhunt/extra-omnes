@@ -502,7 +502,7 @@ button.sounding-row:active{transform:none}
 	<div class="startbar">
 		<button id="startbtn" class="primary" type="button" disabled>Choose a cardinal</button>
 		<button id="resumeBtn" class="gold hidden" type="button">Resume sealed conclave</button>
-		<div class="seedrow">seed <input id="seedin" placeholder="sistine"> · all sixty-two participating electors are playable</div>
+		<div class="seedrow"><label for="seedin">Seed</label> <input id="seedin" placeholder="sistine" aria-describedby="seedHelp"> · all sixty-two participating electors are playable <span id="seedHelp" hidden>Enter a seed to replay the same conclave.</span></div>
 	</div>
 </section>
 
@@ -573,6 +573,7 @@ button.sounding-row:active{transform:none}
 
 const THRESHOLD = 42;
 const SAVE_KEY = "extra-omnes-1903-v1";
+let SAVE_READ_ERROR = false;
 const ORDER_NAME = {B:"Cardinal-bishop",P:"Cardinal-priest",D:"Cardinal-deacon"};
 const BALLOT_LABELS = [
 	"",
@@ -2428,6 +2429,42 @@ function showRules(){
 function safeStorageGet(){
 	try{return localStorage.getItem(SAVE_KEY)}catch(error){return null}
 }
+function savedRecord1903(value){return !!value&&typeof value==="object"&&!Array.isArray(value)}
+function sameCountMap1903(a,b){
+	if(!savedRecord1903(a)||!savedRecord1903(b))return false;
+	const keys=new Set(Object.keys(a).concat(Object.keys(b)));
+	for(const id of keys)if(Number(a[id]||0)!==Number(b[id]||0))return false;
+	return true;
+}
+function savedBallot1903(record,index){
+	if(!savedRecord1903(record)||record.ballot!==index+1||!Array.isArray(record.votes)||record.votes.length!==ELECTORS.length||!savedRecord1903(record.counts))return false;
+	const voters=new Set();
+	for(const vote of record.votes){
+		if(!savedRecord1903(vote)||!ID[vote.voter]||voters.has(vote.voter)||!(ID[vote.candidate]||vote.candidate==="_blank")||vote.voter===vote.candidate)return false;
+		voters.add(vote.voter);
+	}
+	return sameCountMap1903(record.counts,countVotes(record.votes))&&(record.leaderId===null||ID[record.leaderId])&&Number.isInteger(record.leaderCount)&&record.leaderCount>=0;
+}
+function validateSavedState1903(data){
+	if(!savedRecord1903(data)||data.version!==1||typeof data.seed!=="string"||!data.seed||!ID[data.playerId]||!["historical","open"].includes(data.mode))return false;
+	if(!Number.isInteger(data.ballotNo)||data.ballotNo<0||data.ballotNo>100||!Number.isInteger(data.ap)||data.ap<0||data.ap>3||typeof data.over!=="boolean"||!Number.isInteger(data.actionSerial)||data.actionSerial<0)return false;
+	if(!savedRecord1903(data.metrics)||!PRESSURE_KEYS.every(function(key){return Number.isFinite(data.metrics[key])&&data.metrics[key]>=0&&data.metrics[key]<=100}))return false;
+	if(!savedRecord1903(data.metricHistory)||!PRESSURE_KEYS.every(function(key){
+		return Array.isArray(data.metricHistory[key])&&data.metricHistory[key].every(function(entry){
+			return savedRecord1903(entry)&&Number.isFinite(entry.delta)&&typeof entry.reason==="string"&&Number.isInteger(entry.ballot)&&entry.ballot>=0&&entry.ballot<=data.ballotNo;
+		});
+	}))return false;
+	if(!savedRecord1903(data.momentum)||!IDS.every(function(id){return Number.isFinite(data.momentum[id])}))return false;
+	if(!savedRecord1903(data.profileMods)||!IDS.every(function(id){return savedRecord1903(data.profileMods[id])&&Object.values(data.profileMods[id]).every(Number.isFinite)}))return false;
+	if(!savedRecord1903(data.flags)||!savedRecord1903(data.player)||!Array.isArray(data.history)||data.history.length!==data.ballotNo||!data.history.every(savedBallot1903)||!Array.isArray(data.log)||data.log.length>1500)return false;
+	if(!savedRecord1903(data.lastCounts)||!Array.isArray(data.lastVotes))return false;
+	if(data.history.length){const last=data.history[data.history.length-1];if(!sameCountMap1903(data.lastCounts,last.counts)||JSON.stringify(data.lastVotes)!==JSON.stringify(last.votes))return false}
+	else if(Object.keys(data.lastCounts).length||data.lastVotes.length)return false;
+	if(data.lastSounding!==null&&data.lastSounding!==undefined&&(!savedRecord1903(data.lastSounding)||!Array.isArray(data.lastSounding.rows)))return false;
+	if(data.electedId!==null&&!ID[data.electedId])return false;
+	if(data.over&&!data.electedId)return false;
+	return true;
+}
 function saveGame(){
 	if(!S)return;
 	try{
@@ -2442,10 +2479,12 @@ function loadSavedState(){
 	if(!raw)return null;
 	try{
 		const data=JSON.parse(raw);
-		if(!data || data.version!==1 || !ID[data.playerId] || !Array.isArray(data.history) || typeof data.ballotNo!=="number")return null;
 		ensureMetricHistory(data);
+		if(!validateSavedState1903(data))throw new Error("Invalid saved conclave");
 		return data;
 	}catch(error){
+		SAVE_READ_ERROR=true;
+		try{localStorage.removeItem(SAVE_KEY)}catch(ignore){}
 		return null;
 	}
 }
@@ -2632,6 +2671,7 @@ function wire(){
 	$("#exportLog").addEventListener("click",exportChronicle);
 	$("#allYears").addEventListener("click",function(){location.href="./index.html"});
 	if(loadSavedState())$("#resumeBtn").classList.remove("hidden");
+	if(SAVE_READ_ERROR)setTimeout(function(){toast("The saved conclave was unreadable and has been discarded.")},0);
 	renderSelect();
 }
 
@@ -2660,7 +2700,8 @@ globalThis.__om1903={
 	scoreGame:scoreGame,
 	papalNameFor1903:papalNameFor1903,
 	runHeadless:runHeadless,
-	validateData:validateData
+	validateData:validateData,
+	validateSavedState:validateSavedState1903
 };
 if(typeof document!=="undefined")wire();
 </script>
