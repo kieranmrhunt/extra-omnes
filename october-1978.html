@@ -499,6 +499,12 @@ const PAPAL_NAME_FLAVOR_1978 = {
 	"Ignatius I":"the saint of 17 October: a rare election-day name invoking unity, witness and the ancient Church."
 };
 const ID = Object.fromEntries(ELECTORS.map(e => [e.id,e]));
+const ELECTOR_IDS_1978 = ELECTORS.map(e=>e.id);
+const PROFILE_AXES_1978 = ["doctrine","vatican2","curial","collegiality","ostpolitik","antiCommunism","globalChurch","pastoral","governance","italianAcceptability","ecumenism"];
+const UTILITY_NETWORKS_1978 = ["Italian","Curia","Montinian","Doctrine","Conciliar","SufferingChurch","AntiCommunist","Ostpolitik","GlobalSouth","Germanic","America","LatinAmerica","Africa","Asia","Oceania","English","French","Bridge","Pastor"];
+const TAG_SETS_1978 = Object.fromEntries(ELECTORS.map(e=>[e.id,new Set(e.tags)]));
+const VOTER_NETWORKS_1978 = Object.fromEntries(ELECTORS.map(e=>[e.id,UTILITY_NETWORKS_1978.filter(tag=>TAG_SETS_1978[e.id].has(tag))]));
+const BASE_RELATIONSHIPS_1978 = Object.fromEntries(ELECTORS.map(a=>[a.id,Object.fromEntries(ELECTORS.map(b=>[b.id,baseRelationship(a,b)]))]));
 const PORTRAIT_FILES = {"villot":"Jean-Marie_Villot_1978.jpg","samore":"Antonio_Samoré_Argentina_1978.jpg","carpino":"Card.Carpino.jpg","baggio":"Cardinale-sebastiano-baggio.jpg","siri":"Giuseppe_Siri,_arcivescovo_di_Genova.jpg","wyszynski":"Stefan_Wyszyński.jpg","leger":"Paul-Emile_Leger_-_1941.jpg","bueno":"José_María_Bueno_Monreal_(cropped).jpg","konig":"Kardinal_koenig.jpg","alfrink":"Kardinaal_Alfrink.JPG","quintero":"José_Humberto_Cardenal_Quintero.jpg","landazuri":"Juan_Landázuri_Ricketts_(cropped).jpg","silva":"CardenalSilvaHenriquez_cropped.jpg","roy":"Maurice_Roy_en_1956.jpg","seper":"Franjo_Šeper.jpg","zoungrana":"Bundesarchiv_B_145_Bild-F023489-0006,_Bonn,_Lübke_empfängt_Kardinal_Zoungrana.jpg","agnelo_rossi":"Dom_Agnelo_Rossi_(1967).tif","colombo":"658_Card_Giovanni_Colombo.jpg","furstenberg":"Núncio_Apostólico_Maximilien_de_Furstenberg_no_Seminário_Menor_de_Resende_(1964)_-_Arquivo_da_Diocese_de_Lamego.png","maurer":"Kardinal_Maurer_am_31.05.1981_in_Kärlich.jpg","krol":"Ronald_Reagan_and_John_Cardinal_Krol.jpg","ursi":"Corrado_Cardinale_Ursi.jpg","bengsch":"Bundesarchiv_Bild_183-T0924-0004,_Erfurt,_300_Jahre_Wallfahrtskirche_Worbis.jpg","wojtyla":"ADAMELLO_-_PAPA_-_Giovanni_Paolo_II_-_panoramio_(cropped).jpg","pellegrino":"Michele_Pellegrino,_Radio_Vaticana.jpg","scherer":"Vicente_Scherer_e_Eugênio_Salles.tif","rosales":"Julio_Rosales.jpg","parecattil":"Cardinal_Joseph_Parecattil.jpg","marty":"Cardinal_François_Marty.jpg","tarancon":"Vicente_Enrique_y_Tarancón.jpg","munoz_vega":"Pablo_Muñoz_Vega_(cropped).jpg","poma":"Antonio_Poma.jpg","carberry":"John_Joseph_Carberry_(cropped).tif","cooke":"Terence_Cardinal_Cooke,_Archbishop,_Diocese_of_New_York.jpg","kim":"Archbishop_Stephen_Kim_Sou-hwan_1968.jpg","sales":"Cardeal_sales.jpg","willebrands":"Johannes_Willebrands_1982_color.jpg","ribeiro":"Cardeal D. António Ribeiro.jpg","vilela":"Avelar_Brandao.jpg","primatesta":"Cardenal_primatesta.jpg","pappalardo":"Card. Pappalardo (cropped).jpg","gonzalez":"Marcelo_Cardenal_González_Martín_(cropped).jpg","guyot":"Cardinal_Jean-Louis_Guyot.jpg","poletti":"Ugo_Poletti_(cropped).jpg","manning":"Timothy_Manning_1973.jpg","salazar":"Cardenal_José_Salazar_López.jpg","arns":"Paulo_Evaristo_Arns_(1982).jpg","jubany":"Narcís_Jubany.png","volk":"Hermann_Kardinal_Volk.jpg","beras":"Pintura-Cardenal-Beras.jpg","nsubuga":"Visitenkarte_von_Emmanuel_Cardinal_Kiwankuka_Nsubuga_(cropped).png","sin":"Cardinal_Jaime_Sin_in_1988.jpg","lorscheider":"Aloísio_Lorscheider.jpg","lekai":"Laszlolekai.jpg","hume":"Cardinal_Hume_(geograph_3367500).jpg","razafimahatratra":"Victor_Razafimahatratra_(1921-1993).gif","tomasek":"František_Tomášek.jpg","ekandem":"Ekandem.jpg","benelli":"Giovanni_Benelli_1978.jpg","ratzinger":"Benedykt_XVI_(2010-10-17)_2.jpg","nasalli":"Mario_Nasalli_Rocca_di_Corneliano_(cropped).jpg","pignedoli":"Sergio-Pignedoli_(cropped).jpg","bafile":"Konrad_Adenauer_-_Feier_zum_88._Geburtstag_in_der_Redoute-kasf0009.JPG","pironio":"Eduardo_Francisco_Pironio.jpg","gantin":"Gantin_Portrait.jpg","suenens":"Cardinal L. Suenens (3x4 cropped).jpg","garrone":"Le cardinal Gabriel-Marie Garrone à Sainte-Marthe (Rome) le 3 septembre 1968.jpg","renard":"Alexandre Renard 001.jpeg","gray":"Cardinal Gordon Joseph Gray.png","gouyon":"Musée de Bretagne - Paul Gouyon 1964-01.jpg","baum":"William Wakefield Baum (cropped).tif","felici":"Pericle Felici.jpg","paupini":"Giuseppe Cardinale Paupini - Particolare.jpg","munoz_duque":"D. Aníbal Muñoz Duque.JPG","medeiros":"Cardinalhm.jpg"};
 const WIKIPEDIA_PAGES = {"villot":2088101,"samore":3339321,"carpino":11649180,"baggio":5099364,"siri":213183,"wyszynski":1203817,"leger":559796,"bueno":11025539,"konig":342393,"alfrink":1871973,"quintero":11423069,"landazuri":6893190,"silva":3039938,"suenens":7349767,"roy":1705069,"seper":2076007,"zoungrana":12253225,"agnelo_rossi":6560075,"colombo":6501379,"garrone":12081406,"furstenberg":12050944,"maurer":18462578,"krol":773874,"ursi":8260876,"bengsch":10918934,"wojtyla":23805,"pellegrino":11355928,"renard":10876749,"scherer":12122540,"rosales":2197546,"gray":20625216,"parecattil":7466418,"marty":11327453,"gouyon":14884730,"tarancon":12121487,"munoz_vega":11228036,"poma":11713459,"carberry":4018677,"cooke":244353,"kim":1756298,"sales":7834213,"willebrands":1683684,"ribeiro":81899767,"knox":11573628,"vilela":15122788,"primatesta":4970418,"pappalardo":79353806,"gonzalez":12114992,"guyot":6241887,"poletti":7133981,"manning":4054884,"salazar":12123898,"arns":4052914,"jubany":14842637,"volk":12309803,"beras":15152506,"nsubuga":8967471,"sin":962508,"baum":1694027,"lorscheider":8030581,"lekai":8958357,"hume":1728773,"razafimahatratra":14871423,"tomasek":1323675,"ekandem":10051251,"benelli":652807,"ratzinger":39660,"felici":4201738,"paupini":11521208,"nasalli":12224309,"pignedoli":2221949,"bafile":326962,"pironio":9407042,"gantin":469939};
 Object.assign(PORTRAIT_FILES, {
@@ -565,7 +571,7 @@ function $(q){return document.querySelector(q)}
 function el(tag,attrs,...kids){const e=document.createElement(tag);if(attrs){Object.entries(attrs).forEach(([k,v])=>{if(k==="class")e.className=v;else if(k==="html")e.innerHTML=v;else if(k.startsWith("on"))e.addEventListener(k.slice(2),v);else e.setAttribute(k,v)})}kids.flat().forEach(k=>{if(k==null||k===false)return;e.appendChild(k&&k.nodeType?k:document.createTextNode(String(k)))});return e}
 function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.remove("hidden");t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),2600)}
 function stars(n){return "★".repeat(n)+"☆".repeat(5-n)}
-function hasTag(e,tag){return e.tags.includes(tag)}
+function hasTag(e,tag){return !!(e&&TAG_SETS_1978[e.id]&&TAG_SETS_1978[e.id].has(tag))}
 function primaryNetworks(e){return e.tags.filter(t=>NETWORKS.includes(t)).slice(0,5)}
 function playerNetworks(){return S&&ID[S.playerId]?primaryNetworks(ID[S.playerId]):[]}
 function sharedNetworks(aId,bId){if(!ID[aId]||!ID[bId])return [];const b=new Set(primaryNetworks(ID[bId]));return primaryNetworks(ID[aId]).filter(n=>b.has(n))}
@@ -592,14 +598,14 @@ function profileWithMods(id){const base={...ID[id].profile};const mod=S.candidat
 function initState(playerId, seed, opts={}){
 	const rng = mulberry32(hashSeed(seed));
 	const destiny = {}; ELECTORS.forEach(e=>{destiny[e.id]=rng()});
-	S = {schemaVersion:SAVE_SCHEMA,seed:String(seed),rng,playerId,headless:!!opts.headless,ballotNo:0,ap:3,phase:"actions",over:false,electedId:null,papalName:null,log:[],history:[],lastCounts:{},lastRoll:null,
+	S = {schemaVersion:SAVE_SCHEMA,seed:String(seed),rng,playerId,headless:!!opts.headless,neutralCalibration:!!opts.neutral,ballotNo:0,ap:3,phase:"actions",over:false,electedId:null,papalName:null,log:[],history:[],lastCounts:{},lastRoll:null,
 		candidateMods:{},visibility:{},momentum:{},relationships:{},intel:{},soundings:{},networkWork:{},transfers:{},flags:{},destiny,
 		metrics:{stature:42,trust:54,discretion:66,exposure:8,fatigue:7,italianLock:78,nonItalian:14,curiaConfidence:55,conciliarConfidence:52,doctrinalConfidence:53,coldWarRisk:28,worldChurch:38},
 		player:{withdrawn:false,withdrawnAtBallot:null,transferTo:null,assurances:{},objective:objectiveFor(ID[playerId])}
 	};
-	ELECTORS.forEach(a=>{S.relationships[a.id]={};S.intel[a.id]=a.id===playerId?3:0;S.visibility[a.id]=baseVisibility(a);S.momentum[a.id]=0;S.candidateMods[a.id]={};ELECTORS.forEach(b=>{S.relationships[a.id][b.id]=baseRelationship(a,b)})});
+	ELECTORS.forEach(a=>{S.relationships[a.id]={...BASE_RELATIONSHIPS_1978[a.id]};S.intel[a.id]=a.id===playerId?3:0;S.visibility[a.id]=baseVisibility(a);S.momentum[a.id]=0;S.candidateMods[a.id]={}});
 	// hidden providential variance: every elector can have a seed where the room happens to be open to him.
-	if(S.destiny[playerId]>.93){S.visibility[playerId]+=4.5;S.metrics.stature+=8;S.flags.providential=true}
+	if(!S.neutralCalibration&&S.destiny[playerId]>.93){S.visibility[playerId]+=4.5;S.metrics.stature+=8;S.flags.providential=true}
 	if(playerId==="wojtyla")S.visibility[playerId]+=1.5;
 	log(`<b>14 October 1978.</b> The doors close after <i>Extra omnes</i>. One hundred and eleven electors, no absentees, cells in the Apostolic Palace, memories of Paul VI and John Paul I pressing down on the same men who voted only weeks ago. You are <b>${esc(ID[playerId].name)}</b>.`,"holy");
 	if(S.flags.providential)log(`A private sensation follows you into the chapel: a few men who should not be looking your way are looking your way. In this seed the room is more open to your name than it has any right to be.`,"event");
@@ -607,7 +613,7 @@ function initState(playerId, seed, opts={}){
 	log(`The first business is not to buy votes. It is to make men imagine a future of the Church they can bear.`,"");
 }
 function baseVisibility(e){let v=e.papabile*.65;if(hasTag(e,"Papabile"))v+=2;if(hasTag(e,"Curia"))v+=.4;if(hasTag(e,"Italian"))v+=.7;if(hasTag(e,"Young"))v-=.6;if(hasTag(e,"Elder"))v-=.2;if(e.id==="wojtyla")v-=1.0;if(e.id==="siri"||e.id==="benelli")v+=2.3;if(e.id==="colombo")v+=1.3;if(e.id==="villot")v-=1.5;return v}
-function baseRelationship(a,b){let r=0;if(a.id===b.id)return .2;for(const t of a.tags){if(b.tags.includes(t))r+=.12}if(a.country===b.country)r+=.45;if(a.region===b.region)r+=.12;if(hasTag(a,"Italian")&&hasTag(b,"Italian"))r+=.22;if(hasTag(a,"Curia")&&hasTag(b,"Curia"))r+=.35;if(hasTag(a,"SufferingChurch")&&hasTag(b,"SufferingChurch"))r+=.5;if((a.id==="siri"&&b.id==="benelli")||(a.id==="benelli"&&b.id==="siri"))r-=1.4;if(a.id==="wyszynski"&&b.id==="wojtyla")r+=1.4;if(a.id==="wojtyla"&&b.id==="wyszynski")r+=1.2;if(a.id==="konig"&&b.id==="wojtyla")r+=1.0;if(a.id==="krol"&&b.id==="wojtyla")r+=.8;if(a.id==="willebrands"&&b.id==="wojtyla")r+=.55;return clamp(r,-1.6,2.4)}
+function baseRelationship(a,b){let r=0;if(a.id===b.id)return .2;const bTags=TAG_SETS_1978[b.id];for(const t of a.tags){if(bTags.has(t))r+=.12}if(a.country===b.country)r+=.45;if(a.region===b.region)r+=.12;if(hasTag(a,"Italian")&&hasTag(b,"Italian"))r+=.22;if(hasTag(a,"Curia")&&hasTag(b,"Curia"))r+=.35;if(hasTag(a,"SufferingChurch")&&hasTag(b,"SufferingChurch"))r+=.5;if((a.id==="siri"&&b.id==="benelli")||(a.id==="benelli"&&b.id==="siri"))r-=1.4;if(a.id==="wyszynski"&&b.id==="wojtyla")r+=1.4;if(a.id==="wojtyla"&&b.id==="wyszynski")r+=1.2;if(a.id==="konig"&&b.id==="wojtyla")r+=1.0;if(a.id==="krol"&&b.id==="wojtyla")r+=.8;if(a.id==="willebrands"&&b.id==="wojtyla")r+=.55;return clamp(r,-1.6,2.4)}
 function objectiveFor(e){
 	if(e.id==="wojtyla")return {title:"The obedience of Kraków",text:"Become viable only after the Italian deadlock; win without appearing to campaign.",kind:"win_or_bridge"};
 	if(e.id==="siri")return {title:"No surrender to Florence",text:"Win early, or block Benelli and secure doctrinal seriousness.",kind:"block_benelli"};
@@ -653,7 +659,7 @@ function historicalBonus(id, voter){
 	const b = utilityBallotNo();
 	const phase = HISTORICAL_PHASES[Math.min(b, HISTORICAL_PHASES.length-1)] || {};
 	let x = phase[id] || 0;
-	if(id===S.playerId){
+	if(id===S.playerId&&!S.neutralCalibration){
 		x += S.visibility[id]*.45 + Math.max(0,S.metrics.stature-45)*.09 + Math.max(0,S.metrics.trust-50)*.08 - S.metrics.exposure*.055;
 		if(S.flags.providential)x+=2.1;
 		if(S.player.withdrawn)x-=20;
@@ -672,33 +678,37 @@ function historicalBonus(id, voter){
 function baseUtility(voter,cand){
 	if(!legalCandidateFor(voter,cand))return -1e9;
 	const v=ID[voter], c=ID[cand];
-	const vp=v.profile, cp=profileWithMods(cand);
+	const vp=v.profile,cp=c.profile,mods=S.candidateMods[cand]||{},vTags=TAG_SETS_1978[voter],cTags=TAG_SETS_1978[cand];
 	let u = c.papabile*.72 + S.visibility[cand]*.52 + S.momentum[cand]*.9 + historicalBonus(cand,voter);
 	// voter/candidate axes: prefer men who speak their ecclesial language.
-	const axes=["doctrine","vatican2","curial","collegiality","ostpolitik","antiCommunism","globalChurch","pastoral","governance","italianAcceptability","ecumenism"];
-	axes.forEach(k=>{u += (2.0 - Math.abs((vp[k]||0)-(cp[k]||0))) * .48});
+	for(const k of PROFILE_AXES_1978){const candidateValue=clamp((cp[k]||0)+(mods[k]||0),-2.5,2.8);u+=(2.0-Math.abs((vp[k]||0)-candidateValue))*.48}
 	u += S.relationships[voter][cand] * 1.25;
-	for(const tag of v.tags){if(c.tags.includes(tag))u+=.18}
-	for(const tag of ["Italian","Curia","Montinian","Doctrine","Conciliar","SufferingChurch","AntiCommunist","Ostpolitik","GlobalSouth","Germanic","America","LatinAmerica","Africa","Asia","Oceania","English","French","Bridge","Pastor"]){
-		if(v.tags.includes(tag))u += (S.networkWork[tag]||0)*.08*(c.tags.includes(tag)?1:.35);
-	}
+	for(const tag of v.tags){if(cTags.has(tag))u+=.18}
+	for(const tag of VOTER_NETWORKS_1978[voter])u+=(S.networkWork[tag]||0)*.08*(cTags.has(tag)?1:.35);
 	// world-state pressures.
 	if(c.country==="Italy")u += (S.metrics.italianLock-50)*.035; else u += (S.metrics.nonItalian-30)*.045 + (S.metrics.worldChurch-40)*.025;
-	if(c.tags.includes("Curia"))u += (S.metrics.curiaConfidence-50)*.025;
+	if(cTags.has("Curia"))u += (S.metrics.curiaConfidence-50)*.025;
 	if(c.profile.vatican2>.6)u += (S.metrics.conciliarConfidence-50)*.018;
 	if(c.profile.doctrine>.8)u += (S.metrics.doctrinalConfidence-50)*.018;
 	if(c.profile.antiCommunism>.8)u -= (S.metrics.coldWarRisk-36)*.035;
 	// candidate fear/ceilings, soft not hard.
-	if(cand==="siri" && (v.tags.includes("Conciliar")||v.tags.includes("Reform")||v.tags.includes("HumanRights")))u -= 3.8 + (S.lastCounts.siri||0)*.035;
-	if(cand==="benelli" && (v.tags.includes("Doctrine")||v.tags.includes("Curia")||v.tags.includes("SiriCamp")))u -= 2.8 + (S.lastCounts.benelli||0)*.025;
+	if(cand==="siri" && (vTags.has("Conciliar")||vTags.has("Reform")||vTags.has("HumanRights")))u -= 3.8 + (S.lastCounts.siri||0)*.035;
+	if(cand==="benelli" && (vTags.has("Doctrine")||vTags.has("Curia")||vTags.has("SiriCamp")))u -= 2.8 + (S.lastCounts.benelli||0)*.025;
 	if(cand==="wojtyla" && S.ballotNo<4 && v.country==="Italy")u -= 2.0;
-	if(c.tags.includes("Young") && c.papabile<5)u-=1.8;
-	if(c.tags.includes("Elder") && c.age>=77)u-=1.4;
+	if(cTags.has("Young") && c.papabile<5)u-=1.8;
+	if(cTags.has("Elder") && c.age>=77)u-=1.4;
 	if(S.transfers[voter]===cand)u+=5;
 	if(S.player.transferTo===cand && voter!==S.playerId)u+= (S.lastCounts[S.playerId]||0)*.055;
 	return u;
 }
-function voterUtility(voter,cand){return baseUtility(voter,cand)}
+function voterUtility(voter,cand){
+	if(S&&S.utilityCache&&S.utilityCacheBallot===utilityBallotNo()){
+		const row=S.utilityCache[voter]||(S.utilityCache[voter]=Object.create(null));
+		if(Object.prototype.hasOwnProperty.call(row,cand))return row[cand];
+		return row[cand]=baseUtility(voter,cand);
+	}
+	return baseUtility(voter,cand)
+}
 function ballotScore(voter,cand,ballotNo){return baseUtility(voter,cand)+ballotNoise(ballotNo,voter,cand)}
 function bestExcluding(voter, excluded){
 	let best=null,bestU=-1e9;
@@ -715,6 +725,16 @@ function secondChoiceMargin(voter, winner){
 	for(const e of ELECTORS){if(e.id!==winner)alt=Math.max(alt,voterUtility(voter,e.id))}
 	return top-alt;
 }
+function activeCandidatePool1978(playerVote){
+	const required=new Set([S.playerId,playerVote,S.player.transferTo,"siri","benelli","wojtyla","colombo","pignedoli","lorscheider"].filter(Boolean));
+	ELECTOR_IDS_1978.forEach(function(id){if(Object.keys(S.candidateMods[id]||{}).length||Object.values(S.transfers).includes(id))required.add(id)});
+	const scores=Object.fromEntries(ELECTOR_IDS_1978.map(function(id){return [id,(S.visibility[id]||0)+(S.momentum[id]||0)*1.8+ID[id].papabile*.75+historicalBonus(id,null)*.55]}));
+	const ranked=ELECTOR_IDS_1978.slice().sort(function(a,b){
+		return scores[b]-scores[a]||a.localeCompare(b);
+	});
+	for(const id of ranked){required.add(id);if(required.size>=24)break}
+	return [...required];
+}
 function runBallot(playerVote){
 	if(!S)throw new Error("No conclave is active");
 	if(S.over)return null;
@@ -722,15 +742,17 @@ function runBallot(playerVote){
 	if(playerVote && !legalCandidateFor(S.playerId,playerVote))throw new Error(`Invalid player vote: ${S.playerId} cannot vote for ${playerVote}`);
 	S.ballotNo=ballotBeingRun;
 	S.utilityBallotNo=ballotBeingRun;
+	S.utilityCacheBallot=ballotBeingRun;S.utilityCache=Object.create(null);
 	const previousHistory=S.history.length?S.history[S.history.length-1]:null;
+	const candidatePool=activeCandidatePool1978(playerVote);
 	const roll={};
 	const counts={};
-	for(const v of ELECTORS.map(e=>e.id)){
+	for(const v of ELECTOR_IDS_1978){
 		let choice=null;
 		if(v===S.playerId && playerVote)choice=playerVote;
 		else{
 			const scored=[];
-			for(const c of ELECTORS.map(e=>e.id)){
+			for(const c of candidatePool){
 				if(!legalCandidateFor(v,c))continue;
 				scored.push({id:c,u:ballotScore(v,c,ballotBeingRun)});
 			}
@@ -752,7 +774,7 @@ function runBallot(playerVote){
 	if(S.ballotNo===8 && !Object.values(counts).some(n=>n>=THRESHOLD) && S.playerId!=="wojtyla" && (counts[S.playerId]||0)<45){
 		const needed=THRESHOLD-(counts.wojtyla||0);
 		if(needed>0){
-			const movable=Object.keys(roll).filter(v=>v!==S.playerId && roll[v]!=="wojtyla" && baseUtility(v,"wojtyla")>baseUtility(v,roll[v])-4.5).map(v=>({id:v,u:baseUtility(v,"wojtyla")})).sort((a,b)=>b.u-a.u).map(x=>x.id);
+			const movable=Object.keys(roll).filter(v=>v!==S.playerId && roll[v]!=="wojtyla" && voterUtility(v,"wojtyla")>voterUtility(v,roll[v])-4.5).map(v=>({id:v,u:voterUtility(v,"wojtyla")})).sort((a,b)=>b.u-a.u).map(x=>x.id);
 			for(let i=0;i<Math.min(needed+Math.floor(rnd()*9),movable.length);i++){counts[roll[movable[i]]]--;roll[movable[i]]="wojtyla";counts.wojtyla=(counts.wojtyla||0)+1}
 		}
 	}
@@ -781,6 +803,7 @@ function runBallot(playerVote){
 	const leader=sorted[0];
 		log(`<b>Scrutiny ${roman(S.ballotNo)}.</b> Aggregate count recorded. <b>${esc(ID[leader[0]].short)}</b> leads with ${leader[1]} of ${THRESHOLD}. ${leader[1]>=THRESHOLD?"<b>Election.</b>":"Black smoke."}`,"scrut");
 	delete S.utilityBallotNo;
+	delete S.utilityCacheBallot;delete S.utilityCache;
 	if(leader[1]>=THRESHOLD){
 		S.over=true;S.electedId=leader[0];S.papalName=papalNameFor(leader[0]);
 		if(S.headless)return hist;
@@ -1035,7 +1058,7 @@ function renderPlayerBox(){
 }
 function renderAll(){if(!S)return;$("#dateLabel").textContent=phaseName()+` · scrutiny ${S.ballotNo+1} pending`;$("#apwrap").innerHTML=`Conversation windows ${S.ap} `+"<span class='pip'></span>".repeat(S.ap)+"<span class='pip spent'></span>".repeat(Math.max(0,3-S.ap));renderRoster();renderLog();renderMeters();renderBoard();renderNetworkSummary();renderPlayerBox();$("#ballotBtn").disabled=S.over;["actSound","actNetwork","actFloat","actDiscourage","actRest"].forEach(id=>{const b=$("#"+id);if(b)b.disabled=!actionEnabled()});const transfer=$("#actTransfer");transfer.disabled=!actionEnabled()||S.player.withdrawn;transfer.textContent=S.player.withdrawn?`Support transferred to ${ID[S.player.transferTo].short}`:"Transfer support";}
 function openManual(){
-	openModal("How this 1978 build works", `<div class="manual"><p><b>Ballots and secrecy:</b> every scrutiny is a full one-name ballot by all 111 electors. Aggregate model counts are visible after each scrutiny; the generated identity-level roll stays sealed until the election ends. Historical individual ballots remain unknown.</p><p><b>No simony economy:</b> your currency is stature, trust, discretion, assurances, fatigue and the ability to reassure networks.</p><p><b>All 111 are playable:</b> the model does not hard-ban any elector from election. Obscure or implausible figures require a favourable seed, high trust, low exposure, and sustained network work.</p><h4>Reading the room</h4><p><b>Soundings</b> are fallible snapshots, not access to an elector's code. A second conversation narrows uncertainty, but the report can still be wrong and becomes stale after a scrutiny.</p><p><b>Networks</b> are relationships and shared ecclesial concerns. Your own networks are marked. Membership, trust and discretion raise the displayed chance of full access; high exposure lowers it.</p><p><b>Votes</b> are literal model counts. <b>Meters</b> describe the climate of the College rather than combining into a hidden score. A high Italian lock does not elect anyone by itself, but it makes non-Italian candidates harder to sell.</p><p><b>Opening papabile profile</b> is a qualitative starting read: long shot, possible, papabile, or front-runner. It is not a fixed ceiling.</p><p><b>Dossier positions</b> describe direction: for example, "conciliar" is a modelled position on Vatican II. It does not mean the topic is weighted very highly, nor that the cardinal ranks highly among his peers.</p><p><b>The historical pull:</b> Siri and Benelli begin strong, the Italian lock fractures, and Wojtyła becomes increasingly thinkable. The player can derail this, but must provide a more credible settlement.</p><h4>Actions</h4><p><b>Work a network</b> lets you choose any active cause, approach a faction or network, and tailor the assurance made for that candidate. <b>Promote a name</b> raises visibility and momentum more directly, but is easier to trace. Discouraging rivals is risky; transfer lets a blocked candidate become kingmaker.</p></div>`,[{label:"Extra omnes."}])
+	openModal("How this 1978 build works", `<div class="manual"><p><b>Ballots and secrecy:</b> every scrutiny is a full one-name ballot by all 111 electors. Aggregate model counts are visible after each scrutiny; the generated identity-level roll stays sealed until the election ends. Historical individual ballots remain unknown.</p><p><b>No simony economy:</b> your currency is stature, trust, discretion, assurances, fatigue and the ability to reassure networks.</p><p><b>All 111 are playable:</b> the model does not hard-ban any elector from election. Obscure or implausible figures require a favourable seed, high trust, low exposure, and sustained network work. For speed, each ballot fully scores a responsive field of 24 live candidacies: the player, the submitted name, every actively promoted or transferred cause, and the strongest prospects in that particular state. This prunes computation, not canonical eligibility.</p><h4>Reading the room</h4><p><b>Soundings</b> are fallible snapshots, not access to an elector's code. A second conversation narrows uncertainty, but the report can still be wrong and becomes stale after a scrutiny.</p><p><b>Networks</b> are relationships and shared ecclesial concerns. Your own networks are marked. Membership, trust and discretion raise the displayed chance of full access; high exposure lowers it.</p><p><b>Votes</b> are literal model counts. <b>Meters</b> describe the climate of the College rather than combining into a hidden score. A high Italian lock does not elect anyone by itself, but it makes non-Italian candidates harder to sell.</p><p><b>Opening papabile profile</b> is a qualitative starting read: long shot, possible, papabile, or front-runner. It is not a fixed ceiling.</p><p><b>Dossier positions</b> describe direction: for example, "conciliar" is a modelled position on Vatican II. It does not mean the topic is weighted very highly, nor that the cardinal ranks highly among his peers.</p><p><b>The historical pull:</b> Siri and Benelli begin strong, the Italian lock fractures, and Wojtyła becomes increasingly thinkable. The player can derail this, but must provide a more credible settlement.</p><h4>Actions</h4><p><b>Work a network</b> lets you choose any active cause, approach a faction or network, and tailor the assurance made for that candidate. <b>Promote a name</b> raises visibility and momentum more directly, but is easier to trace. Discouraging rivals is risky; transfer lets a blocked candidate become kingmaker.</p></div>`,[{label:"Extra omnes."}])
 }
 function endBody1978(w,me,name){
 	const isMe=w.id===me.id;
@@ -1213,9 +1236,14 @@ function runHeadless(seed,playerId,maxBallots=20){
 	}
 	return {seed:S.seed,playerId:S.playerId,winner:S.electedId,papalName:S.papalName,ballots:S.ballotNo,history:S.history.map(h=>({ballot:h.ballot,roll:{...h.roll},counts:{...h.counts}})),over:S.over};
 }
+function runNeutralHeadless(seed,maxBallots=20){
+	initState("villot",seed||"neutral-1978",{headless:true,neutral:true});
+	while(!S.over&&S.ballotNo<maxBallots)runBallot(topPreference(S.playerId));
+	return {seed:S.seed,winner:S.electedId,papalName:S.papalName,ballots:S.ballotNo,history:S.history.map(h=>({ballot:h.ballot,roll:{...h.roll},counts:{...h.counts}})),over:S.over,neutral:true};
+}
 function startGame(){if(!pickedId)return;initState(pickedId,$("#seedin").value.trim()||Math.floor(Math.random()*1e9));$("#screen-select").classList.add("hidden");$("#screen-game").classList.remove("hidden");renderAll();if(typeof window!=="undefined"&&window.scrollTo)window.scrollTo({top:0,left:0})}
 function boot(){renderSelect();$("#startbtn").onclick=startGame;$("#resumeBtn").onclick=resumeGame;if(hasSave())$("#resumeBtn").classList.remove("hidden");$("#helpSelect").onclick=openManual;$("#manualBtn").onclick=openManual;$("#saveBtn").onclick=saveGame;$("#actSound").onclick=doSound;$("#actNetwork").onclick=doNetwork;$("#actFloat").onclick=doFloat;$("#actDiscourage").onclick=doDiscourage;$("#actRest").onclick=doRest;$("#actTransfer").onclick=doTransfer;$("#worldBtn").onclick=showWorld;$("#ballotBtn").onclick=runBallotModal;$("#rosterSearch").addEventListener("input",renderRoster);$("#again").onclick=()=>location.reload();$("#exportLog").onclick=exportChronicle;}
-const OCTOBER_1978_ENGINE={ELECTORS,ID,THRESHOLD,initState,runBallot,runHeadless,topPreference,voterUtility,baseUtility,ballotScore,legalCandidateFor,papalNameForState,validateSavedState,makeSounding,playerNetworks,sharedNetworks,profileAlignment,networkAccess,workNetwork,sortedCountEntries,portraitFor,scoreGame,axisPosition,getState:()=>S};
+const OCTOBER_1978_ENGINE={ELECTORS,ID,THRESHOLD,initState,runBallot,runHeadless,runNeutralHeadless,topPreference,voterUtility,baseUtility,ballotScore,legalCandidateFor,papalNameForState,validateSavedState,makeSounding,playerNetworks,sharedNetworks,profileAlignment,networkAccess,workNetwork,sortedCountEntries,portraitFor,scoreGame,axisPosition,activeCandidatePool1978,getState:()=>S};
 if(typeof module!=="undefined")module.exports=OCTOBER_1978_ENGINE;
 if(typeof window!=="undefined")window.__om=OCTOBER_1978_ENGINE;
 if(typeof document!=="undefined"){if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();}
