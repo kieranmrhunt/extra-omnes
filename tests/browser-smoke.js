@@ -67,8 +67,8 @@ function addressOf(server) {
 	return `http://127.0.0.1:${address.port}`;
 }
 
-async function preparePage(browser, viewport) {
-	const context = await browser.newContext({ viewport, reducedMotion: "reduce" });
+async function preparePage(browser, viewport, options = {}) {
+	const context = await browser.newContext({ viewport, reducedMotion: options.reducedMotion || "reduce" });
 	const page = await context.newPage();
 	const pageErrors = [];
 	page.on("pageerror", (error) => pageErrors.push(error.message));
@@ -139,10 +139,17 @@ async function checkDialogFocus(browser, baseUrl, file, opener) {
 
 async function checkCarafaStart(browser, baseUrl) {
 	const file = "carafa-winter-1559.html";
-	const { context, page, pageErrors } = await preparePage(browser, { width: 390, height: 844 });
+	const { context, page, pageErrors } = await preparePage(browser, { width: 390, height: 844 }, { reducedMotion: "no-preference" });
 	try {
 		await page.goto(`${baseUrl}/${file}`, { waitUntil: "domcontentloaded" });
+		const chooserRead = await page.evaluate(() => ({
+			cards: document.querySelectorAll("#selgrid .ccard").length,
+			visibleDescriptions: [...document.querySelectorAll("#selgrid .ccard .hook")].filter((element) => getComputedStyle(element).display !== "none" && element.getBoundingClientRect().height > 0).length,
+			visibleObjectives: [...document.querySelectorAll("#selgrid .ccard .objective")].filter((element) => getComputedStyle(element).display !== "none").length,
+		}));
+		assert(chooserRead.cards === 47 && chooserRead.visibleDescriptions === chooserRead.cards && chooserRead.visibleObjectives === 0, `${file}: elector descriptions are not all visible or private objectives are expanded before selection`);
 		await page.locator("#selgrid .ccard").first().click();
+		assert(await page.locator("#selgrid .ccard.sel .objective").count() === 1, `${file}: selecting an elector does not reveal that elector's objective`);
 		await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
 		await page.locator("#startbtn").click();
 		for (let guard = 0; guard < 20; guard++) {
@@ -164,19 +171,27 @@ async function checkCarafaStart(browser, baseUrl) {
 		}));
 		assert(politicalRead.brief && politicalRead.crisis && politicalRead.factions === 6, `${file}: the political brief or faction pulse is incomplete`);
 		assert(politicalRead.metricButtons.length === 5 && politicalRead.metricButtons.every((tag) => tag === "BUTTON"), `${file}: explanatory meters are missing or are not native buttons`);
+		const mobileTabs = page.locator('#mobiletabs[role="tablist"]');
+		await mobileTabs.waitFor();
+		assert(await page.locator('#tab-chapel[aria-selected="true"]').count() === 1 && await page.locator("#centercol").isVisible() && !await page.locator("#rightcol").isVisible(), `${file}: the mobile game does not open on the Chapel tab`);
 
+		await page.locator("#tab-position").click();
+		assert(await page.locator('#tab-position[aria-selected="true"]').count() === 1 && await page.locator("#rightcol").isVisible() && !await page.locator("#centercol").isVisible(), `${file}: the Position tab does not isolate the standing panel`);
 		await page.locator("#metric-heat").click();
 		await page.locator(".overlay .modal").waitFor();
 		assert(/directly weakens your own candidacy/i.test(await page.locator(".overlay .modal").innerText()), `${file}: heat explanation does not state its mechanical effect`);
 		await page.locator(".overlay .choices button", { hasText: "Close" }).click();
 
+		await page.locator("#tab-chapel").click();
 		await page.locator("#a-sound").click();
 		await page.locator(".overlay .range-row").first().waitFor();
 		const ranges = await page.locator(".overlay .range-num").allTextContents();
 		assert(ranges.length >= 5 && ranges.every((range) => /^(?:0|[IVXLCDM]+)–(?:0|[IVXLCDM]+)$/.test(range.trim())), `${file}: sounding ranges are missing or malformed`);
 		await page.locator(".overlay .choices button", { hasText: "Return to the chapel" }).click();
+		await page.locator("#tab-position").click();
 		assert(/Soundings for scrutiny I/i.test(await page.locator("#board").innerText()), `${file}: fresh soundings do not persist on the board`);
 
+		await page.locator("#tab-chapel").click();
 		await page.locator("#scrutinybtn").click();
 		await page.locator('.overlay input[aria-label="Search candidates"]').waitFor();
 		assert(await page.locator('.overlay select[aria-label="Filter candidates by faction"]').count() === 1, `${file}: ballot faction filter is missing`);
@@ -188,6 +203,16 @@ async function checkCarafaStart(browser, baseUrl) {
 		await page.locator(".overlay .ballot-summary button", { hasText: "Review 1 name" }).click();
 		await page.locator(".overlay .modal h3", { hasText: "Review your cedula" }).waitFor();
 		assert(/No ballot has yet been cast/i.test(await page.locator(".overlay .modal").innerText()), `${file}: ballot is not reviewed before submission`);
+		await page.locator(".overlay .choices button", { hasText: "Cast the sealed ballot" }).click();
+		await page.locator(".overlay .modal h3", { hasText: "Accessus" }).waitFor();
+		assert((await page.locator(".overlay .choices button").first().innerText()).startsWith("Make no accession"), `${file}: the no-accession option is not first`);
+		await page.locator(".overlay .choices button").first().click();
+		await page.locator("#ceremony:not(.hidden)").waitFor();
+		await page.locator("#cer-controls button", { hasText: "Show full result" }).waitFor();
+		await page.waitForTimeout(650);
+		assert(/Cedula [IVXLCDM]+ is read|accessus is opened/i.test(await page.locator("#cer-title").innerText()), `${file}: scrutiny is not being delivered cedula by cedula`);
+		await page.locator("#cer-controls button", { hasText: "Show full result" }).click();
+		assert(await page.locator("#tallyzone .trow:not(.thead) .ct").count() > 0 && await page.locator("#tallyzone .trow:not(.thead) .delta-cell").count() > 0, `${file}: tally votes and changes are not in separate columns`);
 		assert(pageErrors.length === 0, `${file}: browser error after starting: ${pageErrors.join("; ")}`);
 	} finally {
 		await context.close();

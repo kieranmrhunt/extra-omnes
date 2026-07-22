@@ -336,7 +336,7 @@ function runTargetedChecks(variant, api) {
 		return ["blank-ballot", "approval-validation", "accessus-validation", "illness-eligibility", "regnal-names", "counterfactual-variety", "strict-chronicle-anchor", "series-score"];
 	}
 	if (variant.label === "carafa-winter-1559") {
-		assert(typeof api.initState === "function" && typeof api.beginScrutiny === "function" && typeof api.playerAccede === "function" && typeof api.getState === "function" && typeof api.makeSounding1559 === "function" && typeof api.resolveCaucus1559 === "function" && typeof api.resolveSupportDirection1559 === "function" && typeof api.acclamationReadiness1559 === "function", "Carafa Winter: targeted-test API is not exported");
+		assert(typeof api.initState === "function" && typeof api.beginScrutiny === "function" && typeof api.playerAccede === "function" && typeof api.getState === "function" && typeof api.makeSounding1559 === "function" && typeof api.resolveCaucus1559 === "function" && typeof api.resolveSupportDirection1559 === "function" && typeof api.acclamationReadiness1559 === "function" && typeof api.ceremonyOrder1559 === "function" && typeof api.regnalOptions1559 === "function", "Carafa Winter: targeted-test API is not exported");
 		let state = api.initState("medici", "carafa-opening", { headless: true });
 		assert(api.present().length === 40 && api.voters().length === 40 && api.threshold() === 27, "Carafa Winter: opening attendance or threshold is wrong");
 		const metricKeys = ["heat", "taint", "integrity", "security", "carafaPeril"];
@@ -354,6 +354,9 @@ function runTargetedChecks(variant, api) {
 		assert(readiness.low <= readiness.high && readiness.high < api.voters().length && readiness.need === api.threshold() && soundingStateB.rng.state === readinessRng, "Carafa Winter: acclamation readiness is invalid or consumes election randomness");
 		let ballot = api.beginScrutiny([]);
 		assert(Array.isArray(ballot.votes.medici) && ballot.votes.medici.length === 0, "Carafa Winter: an explicit blank ballot became an AI ballot");
+		const presentationRng = soundingStateB.rng.state;
+		const ceremonyA = api.ceremonyOrder1559(ballot), ceremonyB = api.ceremonyOrder1559(ballot), rollVoters = Object.keys(ballot.votes);
+		assert(JSON.stringify(ceremonyA) === JSON.stringify(ceremonyB) && soundingStateB.rng.state === presentationRng && ceremonyA.length === rollVoters.length && new Set(ceremonyA.map((entry) => entry.voter)).size === rollVoters.length && JSON.stringify(ceremonyA.map((entry) => entry.voter)) !== JSON.stringify(rollVoters), "Carafa Winter: scrutiny presentation is ranked, incomplete, non-deterministic, or consumes election randomness");
 		expectRejected("Carafa Winter: a duplicate ballot was accepted", () => api.beginScrutiny(["cesi", "cesi"]));
 		expectRejected("Carafa Winter: a self-vote was accepted", () => api.beginScrutiny(["medici"]));
 		expectRejected("Carafa Winter: an unknown candidate was accepted", () => api.beginScrutiny(["bogus"]));
@@ -404,8 +407,13 @@ function runTargetedChecks(variant, api) {
 		corruptDirection.cards.medici.playerDirection = "medici";
 		corruptDirection.cards.medici.playerDirectionBallot = 1;
 		assert(!api.validateSavedState(corruptDirection), "Carafa Winter: a corrupt supporter direction was accepted");
+		state = api.initState("tournon", "carafa-christmas-name", { headless: true });
+		state.stage = 9;
+		assert(api.feastDay1559() && api.regnalOptions1559("tournon").includes("Emmanuel I"), "Carafa Winter: a Tournon victory during the Christmas settlement has no feast-day regnal option");
+		state.stage = 8;
+		assert(!api.feastDay1559() && !api.regnalOptions1559("tournon").includes("Emmanuel I"), "Carafa Winter: the Christmas regnal option is available before the Christmas settlement");
 		assert([api.seriesScore1559("pope", 250), api.seriesScore1559("kingmaker", 150), api.seriesScore1559("survivor", 50)].every((score) => Number.isInteger(score) && score >= 0 && score <= 100), "Carafa Winter: comparable series score is invalid");
-		return ["attendance-40-to-44", "approval-validation", "accessus-validation", "illness-eligibility", "metric-bounds", "risk-explanations", "faction-pulse", "uncertain-soundings", "acclamation-readiness", "deterministic-caucus", "consent-based-support-direction", "six-cardinal-bishops", "versioned-save", "series-score"];
+		return ["attendance-40-to-44", "approval-validation", "accessus-validation", "illness-eligibility", "metric-bounds", "risk-explanations", "faction-pulse", "uncertain-soundings", "acclamation-readiness", "deterministic-caucus", "consent-based-support-direction", "procedural-cedula-order", "Christmas-regnal-choice", "six-cardinal-bishops", "versioned-save", "series-score"];
 	}
 	if (variant.label === "1903") {
 		assert(typeof api.initState === "function" && typeof api.makeSounding === "function" && typeof api.playerNetworks === "function" && typeof api.networkAccess === "function" && typeof api.resolveNetworkAction === "function" && typeof api.actionRouteCopy === "function" && typeof api.portraitFor === "function" && typeof api.alignmentWithPlayer === "function" && typeof api.currentProgrammeFit === "function" && typeof api.pressureMetricDetail === "function" && typeof api.metricLogAdjustment === "function" && typeof api.resolveColloquyReading === "function" && typeof api.resolveColloquyPressure === "function" && typeof api.resolveSupportDirective === "function" && typeof api.scoreGame === "function", "1903: revised information/network/portrait/pressure/colloquy/score API is not exported");
@@ -1148,7 +1156,8 @@ function checkStaticFiles() {
 	for (const [year, roman] of Object.entries(romanDates)) assert(index.includes(`<span class="year">${year}</span><span class="roman">${roman}</span>`), `index: missing Roman date ${roman} for ${year}`);
 	assert(index.includes("The Keys of Heaven"), "index: 1492 still lacks its distinctive title");
 	assert(/class="card beta" href="\.\/constance-1417\.html"[\s\S]*?<span class="status">Beta<\/span>/.test(index), "index: Constance 1417 is not promoted to beta");
-	for (const [status, expected] of Object.entries({ complete: 1, beta: 2, alpha: 7 })) {
+	assert(/class="card beta" href="\.\/carafa-winter-1559\.html"[\s\S]*?<span class="status">Beta<\/span>/.test(index), "index: Carafa Winter 1559 is not promoted to beta");
+	for (const [status, expected] of Object.entries({ complete: 1, beta: 3, alpha: 6 })) {
 		const section = index.match(new RegExp(`<section class="status-group" aria-labelledby="${status}-heading">([\\s\\S]*?)<\\/section>`));
 		assert(section, `index: ${status} status section is missing`);
 		const cards = (section[1].match(/<a class="card(?: [^"]*)?"/g) || []).length;
