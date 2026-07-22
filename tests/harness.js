@@ -336,9 +336,22 @@ function runTargetedChecks(variant, api) {
 		return ["blank-ballot", "approval-validation", "accessus-validation", "illness-eligibility", "regnal-names", "counterfactual-variety", "strict-chronicle-anchor", "series-score"];
 	}
 	if (variant.label === "carafa-winter-1559") {
-		assert(typeof api.initState === "function" && typeof api.beginScrutiny === "function" && typeof api.playerAccede === "function" && typeof api.getState === "function", "Carafa Winter: targeted-test API is not exported");
+		assert(typeof api.initState === "function" && typeof api.beginScrutiny === "function" && typeof api.playerAccede === "function" && typeof api.getState === "function" && typeof api.makeSounding1559 === "function" && typeof api.resolveCaucus1559 === "function" && typeof api.resolveSupportDirection1559 === "function" && typeof api.acclamationReadiness1559 === "function", "Carafa Winter: targeted-test API is not exported");
 		let state = api.initState("medici", "carafa-opening", { headless: true });
 		assert(api.present().length === 40 && api.voters().length === 40 && api.threshold() === 27, "Carafa Winter: opening attendance or threshold is wrong");
+		const metricKeys = ["heat", "taint", "integrity", "security", "carafaPeril"];
+		assert(metricKeys.every((key) => { const detail = api.metricDetail1559(key); return detail && detail.key === key && Number.isFinite(detail.value) && detail.direction && detail.effect; }), "Carafa Winter: a political-risk meter lacks a usable explanation");
+		const factions = ["carafa", "france", "spain", "farnese", "italian", "reform"].map((bloc) => api.factionSnapshot1559(bloc));
+		assert(factions.reduce((sum, faction) => sum + faction.members.length, 0) === api.voters().length && factions.every((faction) => !faction.leader || api.ELECTORS.some((cardinal) => cardinal.id === faction.leader)), "Carafa Winter: faction pulse does not cover the active electorate");
+		const soundingRng = state.rng.state;
+		const soundingA = api.makeSounding1559();
+		assert(state.rng.state === soundingRng && soundingA.rows.length && soundingA.rows.every((row) => row.low >= 0 && row.high >= row.low && row.high <= api.ELECTORS.length), "Carafa Winter: opening soundings consume ballot randomness or contain invalid ranges");
+		const soundingStateB = api.initState("medici", "carafa-opening", { headless: true });
+		const soundingB = api.makeSounding1559();
+		assert(JSON.stringify(soundingA) === JSON.stringify(soundingB) && soundingStateB.rng.state === soundingRng, "Carafa Winter: soundings are not seed-deterministic");
+		const readinessRng = soundingStateB.rng.state;
+		const readiness = api.acclamationReadiness1559("medici");
+		assert(readiness.low <= readiness.high && readiness.high < api.voters().length && readiness.need === api.threshold() && soundingStateB.rng.state === readinessRng, "Carafa Winter: acclamation readiness is invalid or consumes election randomness");
 		let ballot = api.beginScrutiny([]);
 		assert(Array.isArray(ballot.votes.medici) && ballot.votes.medici.length === 0, "Carafa Winter: an explicit blank ballot became an AI ballot");
 		expectRejected("Carafa Winter: a duplicate ballot was accepted", () => api.beginScrutiny(["cesi", "cesi"]));
@@ -369,14 +382,30 @@ function runTargetedChecks(variant, api) {
 		const bishops = api.ELECTORS.filter((cardinal) => cardinal.order === "B");
 		assert(bishops.map((cardinal) => cardinal.id).join(",") === "dubellay,tournon,carpi,pisani,cesi,pacheco", `Carafa Winter: cardinal-bishop roster is ${bishops.map((cardinal) => cardinal.id).join(",")}`);
 		assert(bishops.every((cardinal) => /Ostia e Velletri|Sabina|Porto e Santa Rufina|Frascati|Palestrina|Albano/.test(cardinal.title)) && api.ELECTORS.find((cardinal) => cardinal.id === "gonzaga").order === "P" && api.ELECTORS.find((cardinal) => cardinal.id === "caetani").order === "P", "Carafa Winter: corrected suburbicarian titles or priestly orders are missing");
+		const caucusA = api.initState("medici", "carafa-caucus", { headless: true });
+		const caucusResultA = api.resolveCaucus1559("italian", "medici");
+		const caucusStateA = JSON.stringify(caucusA), caucusRngA = caucusA.rng.state;
+		const caucusB = api.initState("medici", "carafa-caucus", { headless: true });
+		const caucusResultB = api.resolveCaucus1559("italian", "medici");
+		assert(JSON.stringify(caucusResultA) === JSON.stringify(caucusResultB) && JSON.stringify(caucusB) === caucusStateA && caucusB.rng.state === caucusRngA && caucusResultA.moved.length > 0, "Carafa Winter: faction caucus is ineffective or non-deterministic");
+		state = api.initState("medici", "carafa-release", { headless: true });
+		state.scrutinies.push({ votes: { ccarafa: ["medici"], afarnese: ["medici"], sforza: ["medici"] } });
+		state.lastFinal = { medici: 3 };
+		assert(api.supportersForPlayer1559().length === 3, "Carafa Winter: latest adherents cannot be identified for a public direction");
+		const direction = api.resolveSupportDirection1559("afarnese");
+		assert(direction.supporters === 3 && direction.accepted + direction.rejected === 3 && direction.rejected >= 1 && state.cards.afarnese.playerDirection === null, "Carafa Winter: released support is forced, incomplete, or permits a self-vote instruction");
 		state = api.initState("medici", "carafa-save", { headless: true });
 		const saved = JSON.parse(JSON.stringify(api.serialiseState()));
 		assert(api.validateSavedState(saved), "Carafa Winter: a valid versioned save cannot be restored");
 		const corrupt = JSON.parse(JSON.stringify(saved));
 		corrupt.cards.medici.dead = "certainly";
 		assert(!api.validateSavedState(corrupt), "Carafa Winter: a corrupt save was accepted");
+		const corruptDirection = JSON.parse(JSON.stringify(saved));
+		corruptDirection.cards.medici.playerDirection = "medici";
+		corruptDirection.cards.medici.playerDirectionBallot = 1;
+		assert(!api.validateSavedState(corruptDirection), "Carafa Winter: a corrupt supporter direction was accepted");
 		assert([api.seriesScore1559("pope", 250), api.seriesScore1559("kingmaker", 150), api.seriesScore1559("survivor", 50)].every((score) => Number.isInteger(score) && score >= 0 && score <= 100), "Carafa Winter: comparable series score is invalid");
-		return ["attendance-40-to-44", "approval-validation", "accessus-validation", "illness-eligibility", "metric-bounds", "six-cardinal-bishops", "versioned-save", "series-score"];
+		return ["attendance-40-to-44", "approval-validation", "accessus-validation", "illness-eligibility", "metric-bounds", "risk-explanations", "faction-pulse", "uncertain-soundings", "acclamation-readiness", "deterministic-caucus", "consent-based-support-direction", "six-cardinal-bishops", "versioned-save", "series-score"];
 	}
 	if (variant.label === "1903") {
 		assert(typeof api.initState === "function" && typeof api.makeSounding === "function" && typeof api.playerNetworks === "function" && typeof api.networkAccess === "function" && typeof api.resolveNetworkAction === "function" && typeof api.actionRouteCopy === "function" && typeof api.portraitFor === "function" && typeof api.alignmentWithPlayer === "function" && typeof api.currentProgrammeFit === "function" && typeof api.pressureMetricDetail === "function" && typeof api.metricLogAdjustment === "function" && typeof api.resolveColloquyReading === "function" && typeof api.resolveColloquyPressure === "function" && typeof api.resolveSupportDirective === "function" && typeof api.scoreGame === "function", "1903: revised information/network/portrait/pressure/colloquy/score API is not exported");

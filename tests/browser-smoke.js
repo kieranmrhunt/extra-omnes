@@ -156,6 +156,38 @@ async function checkCarafaStart(browser, baseUrl) {
 		const geometry = await pageGeometry(page);
 		assert(geometry.scrollY <= 2, `${file}: a new mobile game opens ${geometry.scrollY}px down the page`);
 		assert(geometry.scrollWidth <= geometry.innerWidth + 2, `${file}: mobile game overflows horizontally`);
+		const politicalRead = await page.evaluate(() => ({
+			brief: document.getElementById("playerbrief")?.textContent || "",
+			crisis: document.getElementById("crisisbrief")?.textContent || "",
+			factions: document.querySelectorAll("#factionboard .faction-row").length,
+			metricButtons: [...document.querySelectorAll('[id^="metric-"]')].map((element) => element.tagName),
+		}));
+		assert(politicalRead.brief && politicalRead.crisis && politicalRead.factions === 6, `${file}: the political brief or faction pulse is incomplete`);
+		assert(politicalRead.metricButtons.length === 5 && politicalRead.metricButtons.every((tag) => tag === "BUTTON"), `${file}: explanatory meters are missing or are not native buttons`);
+
+		await page.locator("#metric-heat").click();
+		await page.locator(".overlay .modal").waitFor();
+		assert(/directly weakens your own candidacy/i.test(await page.locator(".overlay .modal").innerText()), `${file}: heat explanation does not state its mechanical effect`);
+		await page.locator(".overlay .choices button", { hasText: "Close" }).click();
+
+		await page.locator("#a-sound").click();
+		await page.locator(".overlay .range-row").first().waitFor();
+		const ranges = await page.locator(".overlay .range-num").allTextContents();
+		assert(ranges.length >= 5 && ranges.every((range) => /^(?:0|[IVXLCDM]+)–(?:0|[IVXLCDM]+)$/.test(range.trim())), `${file}: sounding ranges are missing or malformed`);
+		await page.locator(".overlay .choices button", { hasText: "Return to the chapel" }).click();
+		assert(/Soundings for scrutiny I/i.test(await page.locator("#board").innerText()), `${file}: fresh soundings do not persist on the board`);
+
+		await page.locator("#scrutinybtn").click();
+		await page.locator('.overlay input[aria-label="Search candidates"]').waitFor();
+		assert(await page.locator('.overlay select[aria-label="Filter candidates by faction"]').count() === 1, `${file}: ballot faction filter is missing`);
+		const ballotCandidates = page.locator(".overlay .tgrid > button");
+		const candidateCount = await ballotCandidates.count();
+		assert(candidateCount === 39, `${file}: expected 39 legal first-scrutiny candidates, found ${candidateCount}`);
+		await ballotCandidates.first().click();
+		assert(await ballotCandidates.first().getAttribute("aria-pressed") === "true", `${file}: ballot selection does not expose pressed state`);
+		await page.locator(".overlay .ballot-summary button", { hasText: "Review 1 name" }).click();
+		await page.locator(".overlay .modal h3", { hasText: "Review your cedula" }).waitFor();
+		assert(/No ballot has yet been cast/i.test(await page.locator(".overlay .modal").innerText()), `${file}: ballot is not reviewed before submission`);
 		assert(pageErrors.length === 0, `${file}: browser error after starting: ${pageErrors.join("; ")}`);
 	} finally {
 		await context.close();
@@ -294,7 +326,7 @@ async function main() {
 		await checkStickyChooser(browser, baseUrl, "1903.html");
 		await checkStickyChooser(browser, baseUrl, "october-1978.html");
 		await checkMay2025Start(browser, baseUrl);
-		console.log(JSON.stringify({ variants: selections, checks: ["mobile-and-desktop-geometry", "dialog-focus", "chooser-return", "sticky-portrait-stacking", "carafa-start-position", "1458-filter-strip", "2025-mobile-start-and-dossier"] }, null, 2));
+		console.log(JSON.stringify({ variants: selections, checks: ["mobile-and-desktop-geometry", "dialog-focus", "chooser-return", "sticky-portrait-stacking", "carafa-start-and-play-loop", "1458-filter-strip", "2025-mobile-start-and-dossier"] }, null, 2));
 	} finally {
 		if (browser) await browser.close();
 		await new Promise((resolve) => server.close(resolve));
