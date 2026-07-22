@@ -828,6 +828,17 @@ function runTargetedChecks(variant, api) {
 	if (variant.label === "may-2025") {
 		assert(typeof api.newGame === "function" && typeof api.runScrutiny === "function" && typeof api.runHeadless === "function" && typeof api.validateSavedState === "function", "May 2025: targeted-test API is not exported");
 		assert(api.validateData().length === 0 && api.ELECTORS.length === 133 && api.THRESHOLD === 89, "May 2025: roster, threshold, or data audit is invalid");
+		assert(typeof api.portraitFor === "function" && Object.keys(api.PORTRAIT_FILES || {}).length === 133 && Object.keys(api.WIKIPEDIA_PAGES || {}).length === 133, "May 2025: portrait catalogue is incomplete or not exported");
+		const portraitAttribution = JSON.parse(fs.readFileSync(path.join(ROOT, "assets", "portraits", "attribution.json"), "utf8")).portraits;
+		const portraitAudit = api.ELECTORS.map((cardinal) => {
+			const portrait = api.portraitFor(cardinal.id);
+			const localPath = portrait && path.join(ROOT, portrait.src);
+			const attribution = portraitAttribution[`2025/${cardinal.id}.webp`];
+			return { cardinal, portrait, localPath, attribution, bytes: localPath && fs.existsSync(localPath) ? fs.statSync(localPath).size : 0 };
+		});
+		const invalidPortraits = portraitAudit.filter(({ portrait, localPath, attribution, bytes }) => !portrait || !/assets\/portraits\/2025\/[a-z0-9]+\.webp$/.test(portrait.src) || !/en\.wikipedia\.org/.test(portrait.wikipedia || "") || !fs.existsSync(localPath) || bytes <= 0 || bytes > 30000 || !attribution?.commons_file || !/^https:\/\/commons\.wikimedia\.org\//.test(attribution.source || "") || !attribution.license);
+		assert(invalidPortraits.length === 0, `May 2025: missing, oversized, unattributed, or invalid portraits for ${invalidPortraits.map(({ cardinal }) => cardinal.id).join(", ")}`);
+		assert(portraitAudit.reduce((sum, portrait) => sum + portrait.bytes, 0) < 1300000, "May 2025: portrait archive exceeds its mobile payload budget");
 		assert(api.DAYS.length === 15 && api.DAYS[9].n === "VIII" && api.DAYS[10].n === "IX" && api.DAYS[14].date === "Wednesday 7 May", "May 2025: general-congregation chronology is wrong");
 		assert(JSON.stringify(api.PAUSE_BALLOTS) === JSON.stringify([13, 20, 27, 34]), "May 2025: constitutional pause boundaries are wrong");
 
@@ -925,7 +936,7 @@ function runTargetedChecks(variant, api) {
 		const calibration = Array.from({ length: 24 }, (_, index) => api.runHeadless(`2025-calibration-${index}`, "prevost"));
 		assert(calibration.filter((result) => result.winner === "prevost").length >= 12 && calibration.every((result) => result.ballots >= 1 && result.ballots <= 12), "May 2025: passive historical calibration has lost the documented shape");
 		assert(calibration.every((result) => Number.isFinite(result.score.total) && result.score.grade), "May 2025: end score is invalid");
-		return ["data-audit", "chronology", "pause-law", "player-ballot-preserved", "terminal-guard", "acceptance-before-smoke", "uncertain-soundings", "exact-save-replay", "strict-save", "unread-void", "runoff-threshold", "all-player-viability", "historical-calibration", "end-score"];
+		return ["data-audit", "full-portrait-coverage", "portrait-links", "portrait-attribution", "portrait-payload-budget", "chronology", "pause-law", "player-ballot-preserved", "terminal-guard", "acceptance-before-smoke", "uncertain-soundings", "exact-save-replay", "strict-save", "unread-void", "runoff-threshold", "all-player-viability", "historical-calibration", "end-score"];
 	}
 	if (variant.label === "venice-1800") {
 		assert(typeof api.initState === "function" && typeof api.conductBallot === "function" && typeof api.getState === "function" && typeof api.activeElectors === "function" && typeof api.makeSounding === "function" && typeof api.resolveNetworkAction === "function" && typeof api.alignmentWithPlayer === "function" && typeof api.supportBriefCandidates === "function" && typeof api.positionMetricDetail === "function", "Venice: targeted-test API is not exported");

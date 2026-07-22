@@ -78,6 +78,25 @@ input::placeholder{color:var(--dim)}
 .pick .meta{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--faded);letter-spacing:.03em}
 .pick .tagline{font-size:13.5px;color:var(--faded);font-style:italic}
 .pick.star{border-left:3px solid var(--gold)}
+.portrait-row{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;min-width:0}
+.portrait-copy{display:flex;flex-direction:column;gap:3px;min-width:0}
+.portrait-unit{width:64px;flex:0 0 auto}
+.cardinal-thumb{position:relative;width:100%;aspect-ratio:13/16;overflow:hidden;border:1px solid var(--line);border-radius:3px;background:var(--panel2)}
+.cardinal-thumb img{position:relative;z-index:1;display:block;width:100%;height:100%;object-fit:cover}
+.portrait-link{position:relative;z-index:1;display:block;width:100%;height:100%}
+.portrait-fallback{position:absolute;inset:0;display:grid;place-items:center;font-family:Fraunces,serif;font-size:17px;color:var(--gold);letter-spacing:.05em}
+.selection-portrait{width:58px}
+.college-portrait{width:50px}
+.dossier-portrait{width:104px}
+.player-portrait{width:78px}
+.end-portrait{width:112px}
+.dossier-head{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:start;padding-right:58px}
+.player-head{display:grid;grid-template-columns:auto minmax(0,1fr);gap:13px;align-items:start;margin-bottom:10px}
+.winner-head{display:grid;grid-template-columns:auto minmax(0,1fr);gap:18px;align-items:center;margin-bottom:12px}
+@media(max-width:520px){
+  .dossier-head{grid-template-columns:76px minmax(0,1fr);gap:12px;padding-right:30px}
+  .dossier-portrait{width:76px}.end-portrait{width:82px}.winner-head{gap:12px;align-items:start}
+}
 
 /* ---------- app frame ---------- */
 #app{display:none;flex-direction:column;min-height:100svh}
@@ -140,6 +159,7 @@ body.playing #cover{display:none}
 .cc .nm{font-family:Fraunces,serif;font-size:16.5px;color:var(--smokew)}
 .cc .age{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--dim)}
 .cc .off{font-size:13.5px;color:var(--faded);margin:2px 0 5px;font-style:italic}
+.cc .portrait-copy{width:100%}
 .cc .chips{display:flex;flex-wrap:wrap;gap:5px}
 .chip{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.06em;border:1px solid var(--line);border-radius:2px;padding:2px 6px;color:var(--faded)}
 .chip.gold{color:var(--gold);border-color:var(--gold-dim)}
@@ -541,6 +561,10 @@ function buildElectors(){
   });
 }
 const ELECTORS = buildElectors();
+
+/* Local, attributed Wikimedia Commons portrait archive. */
+const PORTRAIT_FILES = {"parolin":"Cardinal Pietro Parolin par Claude Truong-Ngoc juillet 2021.jpg","filoni":"Card. Fernando Filoni in Taiwan.jpg","tagle":"Luis Antonio Tagle in 2016.png","prevost":"Cardinal Robert F. Prevost at the Consistory on 30 September 2023 (3x4 cropped).jpg","sako":"Louis Rapha\u00ebl I Sako November 2015.jpg","puljic":"Vinko Pulji\u0107 portrait (cropped).jpg","turkson":"Peter Turkson (cropped).jpg","bozanic":"CardinalJosipBozani\u0107.jpg","barbarin":"Philippe Barbarin (cropped).jpg","erdo":"P\u00e9ter Erd\u0151 in 2011.jpg","rylko":"Stanislaw Rylko Stanislaw Grygiel, 2007 (cropped).jpg","robles":"D. Francisco Robles Ortega (cropped).jpg","dinardo":"Archbishop Daniel Dinardo.jpg","scherer":"Dom Odilo Scherer, October 2024 (cropped).jpg","sarah":"Cardinal Robert Sarah (cropped).JPG","burke":"Archbishop Raymond Leo Burke.jpg","koch":"Kurt Koch par Claude Truong-Ngoc d\u00e9cembre 2016.jpg","nycz":"K. nycz1 (cropped).jpg","ranjith":"File-Mal ran.jpg","marx":"Cardinal Reinhard Marx 02.jpg","brazdeaviz":"Joao braz de aviz.jpg","collins":"Thomas Collins 1.jpg","eijk":"Willem Eijk (2020).jpg","betori":"Betori.JPG","dolan":"Timothy Dolan apr 2015.jpg","woelki":"Rainer Maria Kardinal Woelki, Erzbischof von K\u00f6ln (2019).jpg","harvey":"James Cardinal Harvey.JPG","cleemis":"Kardinal Cleemis Thottunkal.JPG","muller":"HY Gerhard Ludwig M\u00fcller.png","nichols":"Vincent Nichols.jpg","brenes":"Leopoldo Jos\u00e9 Cardinal Brenes Sol\u00f3rzano (cropped).JPG","lacroix":"Mouvaux - Cardinal G\u00e9rald Cyprien Lacroix - 1 (cropped).jpg","kutwa":"Jean Pierre Kutwa.jpg","tempesta":"Formatura das primeiras mulheres fuzileiros navais - 2024 (53838900768)-edit.jpg","poli":"Mario Aurelio Poli.jpg","ouedraogo":"Philippe Ou\u00e9draogo.jpg","langlois":"President Ma and Chibly Langlois (17262956123) (cropped).jpg","clemente":"ManuelClemente.png","souraphiel":"Berhaneyesus Demerew Souraphiel (cropped).jpg","dew":"John Atcherley Dew in 2014.jpg","bo":"Maung Bo.jpg","kovitvanit":"Archbishop Kriengsak Kovitvanit (cropped).jpg","montenegro":"Francesco Montenegro.jpg","sturla":"Daniel Sturla en Misa 0013.jpg","furtado":"Arlindo Gomes Furtado.jpg","mafi":"Soane Patita Paini Cardinal Mafi.jpg","nzapalainga":"Dieudonn\u00e9 Nzapalainga (March 2014, Washington DC) VOA.jpg","osoro":"Mons. Osoro (30877902606).jpg","darocha":"S\u00e9rgio da Rocha.jpg","cupich":"Cdl. Cupich (cropped).png","dekesel":"Monseigneur De Kesel \u00e0 la basilique Saint-Martin de Li\u00e8ge.jpg","aguiarretes":"Cardenalaguiar.jpg","ribat":"John Ribat (cropped).jpg","tobin":"Cardinal Tobin (cropped).jpg","omella":"Card. Omella (34385666133).jpg","arborelius":"Anders Arborelius in 2019.jpg","dedonatis":"Gentiloni e de donatis (De Donatis cropped).JPG","coutts":"Mgr Coutts \u00e0 la Nuit des T\u00e9moins 2016.jpg","marto":"Ant\u00f3nio Marto (Ordination \u00e9piscopale de Mgr Tolentino).jpg","tsarahazana":"Mgr. D\u00e9sir\u00e9 Tsarahazana.jpg","petrocchi":"Foto Cardinale Petrocchi - cropped.jpg","maeda":"Archbishop Thomas Aquinas Manyo Maeda in 2015.jpg","suharyo":"+Ignatius Kardinal Suharyo (cropped) portrait.jpg","garcia":"Juan de la Caridad Garc\u00eda Rodr\u00edguez.jpg","ambongo":"Fridolin Ambongo (cropped).jpg","hollerich":"Jeanclaudehollerich.jpg","ramazzini":"Bishop Alvaro Ramazzini (3x4 cropped).jpg","zuppi":"Matteo Zuppi 2019.jpg","lopezromero":"Crist\u00f3bal L\u00f3pez Romero.jpg","kambanda":"His Eminence Antoine cardinal Kambanda, GCLJ.jpg","gregory":"Wilton Daniel Gregory 01.jpg","advincula":"Cardinal Jos\u00e9 L\u00e1zaro Fuerte Adv\u00edncula, Jr., O.P., D.D.jpg","lojudice":"Augusto Paolo Lojudice con il pallio.jpg","aveline":"Mgr Jean-Marc Aveline par Claude Truong-Ngoc juillet 2021 (cropped).jpg","okpaleke":"Peter Okpaleke.jpg","steiner":"CDH - Comiss\u00e3o de Direitos Humanos e Legisla\u00e7\u00e3o Participativa (21412066008).jpg","ferrao":"St. Francis Xavier Feast 2017 (27058937429) (cropped).jpg","mcelroy":"Robert W. McElroy, sep. 2020 (crop).jpg","dasilva":"2017-03-30 Virg\u00edlio do Carmo da Silva.jpg","cantoni":"Card. Cantoni 27-08-22.jpg","poola":"Poola Anthony.jpg","costa":"Dom Paulo Cezar Costa -24-04-2022.jpg","goh":"Cardinal William Goh, 2025 (2).jpg","martinez":"Adalberto Mart\u00ednez Flores.jpg","marengo":"Cardeal marengo.jpg","pizzaballa":"Mons. Pierbattista Pizzaballa.jpg","brislin":"Stephen Brislin.jpg","rossi":"El cardenal \u00c1ngel Rossi, arzobispo de C\u00f3rdoba (cropped).jpg","rueda":"Monse\u00f1or Luis Jos\u00e9 Rueda Aparicio.jpg","rys":"Arcybiskup Grzegorz Ry\u015b podczas Wigilii Paschalnej 2020 (cropped).jpg","ameyu":"Ameyu Martin Mulla (edit).jpg","cobo":"Toma posesi\u00f3n de Jos\u00e9 Cobo de Santa Mar\u00eda de Montserrat, Roma 04 (cropped).jpg","rugambwa":"Rugambwa Protase.jpg","sfrancis":"Sebastian Francis.jpg","chow":"\u5929\u4e3b\u6559\u9999\u6e2f\u6559\u5340\u4e3b\u6559 \u5468\u5b88\u4ec1 (cropped).png","bustillo":"Fran\u00e7ois-Xavier Bustillo (cropped).jpg","aaguiar":"Mons. Americo Aguiar visita a los j\u00f3venes de Tierra Santa, 2023.png","castillo":"Carlos Castillo Mattasoglio (edit).jpg","bokalic":"Cardenal Bokalic (cropped) portrait.png","cabrera":"Luis Cabrera Herrera.jpg","chomali":"Fernando Chomali-Cambio mando Rector UC Chile 2025 (cropped).jpg","kikuchi":"Archbishop Tarcisio Isao Kikuchi 2018.jpg","david":"Pablo Virgilio David in 2014 (Retouched) (cropped).jpg","nemet":"Nemet 2009.jpg","spengler":"Spengler 2023.jpg","bessidogbo":"Ignace Bessi Dogbo.png","vesco":"Jean-Paul Vesco, OP-022022.jpg","mathieu":"Dominique Mathieu OFMConv (cropped).jpg","repole":"Roberto Repole.jpg","reina":"Baldassare Reina.jpg","frankleo":"Frank Leo.jpg","bychok":"Mykola Bychok, CSsR.jpg","battaglia":"Domenico Battaglia.jpg","mamberti":"Cardinal Dominique Cardinal Mamberti.jpg","zenari":"Mario Zenari.jpg","farrell":"Kevin Joseph Farrell 1.jpg","krajewski":"Konrad Krajewski (2020).jpg","tolentino":"Cardeal De Mendon\u00e7a (cropped).jpg","czerny":"Card. Michael Czerny S.J. at the Vatican.jpg","grech":"Cardinal Mario Grech.jpg","semeraro":"Card. Marcello Semeraro.jpg","gambetti":"Cardinale Mauro Gambetti.png","roche":"Bishop Arthur Roche 2008.jpg","you":"Card. Heung-sik.png","gugerotti":"Claudio Gugerotti 1.jpg","vfernandez":"V\u00edctor Manuel Fern\u00e1ndez-(cropped).jpg","tscherrig":"Emil Paul Tscherrig (cropped).jpg","pierre":"ChristophePierre (cropped).jpg","fartime":"\u00c1ngel Fern\u00e1ndez Artime.jpg","makrickas":"Rolandas makrickas-4 (edit).jpg","radcliffe":"2025.02.22. Timothy Radcliffe OP Warsaw Poland Photo Mariusz Kubik 01.JPG","baggio":"Fabio Baggio-5-2-2019.jpg","koovakad":"Card. George J. Koovakad.jpg"};
+const WIKIPEDIA_PAGES = {"parolin":17611166,"filoni":11700768,"tagle":32029278,"prevost":54520372,"sako":32648070,"puljic":1756528,"turkson":1687875,"bozanic":1733309,"barbarin":1701324,"erdo":1699851,"rylko":13968249,"robles":13781938,"dinardo":2099900,"scherer":11193849,"sarah":29095196,"burke":777845,"koch":12008384,"nycz":9946248,"ranjith":12851677,"marx":14472875,"brazdeaviz":30311601,"collins":8473409,"eijk":14658786,"betori":19229230,"dolan":3163720,"woelki":32283916,"harvey":5302138,"cleemis":15765802,"muller":25456371,"nichols":2150281,"brenes":41623827,"lacroix":30969403,"kutwa":41623798,"tempesta":21730264,"poli":38942134,"ouedraogo":41623866,"langlois":41623799,"clemente":39679924,"souraphiel":38395901,"dew":8377630,"bo":40596128,"kovitvanit":9952573,"montenegro":44972065,"sturla":41910065,"furtado":15974883,"mafi":44943309,"nzapalainga":51922980,"osoro":51176145,"darocha":32092539,"cupich":15759687,"dekesel":27866726,"aguiarretes":52011271,"ribat":52004013,"tobin":28231728,"omella":48954190,"arborelius":1686683,"dedonatis":54169042,"coutts":9746317,"marto":57467304,"tsarahazana":57467308,"petrocchi":57467311,"maeda":57467543,"suharyo":27895098,"garcia":16900617,"ambongo":58936012,"hollerich":37400487,"ramazzini":33280981,"zuppi":48387833,"lopezromero":61658236,"kambanda":38877933,"gregory":1808616,"advincula":33780150,"lojudice":48947352,"aveline":61544014,"okpaleke":56640592,"steiner":70907701,"ferrao":1049662,"mcelroy":31896000,"dasilva":49317214,"cantoni":44709184,"poola":70906531,"costa":65640338,"goh":38057203,"martinez":70895873,"marengo":64061371,"pizzaballa":54051059,"brislin":63845759,"rossi":74315419,"rueda":63766621,"rys":63650732,"ameyu":74313508,"cobo":74040828,"rugambwa":36262600,"sfrancis":48607159,"chow":67686966,"bustillo":67686542,"aaguiar":73660244,"castillo":59769381,"bokalic":40988235,"cabrera":78085304,"chomali":75146510,"kikuchi":55633625,"david":68186095,"nemet":35964338,"spengler":76878356,"bessidogbo":78060013,"vesco":41027399,"mathieu":66349649,"repole":70114247,"reina":78091526,"frankleo":73018746,"bychok":65481874,"battaglia":66085395,"mamberti":7007086,"zenari":51929392,"farrell":9955602,"krajewski":40168456,"tolentino":57794472,"czerny":54635499,"grech":52625323,"semeraro":39104327,"gambetti":65676965,"roche":20146634,"you":67920890,"gugerotti":60965991,"vfernandez":55599904,"tscherrig":60645229,"pierre":49741432,"fartime":45227809,"makrickas":76404718,"radcliffe":2132863,"baggio":62795801,"koovakad":78069535};
 
 </script>
 <script>
@@ -1585,6 +1609,30 @@ let pickSortMode="papabile";
 let modalReturnFocus=null;
 
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function portraitInitials(e){
+  const parts=e.name.trim().split(/\s+/).filter(Boolean);
+  return (((parts[0]||"")[0]||"")+((parts[parts.length-1]||"")[0]||"")).toUpperCase();
+}
+function portraitFor(id){
+  if(!PORTRAIT_FILES[id])return null;
+  const page=WIKIPEDIA_PAGES[id];
+  return {
+    src:"assets/portraits/2025/"+encodeURIComponent(id)+".webp",
+    wikipedia:page?"https://en.wikipedia.org/?curid="+page:null
+  };
+}
+function portraitMarkup(id,variant=""){
+  const e=ELECTORS.find(x=>x.id===id);
+  if(!e)return "";
+  const portrait=portraitFor(id),nested=variant==="selection"||variant==="college";
+  const variantClass=variant?" "+variant+"-portrait":"";
+  const alt=nested?"":"Portrait of "+e.name;
+  const loading=variant==="player"||variant==="end"?"eager":"lazy";
+  const image=portrait?`<img src="${esc(portrait.src)}" width="260" height="320" alt="${esc(alt)}" loading="${loading}" decoding="async" onerror="this.hidden=true">`:"";
+  const linked=portrait&&portrait.wikipedia&&!nested?`<a class="portrait-link" href="${esc(portrait.wikipedia)}" target="_blank" rel="noopener" aria-label="Read about ${esc(e.name)} on Wikipedia">${image}</a>`:image;
+  return `<div class="portrait-unit${variantClass}"><div class="cardinal-thumb" title="Portrait of ${esc(e.name)}"><span class="portrait-fallback" aria-hidden="true">${esc(portraitInitials(e))}</span>${linked}</div></div>`;
+}
+Object.assign(window.__EO2025,{portraitFor,PORTRAIT_FILES,WIKIPEDIA_PAGES});
 
 /* ---------- cover ---------- */
 function renderCover(){
@@ -1598,9 +1646,11 @@ function renderCover(){
   else list.sort((a,b)=>a.prec-b.prec);
   $("#selgrid").innerHTML=list.map(e=>`
     <button class="pick ${e.pap>=35?"star":""}" data-k="${e.key}">
+      <div class="portrait-row">${portraitMarkup(e.id,"selection")}<div class="portrait-copy">
       <span class="nm">${esc(e.name)}</span>
       <span class="meta">${esc(e.country)} · ${e.age} · ${e.ord==="B"?"CB":e.ord==="P"?"CP":"CD"} · ${e.by==="F"?"Francis":e.by==="B"?"Benedict XVI":"John Paul II"}</span>
       <span class="tagline">${esc(e.tagline)}</span>
+      </div></div>
     </button>`).join("");
   $("#selgrid").querySelectorAll(".pick").forEach(b=>b.addEventListener("click",()=>beginGame(b.dataset.k)));
 }
@@ -1887,16 +1937,17 @@ function renderCollege(){
     if(st.knownVotes&&st.knownVotes[e.ix]&&st.lastVote[e.ix]>=0)chips.push(`<span class="chip red">wrote ${esc(st.electors[st.lastVote[e.ix]].surname)}</span>`);
     const leanBar=read?`<div class="lean"><i style="left:${((e.lean+2)/4*100).toFixed(0)}%"></i></div><div class="small mono" style="margin-top:3px">${e.lean<=-1?"restorationist":e.lean<-0.3?"conservative":e.lean<0.35?"institutional":e.lean<1.1?"continuity":"reforming"} · ${e.tags.map(t=>TAG_NAMES[t]).join(", ")}</div>`
       :`<div class="lean unk"><i style="left:50%"></i></div><div class="small mono" style="margin-top:3px">leaning unknown — you have not spoken</div>`;
-    return `<button class="cc ${e.ix===st.player?"you":""}" data-dossier="${e.ix}" aria-label="Open dossier for ${esc(e.name)}"><span class="r1"><span class="nm">${esc(e.name)}</span><span class="age">${e.age}</span></span>
-      <span class="off">${esc(e.office)}</span><span class="chips">${chips.join("")}</span>${leanBar}</button>`;
+    return `<button class="cc ${e.ix===st.player?"you":""}" data-dossier="${e.ix}" aria-label="Open dossier for ${esc(e.name)}"><div class="portrait-row">${portraitMarkup(e.id,"college")}<div class="portrait-copy"><span class="r1"><span class="nm">${esc(e.name)}</span><span class="age">${e.age}</span></span>
+      <span class="off">${esc(e.office)}</span><span class="chips">${chips.join("")}</span>${leanBar}</div></div></button>`;
   }).join("");
   $("#colCards").querySelectorAll("[data-dossier]").forEach(b=>b.addEventListener("click",()=>openDossier(+b.dataset.dossier)));
 }
 function openDossier(ix){
   const st=G,e=st.electors[ix],met=!!st.met[ix],read=!!st.read[ix],a=alignmentWithPlayer(ix,st);
   const orientation=e.lean<=-1?"restorationist":e.lean<-.3?"conservative":e.lean<.35?"institutional":e.lean<1.1?"continuity":"reforming";
-  openModal(`<h2>${esc(e.name)}</h2><p class="small">${esc(e.office)} · ${esc(e.country)} · age ${e.age}</p>
+  openModal(`<div class="dossier-head">${portraitMarkup(e.id,"dossier")}<div><h2>${esc(e.name)}</h2><p class="small">${esc(e.office)} · ${esc(e.country)} · age ${e.age}</p>
     <p style="margin-top:10px">${esc(e.tagline)}</p>
+    </div></div>
     <h3>Your alignment</h3><div class="stat"><span>${esc(a.label)}</span><span class="v">${a.score}/100</span></div>
     <p class="small" style="margin-top:6px">A model comparison of your public profiles, priorities, region and religious-order ties; it is not a claim about a private friendship.</p>
     <h3>What you know</h3><p>${met?(read?("You read him as <b>"+orientation+"</b>, with emphasis on "+e.tags.map(t=>TAG_NAMES[t]).join(", ")+"."):"You have met, but not yet read him clearly."):"You know only the public badge and office. Seek him out before treating the model as intelligence."}</p>`);
@@ -1937,8 +1988,8 @@ function renderYou(){
   const lc=lastCounts();
   const trusted=st.electors.map(e=>({e,t:st.trust[e.ix]||0})).filter(x=>x.t>0.8&&x.e.ix!==st.player).sort((a,b)=>b.t-a.t).slice(0,8);
   $("#youBox").innerHTML=`
-  <div class="panelbox"><h3>${esc(me.name)}</h3>
-    <p class="small" style="margin-bottom:8px">${esc(me.office)} · ${esc(me.country)} · ${me.age}</p>
+  <div class="panelbox"><div class="player-head">${portraitMarkup(me.id,"player")}<div><h3>${esc(me.name)}</h3>
+    <p class="small">${esc(me.office)} · ${esc(me.country)} · ${me.age}</p></div></div>
     <div class="stat"><span>Energy</span><span class="v">${st.energy.toFixed(1)}/10</span></div>
     <div class="meter"><i style="width:${st.energy*10}%"></i></div>
     <div class="stat"><span>Perceived ambition</span><span class="v">${st.ambition.toFixed(0)}/10</span></div>
@@ -1990,9 +2041,10 @@ function renderFinale(){
     : isYou ? "The mozzetta or the plain white; a word of peace or a word of truth; a greeting to the place that made you — the loggia is yours now, and history will quote whatever you say first."
     : "The loggia doors open to a roar you can feel through stone. The pontificate of "+esc(st.popeName)+" begins in the failing light of 8 May.";
   $("#finale").innerHTML=`
+   <div class="winner-head">${portraitMarkup(P.id,"end")}<div>
    <div class="eyebrow">${st.electedBallot?("Scrutiny "+st.electedBallot+" · Day "+st.cDay):""}</div>
    <h1 class="habemus">HABEMUS <em>PAPAM</em></h1>
-   <p class="latin">${latin}</p>
+   <p class="latin">${latin}</p></div></div>
    <p style="margin:12px 0 18px">${first}</p>
    <div class="panelbox" style="margin-bottom:14px">
      <h3>Your conclave — ${esc(st.electors[st.player].name)}</h3>
@@ -2052,6 +2104,7 @@ function rulesHTML(){
    <li>G. O'Connell &amp; E. Piqué, <a href="https://www.garrattpublishing.com.au/product/9781626986640/election-of-pope-leo-xiv/"><i>The Election of Pope Leo XIV: The Last Surprise of Pope Francis</i></a> (2026) — reported ballot narrative, used cautiously because the papers remain sealed.</li>
    <li>The elector list as compiled at Wikipedia, «Cardinal electors in the 2025 conclave» and «2025 conclave».</li>
    <li>Reconstructions and reporting: NYT (11 May 2025), WSJ (9 May 2025), ANSA, Il Messaggero, Il Giornale, America, NCR, AP (Leo's December 2025 interview), Reuters.</li>
+   <li>Portraits are compressed local derivatives of freely reusable Wikimedia Commons files. Full creator, source, modification and licence details are retained in the <a href="assets/portraits/attribution.json">portrait attribution ledger</a>; each photograph links to its subject's Wikipedia page.</li>
   </ul>
   <p class="small">A single-file, no-framework simulation in the Extra Omnes series. Counts are exact within the model; the model is not the archive.</p>`;
 }

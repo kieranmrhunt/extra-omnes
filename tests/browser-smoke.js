@@ -231,6 +231,9 @@ async function checkMay2025Start(browser, baseUrl) {
 	try {
 		await page.goto(`${baseUrl}/${file}`, { waitUntil: "domcontentloaded" });
 		await page.locator("#selgrid .pick").first().waitFor();
+		assert(await page.locator("#selgrid .pick").count() === 133 && await page.locator("#selgrid .selection-portrait img").count() === 133, `${file}: chooser does not render all 133 portraits`);
+		await page.locator("#selgrid .selection-portrait img").first().waitFor({ state: "visible" });
+		assert(await page.locator("#selgrid .selection-portrait img").first().evaluate((image) => image.complete && image.naturalWidth > 0), `${file}: first chooser portrait failed to load`);
 		await page.evaluate(() => { window.scrollTo(0, document.body.scrollHeight); document.querySelector("#selgrid .pick").click(); });
 		await page.locator("#app").waitFor();
 		await page.waitForTimeout(80);
@@ -238,10 +241,15 @@ async function checkMay2025Start(browser, baseUrl) {
 		assert(geometry.scrollY <= 2, `${file}: a new mobile game opens ${geometry.scrollY}px down the page`);
 		assert(geometry.scrollWidth <= geometry.innerWidth + 2, `${file}: mobile game overflows horizontally`);
 		await page.locator("#tab-college").click();
+		assert(await page.locator("#colCards .college-portrait img").count() === 133, `${file}: College roster does not render all portraits`);
 		const dossierButton = page.locator("#colCards .cc").first();
 		assert(await dossierButton.evaluate((element) => element.tagName === "BUTTON"), `${file}: College dossiers are not native controls`);
 		await dossierButton.click();
 		await page.locator('#modal[aria-hidden="false"]').waitFor();
+		const portraitLink = page.locator("#modalcontent .dossier-portrait a.portrait-link");
+		assert(await portraitLink.count() === 1 && /en\.wikipedia\.org/.test(await portraitLink.getAttribute("href")), `${file}: dossier portrait is not linked to Wikipedia`);
+		const [portraitBox, closeBox] = await Promise.all([page.locator("#modalcontent .dossier-portrait").boundingBox(), page.locator("#modalclose").boundingBox()]);
+		assert(portraitBox && closeBox && portraitBox.x + portraitBox.width <= closeBox.x, `${file}: dossier portrait overlaps the close control`);
 		await page.keyboard.press("Escape");
 		await page.waitForFunction(() => document.getElementById("modal").getAttribute("aria-hidden") === "true");
 		assert(await dossierButton.evaluate((element) => document.activeElement === element), `${file}: dossier focus was not restored`);
