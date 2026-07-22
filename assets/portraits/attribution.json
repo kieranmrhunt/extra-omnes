@@ -2376,6 +2376,94 @@
       "license": "CC BY-SA 4.0",
       "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
       "modification": "Cropped to a consistent portrait ratio, resized and converted to WebP; no other substantive alteration."
+    },
+    "1559/medici.webp": {
+      "commons_file": "Papa Pio IV, di Cristofano dell'Altissimo, 1552-68 -FG.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Papa_Pio_IV,_di_Cristofano_dell%27Altissimo,_1552-68_-FG.jpg",
+      "creator": "Cristofano dell'Altissimo",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1559/tournon.webp": {
+      "commons_file": "Portrait of Francois de Tournon by Giovanni Capassini.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Portrait_of_Francois_de_Tournon_by_Giovanni_Capassini.jpg",
+      "creator": "Giovanni Capassini",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1559/carpi.webp": {
+      "commons_file": "Francesco Salviati - Kardinal Rodolfo Pio, um 1540-1550.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Francesco_Salviati_-_Kardinal_Rodolfo_Pio,_um_1540-1550.jpg",
+      "creator": "Francesco Salviati",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1559/morone.webp": {
+      "commons_file": "Portrait of Cardinal Giovanni Morone.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Portrait_of_Cardinal_Giovanni_Morone.jpg",
+      "creator": "Anonymous",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1559/gonzaga.webp": {
+      "commons_file": "Cardinal Ercole Gonzaga.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Cardinal_Ercole_Gonzaga.jpg",
+      "creator": "Fermo Ghisoni da Caravaggio",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1559/pacheco.webp": {
+      "commons_file": "Retrato de Pedro Pacheco.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Retrato_de_Pedro_Pacheco.jpg",
+      "creator": "Anonymous Italian engraver, 17th century",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1559/afarnese.webp": {
+      "commons_file": "Portrait of Cardinal Alessandro Farnese (by Titian).jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Portrait_of_Cardinal_Alessandro_Farnese_(by_Titian).jpg",
+      "creator": "Titian",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1559/deste.webp": {
+      "commons_file": "Cardinale Ippolito II d Este ritratto da Zappi.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Cardinale_Ippolito_II_d_Este_ritratto_da_Zappi.jpg",
+      "creator": "Giovanni Maria Zappi",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1559/madruzzo.webp": {
+      "commons_file": "Cristoforo Madruzzo.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Cristoforo_Madruzzo.jpg",
+      "creator": "Titian",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1559/ghislieri.webp": {
+      "commons_file": "Portrait of Pope Pius V Ghislieri (by Bartolomeo Passarotti) - Private collection, Spoleto.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Portrait_of_Pope_Pius_V_Ghislieri_(by_Bartolomeo_Passarotti)_%E2%80%93_Private_collection,_Spoleto.jpg",
+      "creator": "Bartolomeo Passarotti",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
+    },
+    "1559/sforza.webp": {
+      "commons_file": "Guido Ascanio Sforza di Santa Fiora.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Guido_Ascanio_Sforza_di_Santa_Fiora.jpg",
+      "creator": "Unknown artist",
+      "license": "Public domain",
+      "license_url": null,
+      "modification": "Resized and converted to WebP; no substantive alteration."
     }
   }
 }

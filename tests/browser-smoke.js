@@ -148,6 +148,7 @@ async function checkCarafaStart(browser, baseUrl) {
 			visibleObjectives: [...document.querySelectorAll("#selgrid .ccard .objective")].filter((element) => getComputedStyle(element).display !== "none").length,
 		}));
 		assert(chooserRead.cards === 47 && chooserRead.visibleDescriptions === chooserRead.cards && chooserRead.visibleObjectives === 0, `${file}: elector descriptions are not all visible or private objectives are expanded before selection`);
+		await page.locator("#seedin").fill("browser-carafa-1559");
 		await page.locator("#selgrid .ccard").first().click();
 		assert(await page.locator("#selgrid .ccard.sel .objective").count() === 1, `${file}: selecting an elector does not reveal that elector's objective`);
 		await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
@@ -190,6 +191,15 @@ async function checkCarafaStart(browser, baseUrl) {
 		await page.locator(".overlay .choices button", { hasText: "Return to the chapel" }).click();
 		await page.locator("#tab-position").click();
 		assert(/Soundings for scrutiny I/i.test(await page.locator("#board").innerText()), `${file}: fresh soundings do not persist on the board`);
+		await page.locator("#tab-chapel").click();
+		await page.locator("#a-colloquy").click();
+		await page.locator(".overlay .tgrid button", { hasText: "Morone" }).first().click();
+		await page.locator(".overlay .choices button", { hasText: "Sound him out" }).click();
+		await page.locator("#tab-position").click();
+		assert(/refined by colloquy with Morone/i.test(await page.locator("#board").innerText()), `${file}: a private colloquy does not update the standing scrutiny sounding`);
+		await page.locator("#tab-college").click();
+		const moroneLean = await page.locator("#roster .crow", { hasText: "Morone" }).first().locator(".lean").innerText();
+		assert(moroneLean.trim().length > 0, `${file}: a private colloquy does not update the cardinal's persistent roster entry`);
 
 		await page.locator("#tab-chapel").click();
 		await page.locator("#scrutinybtn").click();
@@ -204,14 +214,36 @@ async function checkCarafaStart(browser, baseUrl) {
 		await page.locator(".overlay .modal h3", { hasText: "Review your cedula" }).waitFor();
 		assert(/No ballot has yet been cast/i.test(await page.locator(".overlay .modal").innerText()), `${file}: ballot is not reviewed before submission`);
 		await page.locator(".overlay .choices button", { hasText: "Cast the sealed ballot" }).click();
-		await page.locator(".overlay .modal h3", { hasText: "Accessus" }).waitFor();
-		assert((await page.locator(".overlay .choices button").first().innerText()).startsWith("Make no accession"), `${file}: the no-accession option is not first`);
-		await page.locator(".overlay .choices button").first().click();
 		await page.locator("#ceremony:not(.hidden)").waitFor();
-		await page.locator("#cer-controls button", { hasText: "Show full result" }).waitFor();
-		await page.waitForTimeout(650);
-		assert(/Cedula [IVXLCDM]+ is read|accessus is opened/i.test(await page.locator("#cer-title").innerText()), `${file}: scrutiny is not being delivered cedula by cedula`);
-		await page.locator("#cer-controls button", { hasText: "Show full result" }).click();
+		await page.locator("#cer-controls button", { hasText: "Open all cedulae" }).waitFor();
+		await page.waitForTimeout(850);
+		assert(/Cedula [IVXLCDM]+ is read/i.test(await page.locator("#cer-title").innerText()), `${file}: scrutiny is not being delivered cedula by cedula`);
+		assert(await page.locator(".overlay .modal h3", { hasText: "Accessus" }).count() === 0, `${file}: accessus is offered before the ordinary scrutiny has been counted`);
+		const deltaVisibilityDuringCount = await page.locator("#tallyzone .trow:not(.thead) .delta-cell").first().evaluate((element) => getComputedStyle(element).visibility);
+		assert(deltaVisibilityDuringCount === "hidden", `${file}: scrutiny changes are exposed before the count is complete`);
+		await page.locator("#cer-controls button", { hasText: "Open all cedulae" }).click();
+		await page.locator(".overlay .modal h3", { hasText: "Accessus follows the scrutiny" }).waitFor();
+		assert((await page.locator(".overlay .choices button").first().innerText()).startsWith("Make no accession"), `${file}: the no-accession option is not first`);
+		assert(/ordinary scrutiny has been counted/i.test(await page.locator(".overlay .modal").innerText()), `${file}: accessus does not explain its place after scrutiny`);
+		await page.locator(".overlay .choices button").first().click();
+		await page.waitForFunction(() => {
+			const labels = [...document.querySelectorAll("#cer-controls button")].map((button) => button.textContent || "");
+			return labels.some((label) => /Declare all accessions|Return to the cells|Habemus Papam/.test(label));
+		});
+		const declareAll = page.locator("#cer-controls button", { hasText: "Declare all accessions" });
+		if (await declareAll.count()) await declareAll.click();
+		await page.locator("#tallyzone.count-complete").waitFor();
+		const finalCountRead = await page.evaluate(() => {
+			const state = window.CARAFA_1559_ENGINE.getState(), record = state.scrutinies[state.scrutinies.length - 1];
+			const expected = Object.keys(record.final).sort((a, b) => (record.final[b] || 0) - (record.final[a] || 0) || window.CARAFA_1559_ENGINE.ELECTORS.find((cardinal) => cardinal.id === a).name.localeCompare(window.CARAFA_1559_ENGINE.ELECTORS.find((cardinal) => cardinal.id === b).name));
+			const actual = [...document.querySelectorAll("#tallyzone .trow[data-candidate]")].map((row) => row.dataset.candidate);
+			const deltasVisible = [...document.querySelectorAll("#tallyzone .delta-cell")].every((element) => getComputedStyle(element).visibility === "visible");
+			const movingRows = [...document.querySelectorAll("#tallyzone .trow[data-candidate]")].filter((row) => row.getAnimations().length).length;
+			return { expected, actual, deltasVisible, movingRows, progress: document.querySelector("#tallyzone .cedula-progress")?.textContent || "" };
+		});
+		assert(JSON.stringify(finalCountRead.actual) === JSON.stringify(finalCountRead.expected), `${file}: completed scrutiny rows are not ordered by final vote`);
+		assert(finalCountRead.deltasVisible && /blank paper/i.test(finalCountRead.progress), `${file}: final deltas or explicit blank-paper accounting are missing`);
+		assert(finalCountRead.movingRows > 0, `${file}: final scrutiny ordering is not animated`);
 		assert(await page.locator("#tallyzone .trow:not(.thead) .ct").count() > 0 && await page.locator("#tallyzone .trow:not(.thead) .delta-cell").count() > 0, `${file}: tally votes and changes are not in separate columns`);
 		assert(pageErrors.length === 0, `${file}: browser error after starting: ${pageErrors.join("; ")}`);
 	} finally {

@@ -336,7 +336,16 @@ function runTargetedChecks(variant, api) {
 		return ["blank-ballot", "approval-validation", "accessus-validation", "illness-eligibility", "regnal-names", "counterfactual-variety", "strict-chronicle-anchor", "series-score"];
 	}
 	if (variant.label === "carafa-winter-1559") {
-		assert(typeof api.initState === "function" && typeof api.beginScrutiny === "function" && typeof api.playerAccede === "function" && typeof api.getState === "function" && typeof api.makeSounding1559 === "function" && typeof api.resolveCaucus1559 === "function" && typeof api.resolveSupportDirection1559 === "function" && typeof api.acclamationReadiness1559 === "function" && typeof api.ceremonyOrder1559 === "function" && typeof api.regnalOptions1559 === "function", "Carafa Winter: targeted-test API is not exported");
+		assert(typeof api.initState === "function" && typeof api.beginScrutiny === "function" && typeof api.playerAccede === "function" && typeof api.getState === "function" && typeof api.makeSounding1559 === "function" && typeof api.refineSounding1559 === "function" && typeof api.moroneVindication1559 === "function" && typeof api.resolveCaucus1559 === "function" && typeof api.resolveSupportDirection1559 === "function" && typeof api.acclamationReadiness1559 === "function" && typeof api.ceremonyOrder1559 === "function" && typeof api.regnalOptions1559 === "function" && typeof api.portraitFor1559 === "function", "Carafa Winter: targeted-test API is not exported");
+		const portraitIds = ["medici", "tournon", "carpi", "morone", "gonzaga", "pacheco", "afarnese", "deste", "madruzzo", "ghislieri", "sforza"];
+		const portraitAttribution = JSON.parse(fs.readFileSync(path.join(ROOT, "assets", "portraits", "attribution.json"), "utf8")).portraits;
+		const portraitAudit = portraitIds.map((id) => {
+			const portrait = api.portraitFor1559(id);
+			const localPath = portrait && path.join(ROOT, portrait.src);
+			return { id, portrait, localPath, attribution: portraitAttribution[`1559/${id}.webp`], bytes: localPath && fs.existsSync(localPath) ? fs.statSync(localPath).size : 0 };
+		});
+		const invalidPortraits = portraitAudit.filter(({ portrait, localPath, attribution, bytes }) => !portrait || !/assets\/portraits\/1559\/[a-z]+\.webp$/.test(portrait.src) || !/en\.wikipedia\.org/.test(portrait.wikipedia || "") || "source" in portrait || !fs.existsSync(localPath) || bytes <= 0 || bytes > 60000 || !attribution?.commons_file || !/^https:\/\/commons\.wikimedia\.org\//.test(attribution.source || "") || !attribution.license);
+		assert(invalidPortraits.length === 0 && portraitAudit.reduce((sum, portrait) => sum + portrait.bytes, 0) < 260000 && api.portraitFor1559("cesi") === null, `Carafa Winter: missing, oversized, unattributed, or invalid portraits for ${invalidPortraits.map(({ id }) => id).join(", ")}`);
 		let state = api.initState("medici", "carafa-opening", { headless: true });
 		assert(api.present().length === 40 && api.voters().length === 40 && api.threshold() === 27, "Carafa Winter: opening attendance or threshold is wrong");
 		const metricKeys = ["heat", "taint", "integrity", "security", "carafaPeril"];
@@ -349,11 +358,17 @@ function runTargetedChecks(variant, api) {
 		const soundingStateB = api.initState("medici", "carafa-opening", { headless: true });
 		const soundingB = api.makeSounding1559();
 		assert(JSON.stringify(soundingA) === JSON.stringify(soundingB) && soundingStateB.rng.state === soundingRng, "Carafa Winter: soundings are not seed-deterministic");
+		soundingStateB.lastSounding = soundingB;
+		soundingStateB.cards.tournon.intel = 1;
+		const refinementRng = soundingStateB.rng.state;
+		const refined = api.refineSounding1559("tournon", "carpi"), refinedRow = refined.rows.find((row) => row.id === "carpi");
+		assert(refined === soundingStateB.lastSounding && refinedRow?.refined && refinedRow.refinedBy.includes("tournon") && refinedRow.high - refinedRow.low <= 4 && refined.refinedBy.includes("tournon") && !refined.stale && soundingStateB.rng.state === refinementRng, "Carafa Winter: a colloquy does not narrow the standing sounding deterministically");
 		const readinessRng = soundingStateB.rng.state;
 		const readiness = api.acclamationReadiness1559("medici");
 		assert(readiness.low <= readiness.high && readiness.high < api.voters().length && readiness.need === api.threshold() && soundingStateB.rng.state === readinessRng, "Carafa Winter: acclamation readiness is invalid or consumes election randomness");
 		let ballot = api.beginScrutiny([]);
 		assert(Array.isArray(ballot.votes.medici) && ballot.votes.medici.length === 0, "Carafa Winter: an explicit blank ballot became an AI ballot");
+		assert(Object.entries(ballot.votes).filter(([voter]) => voter !== "medici").every(([, picks]) => picks.length > 0), "Carafa Winter: an ordinary AI elector submitted a blank cedula");
 		const presentationRng = soundingStateB.rng.state;
 		const ceremonyA = api.ceremonyOrder1559(ballot), ceremonyB = api.ceremonyOrder1559(ballot), rollVoters = Object.keys(ballot.votes);
 		assert(JSON.stringify(ceremonyA) === JSON.stringify(ceremonyB) && soundingStateB.rng.state === presentationRng && ceremonyA.length === rollVoters.length && new Set(ceremonyA.map((entry) => entry.voter)).size === rollVoters.length && JSON.stringify(ceremonyA.map((entry) => entry.voter)) !== JSON.stringify(rollVoters), "Carafa Winter: scrutiny presentation is ranked, incomplete, non-deterministic, or consumes election randomness");
@@ -412,8 +427,15 @@ function runTargetedChecks(variant, api) {
 		assert(api.feastDay1559() && api.regnalOptions1559("tournon").includes("Emmanuel I"), "Carafa Winter: a Tournon victory during the Christmas settlement has no feast-day regnal option");
 		state.stage = 8;
 		assert(!api.feastDay1559() && !api.regnalOptions1559("tournon").includes("Emmanuel I"), "Carafa Winter: the Christmas regnal option is available before the Christmas settlement");
+		state = api.initState("morone", "carafa-vindication", { headless: true });
+		state.taint = 12; state.lastFinal = { morone: 6 }; state.scrutinies = [{ threshold: 30 }]; state.electedId = "medici";
+		assert(api.moroneVindication1559().done, "Carafa Winter: Morone cannot fulfil the documented public-vindication route");
+		state.lastFinal.morone = 5;
+		assert(!api.moroneVindication1559().done, "Carafa Winter: Morone is vindicated without the stated public support");
+		state.lastFinal.morone = 6; state.electedId = "ghislieri";
+		assert(!api.moroneVindication1559().done, "Carafa Winter: a Holy Office settlement incorrectly vindicates Morone");
 		assert([api.seriesScore1559("pope", 250), api.seriesScore1559("kingmaker", 150), api.seriesScore1559("survivor", 50)].every((score) => Number.isInteger(score) && score >= 0 && score <= 100), "Carafa Winter: comparable series score is invalid");
-		return ["attendance-40-to-44", "approval-validation", "accessus-validation", "illness-eligibility", "metric-bounds", "risk-explanations", "faction-pulse", "uncertain-soundings", "acclamation-readiness", "deterministic-caucus", "consent-based-support-direction", "procedural-cedula-order", "Christmas-regnal-choice", "six-cardinal-bishops", "versioned-save", "series-score"];
+		return ["attendance-40-to-44", "approval-validation", "accessus-validation", "illness-eligibility", "metric-bounds", "risk-explanations", "faction-pulse", "uncertain-soundings", "colloquy-refines-soundings", "ordinary-cedula-participation", "acclamation-readiness", "deterministic-caucus", "consent-based-support-direction", "procedural-cedula-order", "Morone-vindication-route", "winner-portrait-coverage", "Christmas-regnal-choice", "six-cardinal-bishops", "versioned-save", "series-score"];
 	}
 	if (variant.label === "1903") {
 		assert(typeof api.initState === "function" && typeof api.makeSounding === "function" && typeof api.playerNetworks === "function" && typeof api.networkAccess === "function" && typeof api.resolveNetworkAction === "function" && typeof api.actionRouteCopy === "function" && typeof api.portraitFor === "function" && typeof api.alignmentWithPlayer === "function" && typeof api.currentProgrammeFit === "function" && typeof api.pressureMetricDetail === "function" && typeof api.metricLogAdjustment === "function" && typeof api.resolveColloquyReading === "function" && typeof api.resolveColloquyPressure === "function" && typeof api.resolveSupportDirective === "function" && typeof api.scoreGame === "function", "1903: revised information/network/portrait/pressure/colloquy/score API is not exported");
