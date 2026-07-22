@@ -1947,6 +1947,8 @@ function objectivePoints(S){
 function isItalianWinner(winnerRecord){
 	return ["Rome","Florence","Venice","Milan","Naples","Genoa","Friuli","Piedmont","Abruzzo","Rimini"].indexOf(winnerRecord.country)>=0;
 }
+const SERIES_SCORE_1417={A:88,B:72,C:55,"C−":40,D:18};
+function seriesScoreForVerdict(verdict){return SERIES_SCORE_1417[verdict&&verdict.grade]??0}
 function scoreGame(S){
 	const parts=[];
 	const union=!!S.electedId;
@@ -1969,7 +1971,7 @@ function scoreGame(S){
 	else if(total>=42)verdict={grade:"B",title:"A good elector",text:"The Church is one again, and you leave the Kaufhaus with your honour and most of your secrets."};
 	else if(total>=24)verdict={grade:"C",title:"Present at the miracle",text:"The union was made around you rather than through you; still, you were inside the walls when it happened."};
 	else verdict={grade:"C−",title:"The lake keeps its counsel",text:"A pope was made; your part in it is best described briefly."};
-	return {total:total,parts:parts,verdict:verdict};
+	return {total:total,seriesScore:seriesScoreForVerdict(verdict),parts:parts,verdict:verdict};
 }
 
 /* ---------- regnal names ---------- */
@@ -3102,7 +3104,9 @@ function showEnd(){
 		["Scrutinies",String(S.ballotNo)],
 		["Accessions",String(S.history.reduce(function(sum,record){return sum+record.accessions.length},0))],
 		["Bargains struck",String(S.playerStats.deals)],
-		["Verdict",score.verdict.grade+" · "+score.total]
+		["Series score",score.seriesScore+" / 100"],
+		["Role verdict",score.verdict.grade],
+		["Role points",String(score.total)]
 	];
 	statPairs.forEach(function(pair){
 		const stat=el("div","stat",pair[0]);
@@ -3162,6 +3166,8 @@ function exportChronicle(){
 		if(S.electedId){
 			lines.push("");
 			lines.push("Elected: "+ID[S.electedId].name+" after "+S.ballotNo+" scrutinies ("+S.electedVia+").");
+			const score=scoreGame(S);
+			lines.push("Series score: "+score.seriesScore+" / 100 · Role points: "+score.total+" · Verdict: "+score.verdict.grade);
 		}
 		const blob=new Blob([lines.join("\n")],{type:"text/plain"});
 		const url=URL.createObjectURL(blob);
@@ -3242,7 +3248,7 @@ const CONSTANCE_1417_ENGINE={
 	makeSounding:makeSounding,forecastCounts:forecastCounts,forecastColleges:forecastColleges,
 	actionColloquy:actionColloquy,colloquySnapshot:colloquySnapshot,rankedPreferences:rankedPreferences,
 	thresholds:thresholds,thresholdFor:thresholdFor,electedNow:electedNow,collegeTallies:collegeTallies,
-	scoreGame:scoreGame,achievementsFor:achievementsFor,objectiveFor:objectiveFor,
+	scoreGame:scoreGame,seriesScoreForVerdict:seriesScoreForVerdict,achievementsFor:achievementsFor,objectiveFor:objectiveFor,
 	papalNameForState:papalNameForState,regnalOptionsFor:regnalOptionsFor,feastName1417:feastName1417,
 	runHeadless:runHeadless,validateData:validateData,validateSavedState:validateSavedState,autoChoiceFor:autoChoiceFor,
 	settlementLeader:settlementLeader,bestLegalPlayerVote:bestLegalPlayerVote,

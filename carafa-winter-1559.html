@@ -326,6 +326,12 @@ function endBody1559(w,kind,reg){
 	if(w==='pacheco')body+='<p>The Spanish near-acclamation has succeeded. Rome will spend years asking whether Philip’s shadow has entered the Fisherman’s Ring.</p>';
 	return body;
 }
+function seriesScore1559(kind,rolePoints){
+	const bands={pope:[180,330,84,100],kingmaker:[70,220,60,94],contender:[20,160,45,78],survivor:[0,130,20,64]};
+	const band=bands[kind]||bands.survivor;
+	const share=clamp((rolePoints-band[0])/(band[1]-band[0]),0,1);
+	return Math.round(band[2]+share*(band[3]-band[2]));
+}
 function renderRegnal1559(w,kind,initial){
 	const host=$('#endregnal'); if(!host)return;
 	host.innerHTML='';
@@ -373,7 +379,8 @@ function endGame1559Regnal(){
 	if(w===S.playerId)add(220,'Elected Supreme Pontiff');else if(S.cards[S.playerId].promisesFrom[w])add(110,'The winner owes you');else add(30,'Survived the conclave');
 	add(Math.round(S.integrity*.5),'Integrity retained');add(-Math.round(S.heat*.35),'Guarantee / simony heat');add(-Math.round(S.taint*.25),'Doctrinal suspicion');
 	const ob=objective();if(ob.done)add(60,'Private ambition: '+ob.obj.title);
-	tb.appendChild(h('tr',{class:'total'},h('td',null,'INFLUENCE'),h('td',{class:'n'},String(score))));
+	tb.appendChild(h('tr',null,h('td',null,'ROLE POINTS'),h('td',{class:'n'},String(score))));
+	tb.appendChild(h('tr',{class:'total'},h('td',null,'SERIES SCORE'),h('td',{class:'n'},seriesScore1559(kind,score)+' / 100')));
 	const ach=[];if(w===S.playerId)ach.push('Habemus Papam');if(w==='medici')ach.push('Carafa Winter');if(ob.done)ach.push('Private Ambition');if(S.heat<20)ach.push('Clean Hands');if(S.taint>60)ach.push('Under Suspicion');if(kind==='kingmaker')ach.push('Kingmaker');
 	$('#endach').innerHTML='';ach.forEach(a=>$('#endach').appendChild(h('span',{class:'a'},a)));
 	$('#endhist').innerHTML='<h3>Historical note</h3><p>The real conclave opened in September 1559 and reached Giovanni Angelo Medici as <b>Pius IV</b> across the Christmas acclamation and confirmatory scrutiny conventionally dated 25–26 December. The central pressures modelled here are the Carafa family’s need for guarantees, Spain and France competing through clients and ambassadors, Morone’s Inquisition taint, the failed Gonzaga and Pacheco acclamations, Capodiferro’s death, rationing, leaks through conclavists and walls, and the final Medici/Cesi compromise.</p>';
@@ -440,7 +447,7 @@ function bind(){
 function headlessAdvance(){const last=S.scrutinies[S.scrutinies.length-1];log(`<b>Scrutiny ${rn(last.number)}.</b> No election; ${last.threshold} votes were required.`,'scrut');aiPolitics();illness();S.stage++;applyHistoricalAttendance();if(S.stage>10&&!S.over){forceSettlement();return}S.ap=3;for(const id of present())S.cards[id].fatigue=clamp(S.cards[id].fatigue+0.15+(S.stage>=7?0.35:0)+(BY_ID[id].health<=2?0.18:0),0,5);changeMetric('heat',-2);changeMetric('taint',-1);normaliseState()}
 function serialisableScrutiny(P){return {number:P.number,stage:P.stage,votes:P.votes,tally:P.tally,final:P.final,accessions:P.accessions,threshold:P.threshold,electors:P.electors,elected:P.elected||null,submittedPlayerVote:P.submittedPlayerVote,acclamationSupporters:P.acclamationSupporters||[],confirmatory:!!P.confirmatory}}
 function runHeadless(seed='carafa-1559',playerId='medici',options={}){const previousHeadless=HEADLESS;HEADLESS=true;Q.length=0;S=initState(playerId,seed);const maxRounds=Number.isInteger(options.maxRounds)?options.maxRounds:16;log(`<b>Paul IV is dead.</b> ${present().length} electors open the conclave.`,'holy');let rounds=0;while(!S.over&&rounds++<maxRounds){const picks=canVote(playerId)?chooseBallot(playerId):[];runScrutiny(picks);if(S.over)break;headlessAdvance()}if(!S.over){S.stage=11;forceSettlement()}const result={seed:S.seed,playerId,winner:S.electedId,electedId:S.electedId,unresolved:S.unresolved,ballots:S.scrutinies.length,scrutinies:S.scrutinies.map(serialisableScrutiny),finalElectors:voters().length,finalThreshold:threshold(),metrics:{heat:S.heat,taint:S.taint,integrity:S.integrity,security:S.security,carafaPeril:S.carafaPeril},rngState:S.rng.state};HEADLESS=previousHeadless;return result}
-const CARAFA_1559_ENGINE={ELECTORS,initState:(playerId,seed,options={})=>{HEADLESS=!!options.headless;S=initState(playerId,seed);return S},getState:()=>S,beginScrutiny:(playerPicks)=>beginScrutiny(playerPicks),playerAccede,resolveScrutiny,runScrutiny,runHeadless,present,voters,canVote,canBeElected,threshold,applyHistoricalAttendance,normaliseState,validateSavedState:validateSavedState1559,serialiseState:serialiseState1559};
+const CARAFA_1559_ENGINE={ELECTORS,initState:(playerId,seed,options={})=>{HEADLESS=!!options.headless;S=initState(playerId,seed);return S},getState:()=>S,beginScrutiny:(playerPicks)=>beginScrutiny(playerPicks),playerAccede,resolveScrutiny,runScrutiny,runHeadless,present,voters,canVote,canBeElected,threshold,applyHistoricalAttendance,normaliseState,validateSavedState:validateSavedState1559,serialiseState:serialiseState1559,seriesScore1559};
 if(typeof window!=='undefined'){window.CARAFA_1559_ENGINE=CARAFA_1559_ENGINE;window.__om=Object.assign(window.__om||{},CARAFA_1559_ENGINE)}
 if(typeof module!=='undefined'&&module.exports)module.exports=CARAFA_1559_ENGINE;
 if(typeof document!=='undefined'){if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind()}

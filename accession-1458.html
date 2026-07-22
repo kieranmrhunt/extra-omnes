@@ -2016,7 +2016,7 @@ function scoreGame(S){
 	else if(total>=55){grade="C";verdict="A pope was made and you were in the room; history will not blame you, or thank you."}
 	else if(total>=40){grade="D";verdict="The See is filled, but your part in it reads badly by candlelight — and worse in the ambassadors' ciphers."}
 	else{grade="E";verdict="Pius wrote of nights like yours. Pray he spells your name wrong."}
-	return {total:total,parts:{church:church,conscience:conscience,nation:nation,city:city,crusade:crusade},grade:grade,verdict:verdict};
+	return {total:total,seriesScore:total,parts:{church:church,conscience:conscience,nation:nation,city:city,crusade:crusade},grade:grade,verdict:verdict};
 }
 
 function achievementsFor(S){
@@ -2296,7 +2296,7 @@ function renderCentre(S){
 		const f=el("div","finale");
 		const sc=S.finale&&S.finale.score;
 		f.innerHTML="<div class='panel-title'>The chronicle closes</div><div class='dec-body'>"+(S.finale?esc(S.finale.line):"")+"</div>"+
-			(sc?"<div class='scorebox'><div class='scoregrade'>"+sc.grade+"</div><div class='scoretotal'>"+sc.total+" / 100</div>"+
+			(sc?"<div class='scorebox'><div class='scoregrade'>"+sc.grade+"</div><div class='scoretotal'>Series score "+sc.total+" / 100</div>"+
 			"<div class='scoreparts'>The Church "+sc.parts.church+"/35 · Conscience "+sc.parts.conscience+"/20 · Nation &amp; ambition "+sc.parts.nation+"/20 · The City "+sc.parts.city+"/10 · The Crusade "+sc.parts.crusade+"/15</div>"+
 			"<div class='verdict'>"+esc(sc.verdict)+"</div></div>":"")+
 			(S.epilogue&&S.epilogue.achievements.length?"<div class='achv'>"+S.epilogue.achievements.map(function(a){return "<div><b>"+esc(a.name)+"</b> — "+esc(a.line)+"</div>"}).join("")+"</div>":"");

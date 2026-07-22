@@ -1614,7 +1614,7 @@ function scoreGame(X){
 	else if(total>=52){grade="C";title="Survived, with reservations"}
 	else if(total>=38){grade="D";title="The chronicle is unkind"}
 	else {grade="E";title="Vae Ecclesiae"}
-	return {total:total,parts:parts,verdict:{grade:grade,title:title,line:verdictLine(X,total)}};
+	return {total:total,seriesScore:total,parts:parts,verdict:{grade:grade,title:title,line:verdictLine(X,total)}};
 }
 function verdictLine(X,total){
 	const fin=X.finale||{};
@@ -2159,7 +2159,7 @@ function renderEnd(){
 		score.parts.forEach(function(p){
 			html+="<tr><td>"+esc(p.label)+"</td><td class='mono'>"+p.points+" / "+p.max+"</td><td class='note'>"+esc(p.note)+"</td></tr>";
 		});
-		html+="<tr class='totalrow'><td>Total</td><td class='mono'>"+score.total+" / 100</td><td class='note'>Grade "+score.verdict.grade+"</td></tr>";
+		html+="<tr class='totalrow'><td>Series score</td><td class='mono'>"+score.total+" / 100</td><td class='note'>Grade "+score.verdict.grade+"</td></tr>";
 		table.innerHTML=html;
 	}
 	const achv=$("achv");

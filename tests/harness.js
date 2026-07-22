@@ -309,7 +309,9 @@ function runTargetedChecks(variant, api) {
 		const procedure = compromiseState.terminalProcedure;
 		assert(compromiseState.over && compromiseWinner === compromiseState.electedId && procedure && procedure.type === "compromissum", "1492: compromissum did not create a terminal procedure record");
 		assert(procedure.committee.length === 3 && procedure.votes.length === 3 && procedure.unanimous && procedure.votes.every((vote) => procedure.committee.includes(vote.voter) && vote.candidate === compromiseWinner), "1492: compromissum is not auditable to a unanimous three-cardinal committee");
-		return ["node-module-boundary", "strict-save", "approval-validation", "presentation-rng", "auditable-compromissum"];
+		const seriesScore = api.seriesScoreForVerdict(api.roleVerdict(350, "pope"));
+		assert(Number.isInteger(seriesScore) && seriesScore >= 0 && seriesScore <= 100, "1492: comparable series score is invalid");
+		return ["node-module-boundary", "strict-save", "approval-validation", "presentation-rng", "auditable-compromissum", "series-score"];
 	}
 	if (variant.label === "viterbo-1268") {
 		assert(typeof api.initState === "function" && typeof api.beginScrutiny === "function" && typeof api.playerAccede === "function" && typeof api.canVote === "function" && typeof api.canBeElected === "function", "Viterbo: validation API is not exported");
@@ -329,7 +331,9 @@ function runTargetedChecks(variant, api) {
 		assert(openWinners.size >= 2 && [...openWinners].some((winner) => winner !== "visconti"), "Viterbo: counterfactual mode has reverted to a compulsory Visconti victory");
 		const chronicleWinners = Array.from({ length: 3 }, (_, index) => api.runHeadless(`viterbo-chronicle-${index}`, "orsini", [], { historicalMode: true }).electedId);
 		assert(chronicleWinners.every((winner) => winner === "visconti"), "Viterbo: strict chronicle mode no longer preserves the historical committee choice");
-		return ["blank-ballot", "approval-validation", "accessus-validation", "illness-eligibility", "regnal-names", "counterfactual-variety", "strict-chronicle-anchor"];
+		const seriesScore = api.seriesScoreForVerdict(api.roleVerdict(300, "pope"));
+		assert(Number.isInteger(seriesScore) && seriesScore >= 0 && seriesScore <= 100, "Viterbo: comparable series score is invalid");
+		return ["blank-ballot", "approval-validation", "accessus-validation", "illness-eligibility", "regnal-names", "counterfactual-variety", "strict-chronicle-anchor", "series-score"];
 	}
 	if (variant.label === "carafa-winter-1559") {
 		assert(typeof api.initState === "function" && typeof api.beginScrutiny === "function" && typeof api.playerAccede === "function" && typeof api.getState === "function", "Carafa Winter: targeted-test API is not exported");
@@ -371,15 +375,21 @@ function runTargetedChecks(variant, api) {
 		const corrupt = JSON.parse(JSON.stringify(saved));
 		corrupt.cards.medici.dead = "certainly";
 		assert(!api.validateSavedState(corrupt), "Carafa Winter: a corrupt save was accepted");
-		return ["attendance-40-to-44", "approval-validation", "accessus-validation", "illness-eligibility", "metric-bounds", "six-cardinal-bishops", "versioned-save"];
+		assert([api.seriesScore1559("pope", 250), api.seriesScore1559("kingmaker", 150), api.seriesScore1559("survivor", 50)].every((score) => Number.isInteger(score) && score >= 0 && score <= 100), "Carafa Winter: comparable series score is invalid");
+		return ["attendance-40-to-44", "approval-validation", "accessus-validation", "illness-eligibility", "metric-bounds", "six-cardinal-bishops", "versioned-save", "series-score"];
 	}
 	if (variant.label === "1903") {
-		assert(typeof api.initState === "function" && typeof api.makeSounding === "function" && typeof api.playerNetworks === "function" && typeof api.networkAccess === "function" && typeof api.resolveNetworkAction === "function" && typeof api.actionRouteCopy === "function" && typeof api.portraitFor === "function" && typeof api.alignmentWithPlayer === "function" && typeof api.pressureMetricDetail === "function" && typeof api.scoreGame === "function", "1903: revised information/network/portrait/pressure/score API is not exported");
+		assert(typeof api.initState === "function" && typeof api.makeSounding === "function" && typeof api.playerNetworks === "function" && typeof api.networkAccess === "function" && typeof api.resolveNetworkAction === "function" && typeof api.actionRouteCopy === "function" && typeof api.portraitFor === "function" && typeof api.alignmentWithPlayer === "function" && typeof api.currentProgrammeFit === "function" && typeof api.pressureMetricDetail === "function" && typeof api.metricLogAdjustment === "function" && typeof api.resolveColloquyReading === "function" && typeof api.resolveColloquyPressure === "function" && typeof api.resolveSupportDirective === "function" && typeof api.scoreGame === "function", "1903: revised information/network/portrait/pressure/colloquy/score API is not exported");
 		const portrait = api.portraitFor("gibbons");
 		assert(portrait && /assets\/portraits\/1903\/gibbons\.webp$/.test(portrait.src) && /en\.wikipedia\.org/.test(portrait.wikipedia) && !("source" in portrait) && api.portraitFor("sanminiatelli") === null, "1903: portrait link or fallback is invalid");
 		let state = api.initState("gibbons", "1903-soundings", "historical");
 		const alignment = api.alignmentWithPlayer(state, "sarto");
-		assert(alignment && Number.isInteger(alignment.score) && alignment.score >= 0 && alignment.score <= 100 && alignment.label && Array.isArray(alignment.shared), "1903: cardinal alignment detail is invalid");
+		assert(alignment && Number.isInteger(alignment.score) && alignment.score >= 0 && alignment.score <= 100 && Number.isInteger(alignment.currentScore) && alignment.label && Array.isArray(alignment.shared), "1903: cardinal alignment detail is invalid");
+		const affinityState = api.initState("oreglia", "1903-stable-affinity", "historical");
+		const affinityBefore = api.alignmentWithPlayer(affinityState, "gotti");
+		affinityState.profileMods.gotti = { continuity: 1.2, government: -1.2, freedom: 1.1, programme: 1.2 };
+		const affinityAfter = api.alignmentWithPlayer(affinityState, "gotti");
+		assert(affinityAfter.score === affinityBefore.score && affinityAfter.currentScore !== affinityBefore.currentScore, "1903: baseline affinity moves with a candidate's programme or current programme fit is not exposed separately");
 		const pressureKeys = ["freedom", "courtPressure", "pastoralAppetite", "continuity", "curialConfidence"];
 		assert(pressureKeys.every((key) => {
 			const detail = api.pressureMetricDetail(key, state);
@@ -388,6 +398,12 @@ function runTargetedChecks(variant, api) {
 		const pressureState = api.initState("gibbons", "1903-pressure-ledger", "historical");
 		api.resolveVeto(pressureState, "deliver");
 		assert(api.pressureMetricDetail("freedom", pressureState).changes.some((change) => /Puzyna/.test(change.reason)), "1903: pressure ledger does not explain the current value");
+		const historicalPressure = api.initState("gibbons", "1903-pressure-effect", "historical");
+		const openPressure = api.initState("gibbons", "1903-pressure-effect", "open");
+		historicalPressure.metrics.freedom = openPressure.metrics.freedom = 100;
+		const historicalAdjustment = api.metricLogAdjustment(historicalPressure, "rampolla");
+		const openAdjustment = api.metricLogAdjustment(openPressure, "rampolla");
+		assert(Math.abs(historicalAdjustment) > 0 && Math.abs(openAdjustment) > Math.abs(historicalAdjustment) && Math.abs(historicalAdjustment / openAdjustment - 0.35) < 0.001, "1903: College pressures do not bend historical mode at the documented reduced strength");
 		const before = JSON.stringify(state);
 		const soundingA = api.makeSounding(state);
 		const soundingB = api.makeSounding(state);
@@ -408,12 +424,29 @@ function runTargetedChecks(variant, api) {
 		const firstOutcome = api.resolveNetworkAction(firstNetworkState, "Diocesan", "sarto");
 		const secondOutcome = api.resolveNetworkAction(secondNetworkState, "Diocesan", "sarto");
 		assert(JSON.stringify(firstOutcome) === JSON.stringify(secondOutcome) && JSON.stringify(firstNetworkState) === JSON.stringify(secondNetworkState), "1903: network action is not seed-deterministic");
+		const firstColloquyState = api.initState("gibbons", "1903-colloquy", "open");
+		const secondColloquyState = api.initState("gibbons", "1903-colloquy", "open");
+		const firstReading = api.resolveColloquyReading(firstColloquyState, "gotti");
+		const secondReading = api.resolveColloquyReading(secondColloquyState, "gotti");
+		assert(JSON.stringify(firstReading) === JSON.stringify(secondReading) && JSON.stringify(firstColloquyState) === JSON.stringify(secondColloquyState) && firstReading.cluster.every((id) => api.ELECTORS.some((cardinal) => cardinal.id === id) && id !== "gotti"), "1903: private colloquy reading is invalid or non-deterministic");
+		const firstPressure = api.resolveColloquyPressure(firstColloquyState, "gotti", "sarto");
+		const secondPressure = api.resolveColloquyPressure(secondColloquyState, "gotti", "sarto");
+		assert(JSON.stringify(firstPressure) === JSON.stringify(secondPressure) && JSON.stringify(firstColloquyState) === JSON.stringify(secondColloquyState), "1903: personal persuasion is non-deterministic");
+		const firstDirectiveState = api.initState("gibbons", "1903-support-directive", "open");
+		const secondDirectiveState = api.initState("gibbons", "1903-support-directive", "open");
+		[firstDirectiveState, secondDirectiveState].forEach((directiveState) => {
+			directiveState.lastVotes = ["oreglia", "gotti", "sarto"].map((voter) => ({ voter, candidate: "gibbons" }));
+		});
+		const firstDirective = api.resolveSupportDirective(firstDirectiveState, "sarto");
+		const secondDirective = api.resolveSupportDirective(secondDirectiveState, "sarto");
+		assert(JSON.stringify(firstDirective) === JSON.stringify(secondDirective) && JSON.stringify(firstDirectiveState) === JSON.stringify(secondDirectiveState), "1903: released-support responses are non-deterministic");
+		assert(firstDirective.accepted.concat(firstDirective.rejected).length === 3 && firstDirective.rejected.includes("sarto") && !firstDirective.accepted.includes("sarto"), "1903: released support is forced, incomplete, or permits a self-vote promise");
 		state = api.initState("gibbons", "1903-player-ballot", "historical");
 		const record = api.simulateBallot(state, "rampolla");
 		assert(record.votes.find((vote) => vote.voter === "gibbons").candidate === "rampolla", "1903: submitted player ballot was overwritten");
 		const completed = api.runHeadless("1903-score", "gibbons", "historical");
 		const score = api.scoreGame(completed);
-		assert(Number.isFinite(score.total) && score.parts.reduce((sum, part) => sum + part.points, 0) === score.total && score.verdict && score.verdict.grade, "1903: end score is invalid");
+		assert(Number.isFinite(score.total) && score.parts.reduce((sum, part) => sum + part.points, 0) === score.total && score.verdict && score.verdict.grade && Number.isInteger(score.seriesScore) && score.seriesScore >= 0 && score.seriesScore <= 100, "1903: end score is invalid");
 		const validSave = JSON.parse(JSON.stringify(api.initState("gibbons", "1903-save", "open")));
 		assert(typeof api.validateSavedState === "function" && api.validateSavedState(validSave), "1903: a valid saved conclave cannot be restored");
 		const invalidSave = JSON.parse(JSON.stringify(validSave));
@@ -431,7 +464,7 @@ function runTargetedChecks(variant, api) {
 			return (api.forecastCounts(candidacy)[cardinal.id] || 0) >= api.THRESHOLD;
 		});
 		assert(viablePlayers.length === api.ELECTORS.length, `1903: only ${viablePlayers.length}/${api.ELECTORS.length} active player candidacies can theoretically reach the threshold`);
-		return ["portrait-lookup", "cardinal-alignment", "pressure-explanations", "pressure-ledger", "uncertain-soundings", "action-route-copy", "network-membership", "network-determinism", "player-ballot-preserved", "player-candidacy-viability", "end-score", "strict-save"];
+		return ["portrait-lookup", "stable-baseline-affinity", "current-programme-fit", "pressure-explanations", "historical-pressure-effect", "pressure-ledger", "uncertain-soundings", "action-route-copy", "network-membership", "network-determinism", "individual-colloquy", "personal-persuasion", "consent-based-support-redirection", "player-ballot-preserved", "player-candidacy-viability", "end-score", "strict-save"];
 	}
 	if (variant.label === "october-1978") {
 		assert(typeof api.initState === "function" && typeof api.runBallot === "function" && typeof api.getState === "function" && typeof api.makeSounding === "function" && typeof api.networkAccess === "function" && typeof api.workNetwork === "function" && typeof api.sortedCountEntries === "function" && typeof api.portraitFor === "function" && typeof api.scoreGame === "function", "October 1978: targeted-test API is not exported");
@@ -481,7 +514,7 @@ function runTargetedChecks(variant, api) {
 		const nameB = api.papalNameForState("october-papal-name", "siri");
 		assert(typeof nameA === "string" && nameA === nameB && / [IVXLCDM]+$/.test(nameA), "October 1978: alternate papal name is invalid or non-deterministic");
 		const score = api.scoreGame(api.getState());
-		assert(Number.isFinite(score.total) && score.parts.reduce((sum, part) => sum + part.points, 0) === score.total && score.verdict && score.verdict.grade, "October 1978: end score is invalid");
+		assert(Number.isFinite(score.total) && score.parts.reduce((sum, part) => sum + part.points, 0) === score.total && score.verdict && score.verdict.grade && Number.isInteger(score.seriesScore) && score.seriesScore >= 0 && score.seriesScore <= 100, "October 1978: end score is invalid");
 		assert(/conciliar/.test(api.axisPosition("vatican2", 1.8)) && !/high|middle/.test(api.axisPosition("vatican2", 1.8)), "October 1978: dossier axes still use ambiguous magnitude labels");
 		const liveCandidates = api.ELECTORS.filter((cardinal) => {
 			api.initState(cardinal.id, `october-live-field-${cardinal.id}`, { headless: true });
@@ -582,7 +615,7 @@ function runTargetedChecks(variant, api) {
 		assert(/Word through the wall[\s\S]*It does not directly change a vote/.test(constanceSource), "Constance: word-through-the-wall consequences are not explained");
 		assert(/scrollbar-color/.test(constanceSource) && /::-webkit-scrollbar-corner/.test(constanceSource), "Constance: native scrollbars remain visually unintegrated");
 		const score = api.scoreGame(openA);
-		assert(Number.isFinite(score.total) && score.parts.reduce((sum, part) => sum + part.points, 0) === score.total && score.verdict && score.verdict.grade, "Constance: end score is invalid");
+		assert(Number.isFinite(score.total) && score.parts.reduce((sum, part) => sum + part.points, 0) === score.total && score.verdict && score.verdict.grade && Number.isInteger(score.seriesScore) && score.seriesScore >= 0 && score.seriesScore <= 100, "Constance: end score is invalid");
 		const validSave = JSON.parse(JSON.stringify(api.initState("dailly", "constance-save", "open")));
 		assert(typeof api.validateSavedState === "function" && api.validateSavedState(validSave), "Constance: a valid saved conclave cannot be restored");
 		const invalidSave = JSON.parse(JSON.stringify(validSave));
@@ -703,7 +736,7 @@ function runTargetedChecks(variant, api) {
 		assert(/legalist/.test(api.axisPosition("Law", 2)) && /resistant/.test(api.axisPosition("With the crowd", -2)) && api.axisPosition("Nerve", 0) === "balanced", "April 1378: dossier axes do not use directional language");
 		// end score integrity
 		const score = api.scoreGame(openA);
-		assert(Number.isFinite(score.total) && score.parts.reduce((sum, part) => sum + part.points, 0) === score.total && score.verdict && score.verdict.grade, "April 1378: end score is invalid");
+		assert(Number.isFinite(score.total) && score.parts.reduce((sum, part) => sum + part.points, 0) === score.total && score.verdict && score.verdict.grade && score.seriesScore === score.total && score.seriesScore >= 0 && score.seriesScore <= 100, "April 1378: end score is invalid");
 		const capped = api.runHeadless("april-capped", "geneva", "open", 1);
 		assert(capped.unresolved && !capped.winner && capped.ballots === 1, "April 1378: a capped simulation fabricated a winner instead of returning unresolved");
 		const validSave = JSON.parse(JSON.stringify(api.initState("geneva", "april-save", "open")));
@@ -764,7 +797,7 @@ function runTargetedChecks(variant, api) {
 			return (api.forecastCounts(state)[cardinal.id] || 0) >= api.THRESHOLD;
 		});
 		assert(viable.length === api.ELECTORS.length, `1458: only ${viable.length}/${api.ELECTORS.length} player candidacies can theoretically reach the threshold`);
-		assert(Number.isFinite(historical.finale.score.total) && Object.values(historical.finale.score.parts).reduce((sum, value) => sum + value, 0) === historical.finale.score.total, "1458: end score is invalid");
+		assert(Number.isFinite(historical.finale.score.total) && Object.values(historical.finale.score.parts).reduce((sum, value) => sum + value, 0) === historical.finale.score.total && historical.finale.score.seriesScore === historical.finale.score.total && historical.finale.score.seriesScore >= 0 && historical.finale.score.seriesScore <= 100, "1458: end score is invalid");
 		const source = fs.readFileSync(path.join(ROOT, variant.file), "utf8");
 		assert(!source.includes("by exhausted acclamation"), "1458: fabricated exhausted-acclamation fallback remains");
 		return ["data-audit", "faction-arithmetic", "historical-replay", "documented-tally", "accession-order", "blank-ballot", "approval-validation", "self-accession", "uncertain-soundings", "versioned-save", "player-candidacy-viability", "end-score", "lawful-ending"];
@@ -820,7 +853,7 @@ function runTargetedChecks(variant, api) {
 			return (api.forecastCounts(state)[cardinal.id] || 0) >= api.THRESHOLD;
 		});
 		assert(viable.length === api.ELECTORS.length, `1458: only ${viable.length}/${api.ELECTORS.length} player candidacies can theoretically reach the threshold`);
-		assert(Number.isFinite(historical.finale.score.total) && Object.values(historical.finale.score.parts).reduce((sum, value) => sum + value, 0) === historical.finale.score.total, "1458: end score is invalid");
+		assert(Number.isFinite(historical.finale.score.total) && Object.values(historical.finale.score.parts).reduce((sum, value) => sum + value, 0) === historical.finale.score.total && historical.finale.score.seriesScore === historical.finale.score.total && historical.finale.score.seriesScore >= 0 && historical.finale.score.seriesScore <= 100, "1458: end score is invalid");
 		const source = fs.readFileSync(path.join(ROOT, variant.file), "utf8");
 		assert(!source.includes("by exhausted acclamation"), "1458: fabricated exhausted-acclamation fallback remains");
 		return ["data-audit", "faction-arithmetic", "historical-replay", "documented-tally", "accession-order", "blank-ballot", "approval-validation", "self-accession", "uncertain-soundings", "versioned-save", "player-candidacy-viability", "end-score", "lawful-ending"];
@@ -935,7 +968,7 @@ function runTargetedChecks(variant, api) {
 		assert(impossible.length === 0, `May 2025: ${impossible.length} selectable cardinals cannot theoretically win`);
 		const calibration = Array.from({ length: 24 }, (_, index) => api.runHeadless(`2025-calibration-${index}`, "prevost"));
 		assert(calibration.filter((result) => result.winner === "prevost").length >= 12 && calibration.every((result) => result.ballots >= 1 && result.ballots <= 12), "May 2025: passive historical calibration has lost the documented shape");
-		assert(calibration.every((result) => Number.isFinite(result.score.total) && result.score.grade), "May 2025: end score is invalid");
+		assert(calibration.every((result) => Number.isFinite(result.score.total) && result.score.grade && result.score.seriesScore === result.score.total && result.score.seriesScore >= 0 && result.score.seriesScore <= 100), "May 2025: end score is invalid");
 		return ["data-audit", "full-portrait-coverage", "portrait-links", "portrait-attribution", "portrait-payload-budget", "chronology", "pause-law", "player-ballot-preserved", "terminal-guard", "acceptance-before-smoke", "uncertain-soundings", "exact-save-replay", "strict-save", "unread-void", "runoff-threshold", "all-player-viability", "historical-calibration", "end-score"];
 	}
 	if (variant.label === "venice-1800") {
@@ -996,7 +1029,7 @@ function runTargetedChecks(variant, api) {
 		api.conductBallot("bellisomi");
 		assert(api.getState().electedId === "bellisomi", "Venice: a decisive Bellisomi route remains impossible after the imperial ceiling is broken");
 		const score = api.scoreGame();
-		assert(Number.isFinite(score.total) && score.parts.reduce((sum, part) => sum + part.points, 0) === score.total && score.verdict && score.verdict.grade, "Venice: end score is invalid");
+		assert(Number.isFinite(score.total) && score.parts.reduce((sum, part) => sum + part.points, 0) === score.total && score.verdict && score.verdict.grade && Number.isInteger(score.seriesScore) && score.seriesScore >= 0 && score.seriesScore <= 100, "Venice: end score is invalid");
 		assert(/Austrian-aligned/.test(api.axisPosition("austria", 1.1)) && !/very high|middle/.test(api.axisPosition("austria", 1.1)), "Venice: dossiers still use abstract rather than directional labels");
 		return ["strict-save", "position-explanations", "player-ballot-preserved", "self-vote", "herzan-arrival", "alignment-guidance", "opening-support", "historical-opening", "uncertain-soundings", "portrait-lookup", "network-membership", "network-determinism", "alternate-winner", "end-score", "directional-profile"];
 	}

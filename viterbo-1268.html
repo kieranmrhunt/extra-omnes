@@ -1913,6 +1913,8 @@ function roleVerdict(total, kind){
   }
   return null;
 }
+var SERIES_SCORE_BY_GRADE={MAGISTERIAL:100,COMMANDING:96,SECURE:91,NARROW:84,MASTERFUL:94,STRONG:85,CAPABLE:75,MODEST:60,EXEMPLARY:90,PRINCIPLED:80,CREDITABLE:68,QUIET:52,LUMINOUS:90,REMEMBERED:80,MOURNED:68,FORGOTTEN:30,DEFT:64,ADEQUATE:50,BARE:36,DEFIANT:46,STUBBORN:30,ROUTED:16,MARTYRED:75,SPENT:48,BROKEN:20};
+function seriesScoreForVerdict(verdict){return SERIES_SCORE_BY_GRADE[verdict&&verdict.grade]||0}
 function achievementsOf(S){
   var a=[];
   if(S.flags.anathema && S.flags.cityDefied) a.push("ANATHEMA");
@@ -3382,16 +3384,20 @@ function showEnd(){
     bb.appendChild(bl);
   } else bb.innerHTML="<div class='dim'>No scrutiny was ever completed.</div>";
   /* score */
+  var scoreObjective=OBJECTIVES[S.playerId];
+  var scoreObjectiveResult=scoreObjective?scoreObjective.check(S):null;
+  if(scoreObjectiveResult&&scoreObjectiveResult.done) E.score+=scoreObjective.score;
   var sc=$("#endscore"); sc.innerHTML="";
   E.parts.forEach(function(pp){ sc.appendChild(h("tr",null,h("td",null,pp.why),h("td",{class:"n"},String(pp.pts)))); });
-  sc.appendChild(h("tr",{class:"total"},h("td",null,"The reckoning"),h("td",{class:"n"},String(E.score))));
+  if(scoreObjectiveResult&&scoreObjectiveResult.done) sc.appendChild(h("tr",null,h("td",null,"Private ambition: "+scoreObjective.title),h("td",{class:"n"},String(scoreObjective.score))));
   var V=roleVerdict(E.score,E.kind);
+  sc.appendChild(h("tr",null,h("td",null,"ROLE POINTS"),h("td",{class:"n"},String(E.score))));
+  sc.appendChild(h("tr",{class:"total"},h("td",null,"SERIES SCORE"),h("td",{class:"n"},seriesScoreForVerdict(V)+" / 100")));
   $("#endverdict").innerHTML = V ? "<div class='verdictbox'><div class='vlabel'>verdict — graded against what a "+E.kind.replace("_"," ")+" can achieve</div><div class='vgrade'>"+V.grade+"</div><div class='vline'>"+V.line+"</div></div>" : "";
   /* objective */
   var ob=OBJECTIVES[S.playerId];
   if(ob){ var r=ob.check(S);
     $("#endobj").innerHTML="<div class='objbox'><span class='ot'>"+ob.title+"</span> — "+ob.desc+"<br><b class='"+(r.done?"goldtx":"dim")+"'>"+(r.done?"ACHIEVED":"NOT ACHIEVED")+"</b> · <i>"+r.line+"</i>"+(r.done?" <span class='mono goldtx'>+"+ob.score+"</span>":"")+"</div>";
-    if(r.done){ E.score+=ob.score; sc.lastChild.querySelector(".n").textContent=String(E.score); }
   } else $("#endobj").innerHTML="";
   /* achievements */
   var ac=$("#endach"); ac.innerHTML=""; ach.forEach(function(a){ ac.appendChild(h("span",{class:"a"},a)); });
@@ -3437,7 +3443,7 @@ function openBriefing(){
       "<p><b>1268.</b> Pope Clement IV is dead; nineteen cardinals must give the Church a head. Charles of Anjou's French party and the party of the Empire can each block the other forever — and will, for <b>a thousand days</b>.</p>"+
       "<h4>Each turn (a month or two)</h4><p>Spend <b>3 actions</b> — talk, promise, tend, preach, treat with kings or the city. Then <b>call the scrutiny</b>: everyone names one or two men; two-thirds elects. Then one <b>night errand</b>, and the weeks pass.</p>"+
       "<h4>What will actually happen</h4><p>Nobody reaches two-thirds. The city loses patience: doors locked, bread cut, <b>the roof removed</b>. Weather and vigour start to matter. Kings arrive. And at last the College hands everything to <b>six men</b> under merciless rules — five of the six for one of themselves, all six for an outsider. If you want the tiara, want a seat.</p>"+
-      "<h4>Winning</h4><p>Pope is only one victory. Architect of the compromise, kingmaker, unbought conscience, honoured survivor — each is graded on its own scale, plus your cardinal's private objective. And if you play a man history kills mid-vacancy, you are scored on <b>legacy</b>.</p>"}));
+      "<h4>Winning</h4><p>Pope is only one victory. Architect of the compromise, kingmaker, unbought conscience, honoured survivor — each is graded on its own scale, plus your cardinal's private objective. The ending maps that role verdict to a comparable 0–100 Series score while retaining the edition-specific role points. And if you play a man history kills mid-vacancy, you are scored on <b>legacy</b>.</p>"}));
   });
 }
 function openManual(){
@@ -3570,7 +3576,7 @@ window.__om = {
   OBJECTIVES:OBJECTIVES, FATES:FATES, HIST_CHECKS:HIST_CHECKS, TIER:TIER, POWERS:POWERS,
   REGNAL_HINT:REGNAL_HINT, REGNAL_NUM:REGNAL_NUM,
   initState:initState, runHeadless:runHeadless, computeEnding:computeEnding,
-  achievementsOf:achievementsOf, histEval:histEval, roleVerdict:roleVerdict,
+  achievementsOf:achievementsOf, histEval:histEval, roleVerdict:roleVerdict, seriesScoreForVerdict:seriesScoreForVerdict,
   present:present, canVote:canVote, canBeElected:canBeElected, votingToday:votingToday, threshold:threshold, utility:utility,
   chooseBallot:chooseBallot, beginScrutiny:beginScrutiny, playerAccede:playerAccede, npcAccessusPass:npcAccessusPass,
   finalizeScrutiny:finalizeScrutiny, runNight:runNight, advanceTurn:advanceTurn,

@@ -2102,6 +2102,8 @@ function roleVerdict(total, kind){
   }
   return null;
 }
+const SERIES_SCORE_BY_GRADE={MAGISTERIAL:100,COMMANDING:96,SECURE:91,NARROW:84,MASTERFUL:94,STRONG:85,CAPABLE:75,MODEST:60,EXEMPLARY:90,PRINCIPLED:80,CREDITABLE:68,QUIET:52,DEFT:64,ADEQUATE:50,BARE:36,DEFIANT:46,STUBBORN:30,ROUTED:16};
+function seriesScoreForVerdict(verdict){return SERIES_SCORE_BY_GRADE[verdict&&verdict.grade]??0}
 function compromissum(S){
   // Day-12 failure: the College delegates to three of its most upright members.
   const committee = present(S).filter(id=>id!==S.playerId)
@@ -2270,7 +2272,7 @@ const CONCLAVE_1492_ENGINE = {
   beginScrutiny, npcAccessusPass, playerAccede, finalizeScrutiny, maxRunning, accessusCandidates,
   runNight, illnessCheck, advanceDay, doSforzaPivot, recordPromise, offerAcceptChance,
   actSoundOut, actPressVote, actOffer, actAddress, actDevotions, actTend, actSwearOath, ballotSignals, crownsView, scareCandidate, actRota, actSpy, actRumor,
-  computeEnding, compromissum, roleVerdict, runHeadless, topPreference, byId, IDS, rel, getStance, judgePlayerBallotPromises, scrutinyInsights, promiseForm, agentOf, channelRisk, marketOdds, consultBankers, actBorrowAtBanchi, actMoveMarket, actRotaChoice, rotaMessage, fatigueName, validateSavedState:validateSavedState1492
+  computeEnding, compromissum, roleVerdict, seriesScoreForVerdict, runHeadless, topPreference, byId, IDS, rel, getStance, judgePlayerBallotPromises, scrutinyInsights, promiseForm, agentOf, channelRisk, marketOdds, consultBankers, actBorrowAtBanchi, actMoveMarket, actRotaChoice, rotaMessage, fatigueName, validateSavedState:validateSavedState1492
 };
 if (typeof module !== "undefined") module.exports = CONCLAVE_1492_ENGINE;
 if (typeof window !== "undefined") window.__om = CONCLAVE_1492_ENGINE;
@@ -3579,9 +3581,12 @@ function endGame(){
   const tb=$("#endscore");tb.innerHTML="";
   E.parts.filter(function(p){return p.pts;}).forEach(function(p){tb.appendChild(h("tr",null,h("td",null,p.why),h("td",{class:"n"},String(p.pts))));});
   if(objScore)tb.appendChild(h("tr",null,h("td",null,"Private ambition: "+ob.title),h("td",{class:"n"},String(objScore))));
-  tb.appendChild(h("tr",{class:"total"},h("td",null,"INFLUENCE"),h("td",{class:"n"},String(E.score+S.influence+objScore))));
+  const rolePoints=E.score+S.influence+objScore;
   // role-normalized verdict: graded against what this role could plausibly do
-  const vd=roleVerdict(E.score+S.influence+objScore, E.kind);
+  const vd=roleVerdict(rolePoints, E.kind);
+  const seriesScore=seriesScoreForVerdict(vd);
+  tb.appendChild(h("tr",null,h("td",null,"ROLE POINTS"),h("td",{class:"n"},String(rolePoints))));
+  tb.appendChild(h("tr",{class:"total"},h("td",null,"SERIES SCORE"),h("td",{class:"n"},seriesScore+" / 100")));
   const vBox=$("#endverdict"); if(vBox){ vBox.innerHTML="";
     if(vd) vBox.appendChild(h("div",{class:"verdictbox",html:"<span class='vlabel'>Verdict for your role</span><span class='vgrade'>"+vd.grade+"</span><span class='vline'>"+vd.line+"</span>"}));
   }
@@ -3637,7 +3642,7 @@ function restart(newSeed){
 function openManual(){
   const html=[
     "<div class='manual'>",
-    "<h4>The goal</h4><p>Be elected pope — or, failing that, end the conclave high in the winner's favour: a kingmaker with spoils, or the unbought conscience of the College. Influence is scored at the end either way.</p>",
+    "<h4>The goal</h4><p>Be elected pope — or, failing that, end the conclave high in the winner's favour: a kingmaker with spoils, or the unbought conscience of the College. The ending shows a comparable 0–100 Series score; edition-specific role points explain how this conclave produced it.</p>",
     "<h4>The shape of a day</h4><p>Dawn events → (from day 3) the morning <b>scrutiny</b> → three hours of actions → one night errand → the night resolves: deals are struck in the dark, men sicken, Milan's broker weighs his price. From day 6, a second scrutiny at Vespers, and the rations begin to bite.</p>",
     "<p class='dim'>A note on the calendar: the real conclave ran five days — the cardinals entered on 6 August 1492 and elected on the sixth day, 11 August (here, day 6). Past that the dates run on into alternate history: if your College cannot agree, it sits longer than the true one did, under worsening rations, until a pope is made or — on the twelfth day — the election passes by compromissum.</p>",
     "<h4>The scrutiny &amp; the accessus</h4><p>Write up to <b>three names</b> (never your own). Election needs <b>two-thirds of those present</b> — the board shows the line, and it falls if a sick elder is carried out. After the count comes the <i>accessus</i>: any elector may publicly add one name. Accessions only add; a near-winner can be carried over the line in minutes. Black smoke, try again. White smoke, bells. <span class='dim'>The chimney colours are a cheerful series-wide visual shorthand, not a claim that the modern signal was used in 1492.</span></p>",

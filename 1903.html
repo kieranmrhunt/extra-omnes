@@ -155,6 +155,16 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 	backdrop-filter:blur(8px);
 }
 .field-label{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.mode-explanation{
+	margin:0 0 .8rem;
+	padding:.62rem .78rem;
+	border-left:3px solid var(--gold);
+	background:rgba(199,168,92,.08);
+	color:var(--paper-dim);
+	font-family:var(--serif);
+	font-size:.94rem;
+}
+.mode-explanation b{color:var(--gold-pale)}
 .grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.72rem}
 .ccard{
 	display:block;
@@ -341,6 +351,10 @@ button.pressure-card:active{transform:none}
 .alignment-summary b{font-family:var(--sans);font-size:.86rem;color:var(--gold-pale)}
 .alignment-track{height:7px;margin:.3rem 0 .38rem;border-radius:999px;background:#0b1219;overflow:hidden}
 .alignment-track span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--burgundy-bright),var(--gold),var(--green))}
+.alignment-shift{margin:.35rem 0;padding:.42rem .55rem;border-left:2px solid var(--blue-pale);background:rgba(76,120,148,.1);font-family:var(--cond);font-size:.72rem;color:var(--paper-dim)}
+.historical-comparison{margin-top:.8rem;border-top:1px solid var(--line);padding-top:.65rem;color:var(--paper-dim)}
+.historical-comparison summary{cursor:pointer;color:var(--gold-pale);font-family:var(--cond);font-size:.78rem;letter-spacing:.04em}
+.historical-comparison p{margin:.5rem 0 0}
 .identity-row{display:grid;grid-template-columns:74px minmax(0,1fr);gap:.72rem;align-items:start}
 .portrait-unit{width:74px}
 .portrait-unit.end-portrait{width:110px;margin:.8rem auto .2rem}
@@ -497,6 +511,7 @@ button.sounding-row:active{transform:none}
 		</select>
 		<button id="helpSelect" type="button">Rules &amp; sources</button>
 	</div>
+	<div class="mode-explanation" id="modeExplanation" role="note"></div>
 	<div class="grid-cards" id="selgrid"></div>
 	<div class="absent-note"><b>Absent:</b> Michelangelo (Pietro Geremia) Celesia OSB, Archbishop of Palermo; Patrick Francis Moran, Archbishop of Sydney. Agostino Riboldi, sometimes copied into online rosters, had died in 1902 and is correctly excluded.</div>
 	<div class="startbar">
@@ -529,11 +544,13 @@ button.sounding-row:active{transform:none}
 		<div class="action-contrast" id="actionContrast"></div>
 		<div class="actions" id="actionbar">
 			<button id="actSound" type="button">Take soundings</button>
+			<button id="actColloquy" type="button">Seek a colloquy<small>One elector · tighter reading or direct appeal</small></button>
 			<button id="actNetwork" type="button">Work a network</button>
 			<button id="actProgramme" type="button">Offer a programme</button>
 			<button id="actFloat" type="button">Promote one name<small>Direct momentum · more exposure</small></button>
 			<button id="actCourt" type="button">The courts</button>
 			<button id="actBridge" type="button">Broker a compromise<small>Third candidate · more trust</small></button>
+			<button id="actRelease" type="button">Release your support<small>Available after you receive votes</small></button>
 			<button id="actRetreat" type="button">Prayer &amp; silence</button>
 			<button id="ballotBtn" class="primary" type="button">Proceed to scrutiny</button>
 		</div>
@@ -846,6 +863,18 @@ const BASE_METRICS={
 	continuity:62,
 	curialConfidence:58
 };
+const MODE_COPY={
+	historical:{
+		label:"Historical pressure",
+		selection:"Each of the seven documented aggregate counts is the starting point for its scrutiny. Your actions and the pressure dials can bend that path, but the surviving record keeps a strong gravitational pull.",
+		header:"historical anchor"
+	},
+	open:{
+		label:"Open conclave",
+		selection:"Only the documented opening count seeds the room. Later support grows from the preceding simulated scrutiny, so interventions and pressure dials have their full effect.",
+		header:"open evolution"
+	}
+};
 function initState(playerId,seed,mode){
 	if(!ID[playerId])throw new Error("Unknown player: "+playerId);
 	const S={
@@ -861,13 +890,15 @@ function initState(playerId,seed,mode){
 		metricHistory:Object.fromEntries(PRESSURE_KEYS.map(function(key){return [key,[]]})),
 		momentum:Object.fromEntries(IDS.map(function(id){return [id,0]})),
 		profileMods:Object.fromEntries(IDS.map(function(id){return [id,{}]})),
+		colloquies:{},
+		personalPersuasion:{},
 		lastCounts:{},
 		lastVotes:[],
 		lastSounding:null,
 		history:[],
 		log:[],
 		actionSerial:0,
-		player:{objective:objectiveFor(ID[playerId]),endorsedId:null},
+		player:{objective:objectiveFor(ID[playerId]),endorsedId:null,directive:null},
 		flags:{
 			accessusAbolished:false,
 			transferProposed:false,
@@ -992,14 +1023,13 @@ function activeCandidacyFloor(S,id,ballotNumber,hasCampaign){
 function metricLogAdjustment(S,id){
 	const p=profileFor(S,id);
 	let value=0;
-	if(S.mode==="open"){
-		value+=(S.metrics.continuity-BASE_METRICS.continuity)/50*p.continuity*.2;
-		value+=(S.metrics.curialConfidence-BASE_METRICS.curialConfidence)/50*p.government*.18;
-		value+=(S.metrics.pastoralAppetite-BASE_METRICS.pastoralAppetite)/50*(-p.government)*.2;
-		value+=(S.metrics.freedom-BASE_METRICS.freedom)/50*p.freedom*.22;
-		if(id==="rampolla")value-=(S.metrics.courtPressure-BASE_METRICS.courtPressure)/50*.42;
-		if(hasTag(ID[id],"German-speaking") && id!=="puzyna")value+=(S.metrics.courtPressure-BASE_METRICS.courtPressure)/50*.1;
-	}
+	const pressureScale=S.mode==="open" ? 1 : .35;
+	value+=(S.metrics.continuity-BASE_METRICS.continuity)/50*p.continuity*.2*pressureScale;
+	value+=(S.metrics.curialConfidence-BASE_METRICS.curialConfidence)/50*p.government*.18*pressureScale;
+	value+=(S.metrics.pastoralAppetite-BASE_METRICS.pastoralAppetite)/50*(-p.government)*.2*pressureScale;
+	value+=(S.metrics.freedom-BASE_METRICS.freedom)/50*p.freedom*.22*pressureScale;
+	if(id==="rampolla")value-=(S.metrics.courtPressure-BASE_METRICS.courtPressure)/50*.42*pressureScale;
+	if(hasTag(ID[id],"German-speaking") && id!=="puzyna")value+=(S.metrics.courtPressure-BASE_METRICS.courtPressure)/50*.1*pressureScale;
 	if(id===S.playerId){
 		value+=(S.metrics.stature-BASE_METRICS.stature)/50*.5;
 		value+=(S.metrics.trust-BASE_METRICS.trust)/50*.48;
@@ -1062,6 +1092,10 @@ function sharedNetworks(S,candidateId){
 }
 function profileAlignment(S,candidateId){
 	if(!ID[candidateId])return 0;
+	return profileSimilarity(BASE_PROFILE[S.playerId],BASE_PROFILE[candidateId]);
+}
+function currentProgrammeFit(S,candidateId){
+	if(!ID[candidateId])return 0;
 	return profileSimilarity(BASE_PROFILE[S.playerId],profileFor(S,candidateId));
 }
 function alignmentLabel1903(score){
@@ -1073,9 +1107,10 @@ function alignmentLabel1903(score){
 }
 function alignmentWithPlayer(S,candidateId){
 	if(!S||!ID[candidateId])return null;
-	if(candidateId===S.playerId)return {score:100,label:"your own position",shared:playerNetworks(S)};
+	if(candidateId===S.playerId)return {score:100,currentScore:100,delta:0,label:"your own position",shared:playerNetworks(S)};
 	const score=Math.round(profileAlignment(S,candidateId)*100);
-	return {score,label:alignmentLabel1903(score),shared:sharedNetworks(S,candidateId)};
+	const currentScore=Math.round(currentProgrammeFit(S,candidateId)*100);
+	return {score,currentScore,delta:currentScore-score,label:alignmentLabel1903(score),shared:sharedNetworks(S,candidateId)};
 }
 function networkFit(S,network,candidateId){
 	const members=ELECTORS.filter(function(electorRecord){return electorRecord.tags.includes(network)});
@@ -1124,6 +1159,107 @@ function resolveNetworkAction(S,network,candidateId){
 	if(candidateId==="sarto" && S.playerId==="sarto")S.flags.sartoSelfPromotion+=success ? 1 : .5;
 	return {success,chance,fit,inside,boost,roll};
 }
+function colloquyAccess(S,electorId){
+	if(!S||!ID[electorId]||electorId===S.playerId)return 0;
+	const affinity=profileSimilarity(BASE_PROFILE[S.playerId],BASE_PROFILE[electorId]);
+	let chance=.38+affinity*.35+sharedNetworks(S,electorId).length*.04;
+	chance+=(S.metrics.trust-BASE_METRICS.trust)*.002;
+	chance+=(S.metrics.stature-BASE_METRICS.stature)*.0015;
+	chance-=(S.metrics.exposure-BASE_METRICS.exposure)*.0012;
+	return clamp(chance,.38,.92);
+}
+function colloquyCandidates(S,voterId){
+	const forecast=forecastCounts(S);
+	const ballotNumber=S.ballotNo+1;
+	let candidates=IDS.filter(function(id){return id!==voterId && (forecast[id]||0)>0});
+	if(candidates.length<3)candidates=IDS.filter(function(id){return id!==voterId});
+	return candidates.map(function(id){return {id,score:voterUtility(S,voterId,id,ballotNumber)}}).sort(function(a,b){
+		return b.score-a.score || ID[a.id].rank-ID[b.id].rank;
+	});
+}
+function resolveColloquyReading(S,voterId){
+	if(!S||!ID[voterId]||voterId===S.playerId)throw new Error("Invalid colloquy target: "+voterId);
+	if(!S.colloquies||typeof S.colloquies!=="object")S.colloquies={};
+	const access=colloquyAccess(S,voterId);
+	const ranked=colloquyCandidates(S,voterId);
+	const frank=randomFor(S,"colloquy-reading|"+voterId)<access;
+	const gap=ranked[0].score-ranked[1].score;
+	const reading={
+		ballot:S.ballotNo+1,
+		primary:frank ? ranked[0].id : null,
+		alternative:frank && ranked[1] ? ranked[1].id : null,
+		cluster:ranked.slice(0,frank ? 2 : 3).map(function(row){return row.id}),
+		confidence:frank ? (gap>.9 ? "clear" : "qualified") : "guarded",
+		frank,
+		stale:false
+	};
+	const entry=S.colloquies[voterId]||{};
+	entry.reading=reading;
+	S.colloquies[voterId]=entry;
+	return reading;
+}
+function resolveColloquyPressure(S,voterId,candidateId){
+	if(!S||!ID[voterId]||!ID[candidateId]||voterId===S.playerId||voterId===candidateId)throw new Error("Invalid personal persuasion");
+	if(!S.colloquies||typeof S.colloquies!=="object")S.colloquies={};
+	if(!S.personalPersuasion||typeof S.personalPersuasion!=="object")S.personalPersuasion={};
+	const access=colloquyAccess(S,voterId);
+	const fit=profileSimilarity(BASE_PROFILE[voterId],profileFor(S,candidateId));
+	let chance=.08+access*.34+fit*.48;
+	chance+=(S.metrics.trust-BASE_METRICS.trust)*.0015;
+	chance-=(S.metrics.exposure-BASE_METRICS.exposure)*.001;
+	chance=clamp(chance,.18,.9);
+	const success=randomFor(S,"colloquy-pressure|"+voterId+"|"+candidateId)<chance;
+	const pressure={candidateId,ballot:S.ballotNo+1,success,chance,fit,strength:success ? 5.2 : 0,used:false};
+	S.personalPersuasion[voterId]=pressure;
+	const entry=S.colloquies[voterId]||{};
+	entry.pressure=pressure;
+	S.colloquies[voterId]=entry;
+	addMomentum(S,candidateId,success ? .65 : .1);
+	adjustMetric(S,"trust",success ? 1 : -1);
+	adjustMetric(S,"exposure",candidateId===S.playerId ? 2 : 1);
+	return pressure;
+}
+function supportersForPlayer(S){
+	if(!S||!Array.isArray(S.lastVotes))return [];
+	return S.lastVotes.filter(function(vote){return vote.candidate===S.playerId && vote.voter!==S.playerId}).map(function(vote){return vote.voter});
+}
+function resolveSupportDirective(S,candidateId){
+	if(!S||!ID[candidateId]||candidateId===S.playerId)throw new Error("Invalid transfer destination");
+	const supporters=supportersForPlayer(S);
+	if(!supporters.length)throw new Error("No recorded supporters can be released");
+	const serial=(S.actionSerial||0)+1;
+	S.actionSerial=serial;
+	const accepted=[];
+	const rejected=[];
+	const chances={};
+	supporters.forEach(function(voterId){
+		if(voterId===candidateId){
+			chances[voterId]=0;
+			rejected.push(voterId);
+			return;
+		}
+		const fit=profileSimilarity(BASE_PROFILE[voterId],profileFor(S,candidateId));
+		const loyalty=profileSimilarity(BASE_PROFILE[voterId],BASE_PROFILE[S.playerId]);
+		let chance=.08+fit*.52+loyalty*.22;
+		chance+=(S.metrics.trust-BASE_METRICS.trust)*.002;
+		chance+=(S.metrics.stature-BASE_METRICS.stature)*.0012;
+		chance-=(S.metrics.exposure-BASE_METRICS.exposure)*.001;
+		chance=clamp(chance,.12,.9);
+		chances[voterId]=chance;
+		const roll=unitFrom(S.seed+"|support-directive|"+(S.ballotNo+1)+"|"+serial+"|"+voterId+"|"+candidateId);
+		(roll<chance ? accepted : rejected).push(voterId);
+	});
+	const directive={candidateId,ballot:S.ballotNo+1,supporters:supporters.slice(),accepted,rejected,chances,used:false};
+	S.player.directive=directive;
+	S.player.endorsedId=candidateId;
+	if(accepted.length){
+		addMomentum(S,candidateId,.6+accepted.length*.52);
+		addMomentum(S,S.playerId,-Math.min(4,accepted.length*.35));
+	}
+	adjustMetric(S,"trust",accepted.length ? 2 : -1);
+	adjustMetric(S,"exposure",-2);
+	return directive;
+}
 function sortedCounts(counts){
 	return Object.keys(counts).filter(function(id){return id!=="_blank" && ID[id]}).map(function(id){
 		return {id,elector:ID[id],count:counts[id]||0};
@@ -1153,6 +1289,10 @@ function voterUtility(S,voterId,candidateId,ballotNumber){
 	if(voterId==="kopp" && candidateId==="sarto")score+=1.3;
 	if(voterId==="perraud" && S.flags.vetoDelivered && candidateId==="rampolla")score+=.8;
 	if(S.player.endorsedId===candidateId && voterId===S.playerId)score+=3;
+	const persuasion=S.personalPersuasion && S.personalPersuasion[voterId];
+	if(persuasion && !persuasion.used && persuasion.success && persuasion.ballot===ballotNumber && persuasion.candidateId===candidateId)score+=persuasion.strength;
+	const directive=S.player && S.player.directive;
+	if(directive && !directive.used && directive.ballot===ballotNumber && directive.candidateId===candidateId && directive.accepted.includes(voterId))score+=5.4;
 	score+=unitFrom(S.seed+"|taste|"+ballotNumber+"|"+voterId+"|"+candidateId)*.48-.24;
 	return score;
 }
@@ -1275,6 +1415,15 @@ function applyPostBallot(S,record){
 			if(!["rampolla","gotti","sarto"].includes(id) && ID[id].papabile>=5)addMomentum(S,id,.35);
 		});
 	}
+	Object.keys(S.colloquies||{}).forEach(function(id){
+		const reading=S.colloquies[id]&&S.colloquies[id].reading;
+		if(reading&&reading.ballot<=number)reading.stale=true;
+	});
+	Object.keys(S.personalPersuasion||{}).forEach(function(id){
+		const persuasion=S.personalPersuasion[id];
+		if(persuasion&&persuasion.ballot<=number)persuasion.used=true;
+	});
+	if(S.player.directive&&S.player.directive.ballot<=number)S.player.directive.used=true;
 	decayMomentum(S);
 	S.ap=3;
 	if(S.lastSounding)S.lastSounding.stale=true;
@@ -1408,8 +1557,10 @@ function objectiveAchieved(S){
 	if(kind==="independence")return S.metrics.freedom>=58 && S.metrics.courtPressure<65;
 	return profileSimilarity(BASE_PROFILE[player.id],profileFor(S,winner.id))>=.78;
 }
+const SERIES_SCORE_BY_GRADE={MAGISTERIAL:100,COMMANDING:96,SECURE:91,NARROW:84,MASTERFUL:94,STRONG:85,CAPABLE:75,MODEST:60,EXEMPLARY:90,PRINCIPLED:80,CREDITABLE:68,QUIET:52,DEFT:64,ADEQUATE:50,BARE:36,DEFIANT:46,STUBBORN:30,ROUTED:16,UNRESOLVED:0,UNFINISHED:0};
+function seriesScoreForVerdict(verdict){return SERIES_SCORE_BY_GRADE[verdict&&verdict.grade]??0}
 function scoreGame(S){
-	if(!S || !S.electedId)return {total:0,parts:[],kind:"unresolved",verdict:{grade:"UNRESOLVED",line:"The College has not yet elected."}};
+	if(!S || !S.electedId)return {total:0,seriesScore:0,parts:[],kind:"unresolved",verdict:{grade:"UNRESOLVED",line:"The College has not yet elected."}};
 	const winnerId=S.electedId;
 	const parts=[];
 	let total=0;
@@ -1452,7 +1603,7 @@ function scoreGame(S){
 		return false;
 	});
 	if(!verdict){const fallback=fallbacks[kind]||fallbacks.outmanoeuvred;verdict={grade:fallback[0],line:fallback[1]}}
-	return {total,parts,kind,verdict,achieved,votesReceived,ballotsForWinner};
+	return {total,seriesScore:seriesScoreForVerdict(verdict),parts,kind,verdict,achieved,votesReceived,ballotsForWinner};
 }
 const PAPAL_NAMES_1903=["Pius X","Leo XIV","Benedict XV","Clement XV","Gregory XVII","Innocent XIII","Adrian VII"];
 const PAPAL_NAME_FLAVOR_1903={
@@ -1575,32 +1726,32 @@ const PRESSURE_EXPLANATIONS={
 	freedom:{
 		direction:"Higher means a more independent College.",
 		opening:"The College opens jealous of its canonical liberty, but aware that Vienna can still make consequences without possessing a legal veto.",
-		openEffect:"In Open Conclave mode, higher freedom favours candidates whose profiles are independent of court direction.",
-		historicalEffect:"In Historical pressure mode, the documented aggregate path remains the anchor; freedom still shapes objectives, event choices and the interpretation of the result."
+		openEffect:"It directly favours candidates whose profiles are independent of court direction, at full strength.",
+		historicalEffect:"It directly favours independent profiles, at 35% of the open-mode effect. The documented aggregate remains the stronger baseline; freedom also affects objectives and the final interpretation."
 	},
 	courtPressure:{
 		direction:"Lower means less effective secular pressure.",
 		opening:"Vienna has influence before Puzyna speaks because Austria-Hungary is a great Catholic power and Rampolla is regarded as hostile to the Triple Alliance.",
-		openEffect:"In Open Conclave mode, high court pressure hurts Rampolla and gives a smaller advantage to German-speaking alternatives.",
-		historicalEffect:"In Historical pressure mode, it records the diplomatic fact surrounding the fixed historical aggregates and matters to several objectives."
+		openEffect:"It directly hurts Rampolla and gives a smaller advantage to German-speaking alternatives, at full strength.",
+		historicalEffect:"It directly hurts Rampolla and modestly helps German-speaking alternatives, at 35% of the open-mode effect. It also matters to several private objectives."
 	},
 	pastoralAppetite:{
 		direction:"Higher means stronger demand for diocesan government.",
 		opening:"After Leo XIII and Rampolla, a substantial part of the College is already asking whether the next pope should arrive from a diocese rather than the Secretariat of State.",
-		openEffect:"In Open Conclave mode, higher pastoral appetite favours diocesan profiles and weakens heavily curial ones.",
-		historicalEffect:"In Historical pressure mode, it records why Sarto and other pastors become plausible while specific actions add momentum to named candidates."
+		openEffect:"It directly favours diocesan profiles and weakens heavily curial ones, at full strength.",
+		historicalEffect:"It directly favours diocesan profiles and weakens heavily curial ones, at 35% of the open-mode effect; named actions can still add stronger candidate-specific momentum."
 	},
 	continuity:{
 		direction:"Higher means stronger confidence in the Leonian course.",
 		opening:"Leo XIII's diplomacy, intellectual programme and social teaching retain broad support even among cardinals who do not want Rampolla personally.",
-		openEffect:"In Open Conclave mode, higher continuity favours candidates whose profiles preserve Leo XIII's diplomatic and social direction.",
-		historicalEffect:"In Historical pressure mode, the aggregate scrutinies stay anchored to the record; continuity chiefly records the programme the player has attached to candidates."
+		openEffect:"It directly favours candidates whose profiles preserve Leo XIII's diplomatic and social direction, at full strength.",
+		historicalEffect:"It directly favours Leonian profiles, at 35% of the open-mode effect. The aggregate scrutiny remains anchored to the record."
 	},
 	curialConfidence:{
 		direction:"Higher means stronger demand for Roman administrative experience.",
 		opening:"The loss of temporal power makes experienced Roman government valuable, although critics blame the existing diplomatic machine for polarising the election.",
-		openEffect:"In Open Conclave mode, higher curial confidence favours curial profiles; a fall opens more room for diocesan and pastoral candidates.",
-		historicalEffect:"In Historical pressure mode, it records the institutional argument while transfer actions add momentum to particular candidates."
+		openEffect:"It directly favours curial profiles; a fall opens more room for diocesan and pastoral candidates, at full strength.",
+		historicalEffect:"It directly favours curial profiles, at 35% of the open-mode effect. Transfer actions can still move particular candidacies more strongly."
 	}
 };
 
@@ -1803,20 +1954,24 @@ function candidateContext(electorRecord){
 	if(!S)return electorRecord.country+" · "+electorRecord.office;
 	const alignment=alignmentWithPlayer(S,electorRecord.id);
 	if(electorRecord.id===S.playerId)return "You · your own cause · "+playerNetworks(S).join(", ");
-	return (alignment.shared.length ? "Shared: "+alignment.shared.join(", ") : "No shared modelled network")+" · profile alignment "+alignment.score+"%";
+	const programme=alignment.delta ? " · current programme fit "+alignment.currentScore+"%" : "";
+	return (alignment.shared.length ? "Shared: "+alignment.shared.join(", ") : "No shared modelled network")+" · baseline affinity "+alignment.score+"%"+programme;
 }
 function alignmentPanelHtml(candidateId){
 	const alignment=alignmentWithPlayer(S,candidateId);
 	const networkText=alignment.shared.length
 		? "Shared modelled networks: <b>"+alignment.shared.map(esc).join(" · ")+"</b>."
 		: "You share no modelled network; the score comes from compatibility across the six profile axes.";
-	return "<div class='alignment-summary'><b>"+esc(alignment.label)+"</b><span>"+alignment.score+"% profile alignment</span></div>"+
+	const shift=alignment.delta
+		? "<div class='alignment-shift'><b>Current programme fit: "+alignment.currentScore+"%</b> ("+(alignment.delta>0 ? "+" : "")+alignment.delta+"). This can move when a programme is attached to the candidacy; baseline affinity does not.</div>"
+		: "";
+	return "<div class='alignment-summary'><b>"+esc(alignment.label)+"</b><span>"+alignment.score+"% baseline affinity</span></div>"+
 		"<div class='alignment-track'><span style='width:"+alignment.score+"%'></span></div>"+
-		"<p class='dim'>"+networkText+" Alignment measures political and governing compatibility, not friendship and not a promise of a vote.</p>";
+		shift+"<p class='dim'>"+networkText+" Baseline affinity is fixed political and governing compatibility, not friendship and not a promise of a vote.</p>";
 }
 function chooseElector(title,callback,options){
 	const opts=options||{};
-	const context=S && opts.showAlignment!==false ? "<div class='picker-context'>"+(opts.intro ? esc(opts.intro)+"<br>" : "")+"Your private objective: <b>"+esc(S.player.objective.title)+"</b>. Cards show shared modelled networks and profile alignment; alignment is compatibility, not a prediction of support.</div>" : "";
+	const context=S && opts.showAlignment!==false ? "<div class='picker-context'>"+(opts.intro ? esc(opts.intro)+"<br>" : "")+"Your private objective: <b>"+esc(S.player.objective.title)+"</b>. Cards show shared modelled networks and fixed baseline affinity; any separate programme fit can change. Neither is a prediction of support.</div>" : "";
 	const html=context+"<div class='picker-tools'><input id='pickerSearch' type='search' placeholder='Search electors…' aria-label='Search electors'><select id='pickerNetwork' aria-label='Filter electors by network'></select></div><div class='pickgrid' id='pickerGrid'></div>";
 	const overlay=showModal(title,html,[],"wide");
 	const filterSelect=$("#pickerNetwork",overlay);
@@ -1853,6 +2008,12 @@ function chooseElector(title,callback,options){
 	draw();
 }
 
+function renderModeExplanation(){
+	const select=$("#modeSelect");
+	const mode=select && MODE_COPY[select.value] ? select.value : "historical";
+	const copy=MODE_COPY[mode];
+	$("#modeExplanation").innerHTML="<b>"+esc(copy.label)+":</b> "+esc(copy.selection)+" This is a simulation-model choice, not a difficulty setting.";
+}
 function renderSelect(){
 	const grid=$("#selgrid");
 	const query=$("#search").value.trim().toLowerCase();
@@ -1911,6 +2072,26 @@ function renderRoster(){
 		));
 	});
 }
+function privateColloquyHtml(id){
+	const entry=S.colloquies&&S.colloquies[id];
+	if(!entry)return "";
+	const lines=[];
+	if(entry.reading){
+		const reading=entry.reading;
+		let text;
+		if(reading.frank){
+			text="He indicated <b>"+esc(ID[reading.primary].short)+"</b> as his present inclination"+(reading.alternative ? ", while keeping <b>"+esc(ID[reading.alternative].short)+"</b> in view" : "")+".";
+		}else{
+			text="He would name no preference, but his guarded answers leave a cluster around <b>"+reading.cluster.map(function(candidateId){return esc(ID[candidateId].short)}).join(" · ")+"</b>.";
+		}
+		lines.push("<p><b>Reading for scrutiny "+roman(reading.ballot)+":</b> "+text+(reading.stale ? " <span class='dim'>This reading is now stale.</span>" : "")+"</p>");
+	}
+	if(entry.pressure){
+		const pressure=entry.pressure;
+		lines.push("<p><b>Personal request for scrutiny "+roman(pressure.ballot)+":</b> "+(pressure.success ? "He gave a tentative assent to <b>"+esc(ID[pressure.candidateId].short)+"</b>." : "He declined to commit himself to <b>"+esc(ID[pressure.candidateId].short)+"</b>.")+(pressure.used ? " <span class='dim'>That understanding belonged to a completed scrutiny.</span>" : "")+"</p>");
+	}
+	return lines.length ? "<h3>Private colloquy</h3><div class='callout'>"+lines.join("")+"</div>" : "";
+}
 function showDossier(id){
 	const electorRecord=ID[id];
 	const profile=profileFor(S,id);
@@ -1926,6 +2107,7 @@ function showDossier(id){
 		"<p>"+esc(electorRecord.office)+"</p><p>"+esc(electorRecord.role)+"</p><p>"+tags+"</p></div></div>"+
 		"<h3>Current position</h3><p>Support: "+supportText+". Papabile rating: <b>"+electorRecord.papabile+"/10</b>.</p>"+
 		"<h3>Alignment with you</h3>"+alignmentPanelHtml(id)+
+		privateColloquyHtml(id)+
 		"<h3>Modelled profile</h3>"+axes+
 		"<div class='callout'>These are positions on two-ended axes, not importance weights and not ranks among cardinals. For example, <i>leans curial</i> means the profile sits towards the curial end of Government. The axes are gameplay abstractions derived from office, nationality and attested alignments; they do not claim knowledge of a secret individual ballot.</div></div>",[]);
 }
@@ -2050,7 +2232,7 @@ function showPressureExplanation(key){
 	showModal(detail.label,
 		"<div class='manual'><div class='callout metric-reading'><b>Current pressure</b><span>"+detail.value+"/100 · "+esc(detail.level)+"</span></div>"+
 		"<p>"+esc(detail.definition)+" <b>"+esc(detail.direction)+"</b></p>"+
-		"<h3>What it changes</h3><p>"+esc(detail.effect)+"</p>"+
+		"<h3>What it changes in "+esc(MODE_COPY[S.mode].label)+"</h3><p>"+esc(detail.effect)+"</p>"+
 		"<h3>Why it is here</h3><p><b>Opening value "+detail.base+":</b> "+esc(detail.opening)+"</p>"+changes+"</div>",[]);
 }
 function actionRouteCopy(state){
@@ -2078,9 +2260,15 @@ function actionRouteCopy(state){
 }
 function renderActions(){
 	const disabled=S.over || S.ap<=0;
-	["actSound","actNetwork","actProgramme","actFloat","actCourt","actBridge","actRetreat"].forEach(function(id){
+	["actSound","actColloquy","actNetwork","actProgramme","actFloat","actCourt","actBridge","actRetreat"].forEach(function(id){
 		$("#"+id).disabled=disabled;
 	});
+	const supporters=supportersForPlayer(S);
+	const pendingDirective=S.player.directive&&!S.player.directive.used&&S.player.directive.ballot===S.ballotNo+1;
+	$("#actRelease").disabled=disabled||!supporters.length||pendingDirective;
+	$("#actRelease").innerHTML=pendingDirective
+		? "Support released to "+esc(ID[S.player.directive.candidateId].short)+"<small>Awaiting the next scrutiny</small>"
+		: "Release your support<small>"+(supporters.length ? supporters.length+" latest supporter"+(supporters.length===1 ? "" : "s")+" · consent not guaranteed" : "Available after you receive votes")+"</small>";
 	$("#ballotBtn").disabled=S.over;
 	if(S.playerId==="puzyna" && !S.flags.vetoResolved)$("#actCourt").textContent="The secretum";
 	else $("#actCourt").textContent=S.flags.vetoDelivered ? "Answer the veto" : "The courts";
@@ -2089,14 +2277,16 @@ function renderActions(){
 	$("#actBridge").innerHTML=esc(route.label)+"<small>"+esc(route.subtitle)+"</small>";
 	$("#actionContrast").innerHTML="<b>Direct promotion</b> gives one name immediate momentum and makes your hand visible. <b>"+esc(route.name)+"</b> "+esc(route.description);
 	$("#actSound").title="Spend one action for a partial, uncertain estimate of the pending scrutiny.";
+	$("#actColloquy").title="Meet one elector for a tighter reading or a strong, one-vote appeal.";
 	$("#actNetwork").title="Canvass a modelling network. Access is stronger when you belong to it.";
 	$("#actFloat").title="Give one candidacy direct momentum, at a visible cost in exposure.";
 	$("#actBridge").title=route.title;
+	$("#actRelease").title="Ask the cardinals who supported you in the latest scrutiny to follow another cause. Each decides separately.";
 }
 function render(){
 	if(!S)return;
 	const pending=S.ballotNo+1;
-	$("#dateLabel").innerHTML=esc(ballotDate(pending))+"<br>scrutiny "+roman(pending)+" pending · threshold "+THRESHOLD;
+	$("#dateLabel").innerHTML=esc(ballotDate(pending))+"<br>"+esc(MODE_COPY[S.mode].header)+" · scrutiny "+roman(pending)+" pending · threshold "+THRESHOLD;
 	$("#apwrap").innerHTML="<span class='ap'>AP "+Array.from({length:3},function(_,index){
 		return "<span class='pip "+(index>=S.ap ? "spent" : "")+"'></span>";
 	}).join("")+"</span>";
@@ -2124,6 +2314,59 @@ function actionSoundings(){
 	render();
 	showModal("Confidential soundings","<p>This is a dated estimate assembled from incomplete private lists. The ranges include deliberate observation error; another intervention may make the notes stale.</p><div class='callout'>Confidence: <b>"+Math.round(S.lastSounding.confidence*100)+"%</b>. No exact individual roll is exposed before the election.</div><div id='soundingRace'></div>",[]);
 	renderSounding($("#soundingRace"),S.lastSounding);
+}
+function actionColloquy(){
+	if(!requireAP())return;
+	chooseElector("Seek a private colloquy with whom?",function(voterId){
+		const voter=ID[voterId];
+		const access=Math.round(colloquyAccess(S,voterId)*100);
+		showModal("A private word with "+voter.short,
+			"<div class='manual'><p><b>"+esc(voter.name)+"</b><br>"+esc(voter.office)+"</p>"+alignmentPanelHtml(voterId)+
+			"<div class='callout'>Estimated chance of a frank exchange: <b>"+access+"%</b>. A colloquy reaches one elector much more strongly than network canvassing, but it cannot move a bench by itself.</div></div>",[
+				{label:"Ask where his paper is tending",small:"Gain a tighter, still fallible reading of this elector alone.",fn:function(){
+					if(!spendAP(S))return;
+					const reading=resolveColloquyReading(S,voterId);
+					const summary=reading.frank
+						? "He indicates <b>"+esc(ID[reading.primary].short)+"</b>"+(reading.alternative ? ", with <b>"+esc(ID[reading.alternative].short)+"</b> still possible" : "")+"."
+						: "He refuses a name; his answers leave <b>"+reading.cluster.map(function(id){return esc(ID[id].short)}).join(" · ")+"</b> in the frame.";
+					addLog(S,"In a private colloquy, <b>"+esc(voter.short)+"</b> "+(reading.frank ? "speaks with useful candour" : "answers guardedly")+". "+summary,"deal",ballotDate(S.ballotNo+1)+" · colloquy");
+					render();
+					showModal("What "+voter.short+" will say","<div class='manual'><p>"+summary+"</p><div class='callout'>This is a personal reading for scrutiny "+roman(reading.ballot)+", not a known ballot. It will become stale when that scrutiny is completed.</div></div>",[]);
+				}},
+				{label:"Press him for a particular cause",small:"A stronger appeal for one possible vote; he may refuse.",fn:function(){
+					chooseElector("Ask "+voter.short+" to support whom?",function(candidateId){
+						if(!spendAP(S))return;
+						const pressure=resolveColloquyPressure(S,voterId,candidateId);
+						if(candidateId==="sarto"&&S.playerId==="sarto")S.flags.sartoSelfPromotion+=.8;
+						const result=pressure.success
+							? voter.short+" gives a tentative assent to "+ID[candidateId].short+" for the pending scrutiny."
+							: voter.short+" hears the case but will not promise a paper for "+ID[candidateId].short+".";
+						addLog(S,"You ask <b>"+esc(voter.short)+"</b> directly for <b>"+esc(ID[candidateId].short)+"</b>. "+esc(result),pressure.success ? "deal" : "event",ballotDate(S.ballotNo+1)+" · colloquy");
+						render();
+						showModal(pressure.success ? "A private assent" : "No undertaking","<div class='manual'><p>"+esc(result)+"</p><div class='callout'>Estimated acceptance chance: "+Math.round(pressure.chance*100)+"%. A tentative assent strongly affects this elector's next choice, but quota pressure and later events can still defeat it.</div></div>",[]);
+					},{exclude:function(candidate){return candidate.id===voterId},intro:"This appeal is to "+voter.short+" alone. Baseline affinity and current programme fit help determine whether the request is credible."});
+				}}
+			]);
+	},{exclude:function(electorRecord){return electorRecord.id===S.playerId},intro:"A one-to-one meeting gives a narrower but more precise reading than general soundings, or a stronger appeal than broad network work."});
+}
+function actionReleaseSupport(){
+	if(!requireAP())return;
+	const supporters=supportersForPlayer(S);
+	if(!supporters.length){toast("No supporters from the latest scrutiny can be redirected yet.");return}
+	if(S.player.directive&&!S.player.directive.used&&S.player.directive.ballot===S.ballotNo+1){toast("You have already released your support for this scrutiny.");return}
+	chooseElector("Release your latest supporters toward whom?",function(candidateId){
+		if(!spendAP(S))return;
+		const directive=resolveSupportDirective(S,candidateId);
+		const acceptedNames=directive.accepted.map(function(id){return ID[id].short});
+		const rejectedNames=directive.rejected.map(function(id){return ID[id].short});
+		addLog(S,"You tell the "+directive.supporters.length+" cardinal"+(directive.supporters.length===1 ? "" : "s")+" who supported you in the last scrutiny that your cause should not obstruct <b>"+esc(ID[candidateId].short)+"</b>. "+directive.accepted.length+" give tentative assent; "+directive.rejected.length+" refuse or reserve their liberty.",directive.accepted.length ? "deal" : "event",ballotDate(S.ballotNo+1)+" · released support");
+		render();
+		showModal("Your supporters answer",
+			"<div class='manual'><p>You recommend <b>"+esc(ID[candidateId].name)+"</b>; each previous supporter decides separately.</p>"+
+			"<p><b>Tentative assent ("+directive.accepted.length+"):</b> "+(acceptedNames.length ? acceptedNames.map(esc).join(" · ") : "none")+"</p>"+
+			"<p><b>Refused or reserved ("+directive.rejected.length+"):</b> "+(rejectedNames.length ? rejectedNames.map(esc).join(" · ") : "none")+"</p>"+
+			"<div class='callout'>This is guidance, not ownership. Affinity with the destination, loyalty to you and collegial trust shape each answer; no cardinal is forced to follow.</div></div>",[]);
+	},{exclude:function(electorRecord){return electorRecord.id===S.playerId},intro:"You received "+supporters.length+" vote"+(supporters.length===1 ? "" : "s")+" in the latest scrutiny. You may recommend a destination, but every supporter retains his own vote."});
 }
 function actionNetwork(){
 	if(!requireAP())return;
@@ -2391,9 +2634,9 @@ function smokeMarkup(record){
 function showScrutiny(record,advance){
 	const gap=Math.max(0,THRESHOLD-record.leaderCount);
 	let comparison="";
-	if(record.historical)comparison="<div class='callout'><b>Documented aggregate:</b> "+esc(record.historical)+"</div>";
-	const html="<div class='scrutiny-grid'><div><div class='threshold'>"+esc(record.date)+" · "+(gap ? gap+" short of election" : "election reached")+"</div><div class='race'>"+scrutinyRows(record)+"</div>"+comparison+"</div>"+
-		"<div>"+smokeMarkup(record)+"<p class='dim'>The aggregate count is public. Every individual simulated ballot remains under seal until the conclave ends; the historical individual votes are largely unknown.</p></div></div>";
+	if(record.historical)comparison="<details class='historical-comparison'><summary>Historical comparison: documented aggregate totals</summary><p>These are the published candidate totals for the historical scrutiny, not a recovered identity-level roll and not the count generated in this playthrough.</p><p><b>Record:</b> "+esc(record.historical)+"</p></details>";
+	const html="<div class='scrutiny-grid'><div><div class='threshold'>"+esc(record.date)+" · "+(gap ? gap+" short of election" : "election reached")+"</div><div class='race'>"+scrutinyRows(record)+"</div></div>"+
+		"<div>"+smokeMarkup(record)+"<p class='dim'>The modelled aggregate count is public. Every individual simulated ballot remains under seal until the conclave ends; the historical individual votes are largely unknown.</p></div></div>"+comparison;
 	const choices=advance ? [{label:S.over ? "Witness the acceptance" : "Return to the conclave",small:S.over ? "The elected cardinal is asked whether he accepts." : "Continue negotiations before the next scrutiny.",fn:function(){
 		if(S.over)endGame();
 		else if(record.ballot===5 && S.flags.sartoCrisis && !S.flags.sartoConsent)showSartoCrisis();
@@ -2410,13 +2653,15 @@ function showExactRoll(record){
 function showRules(){
 	showModal("How The Last Veto works","<div class='manual'>"+
 		"<p>You have three conversation windows before each scrutiny. Spend them to take uncertain soundings, work fluid networks, attach a programme to a candidacy, promote a name, manage court pressure, broker transfers or retreat into silence. Then cast your own ballot. You may never vote for yourself.</p>"+
-		"<h3>Information and persuasion</h3><p><b>Soundings</b> reveal a dated range assembled from incomplete private lists, not a free exact forecast. <b>Work a network</b> has a displayed access chance: membership, trust and stature help; exposure hurts. Candidate pickers show shared networks and modelled profile alignment.</p>"+
+		"<h3>Information and persuasion</h3><p><b>Soundings</b> reveal a dated range assembled from incomplete private lists, not a free exact forecast. A private <b>colloquy</b> reaches only one elector: ask for a tighter but still fallible reading, or make a strong one-vote appeal that he may reject. <b>Work a network</b> is broader and weaker per elector; its displayed access chance improves with membership, trust and stature, while exposure hurts.</p>"+
+		"<h3>Affinity, programmes and released support</h3><p><b>Baseline affinity</b> is a fixed comparison of two cardinals' starting profiles. <b>Current programme fit</b> can move when you attach assurances to a candidacy; the two are shown separately. After receiving votes, you may ask those supporters to follow another cause. They answer individually according to loyalty, trust and affinity with the destination; your instruction never rewrites their ballots by fiat.</p>"+
 		"<h3>Promotion versus compromise</h3><p><b>Promote one name</b> gives a candidacy direct momentum but visibly identifies your hand. Before the transfer takes shape, <b>Broker a compromise</b> excludes the two opening leaders and builds trust around a survivable third candidate, with less raw momentum and less exposure.</p>"+
-		"<h3>Historical pressure and open conclave</h3><p><b>Historical pressure</b> anchors the room to the documented seven aggregate tallies while allowing your interventions to bend them. <b>Open conclave</b> uses the first scrutiny as its launch point and lets support evolve more freely.</p>"+
+		"<h3>Historical pressure and open conclave</h3><p><b>Historical pressure</b> starts each of scrutinies I–VII from its documented aggregate totals. Candidate actions can bend those totals, and the five College-wide pressure dials affect candidate weights at 35% of their open-mode strength. <b>Open conclave</b> uses only scrutiny I as the documented launch point; later support grows from the preceding simulated count, with the pressure dials at full strength. This is not a difficulty setting. Other editions use related switches only where their surviving evidence supports one: 1378, 1417 and 1458 have their own historical/open rules, while Viterbo offers a narrower strict-chronicle ending.</p>"+
 		"<h3>The veto is not a delete button</h3><p>Before scrutiny III, Puzyna carries Franz Joseph’s exclusion of Rampolla. The Holy See never recognised such a right. A public veto creates immediate outrage and sympathy for Rampolla, followed by the practical fear of electing a pope against Vienna.</p>"+
 		"<h3>Sarto’s inverted campaign</h3><p>Sarto’s reluctance is part of his viability. Visible self-promotion damages him. A trusted intermediary can make consent believable without turning him into an ordinary candidate.</p>"+
 		"<h3>What is exact?</h3><ul><li>62 present electors, two absentees and a threshold of 42.</li><li>The seven aggregate scrutiny trajectories and the principal public events.</li><li>The prohibition on self-voting and the College’s decision not to use <i>accessus</i>.</li></ul>"+
 		"<p>Individual ballots, most relationships and all numerical axes are modelling choices. Profile labels describe position on a two-ended axis, not how heavily a cardinal weights that subject and not his rank among the College. The game uses fluid concerns rather than pretending the College contained modern party factions.</p>"+
+		"<h3>Scoring across years</h3><p><b>Series score</b> is the comparable 0–100 result. It maps your role-normalised verdict onto the common Extra Omnes scale. <b>Role points</b> retain this edition's detailed arithmetic and explain the verdict, but are not comparable with another century's economy.</p>"+
 		"<h3>Sources</h3><ul>"+
 		"<li><a href='https://fr.wikisource.org/wiki/Les_Derniers_jours_de_L%C3%A9on_XIII_et_le_Conclave_de_1903' target='_blank' rel='noopener'>François-Désiré Mathieu, contemporary account</a></li>"+
 		"<li><a href='https://archive.org/details/sedevacantebeing00gris' target='_blank' rel='noopener'>Hartwell de la Garde Grissell, <i>Sede Vacante</i></a></li>"+
@@ -2445,6 +2690,16 @@ function savedBallot1903(record,index){
 	}
 	return sameCountMap1903(record.counts,countVotes(record.votes))&&(record.leaderId===null||ID[record.leaderId])&&Number.isInteger(record.leaderCount)&&record.leaderCount>=0;
 }
+function migrateSavedState1903(data){
+	if(!savedRecord1903(data))return data;
+	if(data.colloquies===undefined)data.colloquies={};
+	if(data.personalPersuasion===undefined)data.personalPersuasion={};
+	if(savedRecord1903(data.player)&&data.player.directive===undefined)data.player.directive=null;
+	return data;
+}
+function savedPersuasion1903(entry,voterId,maxBallot){
+	return savedRecord1903(entry)&&ID[entry.candidateId]&&entry.candidateId!==voterId&&Number.isInteger(entry.ballot)&&entry.ballot>=1&&entry.ballot<=maxBallot&&typeof entry.success==="boolean"&&Number.isFinite(entry.chance)&&entry.chance>=0&&entry.chance<=1&&Number.isFinite(entry.fit)&&typeof entry.used==="boolean";
+}
 function validateSavedState1903(data){
 	if(!savedRecord1903(data)||data.version!==1||typeof data.seed!=="string"||!data.seed||!ID[data.playerId]||!["historical","open"].includes(data.mode))return false;
 	if(!Number.isInteger(data.ballotNo)||data.ballotNo<0||data.ballotNo>100||!Number.isInteger(data.ap)||data.ap<0||data.ap>3||typeof data.over!=="boolean"||!Number.isInteger(data.actionSerial)||data.actionSerial<0)return false;
@@ -2457,6 +2712,26 @@ function validateSavedState1903(data){
 	if(!savedRecord1903(data.momentum)||!IDS.every(function(id){return Number.isFinite(data.momentum[id])}))return false;
 	if(!savedRecord1903(data.profileMods)||!IDS.every(function(id){return savedRecord1903(data.profileMods[id])&&Object.values(data.profileMods[id]).every(Number.isFinite)}))return false;
 	if(!savedRecord1903(data.flags)||!savedRecord1903(data.player)||!Array.isArray(data.history)||data.history.length!==data.ballotNo||!data.history.every(savedBallot1903)||!Array.isArray(data.log)||data.log.length>1500)return false;
+	if(!savedRecord1903(data.colloquies)||!savedRecord1903(data.personalPersuasion))return false;
+	for(const voterId of Object.keys(data.colloquies)){
+		const entry=data.colloquies[voterId];
+		if(!ID[voterId]||!savedRecord1903(entry))return false;
+		if(entry.reading!==undefined){
+			const reading=entry.reading;
+			if(!savedRecord1903(reading)||!Number.isInteger(reading.ballot)||reading.ballot<1||reading.ballot>data.ballotNo+1||typeof reading.frank!=="boolean"||typeof reading.stale!=="boolean"||!Array.isArray(reading.cluster)||!reading.cluster.length||!reading.cluster.every(function(id){return ID[id]&&id!==voterId}))return false;
+			if(reading.primary!==null&&(!ID[reading.primary]||reading.primary===voterId))return false;
+			if(reading.alternative!==null&&(!ID[reading.alternative]||reading.alternative===voterId))return false;
+		}
+		if(entry.pressure!==undefined&&!savedPersuasion1903(entry.pressure,voterId,data.ballotNo+1))return false;
+	}
+	for(const voterId of Object.keys(data.personalPersuasion))if(!ID[voterId]||!savedPersuasion1903(data.personalPersuasion[voterId],voterId,data.ballotNo+1))return false;
+	if(data.player.directive!==null){
+		const directive=data.player.directive;
+		if(!savedRecord1903(directive)||!ID[directive.candidateId]||directive.candidateId===data.playerId||!Number.isInteger(directive.ballot)||directive.ballot<1||directive.ballot>data.ballotNo+1||typeof directive.used!=="boolean")return false;
+		if(!Array.isArray(directive.supporters)||!Array.isArray(directive.accepted)||!Array.isArray(directive.rejected)||!directive.supporters.every(function(id){return ID[id]&&id!==data.playerId})||new Set(directive.supporters).size!==directive.supporters.length)return false;
+		const decisions=directive.accepted.concat(directive.rejected);
+		if(decisions.length!==directive.supporters.length||new Set(decisions).size!==directive.supporters.length||!decisions.every(function(id){return directive.supporters.includes(id)}))return false;
+	}
 	if(!savedRecord1903(data.lastCounts)||!Array.isArray(data.lastVotes))return false;
 	if(data.history.length){const last=data.history[data.history.length-1];if(!sameCountMap1903(data.lastCounts,last.counts)||JSON.stringify(data.lastVotes)!==JSON.stringify(last.votes))return false}
 	else if(Object.keys(data.lastCounts).length||data.lastVotes.length)return false;
@@ -2478,7 +2753,7 @@ function loadSavedState(){
 	const raw=safeStorageGet();
 	if(!raw)return null;
 	try{
-		const data=JSON.parse(raw);
+		const data=migrateSavedState1903(JSON.parse(raw));
 		ensureMetricHistory(data);
 		if(!validateSavedState1903(data))throw new Error("Invalid saved conclave");
 		return data;
@@ -2571,7 +2846,7 @@ function renderRegnal1903(winner,player,initial){
 	}
 }
 function scoreSummaryHtml(result){
-	return "<table class='scoretbl'><tbody>"+result.parts.map(function(part){return "<tr><td>"+esc(part.label)+"</td><td class='n'>"+(part.points>0 ? "+" : "")+part.points+"</td></tr>"}).join("")+"<tr class='total'><td>INFLUENCE</td><td class='n'>"+result.total+"</td></tr></tbody></table>"+
+	return "<table class='scoretbl'><tbody>"+result.parts.map(function(part){return "<tr><td>"+esc(part.label)+"</td><td class='n'>"+(part.points>0 ? "+" : "")+part.points+"</td></tr>"}).join("")+"<tr><td>ROLE POINTS</td><td class='n'>"+result.total+"</td></tr><tr class='total'><td>SERIES SCORE</td><td class='n'>"+result.seriesScore+" / 100</td></tr></tbody></table>"+
 		"<div class='verdictbox'><span class='vlabel'>Verdict for your role</span><span class='vgrade'>"+esc(result.verdict.grade)+"</span><span class='vline'>"+esc(result.verdict.line)+"</span></div>";
 }
 function sealedRollBookHtml(){
@@ -2612,7 +2887,7 @@ function exportChronicle(){
 	if(!S)return;
 	const winner=S.electedId ? ID[S.electedId].name : "none";
 	const score=S.over ? scoreGame(S) : null;
-	const lines=["Extra Omnes — 1903: The Last Veto","Seed: "+S.seed,"Mode: "+S.mode,"Player: "+ID[S.playerId].name,"Winner: "+winner].concat(score ? ["Influence: "+score.total,"Verdict: "+score.verdict.grade] : []).concat([""]);
+	const lines=["Extra Omnes — 1903: The Last Veto","Seed: "+S.seed,"Mode: "+S.mode,"Player: "+ID[S.playerId].name,"Winner: "+winner].concat(score ? ["Series score: "+score.seriesScore+" / 100","Role points: "+score.total,"Verdict: "+score.verdict.grade] : []).concat([""]);
 	S.log.forEach(function(entry){lines.push("["+entry.stamp+"] "+htmlToText(entry.message))});
 	S.history.forEach(function(record){
 		lines.push("","Scrutiny "+roman(record.ballot)+": "+sortedCounts(record.counts).map(function(row){return row.elector.short+" "+row.count}).join(" · ")+(record.counts._blank ? " · blank "+record.counts._blank : ""));
@@ -2652,6 +2927,7 @@ function wire(){
 		return "<option value='"+esc(network)+"'>"+esc(network)+"</option>";
 	}).join("");
 	["search","networkFilter","orderFilter"].forEach(function(id){$("#"+id).addEventListener("input",renderSelect)});
+	$("#modeSelect").addEventListener("change",renderModeExplanation);
 	$("#startbtn").addEventListener("click",startPicked);
 	$("#resumeBtn").addEventListener("click",resumeGame);
 	$("#helpSelect").addEventListener("click",showRules);
@@ -2659,11 +2935,13 @@ function wire(){
 	$("#saveBtn").addEventListener("click",saveGame);
 	$("#rosterSearch").addEventListener("input",renderRoster);
 	$("#actSound").addEventListener("click",actionSoundings);
+	$("#actColloquy").addEventListener("click",actionColloquy);
 	$("#actNetwork").addEventListener("click",actionNetwork);
 	$("#actProgramme").addEventListener("click",actionProgramme);
 	$("#actFloat").addEventListener("click",actionFloat);
 	$("#actCourt").addEventListener("click",actionCourt);
 	$("#actBridge").addEventListener("click",actionBridge);
+	$("#actRelease").addEventListener("click",actionReleaseSupport);
 	$("#actRetreat").addEventListener("click",actionRetreat);
 	$("#ballotBtn").addEventListener("click",requestBallot);
 	$("#again").addEventListener("click",restartGame);
@@ -2672,6 +2950,7 @@ function wire(){
 	$("#allYears").addEventListener("click",function(){location.href="./index.html"});
 	if(loadSavedState())$("#resumeBtn").classList.remove("hidden");
 	if(SAVE_READ_ERROR)setTimeout(function(){toast("The saved conclave was unreadable and has been discarded.")},0);
+	renderModeExplanation();
 	renderSelect();
 }
 
@@ -2687,17 +2966,25 @@ globalThis.__om1903={
 	portraitFor:portraitFor,
 	sharedNetworks:sharedNetworks,
 	profileAlignment:profileAlignment,
+	currentProgrammeFit:currentProgrammeFit,
 	alignmentWithPlayer:alignmentWithPlayer,
 	networkAccess:networkAccess,
 	resolveNetworkAction:resolveNetworkAction,
+	colloquyAccess:colloquyAccess,
+	resolveColloquyReading:resolveColloquyReading,
+	resolveColloquyPressure:resolveColloquyPressure,
+	supportersForPlayer:supportersForPlayer,
+	resolveSupportDirective:resolveSupportDirective,
 	actionRouteCopy:actionRouteCopy,
 	pressureMetricDetail:pressureMetricDetail,
+	metricLogAdjustment:metricLogAdjustment,
 	activeCandidacyFloor:activeCandidacyFloor,
 	simulateBallot:simulateBallot,
 	resolveVeto:resolveVeto,
 	reactToVeto:reactToVeto,
 	resolveSartoConsent:resolveSartoConsent,
 	scoreGame:scoreGame,
+	seriesScoreForVerdict:seriesScoreForVerdict,
 	papalNameFor1903:papalNameFor1903,
 	runHeadless:runHeadless,
 	validateData:validateData,

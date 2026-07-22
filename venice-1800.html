@@ -888,9 +888,27 @@ function openPlayerBallot(){
 		return;
 	}
 	const candidates=ELECTORS.filter(c=>legalCandidateFor(S.playerId,c.id)).sort((a,b)=>b.papabile-a.papabile||a.rank-b.rank);
-	showModal("Cast your scrutiny ballot",`<p>Choose one legally eligible candidate. Your own name is excluded.</p><div class="pickgrid" id="ballotPickGrid"></div>`,[],"wide");
+	showModal("Choose your scrutiny ballot",`<p>Choose one legally eligible candidate. Your own name is excluded. You will review the choice before the scrutiny is resolved.</p><div class="pickgrid" id="ballotPickGrid"></div>`,[],"wide");
 	const grid=document.querySelector("#ballotPickGrid");
-	candidates.forEach(c=>grid.appendChild(el("button",{onclick:()=>{closeModal();conductBallot(c.id)}},c.name,el("small",null,`${displayLabel(c.tags[0])} · ${c.office}`))));
+	candidates.forEach(c=>{
+		const alignment=alignmentWithPlayer(c.id);
+		const shared=alignment.sharedTags.length?alignment.sharedTags.map(displayLabel).join(" · "):"no principal network shared";
+		grid.appendChild(el("button",{onclick:()=>reviewPlayerBallot(c.id)},c.name,el("small",null,`${alignment.score}% ${alignment.label} · ${shared}`)));
+	});
+}
+function reviewPlayerBallot(candidateId){
+	if(!S||S.over||!legalCandidateFor(S.playerId,candidateId))return;
+	const candidate=ID[candidateId],alignment=alignmentWithPlayer(candidateId),objective=S.player.objective;
+	const shared=alignment.sharedTags.length?alignment.sharedTags.map(displayLabel).join(", "):"No principal network is shared.";
+	const warning=alignment.score<48?`<div class="callout warning"><b>This is a distant choice.</b> The model places ${esc(candidate.short)} well outside your usual affinities. That may still be a deliberate tactical or conscientious ballot.</div>`:"";
+	showModal(`Review your ballot: ${candidate.short}`,`
+		<p>No ballot has yet been cast. This pause checks intent; it does not forbid a cross-faction choice.</p>
+		<div class="statusbox"><div class="alignment-summary"><span>Your affinity with ${esc(candidate.short)}</span><b>${alignment.score}% · ${esc(alignment.label)}</b></div><div class="alignment-track" aria-hidden="true"><span style="width:${alignment.score}%"></span></div><span class="dim">${esc(shared)}</span></div>
+		<div class="statusbox objective"><b>Your private objective: ${esc(objective.title)}</b><br><span class="dim">${esc(objective.text)}</span></div>
+		${warning}`,[
+			{label:`Cast ballot for ${candidate.short}`,small:"Confirm this name and resolve the scrutiny.",fn:()=>conductBallot(candidateId)},
+			{label:"Choose another cardinal",small:"Return to the candidate list without recording a vote.",fn:openPlayerBallot}
+		]);
 }
 function updateAfterFailedBallot(leader,second){
 	const gap=leader.n-second.n;
@@ -1193,6 +1211,7 @@ function showRules(){
 		<p><b>Austrian grip</b> can create a virtual veto against Bellisomi or Gerdil. It can strengthen Mattei, but makes the College look dependent on its host.</p>
 		<p><b>French alarm</b> makes a restoration-only pope dangerous and can trigger Spanish/Bourbon counter-pressure against Mattei. <b>Deadlock</b> and <b>compromise pressure</b> first test alternative names, then make Chiaramonti's governing compromise plausible.</p>
 		<p><b>Consalvi</b> is not a playable elector here; he is the secretary whose arithmetic can turn failed factions into a settlement. Portraits link to the subject's biography where a usable historical image survives.</p>
+		<p><b>Series score</b> is the comparable 0–100 ending. The role points beneath it retain Venice's detailed accounting and are not meant to be compared directly with another edition.</p>
 		<div class="callout warning">The historical result is not forced. A strong player or a fortunate seed can elect another pope, but Venice should usually punish naked crown control and reward a late compromise.</div>
 	</div>`,[]);
 }
@@ -1310,7 +1329,7 @@ function endGame(){
 	renderRegnal1800(winner,player,papalName);
 	const objective=evaluateObjective();
 	const score=scoreGame();
-	$("#endStats").innerHTML=`<div class="statusbox"><div class="score-grade">${esc(score.verdict.grade)}</div><div class="score-total">${score.total}</div><div class="dim" style="text-align:center">${esc(score.verdict.line)}</div><div class="score-parts">${score.parts.map(part=>`<span>${esc(part.label)}</span><span>${signed(part.points)}</span>`).join("")}</div></div><div class="statusbox"><b>Private objective — ${objective.achieved?"achieved":"not achieved"}</b><br>${esc(objective.reason)}</div>${renderEndTable()}`;
+	$("#endStats").innerHTML=`<div class="statusbox"><div class="score-grade">Series score · ${esc(score.verdict.grade)}</div><div class="score-total">${score.seriesScore} / 100</div><div class="dim" style="text-align:center">${esc(score.verdict.line)}</div><div class="score-parts">${score.parts.map(part=>`<span>${esc(part.label)}</span><span>${signed(part.points)}</span>`).join("")}<span>Edition-specific role points</span><span>${score.total}</span></div></div><div class="statusbox"><b>Private objective — ${objective.achieved?"achieved":"not achieved"}</b><br>${esc(objective.reason)}</div>${renderEndTable()}`;
 	const ach=[];
 	if(winner.id===S.playerId)ach.push("Elected in exile");
 	if(winner.id==="chiaramonti")ach.push("Historical settlement");
@@ -1321,8 +1340,10 @@ function endGame(){
 	if(objective.achieved)ach.push("Private objective");
 	$("#achievements").innerHTML=ach.map(a=>`<span>${esc(a)}</span>`).join("");
 }
+const SERIES_SCORE_1800={Pontiff:94,Kingmaker:84,Broker:70,Elector:54,Participant:38,Unfinished:0};
+function seriesScoreForVerdict(verdict){return SERIES_SCORE_1800[verdict&&verdict.grade]??0}
 function scoreGame(state=S){
-	if(state!==S||!state.over)return {total:0,parts:[],verdict:{grade:"Unfinished",line:"The conclave remains open."}};
+	if(state!==S||!state.over)return {total:0,seriesScore:0,parts:[],verdict:{grade:"Unfinished",line:"The conclave remains open."}};
 	const objective=evaluateObjective();
 	const playerVotes=state.history.reduce((sum,h)=>sum+(h.counts[state.playerId]||0),0);
 	const foresight=state.history.reduce((sum,h)=>sum+(h.roll.find(v=>v.voter===state.playerId)?.candidate===state.electedId?1:0),0);
@@ -1341,7 +1362,7 @@ function scoreGame(state=S){
 	else if(total>=170)verdict={grade:"Kingmaker",line:"The final settlement bears your political and spiritual judgement."};
 	else if(total>=105)verdict={grade:"Broker",line:"You helped make an impossible name acceptable."};
 	else if(total>=55)verdict={grade:"Elector",line:"Your choices mattered, even when the College resisted them."};
-	return {total,parts,verdict};
+	return {total,seriesScore:seriesScoreForVerdict(verdict),parts,verdict};
 }
 function evaluateObjective(){
 	const winner=ID[S.electedId],kind=S.player.objective.kind;
@@ -1515,7 +1536,7 @@ function runHeadless(seed,playerId,maxBallots=20){
 	}
 	return {seed:S.seed,playerId:S.playerId,winner:S.electedId,papalName:S.papalName,ballots:S.ballotNo,history:S.history.map(h=>({ballot:h.ballot,date:h.date,threshold:h.threshold,electors:h.electors,counts:{...h.counts},roll:h.roll.map(v=>({...v}))})),over:S.over,score:S.over?scoreGame().total:0};
 }
-const VENICE_1800_ENGINE={ELECTORS,ID,initState,conductBallot,runHeadless,activeElectors,threshold,legalCandidateFor,validateBallotRoll,validateVeniceSave,forecastCounts,makeSounding,phaseForState,playerNetworks,networkAccess,networkFit,resolveNetworkAction,alignmentWithPlayer,supportBriefCandidates,positionMetricDetail,portraitFor,axisPosition,choosePapalName,evaluateObjective,scoreGame,getState:()=>S};
+const VENICE_1800_ENGINE={ELECTORS,ID,initState,conductBallot,runHeadless,activeElectors,threshold,legalCandidateFor,validateBallotRoll,validateVeniceSave,forecastCounts,makeSounding,phaseForState,playerNetworks,networkAccess,networkFit,resolveNetworkAction,alignmentWithPlayer,supportBriefCandidates,positionMetricDetail,portraitFor,axisPosition,choosePapalName,evaluateObjective,scoreGame,seriesScoreForVerdict,getState:()=>S};
 if(typeof module!=="undefined")module.exports=VENICE_1800_ENGINE;
 if(typeof window!=="undefined")window.__om=VENICE_1800_ENGINE;
 if(typeof document!=="undefined")wire();

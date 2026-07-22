@@ -205,6 +205,7 @@ body.playing #cover{display:none}
 @media(max-width:760px){.you2col{grid-template-columns:1fr}}
 .panelbox{border:1px solid var(--line);background:var(--panel);border-radius:3px;padding:13px 15px}
 .panelbox h3{font-size:18px;color:var(--smokew);margin-bottom:8px}
+.notice{border-left:3px solid var(--scarlet-bright);background:rgba(160,27,40,.12);padding:10px 12px;margin-top:10px;color:var(--ink)}
 .stat{display:flex;justify-content:space-between;gap:10px;font-size:15px;padding:3px 0;border-bottom:1px dashed var(--line)}
 .stat:last-child{border-bottom:none}
 .stat .v{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--gold)}
@@ -1231,7 +1232,7 @@ function computeScore(){
   const infl = Math.min(100,Math.round(st.impact*10 + (st.pope===st.player?40:0)));
   const comm = Math.max(0,Math.min(100,Math.round(st.communion - Math.max(0,st.electedBallot-6)*2)));
   const ambPen = st.ambition>=6&&st.pope!==st.player ? 12 : 0;
-  const total = Math.round(0.4*affinity+0.3*infl+0.3*comm) - ambPen + (st.marks.refused?4:0);
+  const total = clamp(Math.round(0.4*affinity+0.3*infl+0.3*comm) - ambPen + (st.marks.refused?4:0),0,100);
   let grade="C"; if(total>=85)grade="S"; else if(total>=72)grade="A"; else if(total>=58)grade="B"; else if(total>=42)grade="C"; else grade="D";
   let epithet;
   if(st.pope===st.player) epithet = st.ambition>=6 ? "He entered the conclave as pope — and, for once, left it as one." : "The College went looking for a bridge, and found you.";
@@ -1241,7 +1242,7 @@ function computeScore(){
   else if(comm>=85) epithet="A maker of communion in a College of strangers.";
   else if(myVotesPeak>=5) epithet="A name that was written on real ballots, in real ink.";
   else epithet="A faithful elector among the hundred and thirty-three.";
-  st.score={affinity,infl,comm,ambPen,total,grade,epithet,myVotesPeak};
+  st.score={affinity,infl,comm,ambPen,total,seriesScore:total,grade,epithet,myVotesPeak};
 }
 
 /* ---------- Act I actions ---------- */
@@ -1793,7 +1794,7 @@ function doAction(a){
     case "votenow": st.eve1Asked=true; collegeEveVote(true); break;
     case "votemorn": st.eve1Asked=true; collegeEveVote(false); break;
     case "todinner": st.session="dinner"; st.slots=2; st.slot=0; conclaveMealIntro("dinner"); break;
-    case "scrutiny": pickVote(ix=>{castAndRun(ix);}); return;
+    case "scrutiny": pickVote(reviewVote2025); return;
     case "sound": pickElector({title:"Sound out whom?",met:false,all:true},ix=>{actSound(ix);renderAll();}); return;
     case "persuade": pickElector({title:"Persuade whom?",metOnly:true},ix=>{pickElector({title:"…for which candidate?",cands:true,excludeIx:ix},c=>{actPersuade(ix,c);renderAll();});}); return;
     case "release": pickElector({title:"Release your votes toward…",cands:true,noSelf:true},ix=>{actRelease(ix);renderAll();}); return;
@@ -1889,12 +1890,26 @@ function pickVote(cb){
   let list;
   if(st.runoff){ list=[st.runoff.a,st.runoff.b].map(i=>st.electors[i]); if(st.player===st.runoff.a||st.player===st.runoff.b){logCard("doc","No active voice","As one of the two names before the College you may not vote in the runoff. You sit with folded hands through the reading of your own fate."); castAndRun(null); return;} }
   else list=[...st.electors].filter(e=>e.ix!==st.player).sort((a,b)=>(lastCounts()[b.ix]||0)-(lastCounts()[a.ix]||0)||b.pap-a.pap);
-  const render=(q)=>{const ql=(q||"").toLowerCase();return list.filter(e=>!ql||e.name.toLowerCase().includes(ql)).slice(0,60).map(e=>`<button data-i="${e.ix}"><span class="nm">${esc(e.name)}</span><span class="mt">${esc(e.country)}${(lastCounts()[e.ix]||0)>0?" · "+lastCounts()[e.ix]+" last":""}</span></button>`).join("");};
-  openModal(`<h2>Eligo in Summum Pontificem…</h2><p class="small">Write one name in a disguised hand, fold the paper twice. Your vote, this scrutiny:</p>
+  const render=(q)=>{const ql=(q||"").toLowerCase();return list.filter(e=>!ql||e.name.toLowerCase().includes(ql)).slice(0,60).map(e=>{const a=alignmentWithPlayer(e.ix,st);return `<button data-i="${e.ix}"><span class="nm">${esc(e.name)}</span><span class="mt">${esc(e.country)} · ${a.score}/100 ${esc(a.label)}${(lastCounts()[e.ix]||0)>0?" · "+lastCounts()[e.ix]+" last":""}</span></button>`}).join("");};
+  openModal(`<h2>Choose one name for your cedula</h2><p class="small">Your own name is excluded. You will review the choice before writing it in a disguised hand and folding the paper twice.</p>
     <label class="visually-hidden" for="pkq">Search candidates</label><input type="text" id="pkq" placeholder="Search…" style="width:100%"><div class="pickerlist" id="pkl">${render("")}</div>`);
   const wire=()=>document.querySelectorAll("#pkl [data-i]").forEach(b=>b.addEventListener("click",()=>{closeModal();cb(+b.dataset.i);}));
   wire();
   $("#pkq").addEventListener("input",e=>{$("#pkl").innerHTML=render(e.target.value);wire();});
+}
+function reviewVote2025(candidateIx){
+  const st=G,candidate=st.electors[candidateIx];
+  if(!candidate||candidateIx===st.player)return;
+  if(st.runoff&&candidateIx!==st.runoff.a&&candidateIx!==st.runoff.b)return;
+  const a=alignmentWithPlayer(candidateIx,st),shared=a.shared.map(t=>TAG_NAMES[t]||t);
+  const warning=a.score<48?`<div class="notice"><b>This is a distant choice.</b> The model places ${esc(candidate.surname)} outside your usual affinities. You may still cast the ballot deliberately.</div>`:"";
+  openModal(`<h2>Review your ballot: ${esc(candidate.surname)}</h2>
+    <p class="small">No ballot has yet been cast. This pause catches an easy mis-click without forbidding a tactical or conscientious choice.</p>
+    <div class="panelbox"><div class="stat"><span>Baseline affinity</span><span class="v">${a.score}/100 · ${esc(a.label)}</span></div><div class="meter"><i style="width:${a.score}%"></i></div><p class="small" style="margin-top:7px">A fixed comparison of public profiles and ties, not a vote probability. ${shared.length?`Shared concerns: ${esc(shared.join(", "))}.`:"No principal modelled concern is shared."}</p></div>
+    ${warning}
+    <div class="coverbar" style="margin-top:14px"><button class="btn primary" id="confirmVote2025">Cast ballot for ${esc(candidate.surname)}</button><button class="btn" id="changeVote2025">Choose another cardinal</button></div>`);
+  $("#confirmVote2025").addEventListener("click",()=>{closeModal();castAndRun(candidateIx);});
+  $("#changeVote2025").addEventListener("click",()=>{closeModal();pickVote(reviewVote2025);});
 }
 
 /* ---------- feed ---------- */
@@ -2050,9 +2065,10 @@ function renderFinale(){
    <p style="margin:12px 0 18px">${first}</p>
    <div class="panelbox" style="margin-bottom:14px">
      <h3>Your conclave — ${esc(st.electors[st.player].name)}</h3>
-     <div class="scoreline"><span>Affinity with the new pontificate</span><span class="v">${sc.affinity}</span></div>
-     <div class="scoreline"><span>Influence on the outcome</span><span class="v">${sc.infl}</span></div>
-     <div class="scoreline"><span>Communion of the College</span><span class="v">${sc.comm}</span></div>
+     <div class="scoreline"><span><b>Series score</b></span><span class="v">${sc.total} / 100</span></div>
+     <div class="scoreline"><span>Affinity with the new pontificate</span><span class="v">${sc.affinity} / 100</span></div>
+     <div class="scoreline"><span>Outcome influence</span><span class="v">${sc.infl} / 100</span></div>
+     <div class="scoreline"><span>Communion of the College</span><span class="v">${sc.comm} / 100</span></div>
      ${sc.ambPen?`<div class="scoreline"><span>“He who enters as pope…” (ambition)</span><span class="v">−${sc.ambPen}</span></div>`:""}
      <div class="scoreline"><span>Your peak vote</span><span class="v">${sc.myVotesPeak}</span></div>
      <div class="scoreline" style="border-bottom:none"><span><b>Verdict</b></span><span class="grade">${sc.grade}</span></div>
@@ -2098,7 +2114,7 @@ function rulesHTML(){
   <h3>What is fact and what is model</h3>
   <p>Cards marked <span class="mono" style="color:var(--doc)">DOCUMENTED</span> report dated, sourced happenings — the will, Becciu's withdrawal, Stella's attack, the 'auguri doppi', the SIM alarm, the overslept cardinals, the double paper that voided the decisive scrutiny. Cards marked <span class="mono" style="color:var(--mod)">MODELLED</span>, including <b>every vote count</b>, are the simulation's own output: the true ballots of 2025 are secret. The void attempt is shown as unread, not assigned an invented tally; voter-by-voter simulated rolls remain sealed until the ending. Elector leanings are inferences from public records and reporting, not claims of fact. With a passive player, the model is calibrated to reproduce the documented shape of the real conclave — Erdő's coordinated first-ballot lead, Parolin's stall near his opening number, Prevost's climb through the morning and landslide after lunch, more than a hundred votes on the final scrutiny.</p>
   <h3>Scoring</h3>
-  <p>Affinity (did the pontificate you get resemble the one you wanted), influence (how much of it was your doing), and communion (did the College hold together) — less a penalty if you were seen to want it. <i>He who enters the conclave as pope leaves it as a cardinal.</i></p>
+  <p>The 0–100 <b>Series score</b> combines affinity (did the pontificate you get resemble the one you wanted), outcome influence (how much of it was your doing), and communion (did the College hold together), less a penalty if you were seen to want it. It uses the same displayed range as the other editions. <i>He who enters the conclave as pope leaves it as a cardinal.</i></p>
   <h3>Principal sources</h3>
   <ul>
    <li><a href="https://www.vatican.va/content/john-paul-ii/en/apost_constitutions/documents/hf_jp-ii_apc_22021996_universi-dominici-gregis.html"><i>Universi Dominici gregis</i></a>, in its amended form — scrutiny, pause and restricted-ballot procedure.</li>

@@ -75,6 +75,12 @@ A seed should determine hidden initial variance and ballot randomness. Rendering
 
 For any variant with a headless API, repeated calls with the same seed and action path should produce byte-identical ballot histories.
 
+## Cross-Variant Scoring
+
+Endings expose a common **Series score** from 0 to 100. It is the number intended for comparison between years. Variants that were designed on a 100-point rubric use that total directly; older role-based games map their role-normalised verdict band onto the same scale. A narrow papal victory therefore remains a strong series result, while a masterful kingmaker or exemplary conscience can also score highly without being elected.
+
+Edition-specific **role points** remain visible beneath the common score. They explain the local arithmetic but should not be compared directly between conclaves: a vote, promise, objective or act of restraint has deliberately different weight in 1268, 1492 and 1903. This calibration changes presentation, not ballot utility or election balance.
+
 ## Historical Scripting
 
 These games mix historical reconstruction with counterfactual play. Each variant should make clear which mechanics are:
