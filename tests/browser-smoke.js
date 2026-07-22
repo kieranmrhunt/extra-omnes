@@ -197,6 +197,9 @@ async function checkCarafaStart(browser, baseUrl) {
 		await page.locator(".overlay .tgrid button", { hasText: "Morone" }).first().click();
 		assert(await page.locator(".overlay .choices button", { hasText: "Back him for a personal undertaking" }).count() === 1, `${file}: an initiated colloquy cannot create the obligation described by du Bellay's objective`);
 		await page.locator(".overlay .choices button", { hasText: "Sound him out" }).click();
+		await page.locator(".overlay .modal h3", { hasText: "Soundings refined by Morone" }).waitFor();
+		assert(await page.locator(".overlay .range-row").count() >= ranges.length && /private colloquy: Morone/i.test(await page.locator(".overlay .modal").innerText()), `${file}: a private sounding replaces or hides the broader sounding`);
+		await page.locator(".overlay .choices button", { hasText: "Return to the chapel" }).click();
 		await page.locator("#tab-position").click();
 		assert(/refined by colloquy with Morone/i.test(await page.locator("#board").innerText()), `${file}: a private colloquy does not update the standing scrutiny sounding`);
 		await page.locator("#tab-college").click();
@@ -204,9 +207,15 @@ async function checkCarafaStart(browser, baseUrl) {
 		assert(moroneLean.trim().length > 0, `${file}: a private colloquy does not update the cardinal's persistent roster entry`);
 
 		await page.locator("#tab-chapel").click();
+		await page.locator("#a-security").click();
+		await page.locator(".overlay .modal h3", { hasText: "The night" }).waitFor();
+		assert(await page.locator(".overlay .choices button", { hasText: "Disparage a rival" }).count() === 1, `${file}: the night menu does not expose rival disparagement`);
+		await page.locator(".overlay .mclose").click();
 		await page.locator("#scrutinybtn").click();
 		await page.locator('.overlay input[aria-label="Search candidates"]').waitFor();
 		assert(await page.locator('.overlay select[aria-label="Filter candidates by faction"]').count() === 1, `${file}: ballot faction filter is missing`);
+		const modalScrollbar = await page.locator(".overlay .modal").evaluate((element) => getComputedStyle(element).scrollbarColor);
+		assert(modalScrollbar && modalScrollbar !== "auto", `${file}: cedula dialog still uses the unstyled browser scrollbar`);
 		const ballotCandidates = page.locator(".overlay .tgrid > button");
 		const candidateCount = await ballotCandidates.count();
 		assert(candidateCount === 39, `${file}: expected 39 legal first-scrutiny candidates, found ${candidateCount}`);
@@ -255,6 +264,45 @@ async function checkCarafaStart(browser, baseUrl) {
 		assert(await page.locator(".overlay .choices button", { hasText: "Demand his personal undertaking" }).count() === 1, `${file}: an approaching cardinal offers no route to a personal obligation`);
 		await page.locator(".overlay .choices button", { hasText: "Hear his case and his numbers" }).click();
 		assert(pageErrors.length === 0, `${file}: browser error after starting: ${pageErrors.join("; ")}`);
+	} finally {
+		await context.close();
+	}
+}
+
+async function checkCarafaDesktopSoundings(browser, baseUrl) {
+	const file = "carafa-winter-1559.html";
+	const { context, page, pageErrors } = await preparePage(browser, { width: 1365, height: 768 });
+	try {
+		await page.goto(`${baseUrl}/${file}`, { waitUntil: "domcontentloaded" });
+		await page.locator("#seedin").fill("browser-carafa-rebiba-soundings");
+		await page.locator("#selgrid .ccard", { hasText: "Scipione Rebiba" }).click();
+		await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+		await page.locator("#startbtn").click();
+		for (let guard = 0; guard < 20; guard++) {
+			const choice = page.locator(".overlay .choices button").first();
+			if (!await choice.count()) break;
+			await choice.click();
+			await page.waitForTimeout(20);
+		}
+		await page.locator("#a-sound").click();
+		await page.locator(".overlay .range-row").first().waitFor();
+		const broadRows = await page.locator(".overlay .range-row").count();
+		await page.locator(".overlay .choices button", { hasText: "Return to the chapel" }).click();
+		await page.locator("#a-colloquy").click();
+		await page.locator(".overlay .tgrid button", { hasText: "Morone" }).first().click();
+		await page.locator(".overlay .choices button", { hasText: "Sound him out" }).click();
+		await page.locator(".overlay .modal h3", { hasText: "Soundings refined by Morone" }).waitFor();
+		const refinedRead = await page.evaluate(() => ({
+			rows: document.querySelectorAll(".overlay .range-row").length,
+			refined: document.querySelectorAll(".overlay .range-row.refined").length,
+			text: document.querySelector(".overlay .modal")?.textContent || "",
+		}));
+		assert(refinedRead.rows >= broadRows && refinedRead.refined >= 1 && /private colloquy: Morone/i.test(refinedRead.text), `${file}: Rebiba's private sounding does not preserve the full desktop sounding`);
+		await page.locator(".overlay .choices button", { hasText: "Return to the chapel" }).click();
+		assert(await page.locator("#rightcol").isVisible() && /Soundings for scrutiny I/i.test(await page.locator("#board").innerText()) && /refined by colloquy with Morone/i.test(await page.locator("#board").innerText()), `${file}: the refined sounding is not left visible in the desktop position column`);
+		const geometry = await pageGeometry(page);
+		assert(geometry.scrollWidth <= geometry.innerWidth + 2, `${file}: desktop sounding flow overflows horizontally`);
+		assert(pageErrors.length === 0, `${file}: browser error in desktop sounding flow: ${pageErrors.join("; ")}`);
 	} finally {
 		await context.close();
 	}
@@ -407,13 +455,14 @@ async function main() {
 		await checkDialogFocus(browser, baseUrl, "april-1378.html", "#rulesBtn");
 		await checkDialogFocus(browser, baseUrl, "constance-1417.html", "#helpSelect");
 		await checkCarafaStart(browser, baseUrl);
+		await checkCarafaDesktopSoundings(browser, baseUrl);
 		await checkCarafaMoroneOpening(browser, baseUrl);
 		await check1458Filters(browser, baseUrl);
 		await checkConstanceChooserReturn(browser, baseUrl);
 		await checkStickyChooser(browser, baseUrl, "1903.html");
 		await checkStickyChooser(browser, baseUrl, "october-1978.html");
 		await checkMay2025Start(browser, baseUrl);
-		console.log(JSON.stringify({ variants: selections, checks: ["mobile-and-desktop-geometry", "dialog-focus", "chooser-return", "sticky-portrait-stacking", "carafa-start-and-play-loop", "carafa-morone-opening", "1458-filter-strip", "2025-mobile-start-and-dossier"] }, null, 2));
+		console.log(JSON.stringify({ variants: selections, checks: ["mobile-and-desktop-geometry", "dialog-focus", "chooser-return", "sticky-portrait-stacking", "carafa-start-and-play-loop", "carafa-desktop-persistent-soundings", "carafa-morone-opening", "1458-filter-strip", "2025-mobile-start-and-dossier"] }, null, 2));
 	} finally {
 		if (browser) await browser.close();
 		await new Promise((resolve) => server.close(resolve));
