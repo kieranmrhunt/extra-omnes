@@ -171,6 +171,7 @@ async function checkCarafaStart(browser, baseUrl) {
 			metricButtons: [...document.querySelectorAll('[id^="metric-"]')].map((element) => element.tagName),
 		}));
 		assert(politicalRead.brief && politicalRead.crisis && politicalRead.factions === 6, `${file}: the political brief or faction pulse is incomplete`);
+		assert(/The Dean's Hand|The Dean’s Hand/.test(politicalRead.brief) && /Back him for a personal undertaking/i.test(politicalRead.brief), `${file}: du Bellay's objective does not explain how to make the winner owe him`);
 		assert(politicalRead.metricButtons.length === 5 && politicalRead.metricButtons.every((tag) => tag === "BUTTON"), `${file}: explanatory meters are missing or are not native buttons`);
 		const mobileTabs = page.locator('#mobiletabs[role="tablist"]');
 		await mobileTabs.waitFor();
@@ -194,6 +195,7 @@ async function checkCarafaStart(browser, baseUrl) {
 		await page.locator("#tab-chapel").click();
 		await page.locator("#a-colloquy").click();
 		await page.locator(".overlay .tgrid button", { hasText: "Morone" }).first().click();
+		assert(await page.locator(".overlay .choices button", { hasText: "Back him for a personal undertaking" }).count() === 1, `${file}: an initiated colloquy cannot create the obligation described by du Bellay's objective`);
 		await page.locator(".overlay .choices button", { hasText: "Sound him out" }).click();
 		await page.locator("#tab-position").click();
 		assert(/refined by colloquy with Morone/i.test(await page.locator("#board").innerText()), `${file}: a private colloquy does not update the standing scrutiny sounding`);
@@ -216,8 +218,8 @@ async function checkCarafaStart(browser, baseUrl) {
 		await page.locator(".overlay .choices button", { hasText: "Cast the sealed ballot" }).click();
 		await page.locator("#ceremony:not(.hidden)").waitFor();
 		await page.locator("#cer-controls button", { hasText: "Open all cedulae" }).waitFor();
-		await page.waitForTimeout(850);
-		assert(/Cedula [IVXLCDM]+ is read/i.test(await page.locator("#cer-title").innerText()), `${file}: scrutiny is not being delivered cedula by cedula`);
+		await page.locator("#cer-title", { hasText: /^Cedula I is read$/ }).waitFor();
+		assert((await page.locator("#cer-title").innerText()).trim() === "Cedula I is read", `${file}: scrutiny is still advancing too quickly to follow`);
 		assert(await page.locator(".overlay .modal h3", { hasText: "Accessus" }).count() === 0, `${file}: accessus is offered before the ordinary scrutiny has been counted`);
 		const deltaVisibilityDuringCount = await page.locator("#tallyzone .trow:not(.thead) .delta-cell").first().evaluate((element) => getComputedStyle(element).visibility);
 		assert(deltaVisibilityDuringCount === "hidden", `${file}: scrutiny changes are exposed before the count is complete`);
@@ -245,7 +247,34 @@ async function checkCarafaStart(browser, baseUrl) {
 		assert(finalCountRead.deltasVisible && /blank paper/i.test(finalCountRead.progress), `${file}: final deltas or explicit blank-paper accounting are missing`);
 		assert(finalCountRead.movingRows > 0, `${file}: final scrutiny ordering is not animated`);
 		assert(await page.locator("#tallyzone .trow:not(.thead) .ct").count() > 0 && await page.locator("#tallyzone .trow:not(.thead) .delta-cell").count() > 0, `${file}: tally votes and changes are not in separate columns`);
+		const returnToCells = page.locator("#cer-controls button", { hasText: "Return to the cells" });
+		assert(await returnToCells.count() === 1, `${file}: deterministic first scrutiny unexpectedly ended the conclave`);
+		await returnToCells.click();
+		await page.locator(".overlay .modal h3", { hasText: "requests a private word" }).waitFor();
+		assert(/strongest moment to ask what his pontificate would owe you/i.test(await page.locator(".overlay .modal").innerText()), `${file}: incoming colloquy does not explain its bargaining opportunity`);
+		assert(await page.locator(".overlay .choices button", { hasText: "Demand his personal undertaking" }).count() === 1, `${file}: an approaching cardinal offers no route to a personal obligation`);
+		await page.locator(".overlay .choices button", { hasText: "Hear his case and his numbers" }).click();
 		assert(pageErrors.length === 0, `${file}: browser error after starting: ${pageErrors.join("; ")}`);
+	} finally {
+		await context.close();
+	}
+}
+
+async function checkCarafaMoroneOpening(browser, baseUrl) {
+	const file = "carafa-winter-1559.html";
+	const { context, page, pageErrors } = await preparePage(browser, { width: 390, height: 844 });
+	try {
+		await page.goto(`${baseUrl}/${file}`, { waitUntil: "domcontentloaded" });
+		await page.locator("#seedin").fill("browser-carafa-morone-opening");
+		await page.locator("#selgrid .ccard", { hasText: "Giovanni Girolamo Morone" }).click();
+		await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+		await page.locator("#startbtn").click();
+		await page.locator(".overlay .modal h3", { hasText: "The Capitulation" }).waitFor();
+		await page.locator(".overlay .choices button").first().click();
+		await page.locator(".overlay").waitFor({ state: "detached" });
+		assert(await page.locator(".overlay .modal h3", { hasText: "Morone Released" }).count() === 0, `${file}: Morone is still shown a third-person dialog about his own release`);
+		assert(/sustains your right to sit/i.test(await page.locator("#log").innerText()), `${file}: Morone's release vanished instead of being recorded from his perspective`);
+		assert(pageErrors.length === 0, `${file}: browser error in Morone opening: ${pageErrors.join("; ")}`);
 	} finally {
 		await context.close();
 	}
@@ -378,12 +407,13 @@ async function main() {
 		await checkDialogFocus(browser, baseUrl, "april-1378.html", "#rulesBtn");
 		await checkDialogFocus(browser, baseUrl, "constance-1417.html", "#helpSelect");
 		await checkCarafaStart(browser, baseUrl);
+		await checkCarafaMoroneOpening(browser, baseUrl);
 		await check1458Filters(browser, baseUrl);
 		await checkConstanceChooserReturn(browser, baseUrl);
 		await checkStickyChooser(browser, baseUrl, "1903.html");
 		await checkStickyChooser(browser, baseUrl, "october-1978.html");
 		await checkMay2025Start(browser, baseUrl);
-		console.log(JSON.stringify({ variants: selections, checks: ["mobile-and-desktop-geometry", "dialog-focus", "chooser-return", "sticky-portrait-stacking", "carafa-start-and-play-loop", "1458-filter-strip", "2025-mobile-start-and-dossier"] }, null, 2));
+		console.log(JSON.stringify({ variants: selections, checks: ["mobile-and-desktop-geometry", "dialog-focus", "chooser-return", "sticky-portrait-stacking", "carafa-start-and-play-loop", "carafa-morone-opening", "1458-filter-strip", "2025-mobile-start-and-dossier"] }, null, 2));
 	} finally {
 		if (browser) await browser.close();
 		await new Promise((resolve) => server.close(resolve));

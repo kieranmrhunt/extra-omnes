@@ -336,7 +336,7 @@ function runTargetedChecks(variant, api) {
 		return ["blank-ballot", "approval-validation", "accessus-validation", "illness-eligibility", "regnal-names", "counterfactual-variety", "strict-chronicle-anchor", "series-score"];
 	}
 	if (variant.label === "carafa-winter-1559") {
-		assert(typeof api.initState === "function" && typeof api.beginScrutiny === "function" && typeof api.playerAccede === "function" && typeof api.getState === "function" && typeof api.makeSounding1559 === "function" && typeof api.refineSounding1559 === "function" && typeof api.moroneVindication1559 === "function" && typeof api.resolveCaucus1559 === "function" && typeof api.resolveSupportDirection1559 === "function" && typeof api.acclamationReadiness1559 === "function" && typeof api.ceremonyOrder1559 === "function" && typeof api.regnalOptions1559 === "function" && typeof api.portraitFor1559 === "function", "Carafa Winter: targeted-test API is not exported");
+		assert(typeof api.initState === "function" && typeof api.beginScrutiny === "function" && typeof api.playerAccede === "function" && typeof api.getState === "function" && typeof api.makeSounding1559 === "function" && typeof api.refineSounding1559 === "function" && typeof api.moroneVindication1559 === "function" && typeof api.personalObligationStatus1559 === "function" && typeof api.personalUndertakingChance1559 === "function" && typeof api.recordPersonalUndertaking1559 === "function" && typeof api.incomingColloquyCandidate1559 === "function" && typeof api.objective1559 === "function" && typeof api.resolveCaucus1559 === "function" && typeof api.resolveSupportDirection1559 === "function" && typeof api.acclamationReadiness1559 === "function" && typeof api.ceremonyOrder1559 === "function" && typeof api.ceremonyTiming1559 === "function" && typeof api.regnalOptions1559 === "function" && typeof api.portraitFor1559 === "function", "Carafa Winter: targeted-test API is not exported");
 		const portraitIds = ["medici", "tournon", "carpi", "morone", "gonzaga", "pacheco", "afarnese", "deste", "madruzzo", "ghislieri", "sforza"];
 		const portraitAttribution = JSON.parse(fs.readFileSync(path.join(ROOT, "assets", "portraits", "attribution.json"), "utf8")).portraits;
 		const portraitAudit = portraitIds.map((id) => {
@@ -434,8 +434,24 @@ function runTargetedChecks(variant, api) {
 		assert(!api.moroneVindication1559().done, "Carafa Winter: Morone is vindicated without the stated public support");
 		state.lastFinal.morone = 6; state.electedId = "ghislieri";
 		assert(!api.moroneVindication1559().done, "Carafa Winter: a Holy Office settlement incorrectly vindicates Morone");
+		state = api.initState("dubellay", "carafa-deans-hand", { headless: true });
+		state.stage = 1;
+		const incomingRng = state.rng.state, incomingA = api.incomingColloquyCandidate1559(), incomingB = api.incomingColloquyCandidate1559();
+		assert(incomingA && incomingA !== "dubellay" && incomingA === incomingB && state.rng.state === incomingRng, "Carafa Winter: an incoming colloquy is missing, unstable, or consumes ballot randomness");
+		const requestedChance = api.personalUndertakingChance1559(incomingA), incomingChance = api.personalUndertakingChance1559(incomingA, true);
+		assert(requestedChance > 0 && incomingChance > requestedChance && incomingChance <= 0.9, "Carafa Winter: a candidate who approaches the player has no meaningful bargaining premium");
+		const undertaking = api.recordPersonalUndertaking1559(incomingA, true), obligation = api.personalObligationStatus1559();
+		assert(undertaking.kind === "personal" && undertaking.cause === incomingA && obligation.owedBy.includes(incomingA) && state.rng.state === incomingRng, "Carafa Winter: a personal undertaking is not recorded cleanly or consumes ballot randomness");
+		state.electedId = incomingA;
+		assert(api.personalObligationStatus1559().achieved && api.objective1559().done && /bound by a personal undertaking/i.test(api.objective1559().detail), "Carafa Winter: du Bellay cannot complete The Dean's Hand through the eventual winner's undertaking");
+		state.electedId = api.ELECTORS.find((cardinal) => cardinal.id !== incomingA && cardinal.id !== "dubellay").id;
+		assert(!api.personalObligationStatus1559().achieved && !api.objective1559().done, "Carafa Winter: an undertaking from a losing candidate incorrectly fulfils du Bellay's objective");
+		state.stage = 2;
+		assert(api.incomingColloquyCandidate1559() === null, "Carafa Winter: incoming colloquies ignore their intended cadence");
+		const ceremonyTiming = api.ceremonyTiming1559();
+		assert(ceremonyTiming.firstCedula >= 600 && ceremonyTiming.betweenCedulae >= 360, "Carafa Winter: the scrutiny delivery has reverted to an over-fast count");
 		assert([api.seriesScore1559("pope", 250), api.seriesScore1559("kingmaker", 150), api.seriesScore1559("survivor", 50)].every((score) => Number.isInteger(score) && score >= 0 && score <= 100), "Carafa Winter: comparable series score is invalid");
-		return ["attendance-40-to-44", "approval-validation", "accessus-validation", "illness-eligibility", "metric-bounds", "risk-explanations", "faction-pulse", "uncertain-soundings", "colloquy-refines-soundings", "ordinary-cedula-participation", "acclamation-readiness", "deterministic-caucus", "consent-based-support-direction", "procedural-cedula-order", "Morone-vindication-route", "winner-portrait-coverage", "Christmas-regnal-choice", "six-cardinal-bishops", "versioned-save", "series-score"];
+		return ["attendance-40-to-44", "approval-validation", "accessus-validation", "illness-eligibility", "metric-bounds", "risk-explanations", "faction-pulse", "uncertain-soundings", "colloquy-refines-soundings", "ordinary-cedula-participation", "acclamation-readiness", "deterministic-caucus", "consent-based-support-direction", "procedural-cedula-order", "slower-scrutiny-delivery", "incoming-colloquies", "personal-undertaking-objective", "Morone-vindication-route", "winner-portrait-coverage", "Christmas-regnal-choice", "six-cardinal-bishops", "versioned-save", "series-score"];
 	}
 	if (variant.label === "1903") {
 		assert(typeof api.initState === "function" && typeof api.makeSounding === "function" && typeof api.playerNetworks === "function" && typeof api.networkAccess === "function" && typeof api.resolveNetworkAction === "function" && typeof api.actionRouteCopy === "function" && typeof api.portraitFor === "function" && typeof api.alignmentWithPlayer === "function" && typeof api.currentProgrammeFit === "function" && typeof api.pressureMetricDetail === "function" && typeof api.metricLogAdjustment === "function" && typeof api.resolveColloquyReading === "function" && typeof api.resolveColloquyPressure === "function" && typeof api.resolveSupportDirective === "function" && typeof api.scoreGame === "function", "1903: revised information/network/portrait/pressure/colloquy/score API is not exported");
