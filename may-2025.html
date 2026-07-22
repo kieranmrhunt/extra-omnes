@@ -74,10 +74,12 @@ input::placeholder{color:var(--dim)}
 .pickgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:9px;margin-top:14px}
 .pick{border:1px solid var(--line);background:var(--panel);border-radius:3px;padding:10px 12px;text-align:left;display:flex;flex-direction:column;gap:3px;transition:border-color .12s}
 .pick:hover{border-color:var(--gold-dim)}
-.pick .nm{font-family:Fraunces,serif;font-size:16.5px;color:var(--smokew)}
-.pick .meta{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--faded);letter-spacing:.03em}
-.pick .tagline{font-size:13.5px;color:var(--faded);font-style:italic}
+.pick .nm{display:block;font-family:Fraunces,serif;font-size:16.5px;color:var(--smokew)}
+.pick .meta{display:block;font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--faded);letter-spacing:.03em}
+.pick .tagline{display:block;font-size:13.5px;color:var(--faded);font-style:italic}
 .pick.star{border-left:3px solid var(--gold)}
+.selection-copy{display:block;min-width:0}
+.selection-copy::after{content:"";display:block;clear:both}
 .portrait-row{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;min-width:0}
 .portrait-copy{display:flex;flex-direction:column;gap:3px;min-width:0}
 .portrait-unit{width:64px;flex:0 0 auto}
@@ -85,7 +87,7 @@ input::placeholder{color:var(--dim)}
 .cardinal-thumb img{position:relative;z-index:1;display:block;width:100%;height:100%;object-fit:cover}
 .portrait-link{position:relative;z-index:1;display:block;width:100%;height:100%}
 .portrait-fallback{position:absolute;inset:0;display:grid;place-items:center;font-family:Fraunces,serif;font-size:17px;color:var(--gold);letter-spacing:.05em}
-.selection-portrait{width:58px}
+.selection-portrait{float:left;width:58px;margin:0 10px 3px 0}
 .college-portrait{width:50px}
 .dossier-portrait{width:104px}
 .player-portrait{width:78px}
@@ -1646,11 +1648,11 @@ function renderCover(){
   else list.sort((a,b)=>a.prec-b.prec);
   $("#selgrid").innerHTML=list.map(e=>`
     <button class="pick ${e.pap>=35?"star":""}" data-k="${e.key}">
-      <div class="portrait-row">${portraitMarkup(e.id,"selection")}<div class="portrait-copy">
+      <div class="selection-copy">${portraitMarkup(e.id,"selection")}
       <span class="nm">${esc(e.name)}</span>
       <span class="meta">${esc(e.country)} · ${e.age} · ${e.ord==="B"?"CB":e.ord==="P"?"CP":"CD"} · ${e.by==="F"?"Francis":e.by==="B"?"Benedict XVI":"John Paul II"}</span>
       <span class="tagline">${esc(e.tagline)}</span>
-      </div></div>
+      </div>
     </button>`).join("");
   $("#selgrid").querySelectorAll(".pick").forEach(b=>b.addEventListener("click",()=>beginGame(b.dataset.k)));
 }
