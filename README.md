@@ -9,7 +9,7 @@ Single-file browser simulations of historical papal conclaves. Each variant is p
 - `april-1378.html` — alpha.
 - `constance-1417.html` — beta.
 - `accession-1458.html` — alpha.
-- `carafa-winter-1559.html` — alpha.
+- `carafa-winter-1559.html` — complete.
 - `venice-1800.html` — alpha.
 - `1903.html` — beta.
 - `october-1978.html` — alpha.

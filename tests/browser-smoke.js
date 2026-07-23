@@ -328,6 +328,44 @@ async function checkCarafaMoroneOpening(browser, baseUrl) {
 	}
 }
 
+async function checkCarafaTournonCompletion(browser, baseUrl) {
+	const file = "carafa-winter-1559.html";
+	const { context, page, pageErrors } = await preparePage(browser, { width: 390, height: 844 });
+	try {
+		await page.goto(`${baseUrl}/${file}`, { waitUntil: "domcontentloaded" });
+		assert(/Complete v6/.test(await page.locator(".startbar").innerText()), `${file}: the promoted release is not labelled Complete`);
+		await page.locator("#seedin").fill("browser-carafa-tournon-feast");
+		await page.locator("#selgrid .ccard", { hasText: "François de Tournon" }).click();
+		await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+		await page.locator("#startbtn").click();
+		for (let guard = 0; guard < 20; guard++) {
+			const choice = page.locator(".overlay .choices button").first();
+			if (!await choice.count()) break;
+			await choice.click();
+			await page.waitForTimeout(20);
+		}
+		const crisis = await page.evaluate(() => window.CARAFA_1559_ENGINE.tournonCrisis1559());
+		assert(/your own candidacy/i.test(crisis.body + crisis.labels.join(" ")) && !/help the French press on/i.test(crisis.labels.join(" ")), `${file}: Tournon still receives a third-person prompt about backing himself`);
+		await page.evaluate(() => {
+			const api = window.CARAFA_1559_ENGINE, state = api.getState();
+			state.stage = 4;
+			state.electedId = "tournon";
+			state.over = true;
+			state.lastFinal = { tournon: 30 };
+			api.endGame1559Regnal();
+		});
+		await page.locator("#screen-end:not(.hidden)").waitFor();
+		const feastButton = page.locator("#endregnal button.feast");
+		assert(await feastButton.count() === 1 && /Luke I · feast/.test(await feastButton.innerText()), `${file}: an October Tournon victory has no visible feast-day regnal choice`);
+		assert(/18 October election.*Luke I.*St Luke the Evangelist/i.test(await page.locator("#endregnal > p.regnalhint").first().innerText()), `${file}: the feast-day choice does not explain its represented date and saint`);
+		const geometry = await pageGeometry(page);
+		assert(geometry.scrollWidth <= geometry.innerWidth + 2, `${file}: the expanded mobile regnal choices overflow horizontally`);
+		assert(pageErrors.length === 0, `${file}: browser error in the Tournon completion flow: ${pageErrors.join("; ")}`);
+	} finally {
+		await context.close();
+	}
+}
+
 async function check1458Filters(browser, baseUrl) {
 	const file = "accession-1458.html";
 	const { context, page, pageErrors } = await preparePage(browser, { width: 390, height: 844 });
@@ -457,12 +495,13 @@ async function main() {
 		await checkCarafaStart(browser, baseUrl);
 		await checkCarafaDesktopSoundings(browser, baseUrl);
 		await checkCarafaMoroneOpening(browser, baseUrl);
+		await checkCarafaTournonCompletion(browser, baseUrl);
 		await check1458Filters(browser, baseUrl);
 		await checkConstanceChooserReturn(browser, baseUrl);
 		await checkStickyChooser(browser, baseUrl, "1903.html");
 		await checkStickyChooser(browser, baseUrl, "october-1978.html");
 		await checkMay2025Start(browser, baseUrl);
-		console.log(JSON.stringify({ variants: selections, checks: ["mobile-and-desktop-geometry", "dialog-focus", "chooser-return", "sticky-portrait-stacking", "carafa-start-and-play-loop", "carafa-desktop-persistent-soundings", "carafa-morone-opening", "1458-filter-strip", "2025-mobile-start-and-dossier"] }, null, 2));
+		console.log(JSON.stringify({ variants: selections, checks: ["mobile-and-desktop-geometry", "dialog-focus", "chooser-return", "sticky-portrait-stacking", "carafa-start-and-play-loop", "carafa-desktop-persistent-soundings", "carafa-morone-opening", "carafa-tournon-feast-ending", "1458-filter-strip", "2025-mobile-start-and-dossier"] }, null, 2));
 	} finally {
 		if (browser) await browser.close();
 		await new Promise((resolve) => server.close(resolve));

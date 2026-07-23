@@ -336,7 +336,7 @@ function runTargetedChecks(variant, api) {
 		return ["blank-ballot", "approval-validation", "accessus-validation", "illness-eligibility", "regnal-names", "counterfactual-variety", "strict-chronicle-anchor", "series-score"];
 	}
 	if (variant.label === "carafa-winter-1559") {
-		assert(typeof api.initState === "function" && typeof api.beginScrutiny === "function" && typeof api.playerAccede === "function" && typeof api.getState === "function" && typeof api.makeSounding1559 === "function" && typeof api.refineSounding1559 === "function" && typeof api.moroneVindication1559 === "function" && typeof api.personalObligationStatus1559 === "function" && typeof api.personalUndertakingChance1559 === "function" && typeof api.recordPersonalUndertaking1559 === "function" && typeof api.incomingColloquyCandidate1559 === "function" && typeof api.objective1559 === "function" && typeof api.resolveCaucus1559 === "function" && typeof api.resolveSupportDirection1559 === "function" && typeof api.acclamationReadiness1559 === "function" && typeof api.nightDisparageRisk1559 === "function" && typeof api.resolveNightDisparage1559 === "function" && typeof api.settlementPlan1559 === "function" && typeof api.aiPolitics1559 === "function" && typeof api.headlessAdvance1559 === "function" && typeof api.ceremonyOrder1559 === "function" && typeof api.ceremonyTiming1559 === "function" && typeof api.regnalOptions1559 === "function" && typeof api.portraitFor1559 === "function", "Carafa Winter: targeted-test API is not exported");
+		assert(typeof api.initState === "function" && typeof api.beginScrutiny === "function" && typeof api.playerAccede === "function" && typeof api.getState === "function" && typeof api.makeSounding1559 === "function" && typeof api.refineSounding1559 === "function" && typeof api.moroneVindication1559 === "function" && typeof api.personalObligationStatus1559 === "function" && typeof api.personalUndertakingChance1559 === "function" && typeof api.recordPersonalUndertaking1559 === "function" && typeof api.incomingColloquyCandidate1559 === "function" && typeof api.tournonCrisis1559 === "function" && typeof api.objective1559 === "function" && typeof api.resolveCaucus1559 === "function" && typeof api.resolveSupportDirection1559 === "function" && typeof api.acclamationReadiness1559 === "function" && typeof api.nightDisparageRisk1559 === "function" && typeof api.resolveNightDisparage1559 === "function" && typeof api.settlementPlan1559 === "function" && typeof api.aiPolitics1559 === "function" && typeof api.headlessAdvance1559 === "function" && typeof api.ceremonyOrder1559 === "function" && typeof api.ceremonyTiming1559 === "function" && typeof api.feastDay1559 === "function" && typeof api.regnalOptions1559 === "function" && typeof api.endGame1559Regnal === "function" && typeof api.portraitFor1559 === "function", "Carafa Winter: targeted-test API is not exported");
 		const carafaSource = fs.readFileSync(path.join(ROOT, variant.file), "utf8");
 		assert(/id="a-security">☾ The night…<\/button>/.test(carafaSource) && /Disparage a rival/.test(carafaSource) && !/simulated adherents/i.test(carafaSource), "Carafa Winter: the explicit night action or corrected adherent copy is missing");
 		assert(/scrollbar-color:var\(--gold-dim\) var\(--ink\)/.test(carafaSource) && /\.modal::-webkit-scrollbar-thumb/.test(carafaSource), "Carafa Winter: modal scrollbars have reverted to browser-default styling");
@@ -432,11 +432,18 @@ function runTargetedChecks(variant, api) {
 		corruptDirection.cards.medici.playerDirection = "medici";
 		corruptDirection.cards.medici.playerDirectionBallot = 1;
 		assert(!api.validateSavedState(corruptDirection), "Carafa Winter: a corrupt supporter direction was accepted");
-		state = api.initState("tournon", "carafa-christmas-name", { headless: true });
-		state.stage = 9;
-		assert(api.feastDay1559() && api.regnalOptions1559("tournon").includes("Emmanuel I"), "Carafa Winter: a Tournon victory during the Christmas settlement has no feast-day regnal option");
-		state.stage = 8;
-		assert(!api.feastDay1559() && !api.regnalOptions1559("tournon").includes("Emmanuel I"), "Carafa Winter: the Christmas regnal option is available before the Christmas settlement");
+		state = api.initState("tournon", "carafa-feast-names", { headless: true });
+		const feastNames = [];
+		for (let stage = 0; stage <= 12; stage++) {
+			state.stage = stage;
+			const feast = api.feastDay1559();
+			feastNames.push(feast?.name);
+			assert(feast?.name && feast.date && feast.saint && api.regnalOptions1559("tournon").includes(feast.name), `Carafa Winter: stage ${stage} has no dated feast-day regnal option`);
+		}
+		state.stage = 4;
+		assert(api.feastDay1559().name === "Luke I" && api.regnalOptions1559("tournon")[1] === "Luke I" && new Set(feastNames).size >= 9, "Carafa Winter: an October Tournon victory does not prominently offer its own feast-day name");
+		const tournonCrisis = api.tournonCrisis1559();
+		assert(/your own candidacy/i.test(tournonCrisis.body + tournonCrisis.labels.join(" ")) && !/help the French press on/i.test(tournonCrisis.labels.join(" ")), "Carafa Winter: Tournon is still asked in the third person to support his own election");
 		state = api.initState("morone", "carafa-vindication", { headless: true });
 		state.taint = 12; state.lastFinal = { morone: 6 }; state.scrutinies = [{ threshold: 30 }]; state.electedId = "medici";
 		assert(api.moroneVindication1559().done, "Carafa Winter: Morone cannot fulfil the documented public-vindication route");
@@ -458,6 +465,13 @@ function runTargetedChecks(variant, api) {
 		assert(!api.personalObligationStatus1559().achieved && !api.objective1559().done, "Carafa Winter: an undertaking from a losing candidate incorrectly fulfils du Bellay's objective");
 		state.stage = 2;
 		assert(api.incomingColloquyCandidate1559() === null, "Carafa Winter: incoming colloquies ignore their intended cadence");
+		const selfApproaches = [];
+		for (const cardinal of api.ELECTORS) for (const stage of [1, 3, 6, 8]) {
+			state = api.initState(cardinal.id, `carafa-no-self-colloquy-${cardinal.id}-${stage}`, { headless: true });
+			state.stage = stage;
+			if (api.incomingColloquyCandidate1559() === cardinal.id) selfApproaches.push(`${cardinal.id}@${stage}`);
+		}
+		assert(selfApproaches.length === 0, `Carafa Winter: cardinals approach themselves for support: ${selfApproaches.join(", ")}`);
 		state = api.initState("rebiba", "carafa-christmas-pacing", { headless: true });
 		state.stage = 9;
 		const mediciBefore = state.boost.medici || 0;
@@ -474,7 +488,7 @@ function runTargetedChecks(variant, api) {
 		const ceremonyTiming = api.ceremonyTiming1559();
 		assert(ceremonyTiming.firstCedula >= 600 && ceremonyTiming.betweenCedulae >= 360, "Carafa Winter: the scrutiny delivery has reverted to an over-fast count");
 		assert([api.seriesScore1559("pope", 250), api.seriesScore1559("kingmaker", 150), api.seriesScore1559("survivor", 50)].every((score) => Number.isInteger(score) && score >= 0 && score <= 100), "Carafa Winter: comparable series score is invalid");
-		return ["attendance-40-to-44", "approval-validation", "accessus-validation", "illness-eligibility", "metric-bounds", "risk-explanations", "faction-pulse", "uncertain-soundings", "colloquy-refines-soundings", "persistent-refined-soundings", "ordinary-cedula-participation", "acclamation-readiness", "deterministic-caucus", "consent-based-support-direction", "explicit-night-action", "deterministic-rival-disparagement", "procedural-cedula-order", "slower-scrutiny-delivery", "scrutiny-xii-bargaining-turn", "non-compounding-christmas-pressure", "transparent-settlement-forecast", "incoming-colloquies", "personal-undertaking-objective", "Morone-vindication-route", "winner-portrait-coverage", "Christmas-regnal-choice", "six-cardinal-bishops", "versioned-save", "series-score"];
+		return ["attendance-40-to-44", "approval-validation", "accessus-validation", "illness-eligibility", "metric-bounds", "risk-explanations", "faction-pulse", "uncertain-soundings", "colloquy-refines-soundings", "persistent-refined-soundings", "ordinary-cedula-participation", "acclamation-readiness", "deterministic-caucus", "consent-based-support-direction", "explicit-night-action", "deterministic-rival-disparagement", "procedural-cedula-order", "slower-scrutiny-delivery", "scrutiny-xii-bargaining-turn", "non-compounding-christmas-pressure", "transparent-settlement-forecast", "incoming-colloquies", "no-self-colloquies", "Tournon-self-aware-crisis", "personal-undertaking-objective", "Morone-vindication-route", "winner-portrait-coverage", "dated-feast-regnal-choice", "six-cardinal-bishops", "versioned-save", "series-score"];
 	}
 	if (variant.label === "1903") {
 		assert(typeof api.initState === "function" && typeof api.makeSounding === "function" && typeof api.playerNetworks === "function" && typeof api.networkAccess === "function" && typeof api.resolveNetworkAction === "function" && typeof api.actionRouteCopy === "function" && typeof api.portraitFor === "function" && typeof api.alignmentWithPlayer === "function" && typeof api.currentProgrammeFit === "function" && typeof api.pressureMetricDetail === "function" && typeof api.metricLogAdjustment === "function" && typeof api.resolveColloquyReading === "function" && typeof api.resolveColloquyPressure === "function" && typeof api.resolveSupportDirective === "function" && typeof api.scoreGame === "function", "1903: revised information/network/portrait/pressure/colloquy/score API is not exported");
@@ -1217,8 +1231,8 @@ function checkStaticFiles() {
 	for (const [year, roman] of Object.entries(romanDates)) assert(index.includes(`<span class="year">${year}</span><span class="roman">${roman}</span>`), `index: missing Roman date ${roman} for ${year}`);
 	assert(index.includes("The Keys of Heaven"), "index: 1492 still lacks its distinctive title");
 	assert(/class="card beta" href="\.\/constance-1417\.html"[\s\S]*?<span class="status">Beta<\/span>/.test(index), "index: Constance 1417 is not promoted to beta");
-	assert(/class="card beta" href="\.\/carafa-winter-1559\.html"[\s\S]*?<span class="status">Beta<\/span>/.test(index), "index: Carafa Winter 1559 is not promoted to beta");
-	for (const [status, expected] of Object.entries({ complete: 1, beta: 3, alpha: 6 })) {
+	assert(/aria-labelledby="complete-heading"[\s\S]*?class="card" href="\.\/carafa-winter-1559\.html"[\s\S]*?<span class="status">Complete<\/span>/.test(index), "index: Carafa Winter 1559 is not promoted to complete");
+	for (const [status, expected] of Object.entries({ complete: 2, beta: 2, alpha: 6 })) {
 		const section = index.match(new RegExp(`<section class="status-group" aria-labelledby="${status}-heading">([\\s\\S]*?)<\\/section>`));
 		assert(section, `index: ${status} status section is missing`);
 		const cards = (section[1].match(/<a class="card(?: [^"]*)?"/g) || []).length;
