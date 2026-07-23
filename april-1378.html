@@ -194,6 +194,16 @@ input,select{font-family:var(--serif);font-size:.95rem;color:var(--paper);backgr
 #modal .src{font-size:.88rem;color:var(--paper-dim)}
 #modal .src p{margin:.5rem 0}
 #modal .closebar{display:flex;justify-content:flex-end;margin-top:.8rem}
+.scrutiny-count-list{display:flex;flex-direction:column;gap:.3rem;margin:.7rem 0}
+.scrutiny-count-head,.scrutiny-count-row{display:grid;grid-template-columns:minmax(8rem,1fr) minmax(5rem,1fr) 3rem 3rem;gap:.45rem;align-items:center}
+.scrutiny-count-head{font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--smoke)}
+.scrutiny-count-head span:nth-last-child(-n+2),.scrutiny-count-row span:nth-last-child(-n+2){text-align:right}
+.scrutiny-count-row{padding:.28rem 0;border-bottom:1px dashed var(--line);font-size:.92rem}
+.scrutiny-count-row .voice{font-family:var(--mono);font-size:.72rem;color:var(--torch-bright)}
+.scrutiny-count-row .delta{font-family:var(--mono);font-size:.7rem;color:var(--smoke)}.scrutiny-count-row .delta.up{color:var(--green-bright)}.scrutiny-count-row .delta.down{color:var(--ox-bright)}
+.scrutiny-reader{border-left:3px solid var(--torch);padding:.55rem .7rem;background:rgba(184,123,42,.1);margin:.55rem 0}.scrutiny-reader b{color:var(--torch-bright)}
+.scrutiny-progress{font-family:var(--mono);font-size:.7rem;color:var(--torch-bright)}.scrutiny-tools{display:flex;justify-content:flex-end;margin:.45rem 0}
+@media(max-width:540px){.scrutiny-count-head,.scrutiny-count-row{grid-template-columns:minmax(6.5rem,1fr) minmax(4.5rem,.8fr) 2.5rem 2.5rem;gap:.28rem}}
 .colloquylist{margin:.85rem 0;border-top:1px solid var(--line2)}
 .colloquyrow{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:.55rem .1rem;border-bottom:1px solid var(--line)}
 .colloquyrow b{display:block;color:var(--paper);font-family:var(--display);font-size:1.03rem;letter-spacing:.02em}
@@ -290,6 +300,7 @@ input,select{font-family:var(--serif);font-size:.95rem;color:var(--paper);backgr
 .regnal-choice>p{margin:.2rem auto .75rem;max-width:58ch;text-align:center;color:var(--paper-dim);font-size:.9rem}
 .regnal-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:.55rem}
 .regnal-option{display:grid;gap:.14rem;min-height:78px;text-align:left}
+.regnal-option.feast{border-style:dashed;border-color:var(--torch)}
 .regnal-option.selected{border-color:var(--torch);background:var(--torch-soft)}
 .regnal-option .rname{font-family:var(--display);font-weight:600;color:var(--paper)}
 .regnal-option .rsignal{color:var(--smoke);font-size:.78rem;line-height:1.35}
@@ -685,7 +696,13 @@ const REGNAL_SIGNAL={
 	"Martin V":"unity / recovery / an end to rival obediences",
 	"Celestine VI":"ascetic reform / distance from faction / spiritual authority",
 	"Nicholas V":"independence / pastoral reform / distance from both French blocs",
-	"Dionysius I":"Saint Dionysius of Corinth, remembered on 8 April: learned episcopal witness and a deliberately unprecedented name"
+	"Dionysius I":"Saint Dionysius of Corinth, remembered on 8 April: learned episcopal witness and a deliberately unprecedented name",
+	"Casilda I":"Saint Casilda, remembered on 9 April: mercy across a religious frontier and a startlingly new papal name",
+	"Ezekiel I":"The prophet remembered on 10 April: watchfulness, exile and the rebuilding of a wounded people",
+	"Leo VII":"Saint Leo the Great, kept on 11 April in the older Roman calendar: doctrine, diplomacy and Roman courage",
+	"Julius II":"Saint Julius I, remembered on 12 April: defence of lawful bishops and the liberty of the Roman see",
+	"Hermenegild I":"Saint Hermenegild, remembered on 13 April: conscience under royal pressure and fidelity at great cost",
+	"Tiburtius I":"Saint Tiburtius, remembered on 14 April: witness under persecution and a name never before borne by a pope"
 };
 
 /* Pre-conclave leanings, per the casus and depositions (inferred weights). */
@@ -1496,18 +1513,34 @@ function runHeadless(seed,playerId,mode,maxBallots){
 }
 /* ===== 04-actions.js ===== */
 function threshold(n){return Math.ceil(n*2/3)}
-function regnalOptionsFor(id){
+const FEAST_NAMES_1378={
+	1:"Dionysius I",2:"Dionysius I",
+	3:"Casilda I",4:"Casilda I",
+	5:"Ezekiel I",6:"Ezekiel I",
+	7:"Leo VII",
+	8:"Julius II",9:"Julius II",
+	10:"Hermenegild I",11:"Hermenegild I",
+	12:"Tiburtius I"
+};
+function feastName1378(ballotNumber){return FEAST_NAMES_1378[Math.max(1,Math.min(MAX_SCRUTINIES,Number(ballotNumber)||1))]||null}
+function currentRegnalBallot1378(){
+	if(typeof S!=="undefined"&&S&&Array.isArray(S.history)&&S.history.length)return S.history[S.history.length-1].ballot;
+	return 1;
+}
+function regnalOptionsFor(id,ballotNumber){
 	const options=(REGNAL[id]||["Innocent VII"]).slice();
-	if(options.indexOf("Dionysius I")<0)options.push("Dionysius I");
+	const feast=feastName1378(ballotNumber||currentRegnalBallot1378());
+	if(feast&&options.indexOf(feast)<0)options.push(feast);
 	return options;
 }
 function regnalSignalFor(name){
 	return REGNAL_SIGNAL[name]||"continuity / reform / a new papal household";
 }
-function papalNameForState(seed,electedId){
+function papalNameForState(seed,electedId,ballotNumber){
 	if(electedId==="prignano")return "Urban VI";
 	if(electedId==="geneva")return "Clement VII";
-	if(pureRand(String(seed)+"|feast-name|"+electedId)<.08)return "Dionysius I";
+	const feast=feastName1378(ballotNumber||currentRegnalBallot1378());
+	if(feast&&pureRand(String(seed)+"|feast-name|"+electedId)<.08)return feast;
 	const options=(REGNAL[electedId]||["Innocent VII"]).slice();
 	const idx=Math.floor(pureRand(String(seed)+"|name|"+electedId)*options.length)%options.length;
 	return options[idx];
@@ -2132,12 +2165,13 @@ function renderRegnalChoice(){
 		:"Fondi has given you a rival obedience. Choose the name under which you will claim it."}));
 	const choices=el("div",{"class":"regnal-options"});
 	options.forEach(function(name){
-		const btn=el("button",{type:"button","class":"regnal-option"+(S.playerRegnalName===name?" selected":""),
+		const feast=name===feastName1378(currentRegnalBallot1378());
+		const btn=el("button",{type:"button","class":"regnal-option"+(feast?" feast":"")+(S.playerRegnalName===name?" selected":""),
 			"aria-pressed":S.playerRegnalName===name?"true":"false",onclick:function(){
 				try{choosePlayerRegnalName(S,name)}catch(e){toast(e.message);return}
 				saveState();renderEnd();
 			}});
-		btn.appendChild(el("span",{"class":"rname",text:name}));
+		btn.appendChild(el("span",{"class":"rname",text:name+(feast?" · feast-day choice":"")}));
 		btn.appendChild(el("span",{"class":"rsignal",text:regnalSignalFor(name)}));
 		choices.appendChild(btn);
 	});
@@ -2195,9 +2229,11 @@ function exportChronicle(){
 }
 
 /* ---------- modals ---------- */
-function openModal(title,html){
+function openModal(title,html,options){
+	const opts=options||{};
 	const host=$("modalhost");if(!host)return;
 	UI.modalReturnFocus=(typeof document!=="undefined")?document.activeElement:null;
+	UI.modalMandatory=!!opts.mandatory;
 	host.className="";
 	const t=$("modalTitle");if(t)t.textContent=title;
 	const b=$("modalBody");if(b)b.innerHTML=html;
@@ -2209,9 +2245,46 @@ function openModal(title,html){
 		if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}
 		else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
 	};
-	const close=$("modalClose");if(close)close.focus();else{host.setAttribute("tabindex","-1");host.focus()}
+	const close=$("modalClose");if(close){close.hidden=UI.modalMandatory;close.closest(".closebar").hidden=UI.modalMandatory}
+	const first=host.querySelector("#modalBody button,#modalBody input,#modalBody select,[tabindex]");
+	if(first)first.focus();else if(close&&!UI.modalMandatory)close.focus();else{host.setAttribute("tabindex","-1");host.focus()}
 }
-function closeModal(){const host=$("modalhost"),previous=UI.modalReturnFocus;UI.modalReturnFocus=null;if(host){host.className="hidden";host.onkeydown=null}if(previous&&typeof previous.focus==="function"&&document.contains(previous))previous.focus()}
+function closeModal(force){if(UI.modalMandatory&&force!==true)return;const host=$("modalhost"),previous=UI.modalReturnFocus;UI.modalReturnFocus=null;UI.modalMandatory=false;if(UI.modalTimer){clearTimeout(UI.modalTimer);UI.modalTimer=null}if(host){host.className="hidden";host.onkeydown=null;const bar=host.querySelector(".closebar");if(bar)bar.hidden=false;const close=$("modalClose");if(close)close.hidden=false}if(previous&&typeof previous.focus==="function"&&document.contains(previous))previous.focus()}
+function scrutinyCountRows1378(record,counts,showDelta){
+	const index=S.history.indexOf(record),previous=index>0?S.history[index-1]:null;
+	return Object.keys(counts).filter(function(id){return counts[id]>0}).sort(function(a,b){return counts[b]-counts[a]||displayName(a).localeCompare(displayName(b))}).map(function(id){
+		const n=counts[id],delta=n-(previous?(previous.counts[id]||0):0),change=showDelta?(previous?(delta>0?"+":"")+delta:"—"):"";
+		return "<div class='scrutiny-count-row'><span>"+esc(displayName(id))+"</span><span class='voice'>"+"|".repeat(n)+"</span><span class='mono'>"+n+"</span><span class='delta"+(showDelta?(delta>0?" up":delta<0?" down":""):"")+"'>"+change+"</span></div>";
+	}).join("");
+}
+function openScrutinyCount1378(record){
+	const html="<div class='scrutiny-count-1378'><p>The scrutiny is oral and public inside the hall. Each elector rises in precedence; the votes already spoken can shape those still to come.</p><div class='scrutiny-progress' role='status' aria-live='polite'>The first elector is called.</div><div class='scrutiny-reader'>The hall settles.</div><div class='scrutiny-tools'><button type='button' class='count-skip'>Show full count</button></div><div class='scrutiny-count-head'><span>Candidate</span><span>Voices</span><span>Votes</span><span>Change</span></div><div class='scrutiny-count-list'></div></div>";
+	openModal(scrutinyLabel(record.ballot)+" · "+record.date,html,{mandatory:true});
+	const host=$("modalBody").querySelector(".scrutiny-count-1378"),list=host.querySelector(".scrutiny-count-list"),progress=host.querySelector(".scrutiny-progress"),reader=host.querySelector(".scrutiny-reader"),skip=host.querySelector(".count-skip");
+	const running={};let index=0,finished=false;
+	function finish(){
+		if(finished)return;finished=true;if(UI.modalTimer)clearTimeout(UI.modalTimer);
+		list.innerHTML=scrutinyCountRows1378(record,record.counts,true);
+		progress.textContent="Reading complete · "+record.votes.length+" electors · "+record.threshold+" needed";
+		reader.innerHTML=record.leaderId?"<b>"+esc(displayName(record.leaderId))+"</b> ends on "+record.leaderCount+" voice"+(record.leaderCount===1?"":"s")+".":"No name is spoken.";
+		skip.textContent=S.electedId?"Continue to the election":"Return to the conclave";
+		skip.onclick=function(){UI.modalMandatory=false;closeModal(true)};
+		skip.focus();
+	}
+	function reveal(){
+		if(finished)return;
+		const vote=record.votes[index],choice=vote.candidate[0]||null;
+		if(choice)running[choice]=(running[choice]||0)+1;
+		index++;
+		progress.textContent="Voice "+index+" of "+record.votes.length;
+		reader.innerHTML="<b>"+esc(displayName(vote.voter))+"</b> "+(choice?"names <b>"+esc(displayName(choice))+"</b>.":"withholds his voice.");
+		list.innerHTML=scrutinyCountRows1378(record,running,false);
+		UI.modalTimer=setTimeout(index>=record.votes.length?finish:reveal,index>=record.votes.length?420:460);
+	}
+	skip.onclick=finish;
+	const reduced=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+	if(reduced)finish();else UI.modalTimer=setTimeout(reveal,420);
+}
 function rulesHtml(){
 	return "<h4>The situation</h4><p>Gregory XI is dead and the papacy is back in Rome by a decade-old thread. Sixteen cardinals — eleven French (five of them the late pope's Limousin kin-bloc), four Italians, one Aragonese — must elect by <b>eleven voices</b>, spoken aloud in order of precedence, while a thousand armed Romans hold the palace doors and chant for a Roman pope. The city controls the bridges, the gates, and the wine cellar. The law requires a free election. The square requires the opposite.</p>"
 	+"<h4>The oral scrutiny</h4><p>There are no written cedulae here: each man gives one name aloud — and every man votes <i>having heard the votes before his</i>. Early voices carry weight beyond their number. You may also withhold your voice entirely, as Orsini did, and let the record show it.</p>"
@@ -2260,6 +2333,7 @@ function doScrutiny(){
 	let record;
 	try{record=beginScrutiny(S,val?[val]:[])}catch(e){toast(e.message);return}
 	saveState();renderAll();
+	openScrutinyCount1378(record);
 }
 
 /* ---------- wiring ---------- */
@@ -2335,6 +2409,7 @@ var APRIL_1378_ENGINE={
 	scoreGame:scoreGame,
 	achievementsFor:achievementsFor,
 	papalNameForState:papalNameForState,
+	feastName1378:feastName1378,
 	regnalOptionsFor:regnalOptionsFor,
 	regnalSignalFor:regnalSignalFor,
 	choosePlayerRegnalName:choosePlayerRegnalName,

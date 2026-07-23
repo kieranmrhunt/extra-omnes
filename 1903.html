@@ -332,13 +332,20 @@ button.pressure-card:active{transform:none}
 .threshold{font-family:var(--cond);font-size:.75rem;letter-spacing:.04em;color:var(--paper-dim);margin-bottom:.28rem}
 .threshold b{color:var(--burgundy-bright)}
 .race{display:flex;flex-direction:column;gap:.3rem;margin:.45rem 0}
-.race-row{display:grid;grid-template-columns:86px 1fr 28px;gap:.42rem;align-items:center}
+.race-row{display:grid;grid-template-columns:86px 1fr 28px 34px;gap:.42rem;align-items:center}
 .race-row .candidate{font-family:var(--cond);font-size:.75rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .race-row.lead .candidate{color:var(--gold-pale)}
 .race-track{height:9px;background:#0b1219;border-radius:999px;overflow:hidden;box-shadow:inset 0 0 0 1px var(--line)}
 .race-track span{display:block;height:100%;background:linear-gradient(90deg,var(--burgundy),var(--gold));border-radius:999px}
 .race-track span.win{background:linear-gradient(90deg,var(--gold),#fff0bd)}
 .race-num{font-family:var(--cond);font-size:.78rem;color:var(--gold-pale);text-align:right}
+.race-delta{font-family:var(--cond);font-size:.7rem;color:var(--paper-dim);text-align:right}
+.race-delta.up{color:var(--green)}.race-delta.down{color:var(--burgundy-bright)}
+.race-head{display:grid;grid-template-columns:86px 1fr 28px 34px;gap:.42rem;font-family:var(--cond);font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--paper-faint)}
+.race-head span:nth-last-child(-n+2){text-align:right}
+.count-progress{font-family:var(--cond);font-size:.75rem;color:var(--gold-pale);margin:.35rem 0}
+.count-tools{display:flex;justify-content:flex-end;margin:.45rem 0}
+.count-tools button{font-family:var(--cond);font-size:.68rem;padding:.3rem .5rem}
 .board-note{font-family:var(--serif);font-size:.86rem;color:var(--paper-dim);line-height:1.25}
 .board-actions{display:grid;grid-template-columns:1fr 1fr;gap:.35rem;margin-top:.45rem}
 .board-actions button{font-family:var(--cond);font-size:.7rem;letter-spacing:.05em;text-transform:uppercase;padding:.35rem .45rem}
@@ -442,6 +449,7 @@ button.sounding-row:active{transform:none}
 .end-body b{color:var(--gold-pale)}
 .regnal{display:flex;gap:.45rem;flex-wrap:wrap;justify-content:center;margin:.9rem auto;max-width:760px}
 .regnal button{font-family:var(--display);font-size:.98rem}
+.regnal button.feast{border-style:dashed;border-color:var(--gold)}
 .regnal button.sel{border-color:var(--gold);color:var(--gold-pale)}
 .regnalhint{max-width:640px;margin:.2rem auto .9rem;text-align:center;font-family:var(--serif);font-size:1rem;color:var(--paper-dim);font-style:italic;line-height:1.45;min-height:2.3em}
 .regnalhint b{font-style:normal;font-family:var(--display);font-weight:400;color:var(--gold-pale)}
@@ -1614,10 +1622,16 @@ const PAPAL_NAME_FLAVOR_1903={
 	"Gregory XVII":"monastic reform and institutional discipline: a name for a religious pope who means to govern.",
 	"Innocent XIII":"clean jurisdiction and papal liberty: a legal answer to the wound of the veto.",
 	"Adrian VII":"austere reform from outside the Roman habit: plain speech, correction and suspicion of courtly politics.",
-	"Dominic I":"the saint of 4 August in the contemporary calendar: a rare election-day name invoking preaching, study and reform."
+	"Machabeus I":"the Holy Maccabees, commemorated on 1 August in the contemporary calendar: fidelity under a hostile state.",
+	"Alphonsus I":"Saint Alphonsus Liguori, kept on 2 August in the contemporary calendar: moral theology, mission and pastoral mercy.",
+	"Stephen X":"the finding of Saint Stephen, kept on 3 August in the contemporary calendar: first witness and fearless preaching.",
+	"Dominic I":"the saint of 4 August in the contemporary calendar: a rare election-day name invoking preaching, study and reform.",
+	"Liberius II":"the dedication of Saint Mary Major on 5 August: Roman continuity, Marian devotion and the basilica associated with Pope Liberius.",
+	"Salvator I":"the Transfiguration on 6 August: a name for renewal in the light of Christ and a Church facing a new century."
 };
 function papalNameFlavor1903(name){return PAPAL_NAME_FLAVOR_1903[name]||"a name with a thinner recent precedent; the new pope would have to define it."}
-function feastName1903(ballotNo){return /4 August/.test(ballotDate(ballotNo))?"Dominic I":null}
+const FEAST_NAMES_1903={1:"Machabeus I",2:"Machabeus I",3:"Alphonsus I",4:"Alphonsus I",5:"Stephen X",6:"Stephen X",7:"Dominic I",8:"Dominic I",9:"Liberius II",10:"Liberius II",11:"Salvator I",12:"Salvator I"};
+function feastName1903(ballotNo){return FEAST_NAMES_1903[Math.max(1,Math.min(12,Number(ballotNo)||1))]||null}
 function papalNameOptions1903(id){const suggested=nextPapalName(id),names=PAPAL_NAMES_1903.slice(),feast=feastName1903(S.ballotNo);if(feast)names.push(feast);return [suggested].concat(names.filter(function(name){return name!==suggested}))}
 function papalNameFor1903(seed,id,ballotNo){
 	if(id==="sarto")return "Pius X";
@@ -2614,9 +2628,15 @@ function performBallot(candidateId){
 	render();
 	showScrutiny(record,true);
 }
-function scrutinyRows(record){
-	return sortedCounts(record.counts).slice(0,12).map(function(row){
-		return "<div class='race-row"+(row.id===record.leaderId ? " lead" : "")+"'><span class='candidate'>"+esc(row.elector.short)+"</span><span class='race-track'><span class='"+(row.count>=THRESHOLD ? "win" : "")+"' style='width:"+clamp(row.count/THRESHOLD*100,0,100)+"%'></span></span><span class='race-num'>"+row.count+"</span></div>";
+function scrutinyRows(record,counts,showDelta){
+	const previous=S.history.find(function(entry){return entry.ballot===record.ballot-1});
+	const values=counts||record.counts;
+	return sortedCounts(values).slice(0,12).map(function(row){
+		const old=previous ? (previous.counts[row.id]||0) : 0;
+		const delta=row.count-old;
+		const deltaText=showDelta ? (previous ? (delta>0?"+":"")+delta : "—") : "";
+		const deltaClass=showDelta ? (delta>0?" up":delta<0?" down":"") : "";
+		return "<div class='race-row"+(row.id===record.leaderId && showDelta ? " lead" : "")+"'><span class='candidate'>"+esc(row.elector.short)+"</span><span class='race-track'><span class='"+(row.count>=THRESHOLD ? "win" : "")+"' style='width:"+clamp(row.count/THRESHOLD*100,0,100)+"%'></span></span><span class='race-num'>"+row.count+"</span><span class='race-delta"+deltaClass+"'>"+deltaText+"</span></div>";
 	}).join("");
 }
 function exactRollTable(record){
@@ -2635,14 +2655,52 @@ function showScrutiny(record,advance){
 	const gap=Math.max(0,THRESHOLD-record.leaderCount);
 	let comparison="";
 	if(record.historical)comparison="<details class='historical-comparison'><summary>Historical comparison: documented aggregate totals</summary><p>These are the published candidate totals for the historical scrutiny, not a recovered identity-level roll and not the count generated in this playthrough.</p><p><b>Record:</b> "+esc(record.historical)+"</p></details>";
-	const html="<div class='scrutiny-grid'><div><div class='threshold'>"+esc(record.date)+" · "+(gap ? gap+" short of election" : "election reached")+"</div><div class='race'>"+scrutinyRows(record)+"</div></div>"+
-		"<div>"+smokeMarkup(record)+"<p class='dim'>The modelled aggregate count is public. Every individual simulated ballot remains under seal until the conclave ends; the historical individual votes are largely unknown.</p></div></div>"+comparison;
-	const choices=advance ? [{label:S.over ? "Witness the acceptance" : "Return to the conclave",small:S.over ? "The elected cardinal is asked whether he accepts." : "Continue negotiations before the next scrutiny.",fn:function(){
-		if(S.over)endGame();
-		else if(record.ballot===5 && S.flags.sartoCrisis && !S.flags.sartoConsent)showSartoCrisis();
-		else render();
-	}}] : [];
-	showModal("Scrutiny "+roman(record.ballot),html,choices,"wide",{mandatory:!!advance});
+	const html="<div class='scrutiny-count-host'><div class='callout'>The scrutators unfold anonymous papers. The public aggregate builds below; voter identities remain sealed until the conclave ends.</div><div class='count-progress' role='status' aria-live='polite'>The first paper is brought to the table.</div><div class='count-tools'><button type='button' class='count-skip'>Show full count</button></div><div class='race-head'><span>Candidate</span><span></span><span>Votes</span><span>Change</span></div><div class='race'></div></div>";
+	const overlay=showModal("Scrutiny "+roman(record.ballot),html,[],"wide",{mandatory:true});
+	const host=overlay.querySelector(".scrutiny-count-host");
+	const race=host.querySelector(".race");
+	const progress=host.querySelector(".count-progress");
+	const skip=host.querySelector(".count-skip");
+	const ordered=record.votes.slice().sort(function(a,b){
+		return hash32(S.seed+"|scrutiny-order|"+record.ballot+"|"+a.voter)-hash32(S.seed+"|scrutiny-order|"+record.ballot+"|"+b.voter);
+	});
+	const running={};
+	let index=0,blank=0,finished=false,timer=null;
+	function paint(){
+		race.innerHTML=scrutinyRows(record,running,false);
+	}
+	function finish(){
+		if(finished)return;
+		finished=true;
+		if(timer)clearTimeout(timer);
+		host.innerHTML="<div class='scrutiny-grid'><div><div class='threshold'>"+esc(record.date)+" · "+(gap ? gap+" short of election" : "election reached")+"</div><div class='race-head'><span>Candidate</span><span></span><span>Votes</span><span>Change</span></div><div class='race'>"+scrutinyRows(record,record.counts,true)+"</div><div class='count-progress'>Count complete · "+record.votes.length+" papers"+(blank?" · "+blank+" blank":"")+"</div></div>"+
+			"<div>"+smokeMarkup(record)+"<p class='dim'>The modelled aggregate count is public. Every individual simulated ballot remains under seal until the conclave ends; the historical individual votes are largely unknown.</p></div></div>"+comparison;
+		const actions=el("div",{class:"choices"});
+		const label=advance ? (S.over ? "Witness the acceptance" : "Return to the conclave") : "Close the scrutiny book";
+		actions.appendChild(el("button",{type:"button",onclick:function(){
+			closeModal();
+			if(!advance)return;
+			if(S.over)endGame();
+			else if(record.ballot===5 && S.flags.sartoCrisis && !S.flags.sartoConsent)showSartoCrisis();
+			else render();
+		}},label,advance ? el("small",null,S.over ? "The elected cardinal is asked whether he accepts." : "Continue negotiations before the next scrutiny.") : null));
+		host.appendChild(actions);
+		actions.querySelector("button").focus();
+	}
+	function reveal(){
+		if(finished)return;
+		const vote=ordered[index];
+		if(vote.candidate==="_blank")blank++;
+		else running[vote.candidate]=(running[vote.candidate]||0)+1;
+		index++;
+		progress.textContent="Paper "+index+" of "+ordered.length+(vote.candidate==="_blank" ? " · blank" : " · "+ID[vote.candidate].short);
+		paint();
+		if(index>=ordered.length)timer=setTimeout(finish,420);
+		else timer=setTimeout(reveal,180);
+	}
+	skip.addEventListener("click",finish);
+	const reduced=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+	if(reduced)finish();else timer=setTimeout(reveal,420);
 }
 function showExactRoll(record){
 	if(!record)return;
@@ -2832,8 +2890,10 @@ function renderRegnal1903(winner,player,initial){
 		host.appendChild(el("p",{class:"dim",style:"text-align:center"},"By what name shall the Church know you? Each name is a programme as well as a precedent."));
 		const row=el("div",{class:"regnal"});
 		let initialButton=null;
+		const feast=feastName1903(S.ballotNo);
 		papalNameOptions1903(winner.id).forEach(function(name){
-			const b=el("button",{type:"button",onclick:function(){apply(name,b)}},name+(name===initial?" *":""));
+			const isFeast=name===feast;
+			const b=el("button",{type:"button",class:isFeast?"feast":"",onclick:function(){apply(name,b)}},name+(isFeast?" · feast":"")+(name===initial?" *":""));
 			row.appendChild(b);
 			if(name===initial)initialButton=b;
 		});
@@ -2986,6 +3046,7 @@ globalThis.__om1903={
 	scoreGame:scoreGame,
 	seriesScoreForVerdict:seriesScoreForVerdict,
 	papalNameFor1903:papalNameFor1903,
+	feastName1903:feastName1903,
 	runHeadless:runHeadless,
 	validateData:validateData,
 	validateSavedState:validateSavedState1903

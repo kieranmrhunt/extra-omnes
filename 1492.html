@@ -205,6 +205,10 @@ input[type=checkbox]{accent-color:var(--scarlet)}
 .trow .tn{width:9.5rem;font-family:var(--serif);font-size:1rem}
 .trow .marks{flex:1;letter-spacing:.18em;color:var(--gold);font-size:.95rem;word-break:break-all}
 .trow .ct{color:var(--parch-dim);font-size:.8rem;min-width:2.2em;text-align:right}
+.trow .delta-cell{color:var(--parch-dim);font-size:.72rem;min-width:2.8em;text-align:right}
+.trow .delta-cell.up{color:var(--good)}.trow .delta-cell.down{color:var(--scarlet)}
+.trow.thead{opacity:1;animation:none;color:var(--gold-dim);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase}
+.trow.thead .tn{font-family:var(--mono);font-size:.62rem}.trow.thead .marks{text-align:right}
 .trow.over .marks,.trow.over .ct{color:var(--scarlet);text-shadow:0 0 8px rgba(151,23,34,.6)}
 @keyframes fadein{to{opacity:1}}
 #acczone{margin-top:1rem;width:100%;max-width:560px;min-height:2rem}
@@ -254,6 +258,7 @@ input[type=checkbox]{accent-color:var(--scarlet)}
 /* regnal picker */
 .regnal{display:flex;gap:.4rem;flex-wrap:wrap;justify-content:center;margin:.8rem 0}
 .regnal button{font-family:var(--disp);font-size:1rem}
+.regnal button.feast{border-style:dashed;border-color:var(--gold-dim)}
 .regnal button.sel{border-color:var(--gold);color:var(--gold)}
 .regnalhint{max-width:520px;margin:.2rem auto .5rem;text-align:center;font-size:.92rem;color:var(--parch-dim);font-style:italic;min-height:2.4em;line-height:1.5}
 .regnalhint b{font-style:normal;font-family:var(--disp);color:var(--gold)}
@@ -1032,10 +1037,22 @@ const REGNAL_FLAVOR = {
   Boniface:"the high theory of papal supremacy — and its perilous reckoning with kings.",
   Stephen:"an ancient, early-Church name — a deliberate reach back past the worldly century just passed.",
   Victor:"a primitive, combative name — orthodoxy asserted, a return to first things.",
-  Tiburtius:"the saint of the day — a rare name chosen on 11 August to bind the new pontificate to its hour of election."
+  Tiburtius:"the saint of the day — a rare name chosen on 11 August to bind the new pontificate to its hour of election.",
+  Salvator:"the Transfiguration on 6 August — renewal in the light of Christ.",
+  Cyriacus:"the Roman martyr remembered on 8 August — endurance under temporal power.",
+  Romanus:"the Roman martyr remembered on 9 August — a deliberately local name for the Roman see.",
+  Lawrence:"the deacon and martyr remembered on 10 August — service, courage and the treasure of the poor.",
+  Clare:"the founder remembered on 12 August — poverty, reform and steadfast prayer.",
+  Hippolytus:"the martyr remembered on 13 August — reconciliation after conflict with the Roman church.",
+  Eusebius:"the Roman confessor remembered on 14 August — constancy under doctrinal pressure.",
+  Mary:"the Assumption on 15 August — an unprecedented name placing the pontificate under Marian patronage.",
+  Roch:"the pilgrim invoked against plague, remembered on 16 August — mercy amid sickness.",
+  Mammes:"the young martyr remembered on 17 August — courage without worldly calculation."
 };
 
 const DATE_LABELS = ["", "Monday 6 August","Tuesday 7 August","Wednesday 8 August","Thursday 9 August","Friday 10 August","Saturday 11 August","Sunday 12 August","Monday 13 August","Tuesday 14 August","Wednesday 15 August","Thursday 16 August","Friday 17 August"];
+const FEAST_NAMES_1492={1:"Salvator",2:"Sixtus",3:"Cyriacus",4:"Romanus",5:"Lawrence",6:"Tiburtius",7:"Clare",8:"Hippolytus",9:"Eusebius",10:"Mary",11:"Roch",12:"Mammes"};
+function feastName1492(day){return FEAST_NAMES_1492[Math.max(1,Math.min(12,Number(day)||1))]||null}
 
 
 /* ---------- v4: private ambitions for all twenty-three electors ---------- */
@@ -2265,7 +2282,7 @@ function validateSavedState1492(obj){
 
 const CONCLAVE_1492_ENGINE = {
   CARDINALS, ABSENT, OBJECTIVES, FATES, REL_PAIRS, FEARS, POWERS, PAPAL_GIFTS,
-  BORGIA_PRICES, REGNAL_NAMES, REGNAL_HINT, DATE_LABELS, ORDERS,
+  BORGIA_PRICES, REGNAL_NAMES, REGNAL_HINT, DATE_LABELS, FEAST_NAMES_1492, feastName1492, ORDERS,
   FIRST_SCRUTINY_HISTORY, ABSENT_CARDINALS, PROMISE_FORMS,
   CONCLAVIST_CHANNELS, ROTA_MESSAGES, CAPITULATION_CLAUSES, OFFICE_DISPLACEMENT,
   initState, present, votingToday, threshold, utility, papabileEff, viability,
@@ -3202,26 +3219,47 @@ function runScrutinyAnim(picks){
   const t=threshold(S);
   const electorsNow=votingToday(S).length;
   $("#cer-thresh").textContent="NEEDED FOR ELECTION: "+rn(t)+" OF "+rn(electorsNow)+" ELECTORS"+(electorsNow<23?" — threshold fallen":"");
-  const rows=Object.entries(P.tally).sort(function(a,b){return b[1]-a[1];});
   const tz=$("#tallyzone");
   const reduced=(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-  rows.forEach(function(e,i){
-    const row=h("div",{class:"trow",style:"animation-delay:"+(reduced?0:i*0.28)+"s"},
-      h("span",{class:"tn"},byId[e[0]].short),
-      h("span",{class:"marks"},"❘".repeat(e[1])),
-      h("span",{class:"ct"},rn(e[1])));
-    if(e[1]>=t)row.classList.add("over");
-    tz.appendChild(row);
-  });
-  const wait=reduced?100:rows.length*280+700;
-  setTimeout(function(){accessusPhase();},wait);
+  const previous=S.scrutinies.length?S.scrutinies[S.scrutinies.length-1].final:{};
+  const ordered=Object.keys(P.votes).sort(function(a,b){return hashSeed(S.seed+":scrutiny-order:"+P.n+":"+a)-hashSeed(S.seed+":scrutiny-order:"+P.n+":"+b);});
+  const running={};let index=0,finished=false,timer=null;
+  function paint(counts,showDelta){
+    tz.innerHTML="";
+    tz.appendChild(h("div",{class:"trow thead"},h("span",{class:"tn"},"Candidate"),h("span",{class:"marks"},"Voices"),h("span",{class:"ct"},"Votes"),h("span",{class:"delta-cell"},"Δ")));
+    Object.entries(counts).filter(function(e){return e[1]>0;}).sort(function(a,b){return b[1]-a[1]||byId[a[0]].rank-byId[b[0]].rank;}).forEach(function(e){
+      const delta=e[1]-(previous[e[0]]||0),deltaText=showDelta?(S.scrutinies.length?(delta>0?"+":"")+delta:"—"):"";
+      const row=h("div",{class:"trow"+(e[1]>=t?" over":"")},h("span",{class:"tn"},byId[e[0]].short),h("span",{class:"marks"},"❘".repeat(e[1])),h("span",{class:"ct"},rn(e[1])),h("span",{class:"delta-cell"+(showDelta?(delta>0?" up":delta<0?" down":""):"")},deltaText));
+      tz.appendChild(row);
+    });
+  }
+  function finish(){
+    if(finished)return;
+    finished=true;if(timer)clearTimeout(timer);
+    paint(P.tally,true);
+    $("#tallysummary").innerHTML="<div class='mono goldtx' style='text-align:center'>Count complete · "+ordered.length+" cedulae · changes shown against the previous final count</div>";
+    $("#cer-controls").innerHTML="";
+    timer=setTimeout(function(){$("#tallysummary").innerHTML="";accessusPhase();},reduced?80:700);
+  }
+  function reveal(){
+    if(finished)return;
+    const voter=ordered[index],ballot=P.votes[voter]||[];
+    ballot.forEach(function(id){running[id]=(running[id]||0)+1;});
+    index++;paint(running,false);
+    $("#tallysummary").innerHTML="<div class='mono goldtx' style='text-align:center'>Cedula "+index+" of "+ordered.length+(ballot.length?" · "+ballot.map(function(id){return byId[id].short;}).join(", "):" · blank")+"</div>";
+    if(index>=ordered.length)timer=setTimeout(finish,420);else timer=setTimeout(reveal,320);
+  }
+  const controls=$("#cer-controls");controls.innerHTML="";
+  controls.appendChild(h("button",{onclick:finish},"Show full scrutiny count"));
+  if(reduced)finish();else timer=setTimeout(reveal,420);
 }
 function renderTallySummary(P){
   const host=$("#tallysummary"); if(!host||!P) return;
   const ids=Array.from(new Set(Object.keys(P.tally||{}).concat(Object.keys(P.running||{})))).sort(function(a,b){return ((P.running&&P.running[b])||P.tally[b]||0)-((P.running&&P.running[a])||P.tally[a]||0);});
   const t=P.threshold||threshold(S);
-  host.innerHTML="<table aria-label='Scrutiny tally table'><thead><tr><th>Candidate</th><th>Scrutiny</th><th>Accessus</th><th>Final</th></tr></thead><tbody>"+
-    ids.map(function(id){const acc=(P.accessions||[]).filter(function(a){return a.to===id;}).length; const final=(P.running&&P.running[id])||P.tally[id]||0; return "<tr"+(final>=t?" class='over'":"")+"><td>"+byId[id].short+"</td><td class='n'>"+rn(P.tally[id]||0)+"</td><td class='n'>"+(acc?rn(acc):"–")+"</td><td class='n'>"+rn(final)+"</td></tr>";}).join("")+
+  const currentIndex=S.scrutinies.indexOf(P),previous=currentIndex>0?S.scrutinies[currentIndex-1].final:{};
+  host.innerHTML="<table aria-label='Scrutiny tally table'><thead><tr><th>Candidate</th><th>Scrutiny</th><th>Accessus</th><th>Final</th><th>Change</th></tr></thead><tbody>"+
+    ids.map(function(id){const acc=(P.accessions||[]).filter(function(a){return a.to===id;}).length; const final=(P.running&&P.running[id])||P.tally[id]||0;const delta=final-(previous[id]||0); return "<tr"+(final>=t?" class='over'":"")+"><td>"+byId[id].short+"</td><td class='n'>"+rn(P.tally[id]||0)+"</td><td class='n'>"+(acc?rn(acc):"–")+"</td><td class='n'>"+rn(final)+"</td><td class='n'>"+(currentIndex>0?(delta>0?"+":"")+delta:"—")+"</td></tr>";}).join("")+
     "</tbody></table>";
 }
 function accLine(from,to,delay){
@@ -3444,7 +3482,8 @@ function endByCompromissum(){
 /* CONCLAVE 1492 — UI layer, part 3: endings & bootstrap */
 const ORDINAL={Alexander:"VI",Pius:"III",Julius:"II",Leo:"X",Paul:"III",Sixtus:"V",Innocent:"IX",Callixtus:"IV",
   Eugene:"V",Nicholas:"VI",Gregory:"XIII",Clement:"VII",Adrian:"VI",Honorius:"V",Celestine:"VI",Urban:"VII",
-  Martin:"VI",Boniface:"X",Stephen:"X",Victor:"IV",Tiburtius:"I"};
+  Martin:"VI",Boniface:"X",Stephen:"X",Victor:"IV",Tiburtius:"I",Salvator:"I",Cyriacus:"I",Romanus:"I",
+  Lawrence:"I",Clare:"I",Hippolytus:"I",Eusebius:"I",Mary:"I",Roch:"I",Mammes:"I"};
 function achievements(E){
   const a=[];const me=S.playerId;const last=S.scrutinies[S.scrutinies.length-1];
   if(E.kind.indexOf("pope")===0){
@@ -3472,13 +3511,15 @@ function achievements(E){
 }
 function npcRegnal(id){
   if(REGNAL_HINT[id]) return REGNAL_HINT[id];
-  if(S.day===6&&(hashSeed(S.seed+":feast-regnal:"+id)%1000)<80) return "Tiburtius";
+  const feast=feastName1492(S.day);
+  if(feast&&(hashSeed(S.seed+":feast-regnal:"+id)%1000)<80) return feast;
   const worldly=["Clement","Leo","Sixtus","Urban"],pious=["Pius","Gregory","Celestine","Innocent"],mid=["Innocent","Nicholas","Paul","Urban"];
   const pool=byId[id].ideo>=0.6?pious:(byId[id].ideo<=0.3?worldly:mid);
   return pool[hashSeed(S.seed+":regnal:"+id)%pool.length];
 }
 function regnalNames1492(){
-  return S.day===6?REGNAL_NAMES.concat(["Tiburtius"]):REGNAL_NAMES.slice();
+  const feast=feastName1492(S.day);
+  return feast&&REGNAL_NAMES.indexOf(feast)<0?REGNAL_NAMES.concat([feast]):REGNAL_NAMES.slice();
 }
 function renderFinalBallot(){
   const host=$("#ballotbody"); if(!host) return; host.innerHTML="";
@@ -3563,7 +3604,8 @@ function endGame(){
     }
     let histBtn=null;
     regnalNames1492().forEach(function(n){
-      const b=h("button",{onclick:function(){pick(n,b);}},n+(histName===n?" ✠":""));
+      const feast=n===feastName1492(S.day);
+      const b=h("button",{class:feast?"feast":"",onclick:function(){pick(n,b);}},n+(feast?" · feast":"")+(histName===n?" ✠":""));
       row.appendChild(b);
       if(histName===n) histBtn=b;
     });

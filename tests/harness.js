@@ -1266,11 +1266,30 @@ function checkStaticFiles() {
 		"venice-1800.html": "Leobinus I",
 		"1903.html": "Dominic I",
 		"october-1978.html": "Gerard I",
+		"may-2025.html": "Rose I",
 	};
 	for (const [file, name] of Object.entries(feastNames)) {
 		const html = fs.readFileSync(path.join(ROOT, file), "utf8");
 		assert(html.includes(name), `${file}: missing feast-day regnal option ${name}`);
 		assert(/feast[_-]?(?:name|regnal)|feastName|feastDay|isLeobinusDate/i.test(html), `${file}: feast-day name is not tied to a dated rule`);
+		assert(/feast-day choice|· feast|feast-day regnal name/i.test(html), `${file}: feast-day option is not identified for the player`);
+	}
+	const slowScrutinyMarkers = {
+		"viterbo-1268.html": "startScrutinyCountViterbo",
+		"april-1378.html": "openScrutinyCount1378",
+		"constance-1417.html": "openScrutinyRecord",
+		"accession-1458.html": "openScrutinyCount1458",
+		"1492.html": "runScrutinyAnim",
+		"carafa-winter-1559.html": "ceremonyTiming1559",
+		"venice-1800.html": "showVeniceScrutiny",
+		"1903.html": "showScrutiny(record,advance)",
+		"october-1978.html": "showScrutinyScreen",
+		"may-2025.html": "showScrutinyCount2025",
+	};
+	for (const [file, marker] of Object.entries(slowScrutinyMarkers)) {
+		const html = fs.readFileSync(path.join(ROOT, file), "utf8");
+		assert(html.includes(marker), `${file}: missing paced scrutiny flow`);
+		assert(/Change|delta-cell|countdelta|rdelta|race-delta/.test(html), `${file}: scrutiny result has no change-from-previous column`);
 	}
 	return VARIANTS.map((variant) => variant.file);
 }

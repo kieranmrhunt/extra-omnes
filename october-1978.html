@@ -199,12 +199,17 @@ header .date{margin-left:auto;text-align:right;font-family:var(--mono);font-size
 .srow.leader .sname{color:var(--gold-bright)}
 .srow .delta{font-family:var(--mono);font-size:.7rem;text-align:right;color:var(--paper-dim)}
 .srow .delta.up{color:var(--green-bright)}.srow .delta.down{color:var(--ox-bright)}
+.scrutiny-head{display:grid;grid-template-columns:112px 1fr 44px 42px;gap:.5rem;font-family:var(--mono);font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--paper-dim)}
+.scrutiny-head span:nth-last-child(-n+2){text-align:right}
+.scrutiny-progress{font-family:var(--mono);font-size:.72rem;color:var(--gold-bright);margin:.5rem 0}
+.scrutiny-count-tools{display:flex;justify-content:flex-end;margin:.4rem 0}
+.scrutiny-count-tools button{font-family:var(--mono);font-size:.66rem;padding:.3rem .5rem}
 .smini{font-family:var(--serif);font-size:.95rem;color:var(--paper-dim);line-height:1.35}
 .exact-roll{max-height:340px;overflow:auto;border:1px solid var(--line);border-radius:8px;margin-top:.55rem}
 .exact-roll table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.76rem}
 .exact-roll td,.exact-roll th{border-bottom:1px solid var(--line);padding:.28rem .35rem;text-align:left}
 .exact-roll th{color:var(--gold);font-size:.64rem;text-transform:uppercase;letter-spacing:.08em;position:sticky;top:0;background:var(--surface2)}
-@media(max-width:760px){.scrutiny-grid,.scrutiny-hero{grid-template-columns:1fr}.srow{grid-template-columns:94px 1fr 36px 38px}}
+@media(max-width:760px){.scrutiny-grid,.scrutiny-hero{grid-template-columns:1fr}.srow,.scrutiny-head{grid-template-columns:94px 1fr 36px 38px}}
 
 /* Status boxes */
 .statusbox{background:rgba(236,226,207,.04);border:1px solid var(--line);border-radius:9px;padding:.65rem .7rem;margin:.5rem 0;font-family:var(--serif);font-size:1rem;line-height:1.4}
@@ -295,6 +300,7 @@ header .date{margin-left:auto;text-align:right;font-family:var(--mono);font-size
 .endbody b{color:var(--gold-bright);font-weight:600}
 .regnal{display:flex;gap:.45rem;flex-wrap:wrap;justify-content:center;margin:.9rem auto;max-width:760px}
 .regnal button{font-family:var(--display);font-size:.98rem}
+.regnal button.feast{border-style:dashed;border-color:var(--gold)}
 .regnal button.sel{border-color:var(--gold);color:var(--gold-bright)}
 .regnalhint{max-width:640px;margin:.2rem auto .9rem;text-align:center;font-family:var(--serif);font-size:1rem;color:var(--paper-dim);font-style:italic;line-height:1.45;min-height:2.3em}
 .regnalhint b{font-style:normal;font-family:var(--display);font-weight:600;color:var(--gold-bright)}
@@ -495,6 +501,7 @@ const PAPAL_NAME_FLAVOR_1978 = {
 	"Clement XV":"reconciliation: healing Curia, Council and national camps without making the compromise look weak.",
 	"Adrian VII":"the non-Italian austerity signal: reform from outside Rome's habits, with Adrian VI's shadow deliberately accepted.",
 	"Nicholas VI":"humanist repair: learning, diplomacy and patient reconstruction after shock.",
+	"Teresa I":"the saint of 15 October: a rare election-day name invoking contemplative reform, courage and unsparing self-knowledge.",
 	"Gerard I":"the saint of 16 October: a rare election-day name invoking pastoral charity and practical holiness.",
 	"Ignatius I":"the saint of 17 October: a rare election-day name invoking unity, witness and the ancient Church."
 };
@@ -542,7 +549,7 @@ function utilityBallotNo(){return S&&S.utilityBallotNo?S.utilityBallotNo:Math.ma
 function legalCandidateFor(voter,cand){return !!(S&&ID[voter]&&ID[cand]&&cand!==voter&&!(S.player.withdrawn&&cand===S.playerId))}
 function papalNameFlavor1978(name){return PAPAL_NAME_FLAVOR_1978[name]||"a name with a thinner recent precedent; the new pope would have to define it."}
 function validPapalName1978(name){return Object.prototype.hasOwnProperty.call(PAPAL_NAME_FLAVOR_1978,name)}
-function feastName1978(ballotNo){if(ballotNo>=5&&ballotNo<=8)return "Gerard I";if(ballotNo>=9&&ballotNo<=10)return "Ignatius I";return null}
+function feastName1978(ballotNo){if(ballotNo>=1&&ballotNo<=4)return "Teresa I";if(ballotNo>=5&&ballotNo<=8)return "Gerard I";if(ballotNo>=9)return "Ignatius I";return null}
 function papalNameForState(seed,id,ballotNo){
 	if(id==="wojtyla")return "John Paul II";
 	const e=ID[id];
@@ -841,16 +848,16 @@ function dismissModal(ov){
 	ov.remove();
 	if(previous&&previous.isConnected&&typeof previous.focus==="function")previous.focus();
 }
-function openModal(title,body,choices=[]){
+function openModal(title,body,choices=[],options={}){
 	const titleId=`modal-title-${++modalCounter}`;
 	const ov=el("div",{class:"overlay"});
 	ov._previousFocus=document.activeElement;
-	const m=el("div",{class:"modal",role:"dialog","aria-modal":"true","aria-labelledby":titleId},el("button",{class:"mclose",onclick:()=>dismissModal(ov),"aria-label":"Close dialog"},"✕"),el("h3",{id:titleId},title));
+	const m=el("div",{class:"modal",role:"dialog","aria-modal":"true","aria-labelledby":titleId},options.mandatory?null:el("button",{class:"mclose",onclick:()=>dismissModal(ov),"aria-label":"Close dialog"},"✕"),el("h3",{id:titleId},title));
 	if(typeof body==="string")m.appendChild(el("div",{html:body}));else m.appendChild(body);
 	if(choices.length)m.appendChild(el("div",{class:"choices"},choices.map(c=>el("button",{onclick:()=>{dismissModal(ov);if(c.fn)c.fn()}},c.label,c.sub?el("small",null,c.sub):null))));
-	ov.addEventListener("click",e=>{if(e.target===ov)dismissModal(ov)});
+	ov.addEventListener("click",e=>{if(e.target===ov&&!options.mandatory)dismissModal(ov)});
 	ov.addEventListener("keydown",e=>{
-		if(e.key==="Escape"){e.preventDefault();dismissModal(ov);return}
+		if(e.key==="Escape"&&!options.mandatory){e.preventDefault();dismissModal(ov);return}
 		if(e.key!=="Tab")return;
 		const focusable=[...m.querySelectorAll('button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')];
 		if(!focusable.length){e.preventDefault();m.focus();return}
@@ -961,22 +968,47 @@ function smokeMarkup1978(hist){
 	const leader=Math.max(0,...Object.values(hist.counts)),elected=leader>=THRESHOLD,colour=elected?"white":"black",label=elected?"White smoke: an election has been reached":"Black smoke: no election";
 	return `<div class="smoke-signal ${colour}" role="img" aria-label="${label}"><span class="smoke-puff p1"></span><span class="smoke-puff p2"></span><span class="smoke-puff p3"></span><span class="smoke-puff p4"></span><span class="chimney"></span></div><div class="smoke-caption">${label}</div>`;
 }
+function scrutinyList1978(hist,counts,showDelta){
+	const previous=S.history.length>1?S.history[S.history.length-2]:null;
+	const entries=sortedCountEntries(counts||hist.counts);
+	return entries.map(([id,n],i)=>{
+		const old=previous?(previous.counts[id]||0):0;
+		const d=previous?n-old:0;
+		const dc=d>0?"up":(d<0?"down":"");
+		const pct=Math.min(100,n/THRESHOLD*100);
+		return `<div class="srow${i===0&&showDelta?' leader':''}"><span class="sname">${esc(ID[id].short)}${id===S.playerId?' · you':''}</span><span class="rtrack"><span class="rfill${n>=THRESHOLD?' win':''}" style="width:${pct}%"></span></span><span class="rnum">${n}</span><span class="delta ${showDelta?dc:""}">${showDelta?(previous?deltaText(d):'—'):""}</span></div>`;
+	}).join("");
+}
 function showScrutinyScreen(hist, advance){
 	const previous=S.history.length>1?S.history[S.history.length-2]:null;
 	const entries=sortedCountEntries(hist.counts);
 	const leader=entries[0];
 	const yourVotes=hist.counts[S.playerId]||0;
 	const gap=Math.max(0,THRESHOLD-leader[1]);
-	const list=entries.map(([id,n],i)=>{
-		const old=previous?(previous.counts[id]||0):0;
-		const d=previous?n-old:0;
-		const dc=d>0?"up":(d<0?"down":"");
-		const pct=Math.min(100,n/THRESHOLD*100);
-		return `<div class="srow${i===0?' leader':''}"><span class="sname">${esc(ID[id].short)}${id===S.playerId?' · you':''}</span><span class="rtrack"><span class="rfill${n>=THRESHOLD?' win':''}" style="width:${pct}%"></span></span><span class="rnum">${n}</span><span class="delta ${dc}">${previous?deltaText(d):'—'}</span></div>`;
-	}).join("");
-	const body=`<div class="callout">The aggregate scrutiny count is exact model output. Historical 1978 ballot papers remain secret.</div><div class="scrutiny-hero"><div class="scard"><b>${esc(ID[leader[0]].short)}</b><span>leader</span></div><div class="scard"><b>${leader[1]}/${THRESHOLD}</b><span>${gap?gap+' short':'elected'}</span></div><div class="scard"><b>${yourVotes}</b><span>votes for you</span></div></div><div class="scrutiny-grid"><div><h4>Complete aggregate count</h4><div class="smini">Every cardinal receiving at least one vote is shown. The bar ends at the ${THRESHOLD}-vote threshold; the final column shows change since the previous scrutiny.</div><div class="scrutiny-list">${list}</div></div><div>${smokeMarkup1978(hist)}<h4>What it means</h4><p class="smini">${esc(scrutinyInterpretation(hist,previous))}</p><div class="statusbox"><b>Next pressure point</b><br>${esc(nextPressurePoint(hist))}</div><p class="smini">Every individual simulated ballot remains under seal until the conclave ends.</p></div></div>`;
-	const ov=openModal(`Scrutiny ${roman(hist.ballot)} — count`, body, [{label:S.over?"Continue to the balcony":"Return to the chapel",fn:()=>{if(advance)advance()}}]);
+	const countBody=`<div class="scrutiny-count-host"><div class="callout">The papers are unfolded anonymously. The aggregate is public; the simulated voter-by-voter roll remains sealed until the election ends.</div><div class="scrutiny-progress" role="status" aria-live="polite">The first paper is brought to the scrutators.</div><div class="scrutiny-count-tools"><button type="button" class="count-skip">Show full count</button></div><div class="scrutiny-head"><span>Candidate</span><span></span><span>Votes</span><span>Change</span></div><div class="scrutiny-list"></div></div>`;
+	const ov=openModal(`Scrutiny ${roman(hist.ballot)} — count`,countBody,[],{mandatory:true});
 	ov.querySelector(".modal").classList.add("scrutinybook");
+	const host=ov.querySelector(".scrutiny-count-host"),list=host.querySelector(".scrutiny-list"),progress=host.querySelector(".scrutiny-progress"),skip=host.querySelector(".count-skip");
+	const ordered=Object.entries(hist.roll).map(([voter,candidate])=>({voter,candidate})).sort((a,b)=>hashSeed(S.seed+"|scrutiny-order|"+hist.ballot+"|"+a.voter)-hashSeed(S.seed+"|scrutiny-order|"+hist.ballot+"|"+b.voter));
+	const running={};let index=0,finished=false,timer=null;
+	function finish(){
+		if(finished)return;
+		finished=true;if(timer)clearTimeout(timer);
+		host.innerHTML=`<div class="callout">The aggregate scrutiny count is exact model output. Historical 1978 ballot papers remain secret.</div><div class="scrutiny-hero"><div class="scard"><b>${esc(ID[leader[0]].short)}</b><span>leader</span></div><div class="scard"><b>${leader[1]}/${THRESHOLD}</b><span>${gap?gap+' short':'elected'}</span></div><div class="scard"><b>${yourVotes}</b><span>votes for you</span></div></div><div class="scrutiny-grid"><div><h4>Complete aggregate count</h4><div class="smini">Every cardinal receiving at least one vote is shown. The bar ends at the ${THRESHOLD}-vote threshold; the final column shows change since the previous scrutiny.</div><div class="scrutiny-head"><span>Candidate</span><span></span><span>Votes</span><span>Change</span></div><div class="scrutiny-list">${scrutinyList1978(hist,hist.counts,true)}</div><div class="scrutiny-progress">Count complete · ${ordered.length} papers</div></div><div>${smokeMarkup1978(hist)}<h4>What it means</h4><p class="smini">${esc(scrutinyInterpretation(hist,previous))}</p><div class="statusbox"><b>Next pressure point</b><br>${esc(nextPressurePoint(hist))}</div><p class="smini">Every individual simulated ballot remains under seal until the conclave ends.</p></div></div>`;
+		const actions=el("div",{class:"choices"});
+		const button=el("button",{type:"button",onclick:()=>{dismissModal(ov);if(advance)advance()}},S.over?"Continue to the balcony":"Return to the chapel");
+		actions.appendChild(button);host.appendChild(actions);button.focus();
+	}
+	function reveal(){
+		if(finished)return;
+		const vote=ordered[index];running[vote.candidate]=(running[vote.candidate]||0)+1;index++;
+		progress.textContent=`Paper ${index} of ${ordered.length} · ${ID[vote.candidate].short}`;
+		list.innerHTML=scrutinyList1978(hist,running,false);
+		if(index>=ordered.length)timer=setTimeout(finish,420);else timer=setTimeout(reveal,120);
+	}
+	skip.addEventListener("click",finish);
+	const reduced=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+	if(reduced)finish();else timer=setTimeout(reveal,420);
 }
 function nextPressurePoint(hist){
 	const entries=sortedCountEntries(hist.counts);
@@ -1112,8 +1144,10 @@ function renderRegnal1978(w,me,initial){
 		host.appendChild(el("p",{class:"dim",style:"text-align:center"},"By what name shall the Church know you? Each name is a programme as well as a precedent."));
 		const row=el("div",{class:"regnal"});
 		let initialButton=null;
+		const feast=feastName1978(S.ballotNo);
 		papalNameOptions1978(w.id).forEach(name=>{
-			const b=el("button",{type:"button",onclick:()=>apply(name,b)},name+(name===initial?" *":""));
+			const isFeast=name===feast;
+			const b=el("button",{type:"button",class:isFeast?"feast":"",onclick:()=>apply(name,b)},name+(isFeast?" · feast":"")+(name===initial?" *":""));
 			row.appendChild(b);
 			if(name===initial)initialButton=b;
 		});
@@ -1267,7 +1301,7 @@ function runNeutralHeadless(seed,maxBallots=20){
 }
 function startGame(){if(!pickedId)return;initState(pickedId,$("#seedin").value.trim()||Math.floor(Math.random()*1e9));$("#screen-select").classList.add("hidden");$("#screen-game").classList.remove("hidden");renderAll();if(typeof window!=="undefined"&&window.scrollTo)window.scrollTo({top:0,left:0})}
 function boot(){renderSelect();$("#startbtn").onclick=startGame;$("#resumeBtn").onclick=resumeGame;if(hasSave())$("#resumeBtn").classList.remove("hidden");$("#helpSelect").onclick=openManual;$("#manualBtn").onclick=openManual;$("#saveBtn").onclick=saveGame;$("#actSound").onclick=doSound;$("#actNetwork").onclick=doNetwork;$("#actFloat").onclick=doFloat;$("#actDiscourage").onclick=doDiscourage;$("#actRest").onclick=doRest;$("#actTransfer").onclick=doTransfer;$("#worldBtn").onclick=showWorld;$("#ballotBtn").onclick=runBallotModal;$("#rosterSearch").addEventListener("input",renderRoster);$("#again").onclick=()=>location.reload();$("#exportLog").onclick=exportChronicle;}
-const OCTOBER_1978_ENGINE={ELECTORS,ID,THRESHOLD,initState,runBallot,runHeadless,runNeutralHeadless,topPreference,voterUtility,baseUtility,ballotScore,legalCandidateFor,papalNameForState,validateSavedState,makeSounding,playerNetworks,sharedNetworks,profileAlignment,currentProgrammeFit,networkAccess,workNetwork,sortedCountEntries,portraitFor,scoreGame,seriesScoreForVerdict,axisPosition,activeCandidatePool1978,getState:()=>S};
+const OCTOBER_1978_ENGINE={ELECTORS,ID,THRESHOLD,initState,runBallot,runHeadless,runNeutralHeadless,topPreference,voterUtility,baseUtility,ballotScore,legalCandidateFor,papalNameForState,feastName1978,validateSavedState,makeSounding,playerNetworks,sharedNetworks,profileAlignment,currentProgrammeFit,networkAccess,workNetwork,sortedCountEntries,portraitFor,scoreGame,seriesScoreForVerdict,axisPosition,activeCandidatePool1978,getState:()=>S};
 if(typeof module!=="undefined")module.exports=OCTOBER_1978_ENGINE;
 if(typeof window!=="undefined")window.__om=OCTOBER_1978_ENGINE;
 if(typeof document!=="undefined"){if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();}

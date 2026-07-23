@@ -220,6 +220,8 @@ input,select{font-family:var(--serif);font-size:.95rem;color:var(--paper);backgr
 .scrutiny-running-tally{display:flex;flex-wrap:wrap;gap:.3rem;margin:.4rem 0}
 .scrutiny-running-tally span{border:1px solid var(--line);border-radius:5px;padding:.18rem .35rem;font-family:var(--mono);font-size:.68rem;color:var(--paper-dim)}
 .scrutiny-running-tally span:first-child{border-color:var(--gold);color:var(--gold-bright)}
+.scrutiny-table .delta-up{color:var(--green-bright)}
+.scrutiny-table .delta-down{color:var(--ox-bright)}
 .public-roll-note{padding:.45rem .55rem;border-left:2px solid var(--lake);background:var(--lake-soft);color:var(--paper-dim);font-size:.84rem}
 
 /* ---------- end screen ---------- */
@@ -229,6 +231,7 @@ input,select{font-family:var(--serif);font-size:.95rem;color:var(--paper);backgr
 .end-sub{font-size:1.1rem;color:var(--paper-dim);font-style:italic}
 #endRegnal{margin:1rem 0 .4rem}
 #endRegnal .regopt{margin:.2rem}
+#endRegnal .regopt.feast{border-style:dashed;border-color:var(--gold)}
 .end-body{max-width:66ch;margin:1rem auto;text-align:left;font-size:1rem;color:var(--paper-dim)}
 .end-body p{margin:.5rem 0}
 #endStats{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin:.8rem 0}
@@ -2926,19 +2929,24 @@ function appendScrutinySummary(body,record){
 	const recordedCounts=record.counts&&Object.keys(record.counts).length ? record.counts : countVotes(record.votes,record.accessions||[]);
 	const recordedColleges=record.colleges&&Object.keys(record.colleges).length ? record.colleges : collegeTallies(record.votes,record.accessions||[]);
 	const winner=electedNow(S,recordedColleges);
+	const recordIndex=S.history.indexOf(record);
+	const previous=recordIndex>0 ? S.history[recordIndex-1] : null;
+	const previousCounts=previous ? (previous.counts&&Object.keys(previous.counts).length ? previous.counts : countVotes(previous.votes,previous.accessions||[])) : {};
 	body.appendChild(el("p","",winner
 		? "All six thresholds are met for "+ID[winner].name+"."
 		: "No name has yet turned all six locks. The public accessio follows where the procedure permits it."));
 	const table=el("table","scrutiny-table");
 	const head=el("thead","");
 	const headRow=el("tr","");
-	["Name","Total"].concat(COLLEGES.map(function(college){return COLLEGE_ABBR[college.key]})).forEach(function(label){headRow.appendChild(el("th","",label))});
+	["Name","Total","Change"].concat(COLLEGES.map(function(college){return COLLEGE_ABBR[college.key]})).forEach(function(label){headRow.appendChild(el("th","",label))});
 	head.appendChild(headRow);table.appendChild(head);
 	const tableBody=el("tbody","");
 	sortedCounts(recordedCounts).filter(function(entry){return entry.count>0}).forEach(function(entry){
 		const row=el("tr","");
+		const delta=entry.count-(previousCounts[entry.id]||0);
 		row.appendChild(el("td","",entry.elector.short));
 		row.appendChild(el("td","",String(entry.count)));
+		row.appendChild(el("td",delta>0?"delta-up":delta<0?"delta-down":"",previous ? (delta>0?"+":"")+delta : "—"));
 		COLLEGES.forEach(function(college){row.appendChild(el("td","",String((recordedColleges[college.key]&&recordedColleges[college.key][entry.id])||0)))});
 		tableBody.appendChild(row);
 	});
@@ -2998,8 +3006,8 @@ function openScrutinyRecord(record,isFinal){
 				}
 			}
 			index++;renderRunningTally(running,shownVotes,shownAccessions);
-			if(index>=total)queueModalStep(finish,320);
-			else queueModalStep(revealNext,index<record.votes.length ? 85 : 130);
+			if(index>=total)queueModalStep(finish,420);
+			else queueModalStep(revealNext,index<record.votes.length ? 210 : 260);
 		}
 		skip.addEventListener("click",finish);
 		queueModalStep(revealNext,300);
@@ -3137,7 +3145,8 @@ function renderRegnal(){
 	if(S.electedId===S.playerId){
 		box.appendChild(el("p","","Choose the name under which you will be crowned:"));
 		regnalOptionsFor(S.electedId,S.ballotNo).forEach(function(name){
-			const button=el("button","regopt "+(UI.chosenName===name ? "gold" : ""),name);
+			const feast=name===feastName1417(S.ballotNo);
+			const button=el("button","regopt "+(feast?"feast ":"")+(UI.chosenName===name ? "gold" : ""),name+(feast?" · feast":""));
 			button.setAttribute("type","button");
 			button.addEventListener("click",function(){
 				UI.chosenName=name;

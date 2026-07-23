@@ -172,6 +172,15 @@ h1 em{font-style:normal;color:var(--sienna)}
 .modalbox h2{font-family:Cinzel,serif;letter-spacing:.14em;font-size:1.05rem;color:var(--gold);margin-bottom:.8rem;text-transform:uppercase}
 #modalbody p{margin-bottom:.85rem}
 #modalclose{position:sticky;float:right;top:0}
+.scrutiny-count-list{display:flex;flex-direction:column;gap:.28rem;margin:.7rem 0}
+.scrutiny-count-head,.scrutiny-count-row{display:grid;grid-template-columns:minmax(8rem,1fr) minmax(5rem,1fr) 3rem 3rem;gap:.45rem;align-items:center}
+.scrutiny-count-head{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.scrutiny-count-head span:nth-last-child(-n+2),.scrutiny-count-row span:nth-last-child(-n+2){text-align:right}
+.scrutiny-count-row{padding:.28rem 0;border-bottom:1px dashed rgba(61,49,34,.5);font-size:.92rem}
+.scrutiny-count-row .marks{font-family:"IBM Plex Mono",monospace;color:var(--gold);font-size:.72rem}.scrutiny-count-row .delta{font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--faint)}
+.scrutiny-count-row .delta.up{color:#7ea96e}.scrutiny-count-row .delta.down{color:var(--scarlet)}
+.scrutiny-progress{font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--gold);margin:.45rem 0}.scrutiny-paper{border-left:3px solid var(--gold);background:rgba(184,142,67,.09);padding:.5rem .65rem}.scrutiny-tools{display:flex;justify-content:flex-end;margin:.45rem 0}
+@media(max-width:540px){.scrutiny-count-head,.scrutiny-count-row{grid-template-columns:minmax(6.5rem,1fr) minmax(4rem,.8fr) 2.4rem 2.6rem;gap:.28rem}}
 #toast{position:fixed;left:50%;bottom:1.4rem;transform:translateX(-50%) translateY(20px);background:var(--raise);border:1px solid var(--gold);color:var(--paper);padding:.6rem 1rem;border-radius:8px;opacity:0;transition:.25s;pointer-events:none;z-index:60}
 #toast.show{opacity:1;transform:translateX(-50%)}
 .gamefoot{display:flex;gap:.6rem;justify-content:flex-end;align-items:center;margin-top:.4rem}
@@ -535,7 +544,14 @@ const REGNAL_SIGNAL={
 	"Celestine VI":"ascetic reform, distance from every faction",
 	"Gregory XIII":"reform and return, in the line of the eleventh Gregory",
 	"Anastasius V":"his own titulus, S. Anastasia, raised to the throne",
-	"Louis I":"Saint Louis of Toulouse, the Franciscan prince-bishop remembered on 19 August: renunciation, learning and a new name on the throne"
+	"Agapitus III":"Saint Agapitus, remembered on 18 August: youthful courage under persecution and fidelity without calculation",
+	"Louis I":"Saint Louis of Toulouse, the Franciscan prince-bishop remembered on 19 August: renunciation, learning and a new name on the throne",
+	"Bernard I":"Saint Bernard, remembered on 20 August: monastic reform, eloquence and the authority to reconcile princes",
+	"Privatus I":"Saint Privatus, remembered on 21 August: steadfast pastoral care when the city itself is under threat",
+	"Timothy I":"Saint Timothy, remembered in the older martyrologies on 22 August: apostolic companionship and patient government",
+	"Sidonius I":"Saint Sidonius, remembered on 23 August: learning, public duty and a bishop's defence of his people",
+	"Bartholomew I":"The Apostle remembered on 24 August: missionary candour and a Church carried beyond familiar courts",
+	"Zephyrinus II":"Saint Zephyrinus, remembered on 26 August: continuity with the persecuted early Roman Church"
 };
 
 /*
@@ -1367,16 +1383,29 @@ function computeElectionIntegrity(S,record,winner){
 	return clamp(iv,5,95);
 }
 
-function papalNameForState(seed,electedId){
+const FEAST_NAMES_1458={
+	1:"Agapitus III",2:"Louis I",
+	3:"Bernard I",4:"Bernard I",
+	5:"Privatus I",6:"Timothy I",7:"Sidonius I",
+	8:"Bartholomew I",9:"Louis I",10:"Zephyrinus II"
+};
+function feastName1458(ballotNumber){return FEAST_NAMES_1458[Math.max(1,Math.min(MAX_SCRUTINIES,Number(ballotNumber)||1))]||null}
+function currentRegnalBallot1458(){
+	if(typeof UI!=="undefined"&&UI&&UI.state&&Array.isArray(UI.state.history)&&UI.state.history.length)return UI.state.history[UI.state.history.length-1].ballot;
+	return 2;
+}
+function papalNameForState(seed,electedId,ballotNumber){
 	if(electedId==="piccolomini")return "Pius II";
-	if(pureRand(String(seed)+"|feast-name|"+electedId)<.08)return "Louis I";
+	const feast=feastName1458(ballotNumber||currentRegnalBallot1458());
+	if(feast&&pureRand(String(seed)+"|feast-name|"+electedId)<.08)return feast;
 	const options=(REGNAL[electedId]||["Innocent VIII"]).slice();
 	const idx=Math.floor(pureRand(String(seed)+"|name|"+electedId)*options.length)%options.length;
 	return options[idx];
 }
-function regnalOptionsFor(id){
+function regnalOptionsFor(id,ballotNumber){
 	const options=(REGNAL[id]||["Innocent VIII"]).slice();
-	if(options.indexOf("Louis I")<0)options.push("Louis I");
+	const feast=feastName1458(ballotNumber||currentRegnalBallot1458());
+	if(feast&&options.indexOf(feast)<0)options.push(feast);
 	return options;
 }
 function regnalSignalFor(name){
@@ -1681,11 +1710,12 @@ function decisionSpec(S){
 				options:[{id:"ok",label:"Witness it"}]};
 		}
 		case "regnal":{
+			const feast=feastName1458(currentRegnalBallot1458());
 			const opts=regnalOptionsFor(S.playerId).map(function(n){
-				return {id:n,label:n+" — "+regnalSignalFor(n)};
+				return {id:n,label:n+(n===feast?" · feast-day choice":"")+" — "+regnalSignalFor(n)};
 			});
 			return {key:"regnal",title:"By what name?",
-				body:"The Dean puts the second ritual question. The name you choose is the first act of the pontificate: a programme in two words, read aloud from a window to a city that reads such things fluently.",
+				body:"The Dean puts the second ritual question. The name you choose is the first act of the pontificate: a programme in two words, read aloud from a window to a city that reads such things fluently. The feast-day choice follows the represented date of your election.",
 				options:opts};
 		}
 		case "ep-naples":{
@@ -2163,7 +2193,7 @@ function wireChrome(){
 	document.addEventListener("keydown",function(e){
 		const modal=$("modal");
 		if(!modal||!modal.classList.contains("open"))return;
-		if(e.key==="Escape"){closeModal();return}
+		if(e.key==="Escape"&&!UI.modalMandatory){closeModal();return}
 		if(e.key!=="Tab")return;
 		const focusable=Array.from(modal.querySelectorAll("button,[href],input,select,textarea,[tabindex]:not([tabindex='-1'])")).filter(function(node){return !node.disabled});
 		if(!focusable.length)return;
@@ -2177,12 +2207,52 @@ function wireChrome(){
 }
 function openModal(kind){
 	UI.modalReturnFocus=document.activeElement;
+	UI.modalMandatory=false;
 	$("modaltitle").textContent=kind==="rules"?"Rules of the game":"Sources & liberties";
 	$("modalbody").innerHTML=kind==="rules"?rulesHtml():sourcesHtml();
+	$("modalclose").hidden=false;
 	$("modal").classList.add("open");
 	$("modalclose").focus();
 }
-function closeModal(){if(hasDOM()){$("modal").classList.remove("open");if(UI.modalReturnFocus&&typeof UI.modalReturnFocus.focus==="function")UI.modalReturnFocus.focus();UI.modalReturnFocus=null}}
+function closeModal(force){if(UI.modalMandatory&&force!==true)return;if(hasDOM()){UI.modalMandatory=false;if(UI.modalTimer){clearTimeout(UI.modalTimer);UI.modalTimer=null}$("modal").classList.remove("open");$("modalclose").hidden=false;if(UI.modalReturnFocus&&typeof UI.modalReturnFocus.focus==="function")UI.modalReturnFocus.focus();UI.modalReturnFocus=null}}
+function scrutinyCountRows1458(record,counts,showDelta){
+	const index=UI.state.history.indexOf(record),previous=index>0?UI.state.history[index-1]:null;
+	return Object.keys(counts).filter(function(id){return counts[id]>0}).sort(function(a,b){return counts[b]-counts[a]||ID[a].precedence-ID[b].precedence}).map(function(id){
+		const n=counts[id],delta=n-(previous?(previous.counts[id]||0):0),change=showDelta?(previous?(delta>0?"+":"")+delta:"—"):"";
+		return "<div class='scrutiny-count-row'><span>"+esc(shortName(id))+"</span><span class='marks'>"+"|".repeat(n)+"</span><span>"+n+"</span><span class='delta"+(showDelta?(delta>0?" up":delta<0?" down":""):"")+"'>"+change+"</span></div>";
+	}).join("");
+}
+function openScrutinyCount1458(record){
+	UI.modalReturnFocus=document.activeElement;UI.modalMandatory=true;
+	$("modaltitle").textContent=scrutinyLabel(record.ballot)+" · "+record.date;
+	$("modalclose").hidden=true;
+	$("modalbody").innerHTML="<div class='scrutiny-count-1458'><p>The papers are opened in the chapel before the public accession begins. This count is model output; the historical sources preserve totals for the opening scrutinies, not a complete identity roll.</p><div class='scrutiny-progress' role='status' aria-live='polite'>The first paper is carried from the chalice.</div><div class='scrutiny-paper'>The tellers bend over the table.</div><div class='scrutiny-tools'><button class='btn count-skip' type='button'>Show full count</button></div><div class='scrutiny-count-head'><span>Candidate</span><span>Voices</span><span>Votes</span><span>Change</span></div><div class='scrutiny-count-list'></div></div>";
+	$("modal").classList.add("open");
+	const host=$("modalbody").querySelector(".scrutiny-count-1458"),list=host.querySelector(".scrutiny-count-list"),progress=host.querySelector(".scrutiny-progress"),paper=host.querySelector(".scrutiny-paper"),skip=host.querySelector(".count-skip");
+	const ordered=record.votes.slice().sort(function(a,b){return pureRand(UI.state.seed+"|scrutiny-order|"+record.ballot+"|"+a.voter)-pureRand(UI.state.seed+"|scrutiny-order|"+record.ballot+"|"+b.voter)});
+	const running={};let index=0,finished=false;
+	function finish(){
+		if(finished)return;finished=true;if(UI.modalTimer)clearTimeout(UI.modalTimer);
+		list.innerHTML=scrutinyCountRows1458(record,record.counts,true);
+		progress.textContent="Count complete · "+record.electors+" electors · "+record.threshold+" needed";
+		paper.innerHTML=record.leaderId?"<b>"+esc(shortName(record.leaderId))+"</b> ends on "+record.leaderCount+". "+(record.elected?"The threshold is reached.":"The accession may now begin."):"No name is written.";
+		skip.textContent=record.elected?"Continue to the election":"Proceed to the accession";
+		skip.onclick=function(){UI.modalMandatory=false;closeModal(true)};
+		skip.focus();
+	}
+	function reveal(){
+		if(finished)return;
+		const vote=ordered[index],choice=vote.candidate[0]||null;
+		if(choice)running[choice]=(running[choice]||0)+1;
+		index++;progress.textContent="Paper "+index+" of "+ordered.length;
+		paper.innerHTML=vote.ill?"A paper is absent: its elector is confined by the fever.":choice?"The paper bears <b>"+esc(shortName(choice))+"</b>.":"The paper is blank.";
+		list.innerHTML=scrutinyCountRows1458(record,running,false);
+		UI.modalTimer=setTimeout(index>=ordered.length?finish:reveal,index>=ordered.length?420:420);
+	}
+	skip.onclick=finish;skip.focus();
+	const reduced=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+	if(reduced)finish();else UI.modalTimer=setTimeout(reveal,420);
+}
 function showGame(){$("screen-select").hidden=true;$("screen-game").hidden=false;window.scrollTo(0,0)}
 function showSelect(){$("screen-game").hidden=true;$("screen-select").hidden=false;window.scrollTo(0,0)}
 
@@ -2341,13 +2411,15 @@ function renderCentre(S){
 		else{const line=playerLine(S);if(line&&line!==S.playerId)sel.value=line}
 		const cast=el("button","btn primary","Write the name and go to the chalice");
 		cast.onclick=function(){
-			try{beginScrutiny(S,[sel.value])}catch(e){toast(e.message);return}
+			let record;try{record=beginScrutiny(S,[sel.value])}catch(e){toast(e.message);return}
 			renderAll();
+			openScrutinyCount1458(record);
 		};
 		const blank=el("button","btn ghost","Cast a blank paper");
 		blank.onclick=function(){
-			try{beginScrutiny(S,[])}catch(e){toast(e.message);return}
+			let record;try{record=beginScrutiny(S,[])}catch(e){toast(e.message);return}
 			renderAll();
+			openScrutinyCount1458(record);
 		};
 		v.appendChild(sel);v.appendChild(cast);v.appendChild(blank);
 		if(roll&&roll[S.playerId])v.appendChild(el("div","votehint","The record has your paper reading <b>"+esc(shortName(roll[S.playerId]))+"</b>. Write otherwise and the chronicle leaves the notaries for the model."));
@@ -2484,7 +2556,7 @@ const ACCESSION_1458_ENGINE={
 	sessionLabel:sessionLabel,ballotDateLabel:ballotDateLabel,scrutinyLabel:scrutinyLabel,roman:roman,
 	objectiveFor:objectiveFor,playerLine:playerLine,factionLine:factionLine,feverUrgency:feverUrgency,
 	computeElectionIntegrity:computeElectionIntegrity,finalizeElection:finalizeElection,
-	papalNameForState:papalNameForState,regnalOptionsFor:regnalOptionsFor,regnalSignalFor:regnalSignalFor,
+	papalNameForState:papalNameForState,feastName1458:feastName1458,regnalOptionsFor:regnalOptionsFor,regnalSignalFor:regnalSignalFor,
 	choosePlayerRegnalName:choosePlayerRegnalName,
 	scoreGame:scoreGame,achievementsFor:achievementsFor,computeFinale:computeFinale,
 	validateData:validateData,runHeadless:runHeadless,normaliseState:normaliseState,
