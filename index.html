@@ -6,7 +6,7 @@
 <meta name="description" content="Extra Omnes: playable browser simulations of ten historical papal conclaves.">
 <title>Extra Omnes — Conclave Directory</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=EB+Garamond:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,600;1,400&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
     --ink:#120e0b;
@@ -20,8 +20,8 @@
     --scarlet-dark:#65161d;
     --gold:#d1aa52;
     --green:#5f806e;
-    --serif:"EB Garamond",Georgia,"Times New Roman",serif;
-    --disp:"Fraunces","EB Garamond",Georgia,serif;
+    --serif:"Alegreya",Georgia,"Times New Roman",serif;
+    --disp:"Cormorant Garamond","Alegreya",Georgia,serif;
     --mono:"IBM Plex Mono","Courier New",monospace;
   }
   *{box-sizing:border-box}
@@ -59,7 +59,7 @@
     text-decoration:none;
     font-family:var(--mono);
     font-size:12px;
-    letter-spacing:.18em;
+    letter-spacing:0;
     text-transform:uppercase;
     color:var(--gold);
   }
@@ -75,7 +75,7 @@
     line-height:1;
   }
   .brand-copy{display:flex;flex-direction:column;gap:2px}
-  .brand-copy small{font-size:8.5px;letter-spacing:.18em;color:var(--faint)}
+  .brand-copy small{font-size:8.5px;letter-spacing:0;color:var(--faint)}
   .home{
     text-decoration:none;
     font-family:var(--mono);
@@ -98,23 +98,15 @@
   }
   .hero-inner{width:min(1120px,calc(100% - 32px));margin:0 auto;padding:66px 0 58px}
   .hero-copy{max-width:680px;border-left:3px solid var(--scarlet);padding-left:24px}
-  .eyebrow{
-    font-family:var(--mono);
-    font-size:12px;
-    letter-spacing:.26em;
-    text-transform:uppercase;
-    color:var(--gold);
-    margin-bottom:16px;
-  }
   h1{
     font-family:var(--disp);
-    font-weight:700;
-    font-size:76px;
-    line-height:.96;
+    font-weight:600;
+    font-size:82px;
+    line-height:.9;
     margin:0;
     color:var(--parch);
   }
-  h1 em{font-style:normal;color:var(--gold)}
+  h1 em{font-style:italic;font-weight:500;color:var(--gold)}
   .lede{margin:20px 0 0;max-width:60ch;color:var(--muted);font-size:20px}
   .status-groups{margin-top:30px}
   .status-group + .status-group{margin-top:38px}
@@ -128,7 +120,7 @@
   .group-heading h2{
     margin:0;
     font-family:var(--disp);
-    font-size:27px;
+    font-size:30px;
     line-height:1;
     color:var(--parch);
   }
@@ -136,7 +128,7 @@
   .group-count{
     font-family:var(--mono);
     font-size:10.5px;
-    letter-spacing:.14em;
+    letter-spacing:0;
     text-transform:uppercase;
     color:var(--faint);
   }
@@ -180,7 +172,7 @@
     font-size:10px;
     font-weight:500;
     line-height:1;
-    letter-spacing:.19em;
+    letter-spacing:0;
     color:var(--gold);
   }
   .status{
@@ -188,7 +180,7 @@
     width:max-content;
     font-family:var(--mono);
     font-size:10.5px;
-    letter-spacing:.14em;
+    letter-spacing:0;
     text-transform:uppercase;
     color:var(--ink);
     background:var(--accent);
@@ -199,8 +191,8 @@
   .card h3{
     font-family:var(--disp);
     font-weight:700;
-    font-size:25px;
-    line-height:1.05;
+    font-size:27px;
+    line-height:1.08;
     margin:21px 0 8px;
   }
   p{margin:0;color:var(--muted);font-size:15.5px}
@@ -239,7 +231,6 @@
       <section class="hero" aria-labelledby="directory-title">
         <div class="hero-inner">
           <div class="hero-copy">
-            <div class="eyebrow">Papal elections · MCCLXVIII–MMXXV</div>
             <h1 id="directory-title">Extra <em>Omnes</em></h1>
             <p class="lede">Ten playable political simulations of the College of Cardinals in conclave.</p>
           </div>
